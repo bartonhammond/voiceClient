@@ -1,15 +1,11 @@
 import 'package:voiceClient/app/sign_in/developer_menu.dart';
-import 'package:voiceClient/app/sign_in/email_password/email_password_sign_in_page.dart';
 import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
 import 'package:voiceClient/app/sign_in/sign_in_manager.dart';
-import 'package:voiceClient/app/sign_in/social_sign_in_button.dart';
-import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/app/sign_in/sign_in_button.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 class SignInPageBuilder extends StatelessWidget {
