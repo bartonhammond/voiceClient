@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:apple_sign_in/apple_sign_in.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/firebase_auth_service.dart';
 import 'package:voiceClient/services/mock_auth_service.dart';
