@@ -1,6 +1,5 @@
 import 'package:voiceClient/app/sign_in/developer_menu.dart';
 import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
-import 'package:voiceClient/app/sign_in/sign_in_manager.dart';
 import 'package:voiceClient/app/sign_in/sign_in_button.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
@@ -15,15 +14,9 @@ class SignInPageBuilder extends StatelessWidget {
     return ChangeNotifierProvider<ValueNotifier<bool>>(
       create: (_) => ValueNotifier<bool>(false),
       child: Consumer<ValueNotifier<bool>>(
-        builder: (_, ValueNotifier<bool> isLoading, __) =>
-            Provider<SignInManager>(
-          create: (_) => SignInManager(auth: auth, isLoading: isLoading),
-          child: Consumer<SignInManager>(
-            builder: (_, SignInManager manager, __) => SignInPage._(
-              isLoading: isLoading.value,
-              title: 'Firebase Auth Demo',
-            ),
-          ),
+        builder: (_, ValueNotifier<bool> isLoading, __) => SignInPage._(
+          isLoading: isLoading.value,
+          title: 'Firebase Auth Demo',
         ),
       ),
     );
