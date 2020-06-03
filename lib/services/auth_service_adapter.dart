@@ -70,21 +70,6 @@ class AuthServiceAdapter implements AuthService {
   Future<User> currentUser() => authService.currentUser();
 
   @override
-  Future<User> signInAnonymously() => authService.signInAnonymously();
-
-  @override
-  Future<User> createUserWithEmailAndPassword(String email, String password) =>
-      authService.createUserWithEmailAndPassword(email, password);
-
-  @override
-  Future<User> signInWithEmailAndPassword(String email, String password) =>
-      authService.signInWithEmailAndPassword(email, password);
-
-  @override
-  Future<void> sendPasswordResetEmail(String email) =>
-      authService.sendPasswordResetEmail(email);
-
-  @override
   Future<User> signInWithEmailAndLink({String email, String link}) =>
       authService.signInWithEmailAndLink(email: email, link: link);
 
@@ -111,16 +96,6 @@ class AuthServiceAdapter implements AuthService {
         androidInstallIfNotAvailable: androidInstallIfNotAvailable,
         androidMinimumVersion: androidMinimumVersion,
       );
-
-  @override
-  Future<User> signInWithFacebook() => authService.signInWithFacebook();
-
-  @override
-  Future<User> signInWithGoogle() => authService.signInWithGoogle();
-
-  @override
-  Future<User> signInWithApple({List<Scope> scopes}) =>
-      authService.signInWithApple();
 
   @override
   Future<void> signOut() => authService.signOut();
