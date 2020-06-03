@@ -21,7 +21,6 @@ class SignInPageBuilder extends StatelessWidget {
           child: Consumer<SignInManager>(
             builder: (_, SignInManager manager, __) => SignInPage._(
               isLoading: isLoading.value,
-              manager: manager,
               title: 'Firebase Auth Demo',
             ),
           ),
@@ -32,9 +31,7 @@ class SignInPageBuilder extends StatelessWidget {
 }
 
 class SignInPage extends StatelessWidget {
-  const SignInPage._({Key key, this.isLoading, this.manager, this.title})
-      : super(key: key);
-  final SignInManager manager;
+  const SignInPage._({Key key, this.isLoading, this.title}) : super(key: key);
   final String title;
   final bool isLoading;
 
