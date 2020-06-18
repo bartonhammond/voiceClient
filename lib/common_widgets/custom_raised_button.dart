@@ -1,22 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 @immutable
 class CustomRaisedButton extends StatelessWidget {
   const CustomRaisedButton({
     Key key,
-    @required this.child,
-    this.color,
-    this.textColor,
-    this.height = 50.0,
-    this.borderRadius = 4.0,
+    @required this.text,
     this.loading = false,
     this.onPressed,
   }) : super(key: key);
-  final Widget child;
-  final Color color;
-  final Color textColor;
-  final double height;
-  final double borderRadius;
+
+  final String text;
   final bool loading;
   final VoidCallback onPressed;
 
@@ -34,21 +28,36 @@ class CustomRaisedButton extends StatelessWidget {
     );
   }
 
+  Widget buildText(String text, BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.w400,
+        color: NeumorphicTheme.defaultTextColor(context),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: height,
-      child: RaisedButton(
-        child: loading ? buildSpinner(context) : child,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(borderRadius),
-          ),
-        ), // height / 2
-        color: color,
-        disabledColor: color,
-        textColor: textColor,
+      child: NeumorphicButton(
+        child: loading
+            ? buildSpinner(context)
+            : buildText(
+                text,
+                context,
+              ),
         onPressed: onPressed,
+        margin: EdgeInsets.all(13),
+        style: NeumorphicStyle(
+          border: NeumorphicBorder(
+            isEnabled: true,
+            width: 1,
+            color: Color.fromARGB(50, 235, 166, 166),
+          ),
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:voiceClient/services/email_secure_store.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -51,8 +52,20 @@ class MyApp extends StatelessWidget {
       ],
       child: AuthWidgetBuilder(
           builder: (BuildContext context, AsyncSnapshot<User> userSnapshot) {
-        return MaterialApp(
-          theme: ThemeData(primarySwatch: Colors.indigo),
+        return NeumorphicApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          themeMode: ThemeMode.light,
+          theme: NeumorphicThemeData(
+            baseColor: Color(0xFFFFFFFF),
+            lightSource: LightSource.topRight,
+            depth: 50,
+          ),
+          darkTheme: NeumorphicThemeData(
+            baseColor: Color(0xFF3E3E3E),
+            lightSource: LightSource.topRight,
+            depth: 50,
+          ),
           home: EmailLinkErrorPresenter.create(
             context,
             child: AuthWidget(userSnapshot: userSnapshot),
