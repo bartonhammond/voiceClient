@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 class EmailLinkSignInPage extends StatefulWidget {
   const EmailLinkSignInPage({
@@ -116,8 +117,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        elevation: 2.0,
+      appBar: NeumorphicAppBar(
         title: Text(Strings.signIn),
       ),
       body: SingleChildScrollView(
@@ -148,30 +148,38 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
         children: [
           Text(Strings.submitEmailAddressLink),
           SizedBox(height: 16.0),
-          TextFormField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              labelText: Strings.emailLabel,
-              hintText: Strings.emailHint,
-              hintStyle: hintStyle,
+          Neumorphic(
+            //margin: EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 4),
+            style: NeumorphicStyle(
+              depth: NeumorphicTheme.embossDepth(context),
+              boxShape: NeumorphicBoxShape.stadium(),
             ),
-            enabled: !isLoading,
-            keyboardType: TextInputType.emailAddress,
-            validator: (String value) {
-              return _emailSubmitValidator.isValid(value)
-                  ? null
-                  : Strings.invalidEmailErrorText;
-            },
-            inputFormatters: <TextInputFormatter>[
-              ValidatorInputFormatter(
-                  editingValidator: EmailEditingRegexValidator()),
-            ],
-            autocorrect: true,
-            keyboardAppearance: Brightness.light,
-            textCapitalization: TextCapitalization.none,
-            textInputAction: TextInputAction.done,
-            onSaved: (String email) => _email = email,
-            onEditingComplete: _validateAndSubmit,
+            padding: EdgeInsets.symmetric(vertical: 2, horizontal: 18),
+            child: TextFormField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: Strings.emailLabel,
+                hintText: Strings.emailHint,
+                hintStyle: hintStyle,
+              ),
+              enabled: !isLoading,
+              keyboardType: TextInputType.emailAddress,
+              validator: (String value) {
+                return _emailSubmitValidator.isValid(value)
+                    ? null
+                    : Strings.invalidEmailErrorText;
+              },
+              inputFormatters: <TextInputFormatter>[
+                ValidatorInputFormatter(
+                    editingValidator: EmailEditingRegexValidator()),
+              ],
+              autocorrect: true,
+              keyboardAppearance: Brightness.light,
+              textCapitalization: TextCapitalization.none,
+              textInputAction: TextInputAction.done,
+              onSaved: (String email) => _email = email,
+              onEditingComplete: _validateAndSubmit,
+            ),
           ),
           SizedBox(height: 16.0),
           FormSubmitButton(

@@ -3,7 +3,7 @@ import 'package:voiceClient/constants/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class DeveloperMenu extends StatelessWidget {
+class HamburgerMenu extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(

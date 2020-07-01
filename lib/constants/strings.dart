@@ -1,4 +1,5 @@
 class Strings {
+  static const String MFV = 'My Family Voice';
   // Generic strings
   static const String ok = 'OK';
   static const String cancel = 'Cancel';

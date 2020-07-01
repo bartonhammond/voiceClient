@@ -1,84 +1,151 @@
 import 'dart:async';
-
-import 'package:voiceClient/common_widgets/avatar.dart';
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
-import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/auth_service.dart';
+import 'dart:io';
+import 'package:uuid/uuid.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter/services.dart';
 
-class HomePage extends StatelessWidget {
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      final AuthService auth = Provider.of<AuthService>(context, listen: false);
-      await auth.signOut();
-    } on PlatformException catch (e) {
-      await PlatformExceptionAlertDialog(
-        title: Strings.logoutFailed,
-        exception: e,
-      ).show(context);
-    }
-  }
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
-  Future<void> _confirmSignOut(BuildContext context) async {
-    final bool didRequestSignOut = await PlatformAlertDialog(
-      title: Strings.logout,
-      content: Strings.logoutAreYouSure,
-      cancelActionText: Strings.cancel,
-      defaultActionText: Strings.logout,
-    ).show(context);
-    if (didRequestSignOut == true) {
-      _signOut(context);
-    }
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart';
+import 'package:http_parser/http_parser.dart';
+import 'package:image_picker/image_picker.dart';
+
+const String uploadImage = r'''
+mutation($file: Upload!) {
+  upload(file: $file)
+}
+''';
+
+class HomePage extends StatefulWidget {
+  const HomePage();
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  File _image;
+  bool _uploadInProgress = false;
+  final picker = ImagePicker();
+  var uuid = Uuid();
+
+  Future selectImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image = File(pickedFile.path);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(Strings.homePage),
-        actions: <Widget>[
-          FlatButton(
-            key: Key(Keys.logout),
-            child: Text(
-              Strings.logout,
-              style: TextStyle(
-                fontSize: 18.0,
-                color: Colors.white,
-              ),
-            ),
-            onPressed: () => _confirmSignOut(context),
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(130.0),
-          child: _buildUserInfo(user),
-        ),
+        title: Text('Barton'),
       ),
+      body: _buildPage(),
     );
   }
 
-  Widget _buildUserInfo(User user) {
+  Widget _buildPage() {
     return Column(
-      children: [
-        Avatar(
-          photoUrl: user.photoUrl,
-          radius: 50,
-          borderColor: Colors.black54,
-          borderWidth: 2.0,
-        ),
-        SizedBox(height: 8),
-        if (user.displayName != null)
-          Text(
-            user.displayName,
-            style: TextStyle(color: Colors.white),
+      // mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        if (_image != null)
+          Flexible(
+            flex: 9,
+            child: Image.file(_image),
+          )
+        else
+          Flexible(
+            flex: 9,
+            child: Center(
+              child: Text('No Image Selected'),
+            ),
           ),
-        SizedBox(height: 8),
+        Flexible(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              FlatButton(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(Icons.photo_library),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text('Select File'),
+                  ],
+                ),
+                onPressed: () => selectImage(),
+              ),
+              if (_image != null)
+                Mutation(
+                  options: MutationOptions(
+                      documentNode: gql(uploadImage),
+                      onCompleted: (dynamic d) {
+                        print(d);
+                        setState(() {
+                          _uploadInProgress = false;
+                        });
+                      },
+                      update: (cache, results) {
+                        final message = results.hasException
+                            ? '${results.exception}'
+                            : 'Image was uploaded successfully!';
+                        //final snackBar = SnackBar(content: Text(message));
+                        //Scaffold.of(context).showSnackBar(snackBar);
+                      }),
+                  builder: (
+                    RunMutation runMutation,
+                    QueryResult result,
+                  ) {
+                    return FlatButton(
+                      child: _isLoadingInProgress(),
+                      onPressed: () {
+                        setState(() {
+                          _uploadInProgress = true;
+                        });
+
+                        final byteData = _image.readAsBytesSync();
+
+                        final multipartFile = MultipartFile.fromBytes(
+                          'photo',
+                          byteData,
+                          filename: '${uuid.v1()}.jpg',
+                          contentType: MediaType('image', 'jpg'),
+                        );
+
+                        runMutation(<String, dynamic>{
+                          'file': multipartFile,
+                        });
+                      },
+                    );
+                  },
+                ),
+            ],
+          ),
+        )
       ],
     );
+  }
+
+  Widget _isLoadingInProgress() {
+    return _uploadInProgress
+        ? CircularProgressIndicator()
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Icon(Icons.file_upload),
+              SizedBox(
+                width: 5,
+              ),
+              Text('Upload File'),
+            ],
+          );
   }
 }

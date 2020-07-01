@@ -1,4 +1,3 @@
-import 'package:voiceClient/app/sign_in/developer_menu.dart';
 import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
 import 'package:voiceClient/app/sign_in/sign_in_button.dart';
 import 'package:voiceClient/constants/strings.dart';
@@ -16,7 +15,7 @@ class SignInPageBuilder extends StatelessWidget {
       child: Consumer<ValueNotifier<bool>>(
         builder: (_, ValueNotifier<bool> isLoading, __) => SignInPage._(
           isLoading: isLoading.value,
-          title: 'My Family Voice',
+          title: Strings.MFV,
         ),
       ),
     );
@@ -78,9 +77,6 @@ class SignInPage extends StatelessWidget {
       appBar: NeumorphicAppBar(
         title: Text(title),
       ),
-      // Hide developer menu while loading in progress.
-      // This is so that it's not possible to switch auth service while a request is in progress
-      drawer: isLoading ? null : DeveloperMenu(),
       body: _buildSignIn(context),
     );
   }
