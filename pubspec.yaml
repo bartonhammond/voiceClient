@@ -33,6 +33,7 @@ dependencies:
   flutter_neumorphic: ^3.0.1
   graphql_flutter: ^3.0.1
   image_picker: ^0.6.7+2
+  image_cropper: ^1.2.3
   uuid: ^2.1.0
 
   # The following adds the Cupertino Icons font to your application.

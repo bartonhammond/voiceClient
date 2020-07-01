@@ -9,6 +9,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:image_cropper/image_cropper.dart';
 
 const String uploadImage = r'''
 mutation($file: Upload!) {
@@ -29,12 +30,55 @@ class _HomePageState extends State<HomePage> {
   final picker = ImagePicker();
   var uuid = Uuid();
 
-  Future selectImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+  Future selectImage(ImageSource source) async {
+    final PickedFile pickedFile = await picker.getImage(source: source);
+    File image;
+    if (pickedFile != null) {
+      image = File(pickedFile.path);
+    }
 
-    setState(() {
-      _image = File(pickedFile.path);
-    });
+    if (image != null) {
+      final File croppedFile = await ImageCropper.cropImage(
+        sourcePath: image.path,
+        compressQuality: 50,
+        maxWidth: 700,
+        maxHeight: 700,
+        compressFormat: ImageCompressFormat.jpg,
+        aspectRatioPresets: Platform.isAndroid
+            ? [
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio16x9
+              ]
+            : [
+                CropAspectRatioPreset.original,
+                CropAspectRatioPreset.square,
+                CropAspectRatioPreset.ratio3x2,
+                CropAspectRatioPreset.ratio4x3,
+                CropAspectRatioPreset.ratio5x3,
+                CropAspectRatioPreset.ratio5x4,
+                CropAspectRatioPreset.ratio7x5,
+                CropAspectRatioPreset.ratio16x9
+              ],
+        androidUiSettings: AndroidUiSettings(
+            toolbarTitle: 'Cropper',
+            toolbarColor: Colors.deepOrange,
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.original,
+            lockAspectRatio: false),
+        iosUiSettings: IOSUiSettings(
+          title: 'Cropper',
+        ),
+      );
+
+      if (croppedFile != null) {
+        setState(() {
+          _image = croppedFile;
+        });
+      }
+    }
   }
 
   @override
@@ -78,10 +122,24 @@ class _HomePageState extends State<HomePage> {
                     SizedBox(
                       width: 5,
                     ),
-                    Text('Select File'),
+                    Text('Gallery'),
                   ],
                 ),
-                onPressed: () => selectImage(),
+                onPressed: () => selectImage(ImageSource.gallery),
+              ),
+              FlatButton(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Icon(Icons.camera),
+                    SizedBox(
+                      width: 5,
+                    ),
+                    Text('Camera'),
+                  ],
+                ),
+                onPressed: () => selectImage(ImageSource.camera),
               ),
               if (_image != null)
                 Mutation(
@@ -144,7 +202,7 @@ class _HomePageState extends State<HomePage> {
               SizedBox(
                 width: 5,
               ),
-              Text('Upload File'),
+              Text('Upload'),
             ],
           );
   }
