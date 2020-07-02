@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:voiceClient/app/auth_widget_builder.dart';
 import 'package:voiceClient/app/email_link_error_presenter.dart';
 import 'package:voiceClient/app/auth_widget.dart';
@@ -17,6 +18,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 Future<void> main() async {
   // Fix for: Unhandled Exception: ServicesBinding.defaultBinaryMessenger was accessed before the binding was initialized.
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIOverlays([]);
   runApp(MyApp());
 }
 
@@ -35,13 +37,11 @@ class MyApp extends StatelessWidget {
       //uri: 'http://$host:4001/graphql',
       uri: 'http://192.168.1.39:4001/query',
     );
-
-    final client = ValueNotifier(
-      GraphQLClient(
-        cache: InMemoryCache(),
-        link: httpLink,
-      ),
+    final GraphQLClient graphQLClient = GraphQLClient(
+      cache: InMemoryCache(),
+      link: httpLink,
     );
+    final client = ValueNotifier(graphQLClient);
 
     // MultiProvider for top-level services that can be created right away
     return MultiProvider(
@@ -91,7 +91,9 @@ class MyApp extends StatelessWidget {
               ),
               home: EmailLinkErrorPresenter.create(
                 context,
-                child: AuthWidget(userSnapshot: userSnapshot),
+                child: AuthWidget(
+                  userSnapshot: userSnapshot,
+                ),
               ),
             );
           }),
