@@ -14,7 +14,7 @@ class Strings {
   static const String signIn = 'Sign in';
   static const String emailLabel = 'Email';
   static const String emailHint = 'test@test.com';
-  static const String signInWithEmailLink = 'Sign in with email link';
+  static const String signInWithEmailLink = 'Click to Sign In / Register';
   static const String invalidEmailErrorText = 'Email is invalid';
   // Email link page
   static const String submitEmailAddressLink =

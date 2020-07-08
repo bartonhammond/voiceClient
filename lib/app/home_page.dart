@@ -4,7 +4,7 @@ import 'dart:io' as io;
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -13,7 +13,12 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
+import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:voiceClient/constants/strings.dart';
+import 'package:voiceClient/services/auth_service.dart';
 
 const String uploadFile = r'''
 mutation($file: Upload!) {
@@ -98,12 +103,58 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      final AuthService auth = Provider.of<AuthService>(context, listen: false);
+      await auth.signOut();
+    } on PlatformException catch (e) {
+      await PlatformExceptionAlertDialog(
+        title: Strings.logoutFailed,
+        exception: e,
+      ).show(context);
+    }
+  }
+
+  Future<void> _confirmSignOut(BuildContext context) async {
+    final bool didRequestSignOut = await PlatformAlertDialog(
+      title: Strings.logout,
+      content: Strings.logoutAreYouSure,
+      cancelActionText: Strings.cancel,
+      defaultActionText: Strings.logout,
+    ).show(context);
+    if (didRequestSignOut == true) {
+      _signOut(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Barton'),
+        title: Text(
+          'My Family Voice',
+          style: TextStyle(color: Colors.black.withOpacity(0.6)),
+        ),
+        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
       ),
+      drawer: Drawer(
+          child: ListView(
+        padding: EdgeInsets.zero,
+        children: <Widget>[
+          DrawerHeader(
+            child: Text('My Family Voice'),
+            decoration: BoxDecoration(
+              color: NeumorphicTheme.currentTheme(context).variantColor,
+            ),
+          ),
+          ListTile(
+            title: Text('Log out'),
+            onTap: () {
+              _confirmSignOut(context);
+            },
+          ),
+        ],
+      )),
       body: _buildPage(context),
     );
   }

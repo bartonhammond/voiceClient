@@ -77,10 +77,10 @@ class MyApp extends StatelessWidget {
           ) {
             return NeumorphicApp(
               debugShowCheckedModeBanner: false,
-              title: 'Flutter Demo',
+              title: 'My Family Voice',
               themeMode: ThemeMode.light,
               theme: NeumorphicThemeData(
-                baseColor: Color(0xFFFFFFFF),
+                baseColor: Color(0xFFF9EBE8),
                 lightSource: LightSource.topRight,
                 depth: 50,
               ),

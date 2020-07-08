@@ -37,30 +37,6 @@ class SignInPage extends StatelessWidget {
   double get fontSize => 75;
   int get fontWeight => 500;
 
-  FontWeight _fontWeight() {
-    switch (fontWeight ~/ 100) {
-      case 1:
-        return FontWeight.w100;
-      case 2:
-        return FontWeight.w200;
-      case 3:
-        return FontWeight.w300;
-      case 4:
-        return FontWeight.w400;
-      case 5:
-        return FontWeight.w500;
-      case 6:
-        return FontWeight.w600;
-      case 7:
-        return FontWeight.w700;
-      case 8:
-        return FontWeight.w800;
-      case 9:
-        return FontWeight.w900;
-    }
-    return FontWeight.w500;
-  }
-
   static const Key emailLinkButtonKey = Key('email-link');
 
   Future<void> _signInWithEmailLink(BuildContext context) async {
@@ -81,29 +57,6 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader() {
-    if (isLoading) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return NeumorphicText(
-      Strings.signIn,
-      textAlign: TextAlign.center,
-      textStyle: NeumorphicTextStyle(
-        fontSize: fontSize,
-        fontWeight: _fontWeight(),
-      ),
-      style: NeumorphicStyle(
-        shape: shape,
-        intensity: intensity,
-        surfaceIntensity: surfaceIntensity,
-        depth: depth,
-        lightSource: lightSource,
-      ),
-    );
-  }
-
   Widget _buildSignIn(BuildContext context) {
     // Make content scrollable so that it fits on small screens
     return SingleChildScrollView(
@@ -113,12 +66,62 @@ class SignInPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            SizedBox(height: 12.0),
-            SizedBox(
-              height: 50.0,
-              child: _buildHeader(),
+            Container(
+              color: Colors.black,
+              padding: EdgeInsets.all(10),
+              child: Center(
+                child: RichText(
+                  text: TextSpan(
+                    text: 'My Family Voice ',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
+                    children: <TextSpan>[
+                      TextSpan(
+                          text: ' was inspired by the way your family shares ',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold)),
+                      TextSpan(
+                        text: 'memories of photos',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline),
+                      ),
+                      TextSpan(
+                          text: ' from their ',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold)),
+                      TextSpan(
+                        text:
+                            'youth, high school, adventures, marriage, military, children, etc.',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            decoration: TextDecoration.underline),
+                      ),
+                      TextSpan(
+                          text:
+                              ' that you can now share with others in your family. ',
+                          style: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ),
+              ),
             ),
-            SizedBox(height: 52.0),
+            SizedBox(
+              height: 10.0,
+            ),
             SignInButton(
               key: emailLinkButtonKey,
               text: Strings.signInWithEmailLink,
