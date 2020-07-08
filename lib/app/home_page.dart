@@ -1,22 +1,19 @@
 import 'dart:async';
 import 'dart:io' as io;
 
-import 'package:uuid/uuid.dart';
+import 'package:audioplayers/audioplayers.dart';
+import 'package:file/local.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-
-import 'package:audioplayers/audioplayers.dart';
-
-import 'package:file/local.dart';
-import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:uuid/uuid.dart';
 
 const String uploadFile = r'''
 mutation($file: Upload!) {
@@ -51,13 +48,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future selectImage(ImageSource source) async {
-    final PickedFile pickedFile = await picker.getImage(source: source);
     io.File image;
+    final PickedFile pickedFile = await picker.getImage(source: source);
     if (pickedFile != null) {
       image = io.File(pickedFile.path);
     }
 
-    if (image != null) {
+    if (image != null && pickedFile != null) {
       final io.File croppedFile = await ImageCropper.cropImage(
         sourcePath: image.path,
         compressQuality: 50,
@@ -129,9 +126,37 @@ class _HomePageState extends State<HomePage> {
             )
           else
             Flexible(
-              flex: 9,
-              child: Center(
-                child: Text('No Image Selected'),
+              flex: 2,
+              child: Stack(
+                children: <Widget>[
+                  Image(
+                    image: AssetImage('assets/placeholder.png'),
+                    width: 300,
+                    height: 300,
+                  ),
+                  Container(
+                      padding: EdgeInsets.all(5.0),
+                      alignment: Alignment.topCenter,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: <Color>[
+                            Colors.black.withAlpha(30),
+                            Colors.black12,
+                            Colors.black54
+                          ],
+                        ),
+                      ),
+                      child: Text(
+                        'Image Placeholder',
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ))
+                ],
               ),
             ),
           SizedBox(
@@ -341,7 +366,7 @@ class _HomePageState extends State<HomePage> {
                 child: _buildText(_currentStatus),
               ),
               SizedBox(
-                width: 8,
+                width: 4,
               ),
               NeumorphicButton(
                 style: NeumorphicStyle(
@@ -364,7 +389,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(
-                width: 8,
+                width: 4,
               ),
               NeumorphicButton(
                 style: NeumorphicStyle(
