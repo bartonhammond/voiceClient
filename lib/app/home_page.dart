@@ -19,6 +19,9 @@ import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
+import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/constants/enums.dart';
 
 const String uploadFile = r'''
 mutation($file: Upload!) {
@@ -270,26 +273,29 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           _buildAudioControls(),
-          if (_image != null && _file != null)
-            NeumorphicButton(
-              style: NeumorphicStyle(
-                  border: NeumorphicBorder(
-                color: Color(0x33000000),
-                width: 0.8,
-              )),
-              child: _isLoadingInProgress(),
-              onPressed: () {
-                setState(() {
-                  _uploadInProgress = true;
-                });
-                doUploads(context);
-                setState(() {
-                  _uploadInProgress = false;
-                });
-              },
-            )
+          if (_image != null && _file != null) _buildUploadButton()
         ],
       ),
+    );
+  }
+
+  NeumorphicButton _buildUploadButton() {
+    return NeumorphicButton(
+      style: NeumorphicStyle(
+          border: NeumorphicBorder(
+        color: Color(0x33000000),
+        width: 0.8,
+      )),
+      child: _isLoadingInProgress(),
+      onPressed: () async {
+        setState(() {
+          _uploadInProgress = true;
+        });
+        await doUploads(context);
+        setState(() {
+          _uploadInProgress = false;
+        });
+      },
     );
   }
 
@@ -301,7 +307,7 @@ class _HomePageState extends State<HomePage> {
       'jpeg',
     );
 
-    performMutation(multipartFile);
+    await performMutation(multipartFile);
 
     multipartFile = getMultipartFile(
       _file,
@@ -310,20 +316,22 @@ class _HomePageState extends State<HomePage> {
       'mp4',
     );
 
-    performMutation(multipartFile);
+    await performMutation(multipartFile);
     return;
   }
 
   Future<void> performMutation(MultipartFile multipartFile) async {
-    final GraphQLClient _client = GraphQLProvider.of(context).value;
-
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final MutationOptions options = MutationOptions(
       documentNode: gql(uploadFile),
       variables: <String, dynamic>{
         'file': multipartFile,
       },
     );
-    final QueryResult result = await _client.mutate(options);
+
+    final GraphQLClient graphQLClient =
+        await graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+    final QueryResult result = await graphQLClient.mutate(options);
 
     if (result.hasException) {
       print(result.exception.toString());

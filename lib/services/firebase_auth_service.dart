@@ -9,6 +9,7 @@ class FirebaseAuthService implements AuthService {
     if (user == null) {
       return null;
     }
+
     return User(
       uid: user.uid,
       email: user.email,
@@ -59,6 +60,13 @@ class FirebaseAuthService implements AuthService {
   Future<User> currentUser() async {
     final FirebaseUser user = await _firebaseAuth.currentUser();
     return _userFromFirebase(user);
+  }
+
+  @override
+  Future<IdTokenResult> currentUserIdToken() async {
+    final FirebaseUser user = await _firebaseAuth.currentUser();
+    final idTokenResult = await user.getIdToken();
+    return idTokenResult;
   }
 
   @override

@@ -1,0 +1,4 @@
+enum GraphQLClientType {
+  FileServer,
+  ApolloServer,
+}

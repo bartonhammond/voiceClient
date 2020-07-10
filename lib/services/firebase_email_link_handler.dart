@@ -135,6 +135,8 @@ class FirebaseEmailLinkHandler {
       // sign in
       if (await auth.isSignInWithEmailLink(link)) {
         await auth.signInWithEmailAndLink(email: email, link: link);
+        final idToken = await auth.currentUserIdToken();
+        print(idToken.token);
       } else {
         _errorController.add(EmailLinkError(
           error: EmailLinkErrorType.isNotSignInWithEmailLink,
