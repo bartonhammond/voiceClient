@@ -5,7 +5,9 @@ import 'package:voiceClient/services/graphql_auth.dart';
 GetIt locator = GetIt.instance;
 
 void setupServiceLocator(BuildContext context) {
-  locator.reset();
+  if (locator.isRegistered<GraphQLAuth>()) {
+    return;
+  }
   locator.registerLazySingleton<GraphQLAuth>(() => GraphQLAuth(context));
   print('getit initialized');
 }

@@ -12,11 +12,13 @@ import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
@@ -44,10 +46,13 @@ class _HomePageState extends State<HomePage> {
   RecordingStatus _currentStatus = RecordingStatus.Unset;
 
   io.File _image;
-  io.File _file;
+  io.File _audio;
   bool _uploadInProgress = false;
   final picker = ImagePicker();
   var uuid = Uuid();
+
+  String imageFilePath;
+  String audioFilePath;
 
   @override
   void initState() {
@@ -273,7 +278,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           _buildAudioControls(),
-          if (_image != null && _file != null) _buildUploadButton()
+          if (_image != null && _audio != null) _buildUploadButton()
         ],
       ),
     );
@@ -300,28 +305,85 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> doUploads(BuildContext context) async {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        await graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClientApolloServer =
+        await graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
+    final String _id = uuid.v1();
     MultipartFile multipartFile = getMultipartFile(
       _image,
-      '${uuid.v1()}.jpg',
+      '$_id.jpg',
       'image',
       'jpeg',
     );
 
-    await performMutation(multipartFile);
+    await performMutation(
+      graphQLClientFileServer,
+      multipartFile,
+      'jpeg',
+    );
 
     multipartFile = getMultipartFile(
-      _file,
-      '${uuid.v1()}.mp4',
+      _audio,
+      '$_id.mp4',
       'audio',
       'mp4',
     );
 
-    await performMutation(multipartFile);
+    await performMutation(
+      graphQLClientFileServer,
+      multipartFile,
+      'mp4',
+    );
+
+    final DateTime now = DateTime.now();
+    final DateFormat formatter = DateFormat('yyyy-MM-dd');
+    final String formattedDate = formatter.format(now);
+
+    //Create the Story
+    MutationOptions _mutationOptions = MutationOptions(
+      documentNode: gql(createStory),
+      variables: <String, dynamic>{
+        'id': _id,
+        'image': imageFilePath,
+        'audio': audioFilePath,
+        'created': formattedDate
+      },
+    );
+
+    QueryResult queryResult =
+        await graphQLClientApolloServer.mutate(_mutationOptions);
+
+    if (queryResult.hasException) {
+      print(queryResult.exception.toString());
+    }
+    final userInput = {'id': graphQLAuth.getCurrentUserId()};
+    final to = {'id': _id};
+    //Merge Story w/ User
+    _mutationOptions = MutationOptions(
+      documentNode: gql(mergeUserStories),
+      variables: <String, dynamic>{
+        'from': userInput,
+        'to': to,
+      },
+    );
+    queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
+
+    if (queryResult.hasException) {
+      print(queryResult.exception.toString());
+    }
     return;
   }
 
-  Future<void> performMutation(MultipartFile multipartFile) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+  Future<void> performMutation(
+    GraphQLClient graphQLClient,
+    MultipartFile multipartFile,
+    String type,
+  ) async {
     final MutationOptions options = MutationOptions(
       documentNode: gql(uploadFile),
       variables: <String, dynamic>{
@@ -329,12 +391,16 @@ class _HomePageState extends State<HomePage> {
       },
     );
 
-    final GraphQLClient graphQLClient =
-        await graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
     final QueryResult result = await graphQLClient.mutate(options);
 
     if (result.hasException) {
       print(result.exception.toString());
+    } else {
+      if (type == 'mp4') {
+        audioFilePath = result.data['upload'];
+      } else {
+        imageFilePath = result.data['upload'];
+      }
     }
     return;
   }
@@ -562,8 +628,8 @@ class _HomePageState extends State<HomePage> {
     final result = await _recorder.stop();
     print('Stop recording: ${result.path}');
     print('Stop recording: ${result.duration}');
-    _file = widget.localFileSystem.file(result.path);
-    print('File length: ${await _file.length()}');
+    _audio = widget.localFileSystem.file(result.path);
+    print('File length: ${await _audio.length()}');
     setState(() {
       _current = result;
       _currentStatus = _current.status;

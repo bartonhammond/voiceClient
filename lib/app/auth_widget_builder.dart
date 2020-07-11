@@ -1,6 +1,11 @@
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/service_locator.dart';
 
 /// Used to create user-dependent objects that need to be accessible by all widgets.
 /// This widgets should live above the [MaterialApp].
@@ -13,20 +18,45 @@ class AuthWidgetBuilder extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<AuthService>(context, listen: false);
     return StreamBuilder<User>(
-      stream: authService.onAuthStateChanged,
-      builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
-        final User user = snapshot.data;
-        if (user != null) {
-          return MultiProvider(
-            providers: [
-              Provider<User>.value(value: user),
-              // NOTE: Any other user-bound providers here can be added here
-            ],
-            child: builder(context, snapshot),
-          );
-        }
-        return builder(context, snapshot);
-      },
-    );
+        stream: authService.onAuthStateChanged,
+        builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
+          final User user = snapshot.data;
+
+          if (user != null) {
+            final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+            final QueryOptions _queryOptions = QueryOptions(
+              documentNode: gql(getUserByEmail),
+              variables: <String, dynamic>{
+                'email': user.email,
+              },
+            );
+
+            graphQLAuth
+                .getGraphQLClient(GraphQLClientType.ApolloServer)
+                .then((GraphQLClient graphQLClient) {
+              graphQLClient
+                  .query(_queryOptions)
+                  .then((QueryResult queryResult) {
+                if (queryResult != null &&
+                    queryResult.data != null &&
+                    queryResult.data['User'] != null &&
+                    queryResult.data['User'].length > 0 &&
+                    queryResult.data['User'][0]['id'] != null) {
+                  graphQLAuth
+                      .setCurrentUserId(queryResult.data['User'][0]['id']);
+                }
+              });
+            });
+
+            return MultiProvider(
+              providers: [
+                Provider<User>.value(value: user),
+                // NOTE: Any other user-bound providers here can be added here
+              ],
+              child: builder(context, snapshot),
+            );
+          }
+          return builder(context, snapshot);
+        });
   }
 }
