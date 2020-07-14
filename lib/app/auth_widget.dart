@@ -1,4 +1,3 @@
-import 'package:voiceClient/app/home_page.dart';
 import 'package:voiceClient/app/sign_in/sign_in_page.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +15,8 @@ class AuthWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (userSnapshot.connectionState == ConnectionState.active) {
-      return userSnapshot.hasData ? HomePage() : SignInPageBuilder();
+      //bwh  return userSnapshot.hasData ? HomePage() : SignInPageBuilder();
+      return SignInPageBuilder();
     }
     return Scaffold(
       body: Center(

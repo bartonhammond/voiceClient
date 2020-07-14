@@ -1,3 +1,9 @@
+const String uploadFile = r'''
+mutation($file: Upload!) {
+  upload(file: $file)
+}
+''';
+
 const String getUserByEmail = r'''
 query getUserByEmail($email: String!) {
   User(email: $email) {
@@ -49,5 +55,22 @@ MergeStoryUser(
     }
   }
 }
+''';
 
+const String mergeUserFriends = r'''
+  mutation mergeUserFriends($id: ID!, $from: ID!, $to: ID!, $created: String!) {
+  MergeUserFriends(
+    from: { id: $from }
+    to: { id: $to }
+    data: { id: $id, created: { formatted: $created } }
+  ) {
+    id
+    from {
+      email
+    }
+    to {
+      email
+    }
+  }
+}
 ''';
