@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+//import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
@@ -11,12 +13,12 @@ class HomePage extends StatelessWidget {
   final String title = 'My Family Voice';
 
   final nActivities = 20;
-  int offset = 0;
 
   final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
+    int offset = 0;
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     print('homePage build');
 
@@ -54,7 +56,7 @@ class HomePage extends StatelessWidget {
                 }
 
                 final List<dynamic> activities =
-                    (result.data['User'][0]['activities'] as List<dynamic>);
+                    result.data['User'][0]['activities'];
 
                 offset += nActivities;
 
@@ -103,7 +105,7 @@ class HomePage extends StatelessWidget {
                       if (result.loading)
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
+                          children: const <Widget>[
                             CircularProgressIndicator(),
                           ],
                         ),

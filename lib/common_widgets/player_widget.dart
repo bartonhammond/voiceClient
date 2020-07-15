@@ -8,12 +8,11 @@ enum PlayerState { stopped, playing, paused }
 enum PlayingRouteState { speakers, earpiece }
 
 class PlayerWidget extends StatefulWidget {
-  final String url;
-  final PlayerMode mode;
-
-  PlayerWidget(
+  const PlayerWidget(
       {Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER})
       : super(key: key);
+  final String url;
+  final PlayerMode mode;
 
   @override
   State<StatefulWidget> createState() {
@@ -22,16 +21,15 @@ class PlayerWidget extends StatefulWidget {
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
+  _PlayerWidgetState(this.url, this.mode);
   String url;
   PlayerMode mode;
 
   AudioPlayer _audioPlayer;
-  AudioPlayerState _audioPlayerState;
   Duration _duration;
   Duration _position;
 
   PlayerState _playerState = PlayerState.stopped;
-  PlayingRouteState _playingRouteState = PlayingRouteState.speakers;
   StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
   StreamSubscription _playerCompleteSubscription;
@@ -40,13 +38,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   bool get _isPlaying => _playerState == PlayerState.playing;
   bool get _isPaused => _playerState == PlayerState.paused;
-  String get _durationText => _duration?.toString()?.split('.')?.first ?? '';
-  String get _positionText => _position?.toString()?.split('.')?.first ?? '';
-
-  bool get _isPlayingThroughEarpiece =>
-      _playingRouteState == PlayingRouteState.earpiece;
-
-  _PlayerWidgetState(this.url, this.mode);
 
   @override
   void initState() {
@@ -106,7 +97,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
       setState(() => _duration = duration);
 
-      // TODO implemented for iOS, waiting for android impl
       if (Theme.of(context).platform == TargetPlatform.iOS) {
         // (Optional) listen for notification updates in the background
         _audioPlayer.startHeadlessService();
@@ -147,18 +137,16 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (!mounted) return;
-      setState(() {
-        _audioPlayerState = state;
-      });
+      if (!mounted) {
+        return;
+      }
     });
 
     _audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-      if (!mounted) return;
-      setState(() => _audioPlayerState = state);
+      if (!mounted) {
+        return;
+      }
     });
-
-    _playingRouteState = PlayingRouteState.speakers;
   }
 
   Future<int> _play() async {
@@ -169,7 +157,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         ? _position
         : null;
     final result = await _audioPlayer.play(url, position: playPosition);
-    if (result == 1) setState(() => _playerState = PlayerState.playing);
+    if (result == 1) {
+      setState(() => _playerState = PlayerState.playing);
+    }
 
     // default playback rate is 1.0
     // this should be called after _audioPlayer.play() or _audioPlayer.resume()
@@ -181,17 +171,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Future<int> _pause() async {
     final result = await _audioPlayer.pause();
-    if (result == 1) setState(() => _playerState = PlayerState.paused);
-    return result;
-  }
-
-  Future<int> _earpieceOrSpeakersToggle() async {
-    final result = await _audioPlayer.earpieceOrSpeakersToggle();
-    if (result == 1)
-      setState(() => _playingRouteState =
-          _playingRouteState == PlayingRouteState.speakers
-              ? PlayingRouteState.earpiece
-              : PlayingRouteState.speakers);
+    if (result == 1) {
+      setState(() => _playerState = PlayerState.paused);
+    }
     return result;
   }
 

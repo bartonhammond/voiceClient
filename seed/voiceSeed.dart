@@ -185,7 +185,7 @@ Future<String> addUser(GraphQLClient graphQLClient, String email) async {
       'created': formattedDate
     },
   );
-  QueryResult result = await graphQLClient.mutate(_mutationOptions);
+  final QueryResult result = await graphQLClient.mutate(_mutationOptions);
   if (result.hasException) {
     throw result.exception;
   }

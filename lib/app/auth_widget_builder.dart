@@ -1,11 +1,6 @@
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/service_locator.dart';
 
 /// Used to create user-dependent objects that need to be accessible by all widgets.
 /// This widgets should live above the [MaterialApp].
