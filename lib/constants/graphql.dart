@@ -74,3 +74,25 @@ const String mergeUserFriends = r'''
   }
 }
 ''';
+const String userActivities = r'''
+query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
+ User(email: $email) {
+  id
+  email
+  activities(
+    first: $first
+    offset: $offset
+  ) {
+      id
+      image
+      audio
+      created {
+        formatted
+      }
+      user {
+        email
+      }
+    }
+  }
+}
+''';

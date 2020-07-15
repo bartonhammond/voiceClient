@@ -4,15 +4,30 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/graphql.dart';
 
 import 'auth_service.dart';
 
 class GraphQLAuth {
   GraphQLAuth(this.context);
   final BuildContext context;
+  var port = '4001';
+  var endPoint = 'graphql';
+  var uri = 'http://192.168.1.39'; //HP
+  User user;
+  String token;
   String currentUserId;
 
+  void setUser(User user) {
+    this.user = user;
+  }
+
+  User getUser() {
+    return user;
+  }
+
   void setCurrentUserId(String id) {
+    print('graphQL_auth.setCurrentUserId: $id');
     currentUserId = id;
   }
 
@@ -21,11 +36,6 @@ class GraphQLAuth {
   }
 
   Future<GraphQLClient> getGraphQLClient(GraphQLClientType type) async {
-    var port = '4001';
-    var endPoint = 'graphql';
-
-    const uri = 'http://192.168.1.39'; //HP
-
     if (type == GraphQLClientType.FileServer) {
       port = '4002';
       endPoint = 'query';
@@ -35,9 +45,10 @@ class GraphQLAuth {
     );
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
-
+    print('graphql_auth getting tokenResult');
     final IdTokenResult tokenResult = await auth.currentUserIdToken();
-    final String token = tokenResult.token;
+    print('graphql_auth getting got tokenResult');
+    token = tokenResult.token;
     final AuthLink authLink = AuthLink(
       getToken: () => 'Bearer $token',
     );
@@ -49,6 +60,27 @@ class GraphQLAuth {
       link: link,
     );
 
+    return graphQLClient;
+  }
+
+  Future<GraphQLClient> setupEnvironment() async {
+    final QueryOptions _queryOptions = QueryOptions(
+      documentNode: gql(getUserByEmail),
+      variables: <String, dynamic>{
+        'email': user.email,
+      },
+    );
+
+    final GraphQLClient graphQLClient =
+        await getGraphQLClient(GraphQLClientType.ApolloServer);
+    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    if (queryResult != null &&
+        queryResult.data != null &&
+        queryResult.data['User'] != null &&
+        queryResult.data['User'].length > 0 &&
+        queryResult.data['User'][0]['id'] != null) {
+      setCurrentUserId(queryResult.data['User'][0]['id']);
+    }
     return graphQLClient;
   }
 }

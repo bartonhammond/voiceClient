@@ -23,31 +23,6 @@ class AuthWidgetBuilder extends StatelessWidget {
           final User user = snapshot.data;
 
           if (user != null) {
-            final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-            final QueryOptions _queryOptions = QueryOptions(
-              documentNode: gql(getUserByEmail),
-              variables: <String, dynamic>{
-                'email': user.email,
-              },
-            );
-
-            graphQLAuth
-                .getGraphQLClient(GraphQLClientType.ApolloServer)
-                .then((GraphQLClient graphQLClient) {
-              graphQLClient
-                  .query(_queryOptions)
-                  .then((QueryResult queryResult) {
-                if (queryResult != null &&
-                    queryResult.data != null &&
-                    queryResult.data['User'] != null &&
-                    queryResult.data['User'].length > 0 &&
-                    queryResult.data['User'][0]['id'] != null) {
-                  graphQLAuth
-                      .setCurrentUserId(queryResult.data['User'][0]['id']);
-                }
-              });
-            });
-
             return MultiProvider(
               providers: [
                 Provider<User>.value(value: user),
