@@ -14,6 +14,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:voiceClient/constants/strings.dart';
@@ -103,30 +104,6 @@ class _StoryPageState extends State<StoryPage> {
     }
   }
 
-  Future<void> _signOut(BuildContext context) async {
-    try {
-      final AuthService auth = Provider.of<AuthService>(context, listen: false);
-      await auth.signOut();
-    } on PlatformException catch (e) {
-      await PlatformExceptionAlertDialog(
-        title: Strings.logoutFailed,
-        exception: e,
-      ).show(context);
-    }
-  }
-
-  Future<void> _confirmSignOut(BuildContext context) async {
-    final bool didRequestSignOut = await PlatformAlertDialog(
-      title: Strings.logout,
-      content: Strings.logoutAreYouSure,
-      cancelActionText: Strings.cancel,
-      defaultActionText: Strings.logout,
-    ).show(context);
-    if (didRequestSignOut == true) {
-      _signOut(context);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,24 +114,7 @@ class _StoryPageState extends State<StoryPage> {
         ),
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
       ),
-      drawer: Drawer(
-          child: ListView(
-        padding: EdgeInsets.zero,
-        children: <Widget>[
-          DrawerHeader(
-            child: Text('My Family Voice'),
-            decoration: BoxDecoration(
-              color: NeumorphicTheme.currentTheme(context).variantColor,
-            ),
-          ),
-          ListTile(
-            title: Text('Log out'),
-            onTap: () {
-              _confirmSignOut(context);
-            },
-          ),
-        ],
-      )),
+      drawer: getDrawer(context),
       body: _buildPage(context),
     );
   }

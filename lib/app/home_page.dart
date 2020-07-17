@@ -1,113 +1,113 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
+import 'package:voiceClient/common_widgets/fab/fab_with_icons.dart';
+import 'package:voiceClient/common_widgets/fab/layout.dart';
+import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
+import 'package:voiceClient/constants/enums.dart';
 
-import 'package:voiceClient/common_widgets/player_widget.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/service_locator.dart';
-import 'package:voiceClient/common_widgets/staggered_grid_tile.dart';
-
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
 
-  final String title = 'My Family Voice';
+  @override
+  _HomePageState createState() => _HomePageState();
+}
 
-  final nActivities = 20;
+class _HomePageState extends State<HomePage> {
+  String _lastSelected = 'TAB: 0';
+  TabItem _currentTab = TabItem.stories;
 
-  final ScrollController _scrollController = ScrollController();
+  Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
+    TabItem.stories: GlobalKey<NavigatorState>(),
+    TabItem.friends: GlobalKey<NavigatorState>(),
+    TabItem.messages: GlobalKey<NavigatorState>(),
+    TabItem.profile: GlobalKey<NavigatorState>(),
+  };
+
+  void _selectedTab(int index) {
+    setState(() {
+      _lastSelected = 'TAB: $index';
+    });
+  }
+
+  void _selectedFab(int index) {
+    setState(() {
+      _lastSelected = 'FAB: $index';
+    });
+  }
+
+  Widget _buildFab(BuildContext context) {
+    final icons = [Icons.sms, Icons.mail, Icons.phone];
+    return AnchoredOverlay(
+      showOverlay: true,
+      overlayBuilder: (context, offset) {
+        return CenterAbout(
+          position: Offset(offset.dx, offset.dy - icons.length * 35.0),
+          child: FabWithIcons(
+            icons: icons,
+            onIconTapped: _selectedFab,
+          ),
+        );
+      },
+      child: FloatingActionButton(
+        onPressed: () {},
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+        elevation: 2.0,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    int offset = 0;
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    print('homePage build');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
+    return WillPopScope(
+      onWillPop: () async {
+        final isFirstRouteInCurrentTab =
+            !await _navigatorKeys[_currentTab].currentState.maybePop();
+        if (isFirstRouteInCurrentTab) {
+          // if not on the 'main' tab
+          if (_currentTab != TabItem.stories) {
+            // select 'main' tab
+            _selectedTab(TabItem.stories.index);
+            // back button handled by app
+            return false;
+          }
+        }
+        // let system handle back button if we're on the first route
+        return isFirstRouteInCurrentTab;
+      },
+      child: Scaffold(
+        body: Stack(children: <Widget>[
+          buildOffStageNavigatorStories(TabItem.stories),
+          //_buildOffstageNavigator(TabItem.red),
+          //_buildOffstageNavigator(TabItem.green),
+          //_buildOffstageNavigator(TabItem.blue),
+        ]),
+        bottomNavigationBar: FABBottomAppBar(
+          backgroundColor: NeumorphicTheme.currentTheme(context).baseColor,
+          color: Colors.grey,
+          selectedColor: Colors.red,
+          notchedShape: CircularNotchedRectangle(),
+          onTabSelected: _selectedTab,
+          items: [
+            FABBottomAppBarItem(iconData: Icons.menu, text: 'Stories'),
+            FABBottomAppBarItem(iconData: Icons.layers, text: 'Friends'),
+            FABBottomAppBarItem(iconData: Icons.dashboard, text: 'Messages'),
+            FABBottomAppBarItem(iconData: Icons.info, text: 'Profile'),
+          ],
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+        floatingActionButton: _buildFab(context), // This trailin
       ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            children: <Widget>[
-              Query(
-                  options: QueryOptions(
-                    documentNode: gql(userActivities),
-                    variables: <String, dynamic>{
-                      'email': graphQLAuth.getUser().email,
-                      'first': nActivities,
-                      'offset': offset
-                      // set cursor to null so as to start at the beginning
-                      // 'cursor': 10
-                    },
-                  ),
-                  builder: (QueryResult result,
-                      {refetch, FetchMore fetchMore}) {
-                    print('homePage queryResult: $result');
-                    if (result.loading && result.data == null) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
+    );
+  }
 
-                    if (result.hasException) {
-                      return Text(
-                          '\nErrors: \n  ' + result.exception.toString());
-                    }
-
-                    final List<dynamic> activities =
-                        result.data['User'][0]['activities'];
-
-                    offset += nActivities;
-
-                    final FetchMoreOptions opts = FetchMoreOptions(
-                      variables: <String, dynamic>{'offset': offset},
-                      updateQuery: (dynamic previousResultData,
-                          dynamic fetchMoreResultData) {
-                        // this is where you combine your previous data and response
-                        // in this case, we want to display previous repos plus next repos
-                        // so, we combine data in both into a single list of repos
-                        final List<dynamic> repos = <dynamic>[
-                          ...previousResultData['User'][0]['activities'],
-                          ...fetchMoreResultData['User'][0]['activities'],
-                        ];
-
-                        fetchMoreResultData['User'][0]['activities'] = repos;
-
-                        return fetchMoreResultData;
-                      },
-                    );
-
-                    _scrollController
-                      ..addListener(() {
-                        if (_scrollController.position.pixels ==
-                            _scrollController.position.maxScrollExtent) {
-                          if (!result.loading) {
-                            fetchMore(opts);
-                          }
-                        }
-                      });
-
-                    return Expanded(
-                      child: StaggeredGridView.countBuilder(
-                        controller: _scrollController,
-                        itemCount: activities.length,
-                        primary: false,
-                        crossAxisCount: 4,
-                        mainAxisSpacing: 4.0,
-                        crossAxisSpacing: 4.0,
-                        itemBuilder: (context, index) => StaggeredGridTile(
-                          imageUrl: activities[index]['image'],
-                          audioUrl: activities[index]['audio'],
-                        ),
-                        staggeredTileBuilder: (index) => StaggeredTile.fit(2),
-                      ),
-                    );
-                  })
-            ]),
+  Widget buildOffStageNavigatorStories(TabItem item) {
+    return Offstage(
+      offstage: _currentTab != item,
+      child: TabNavigatorStories(
+        navigatorKey: _navigatorKeys[item],
+        tabItem: item,
       ),
     );
   }

@@ -26,7 +26,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   PlayerMode mode;
 
   AudioPlayer _audioPlayer;
-  AudioPlayerState _audioPlayerState;
+
   Duration _duration;
   Duration _position;
 
@@ -38,13 +38,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   StreamSubscription _playerErrorSubscription;
   StreamSubscription _playerStateSubscription;
 
-  get _isPlaying => _playerState == PlayerState.playing;
-  get _isPaused => _playerState == PlayerState.paused;
-  get _durationText => _duration?.toString()?.split('.')?.first ?? '';
-  get _positionText => _position?.toString()?.split('.')?.first ?? '';
-
-  get _isPlayingThroughEarpiece =>
-      _playingRouteState == PlayingRouteState.earpiece;
+  bool get _isPlaying => _playerState == PlayerState.playing;
+  bool get _isPaused => _playerState == PlayerState.paused;
 
   _PlayerWidgetState(this.url, this.mode);
 
@@ -172,17 +167,9 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       });
     });
 
-    _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (!mounted) return;
-      setState(() {
-        _audioPlayerState = state;
-      });
-    });
+    _audioPlayer.onPlayerStateChanged.listen((state) {});
 
-    _audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-      if (!mounted) return;
-      setState(() => _audioPlayerState = state);
-    });
+    _audioPlayer.onNotificationPlayerStateChanged.listen((state) {});
 
     _playingRouteState = PlayingRouteState.speakers;
   }
