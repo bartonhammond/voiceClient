@@ -8,11 +8,12 @@ enum PlayerState { stopped, playing, paused }
 enum PlayingRouteState { speakers, earpiece }
 
 class PlayerWidget extends StatefulWidget {
-  const PlayerWidget(
-      {Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER})
-      : super(key: key);
   final String url;
   final PlayerMode mode;
+
+  PlayerWidget(
+      {Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -21,23 +22,31 @@ class PlayerWidget extends StatefulWidget {
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
-  _PlayerWidgetState(this.url, this.mode);
   String url;
   PlayerMode mode;
 
   AudioPlayer _audioPlayer;
+  AudioPlayerState _audioPlayerState;
   Duration _duration;
   Duration _position;
 
   PlayerState _playerState = PlayerState.stopped;
+  PlayingRouteState _playingRouteState = PlayingRouteState.speakers;
   StreamSubscription _durationSubscription;
   StreamSubscription _positionSubscription;
   StreamSubscription _playerCompleteSubscription;
   StreamSubscription _playerErrorSubscription;
   StreamSubscription _playerStateSubscription;
 
-  bool get _isPlaying => _playerState == PlayerState.playing;
-  bool get _isPaused => _playerState == PlayerState.paused;
+  get _isPlaying => _playerState == PlayerState.playing;
+  get _isPaused => _playerState == PlayerState.paused;
+  get _durationText => _duration?.toString()?.split('.')?.first ?? '';
+  get _positionText => _position?.toString()?.split('.')?.first ?? '';
+
+  get _isPlayingThroughEarpiece =>
+      _playingRouteState == PlayingRouteState.earpiece;
+
+  _PlayerWidgetState(this.url, this.mode);
 
   @override
   void initState() {
@@ -61,27 +70,53 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            activeTrackColor: Colors.blue[700],
+            inactiveTrackColor: Colors.blue[100],
+            trackShape: RectangularSliderTrackShape(),
+            trackHeight: 4.0,
+            thumbColor: Colors.cyan,
+            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
+            overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
+          ),
+          child: Slider(
+            onChanged: (v) {
+              final Position = v * _duration.inMilliseconds;
+              _audioPlayer.seek(Duration(milliseconds: Position.round()));
+            },
+            value: (_position != null &&
+                    _duration != null &&
+                    _position.inMilliseconds > 0 &&
+                    _position.inMilliseconds < _duration.inMilliseconds)
+                ? _position.inMilliseconds / _duration.inMilliseconds
+                : 0.0,
+          ),
+        ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
+              padding: EdgeInsets.all(0),
               key: Key('play_button'),
               onPressed: _isPlaying ? null : () => _play(),
-              iconSize: 35.0,
+              iconSize: 25.0,
               icon: Icon(Icons.play_arrow),
               color: Colors.cyan,
             ),
             IconButton(
+              padding: EdgeInsets.all(0),
               key: Key('pause_button'),
               onPressed: _isPlaying ? () => _pause() : null,
-              iconSize: 35.0,
+              iconSize: 25.0,
               icon: Icon(Icons.pause),
               color: Colors.cyan,
             ),
             IconButton(
+              padding: EdgeInsets.all(0),
               key: Key('stop_button'),
               onPressed: _isPlaying || _isPaused ? () => _stop() : null,
-              iconSize: 35.0,
+              iconSize: 25.0,
               icon: Icon(Icons.stop),
               color: Colors.cyan,
             ),
@@ -97,6 +132,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
       setState(() => _duration = duration);
 
+      // TODO implemented for iOS, waiting for android impl
       if (Theme.of(context).platform == TargetPlatform.iOS) {
         // (Optional) listen for notification updates in the background
         _audioPlayer.startHeadlessService();
@@ -137,16 +173,18 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
 
     _audioPlayer.onPlayerStateChanged.listen((state) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
+      setState(() {
+        _audioPlayerState = state;
+      });
     });
 
     _audioPlayer.onNotificationPlayerStateChanged.listen((state) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
+      setState(() => _audioPlayerState = state);
     });
+
+    _playingRouteState = PlayingRouteState.speakers;
   }
 
   Future<int> _play() async {
@@ -157,9 +195,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         ? _position
         : null;
     final result = await _audioPlayer.play(url, position: playPosition);
-    if (result == 1) {
-      setState(() => _playerState = PlayerState.playing);
-    }
+    if (result == 1) setState(() => _playerState = PlayerState.playing);
 
     // default playback rate is 1.0
     // this should be called after _audioPlayer.play() or _audioPlayer.resume()
@@ -171,9 +207,17 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Future<int> _pause() async {
     final result = await _audioPlayer.pause();
-    if (result == 1) {
-      setState(() => _playerState = PlayerState.paused);
-    }
+    if (result == 1) setState(() => _playerState = PlayerState.paused);
+    return result;
+  }
+
+  Future<int> _earpieceOrSpeakersToggle() async {
+    final result = await _audioPlayer.earpieceOrSpeakersToggle();
+    if (result == 1)
+      setState(() => _playingRouteState =
+          _playingRouteState == PlayingRouteState.speakers
+              ? PlayingRouteState.earpiece
+              : PlayingRouteState.speakers);
     return result;
   }
 
