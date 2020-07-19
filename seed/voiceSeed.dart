@@ -19,6 +19,7 @@ import 'text_to_speech.dart';
 Future<void> main() async {
   final userIds = <String>[];
   final emails = [
+    'karenhammond@gmail.com',
     'bartonhammond@gmail.com',
     'charleshammond@gmail.com',
     'marilynhammond@gmail.com',
@@ -33,6 +34,7 @@ Future<void> main() async {
   ];
 
   final names = [
+    'She hails for Durango, Miss Karen Hammond',
     'The great Barton Hammond',
     'Most honored son Charles Hammond',
     'The highly esteemed Miss Marilyn Hammond',
@@ -57,7 +59,8 @@ Future<void> main() async {
   final Random randomVoiceGen = Random();
   final Random randomFileGen = Random();
 
-  for (var userIndex = 0; userIndex < emails.length; userIndex++) {
+  //for (var userIndex = 0; userIndex < emails.length; userIndex++) {
+  for (var userIndex = 0; userIndex < 1; userIndex++) {
     try {
       final String userId = await addUser(
         graphQLClientApolloServer,
@@ -87,7 +90,7 @@ Future<void> main() async {
       print('Exception voiceSeed: $e.toString()');
     }
   }
-
+  return;
   //Make everyone friends
   for (var userIndex = 0; userIndex < emails.length; userIndex++) {
     for (var friendIndex = 0; friendIndex < emails.length; friendIndex++) {
@@ -130,7 +133,6 @@ Future<String> addSingleStory(
     multipartFile,
     'jpeg',
   );
-  print('jpegPathUrl: $jpegPathUrl');
 
   //Create MP3 (userName, text, file)
   final int randomVoice = randomVoiceGen.nextInt(encodings.length);

@@ -13,7 +13,7 @@ class GraphQLAuth {
   final BuildContext context;
   var port = '4001';
   var endPoint = 'graphql';
-  var uri = 'http://192.168.1.39'; //HP
+  var url = 'http://192.168.1.39'; //HP
   User user;
   String token;
   String currentUserId;
@@ -35,14 +35,13 @@ class GraphQLAuth {
     return currentUserId;
   }
 
-  Future<GraphQLClient> getGraphQLClient(GraphQLClientType type) async {
+  GraphQLClient getGraphQLClient(GraphQLClientType type) {
     if (type == GraphQLClientType.FileServer) {
       port = '4002';
       endPoint = 'query';
     }
-    final httpLink = HttpLink(
-      uri: '$uri:$port/$endPoint',
-    );
+    final uri = '$url:$port/$endPoint';
+    final httpLink = HttpLink(uri: uri);
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
 
@@ -73,7 +72,7 @@ class GraphQLAuth {
     );
 
     final GraphQLClient graphQLClient =
-        await getGraphQLClient(GraphQLClientType.ApolloServer);
+        getGraphQLClient(GraphQLClientType.ApolloServer);
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult != null &&
         queryResult.data != null &&

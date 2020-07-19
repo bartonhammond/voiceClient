@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:voiceClient/constants/enums.dart';
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.iconData, this.text});
@@ -8,7 +9,7 @@ class FABBottomAppBarItem {
 }
 
 class FABBottomAppBar extends StatefulWidget {
-  FABBottomAppBar({
+  const FABBottomAppBar({
     this.items,
     this.centerItemText,
     this.height = 60.0,
@@ -18,9 +19,8 @@ class FABBottomAppBar extends StatefulWidget {
     this.selectedColor,
     this.notchedShape,
     this.onTabSelected,
-  }) {
-    assert(items.length == 2 || items.length == 4);
-  }
+  }) : assert(items.length == 2 || items.length == 4);
+
   final List<FABBottomAppBarItem> items;
   final String centerItemText;
   final double height;
@@ -29,7 +29,7 @@ class FABBottomAppBar extends StatefulWidget {
   final Color color;
   final Color selectedColor;
   final NotchedShape notchedShape;
-  final ValueChanged<int> onTabSelected;
+  final ValueChanged<TabItem> onTabSelected;
 
   @override
   State<StatefulWidget> createState() => FABBottomAppBarState();
@@ -39,7 +39,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
   int _selectedIndex = 0;
 
   void _updateIndex(int index) {
-    widget.onTabSelected(index);
+    widget.onTabSelected(TabItem.values[index]);
     setState(() {
       _selectedIndex = index;
     });
@@ -47,7 +47,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> items = List.generate(widget.items.length, (int index) {
+    final List<Widget> items = List.generate(widget.items.length, (int index) {
       return _buildTabItem(
         item: widget.items[index],
         index: index,
@@ -91,7 +91,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     int index,
     ValueChanged<int> onPressed,
   }) {
-    Color color = _selectedIndex == index ? Colors.black : Colors.white;
+    final Color color = _selectedIndex == index ? Colors.black : Colors.white;
     return Expanded(
       child: SizedBox(
         height: widget.height,

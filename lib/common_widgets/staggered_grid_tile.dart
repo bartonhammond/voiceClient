@@ -4,9 +4,13 @@ import 'package:voiceClient/constants/transparent_image.dart';
 
 class StaggeredGridTile extends StatelessWidget {
   const StaggeredGridTile({
+    @required this.onPush,
+    @required this.id,
     @required this.imageUrl,
     @required this.audioUrl,
   });
+  final ValueChanged<Map> onPush;
+  final String id;
   final String imageUrl;
   final String audioUrl;
 
@@ -19,10 +23,18 @@ class StaggeredGridTile extends StatelessWidget {
             children: <Widget>[
               //new Center(child: new CircularProgressIndicator()),
               Center(
-                child: FadeInImage.memoryNetwork(
-                  placeholder: kTransparentImage,
-                  image: imageUrl,
-                ),
+                child: GestureDetector(
+                    onTap: () {
+                      final Map map = <String, String>{};
+                      map['id'] = id;
+                      map['imageUrl'] = imageUrl;
+                      map['audioUrl'] = audioUrl;
+                      onPush(map);
+                    },
+                    child: FadeInImage.memoryNetwork(
+                      placeholder: kTransparentImage,
+                      image: imageUrl,
+                    )),
               ),
             ],
           ),

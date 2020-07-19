@@ -3,8 +3,9 @@ import 'dart:io' as io;
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:file/local.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -13,22 +14,32 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+
 import 'package:uuid/uuid.dart';
-import 'package:voiceClient/common_widgets/drawer_widget.dart';
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
-import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:voiceClient/constants/strings.dart';
+import 'package:voiceClient/common_widgets/player_widget.dart';
+//import 'package:voiceClient/common_widgets/drawer_widget.dart';
+import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/auth_service.dart';
+
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class StoryPage extends StatefulWidget {
-  StoryPage({LocalFileSystem localFileSystem})
-      // ignore: unnecessary_this
-      : this.localFileSystem = localFileSystem ?? LocalFileSystem();
-  final LocalFileSystem localFileSystem;
+  StoryPage({
+    this.onFinish,
+    this.id,
+    this.imageUrl,
+    this.audioUrl,
+  });
+
+  final LocalFileSystem localFileSystem = LocalFileSystem();
+  final String id;
+  final String imageUrl;
+  final String audioUrl;
+  final ValueChanged<TabItem> onFinish;
+
   @override
   _StoryPageState createState() => _StoryPageState();
 }
@@ -114,7 +125,7 @@ class _StoryPageState extends State<StoryPage> {
         ),
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
       ),
-      drawer: getDrawer(context),
+      //drawer: getDrawer(context),
       body: _buildPage(context),
     );
   }
@@ -130,7 +141,13 @@ class _StoryPageState extends State<StoryPage> {
         // mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          if (_image != null)
+          if (widget.imageUrl != null && widget.imageUrl.isNotEmpty)
+            FadeInImage.memoryNetwork(
+              height: 300,
+              placeholder: kTransparentImage,
+              image: widget.imageUrl,
+            )
+          else if (_image != null)
             Flexible(
               flex: 9,
               child: Image.file(_image),
@@ -173,64 +190,78 @@ class _StoryPageState extends State<StoryPage> {
           SizedBox(
             height: 8,
           ),
-          Text(
-            'Image Selection',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
+          widget.id == null || widget.id.isEmpty
+              ? Text(
+                  'Image Selection',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )
+              : SizedBox(
+                  height: 0,
+                ),
           SizedBox(
             height: 8,
           ),
-          Flexible(
+          widget.id == null || widget.id.isEmpty
+              ? _buildImageControls()
+              : SizedBox(
+                  height: 0,
+                ),
+          widget.audioUrl == null || widget.audioUrl.isEmpty
+              ? _buildAudioControls()
+              : PlayerWidget(url: widget.audioUrl),
+          if (_image != null && _audio != null) _buildUploadButton()
+        ],
+      ),
+    );
+  }
+
+  Widget _buildImageControls() {
+    return Flexible(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          NeumorphicButton(
+            style: NeumorphicStyle(
+                border: NeumorphicBorder(
+              color: Color(0x33000000),
+              width: 0.8,
+            )),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                NeumorphicButton(
-                  style: NeumorphicStyle(
-                      border: NeumorphicBorder(
-                    color: Color(0x33000000),
-                    width: 0.8,
-                  )),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(Icons.photo_library),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text('Gallery'),
-                    ],
-                  ),
-                  onPressed: () => selectImage(ImageSource.gallery),
-                ),
+                Icon(Icons.photo_library),
                 SizedBox(
-                  width: 8,
+                  width: 5,
                 ),
-                NeumorphicButton(
-                  style: NeumorphicStyle(
-                      border: NeumorphicBorder(
-                    color: Color(0x33000000),
-                    width: 0.8,
-                  )),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Icon(Icons.camera),
-                      SizedBox(
-                        width: 5,
-                      ),
-                      Text('Camera'),
-                    ],
-                  ),
-                  onPressed: () => selectImage(ImageSource.camera),
-                ),
+                Text('Gallery'),
               ],
             ),
+            onPressed: () => selectImage(ImageSource.gallery),
           ),
-          _buildAudioControls(),
-          if (_image != null && _audio != null) _buildUploadButton()
+          SizedBox(
+            width: 8,
+          ),
+          NeumorphicButton(
+            style: NeumorphicStyle(
+                border: NeumorphicBorder(
+              color: Color(0x33000000),
+              width: 0.8,
+            )),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Icon(Icons.camera),
+                SizedBox(
+                  width: 5,
+                ),
+                Text('Camera'),
+              ],
+            ),
+            onPressed: () => selectImage(ImageSource.camera),
+          ),
         ],
       ),
     );
@@ -249,9 +280,17 @@ class _StoryPageState extends State<StoryPage> {
           _uploadInProgress = true;
         });
         await doUploads(context);
+        await _stop();
+
         setState(() {
+          _image = null;
+          _audio = null;
           _uploadInProgress = false;
+          _current = null;
+          _currentStatus = RecordingStatus.Initialized;
         });
+        //pop back to tab for stories
+        widget.onFinish(TabItem.stories);
       },
     );
   }
@@ -260,10 +299,10 @@ class _StoryPageState extends State<StoryPage> {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
-        await graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     final GraphQLClient graphQLClientApolloServer =
-        await graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+        GraphQLProvider.of(context).value;
 
     final String _id = uuid.v1();
     MultipartFile multipartFile = getMultipartFile(
@@ -292,8 +331,14 @@ class _StoryPageState extends State<StoryPage> {
       'mp4',
     );
 
-    addStory(graphQLClientApolloServer, graphQLAuth.getCurrentUserId(), _id,
-        imageFilePath, audioFilePath);
+    await addStory(
+      graphQLClientApolloServer,
+      graphQLAuth.getCurrentUserId(),
+      _id,
+      imageFilePath,
+      audioFilePath,
+      daysOffset: 0,
+    );
     return;
   }
 
@@ -331,42 +376,13 @@ class _StoryPageState extends State<StoryPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              NeumorphicButton(
-                style: NeumorphicStyle(
-                    border: NeumorphicBorder(
-                  color: Color(0x33000000),
-                  width: 0.8,
-                )),
-                onPressed: () {
-                  switch (_currentStatus) {
-                    case RecordingStatus.Initialized:
-                      {
-                        _start();
-                        break;
-                      }
-                    case RecordingStatus.Recording:
-                      {
-                        _pause();
-                        break;
-                      }
-                    case RecordingStatus.Paused:
-                      {
-                        _resume();
-                        break;
-                      }
-                    case RecordingStatus.Stopped:
-                      {
-                        _init();
-                        break;
-                      }
-                    default:
-                      break;
-                  }
-                },
-                child: _buildText(_currentStatus),
-              ),
+              widget.id == null
+                  ? getRecordButton()
+                  : SizedBox(
+                      width: 0,
+                    ),
               SizedBox(
-                width: 4,
+                width: 0,
               ),
               NeumorphicButton(
                 style: NeumorphicStyle(
@@ -414,6 +430,43 @@ class _StoryPageState extends State<StoryPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget getRecordButton() {
+    return NeumorphicButton(
+      style: NeumorphicStyle(
+          border: NeumorphicBorder(
+        color: Color(0x33000000),
+        width: 0.8,
+      )),
+      onPressed: () {
+        switch (_currentStatus) {
+          case RecordingStatus.Initialized:
+            {
+              _start();
+              break;
+            }
+          case RecordingStatus.Recording:
+            {
+              _pause();
+              break;
+            }
+          case RecordingStatus.Paused:
+            {
+              _resume();
+              break;
+            }
+          case RecordingStatus.Stopped:
+            {
+              _init();
+              break;
+            }
+          default:
+            break;
+        }
+      },
+      child: _buildText(_currentStatus),
     );
   }
 

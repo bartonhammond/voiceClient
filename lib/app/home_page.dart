@@ -4,35 +4,41 @@ import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
 import 'package:voiceClient/common_widgets/fab/fab_with_icons.dart';
 import 'package:voiceClient/common_widgets/fab/layout.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
+import 'package:voiceClient/common_widgets/navigator/tab_navigator_story.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  const HomePage({Key key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  String _lastSelected = 'TAB: 0';
+  //String _lastSelected = 'TAB: 0';
   TabItem _currentTab = TabItem.stories;
 
-  Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
+  final Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
     TabItem.stories: GlobalKey<NavigatorState>(),
     TabItem.friends: GlobalKey<NavigatorState>(),
     TabItem.messages: GlobalKey<NavigatorState>(),
     TabItem.profile: GlobalKey<NavigatorState>(),
+    TabItem.newStory: GlobalKey<NavigatorState>(),
   };
 
-  void _selectedTab(int index) {
+  void _selectedTab(TabItem item) {
     setState(() {
-      _lastSelected = 'TAB: $index';
+      _currentTab = item;
     });
   }
 
-  void _selectedFab(int index) {
+  void _selectedFab(int item) {
     setState(() {
-      _lastSelected = 'FAB: $index';
+      switch (item) {
+        case 0:
+          _currentTab = TabItem.newStory;
+          break;
+      }
     });
   }
 
@@ -68,7 +74,7 @@ class _HomePageState extends State<HomePage> {
           // if not on the 'main' tab
           if (_currentTab != TabItem.stories) {
             // select 'main' tab
-            _selectedTab(TabItem.stories.index);
+            _selectedTab(TabItem.stories);
             // back button handled by app
             return false;
           }
@@ -79,6 +85,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         body: Stack(children: <Widget>[
           buildOffStageNavigatorStories(TabItem.stories),
+          buildOffStageNavigatorStory(TabItem.newStory),
           //_buildOffstageNavigator(TabItem.red),
           //_buildOffstageNavigator(TabItem.green),
           //_buildOffstageNavigator(TabItem.blue),
@@ -106,6 +113,17 @@ class _HomePageState extends State<HomePage> {
     return Offstage(
       offstage: _currentTab != item,
       child: TabNavigatorStories(
+        navigatorKey: _navigatorKeys[item],
+        tabItem: item,
+      ),
+    );
+  }
+
+  Widget buildOffStageNavigatorStory(TabItem item) {
+    return Offstage(
+      offstage: _currentTab != item,
+      child: TabNavigatorStory(
+        onFinish: _selectedTab,
         navigatorKey: _navigatorKeys[item],
         tabItem: item,
       ),

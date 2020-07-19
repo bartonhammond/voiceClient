@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:voiceClient/app/stories_page.dart';
+import 'package:voiceClient/app/story_page.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class TabNavigatorRoutes {
@@ -12,9 +14,12 @@ class TabNavigatorStories extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final TabItem tabItem;
 
-  void _push(BuildContext context, {int materialIndex: 500}) {
+  void _push(BuildContext context, {Map<String, String> map}) {
     final routeBuilders = _routeBuilders(
       context,
+      id: map['id'],
+      imageUrl: map['imageUrl'],
+      audioUrl: map['audioUrl'],
     );
 
     Navigator.push<dynamic>(
@@ -26,25 +31,24 @@ class TabNavigatorStories extends StatelessWidget {
   }
 
   Map<String, WidgetBuilder> _routeBuilders(
-    BuildContext context,
-  ) {
+    BuildContext context, {
+    String id,
+    String imageUrl,
+    String audioUrl,
+  }) {
+    final Map map = <String, String>{};
+    map['id'] = id;
+    map['imageUrl'] = imageUrl;
+    map['audioUrl'] = audioUrl;
     return {
-      TabNavigatorRoutes.root: (context) => StoriesPage(),
-      /*
-      TabNavigatorRoutes.root: (context) => ColorsListPage(
-            color: activeTabColor[tabItem],
-            title: tabName[tabItem],
-            onPush: (materialIndex) =>
-                _push(context, materialIndex: materialIndex),
+      TabNavigatorRoutes.root: (context) => StoriesPage(
+            onPush: (map) => _push(context, map: map),
           ),
-          */
-      /*
-      TabNavigatorRoutes.detail: (context) => ColorDetailPage(
-            color: activeTabColor[tabItem],
-            title: tabName[tabItem],
-            materialIndex: materialIndex,
+      TabNavigatorRoutes.detail: (context) => StoryPage(
+            id: id,
+            imageUrl: imageUrl,
+            audioUrl: audioUrl,
           ),
-          */
     };
   }
 

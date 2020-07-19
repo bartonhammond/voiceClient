@@ -36,6 +36,8 @@ CreateStory(
     created: { formatted: $created }
   ) {
     id
+    image 
+    audio
   }
 }
 ''';
@@ -93,6 +95,15 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
         email
       }
     }
+  }
+}
+''';
+const String getStoryById = r'''
+query getStoryById ($id: String!) {
+ Story(id: $id) {
+  id
+  image
+  audio
   }
 }
 ''';

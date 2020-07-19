@@ -1,27 +1,28 @@
 // code from: https://github.com/matthew-carroll/flutter_ui_challenge_feature_discovery
-// TODO: Use https://github.com/matthew-carroll/fluttery/blob/master/lib/src/layout_overlays.dart
 import 'package:flutter/material.dart';
 
 class AnchoredOverlay extends StatelessWidget {
-  final bool showOverlay;
-  final Widget Function(BuildContext, Offset anchor) overlayBuilder;
-  final Widget child;
-
-  AnchoredOverlay({
+  const AnchoredOverlay({
     this.showOverlay,
     this.overlayBuilder,
     this.child,
   });
 
+  final bool showOverlay;
+  final Widget Function(BuildContext, Offset anchor) overlayBuilder;
+  final Widget child;
+
   @override
   Widget build(BuildContext context) {
-    return new Container(
-      child: new LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
-        return new OverlayBuilder(
+    return Container(
+      child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+        return OverlayBuilder(
           showOverlay: showOverlay,
           overlayBuilder: (BuildContext overlayContext) {
-            RenderBox box = context.findRenderObject() as RenderBox;
-            final center = box.size.center(box.localToGlobal(const Offset(0.0, 0.0)));
+            final RenderBox box = context.findRenderObject();
+            final center =
+                box.size.center(box.localToGlobal(const Offset(0.0, 0.0)));
 
             return overlayBuilder(overlayContext, center);
           },
@@ -33,18 +34,17 @@ class AnchoredOverlay extends StatelessWidget {
 }
 
 class OverlayBuilder extends StatefulWidget {
-  final bool showOverlay;
-  final Function(BuildContext) overlayBuilder;
-  final Widget child;
-
-  OverlayBuilder({
+  const OverlayBuilder({
     this.showOverlay = false,
     this.overlayBuilder,
     this.child,
   });
+  final bool showOverlay;
+  final Function(BuildContext) overlayBuilder;
+  final Widget child;
 
   @override
-  _OverlayBuilderState createState() => new _OverlayBuilderState();
+  _OverlayBuilderState createState() => _OverlayBuilderState();
 }
 
 class _OverlayBuilderState extends State<OverlayBuilder> {
@@ -83,15 +83,16 @@ class _OverlayBuilderState extends State<OverlayBuilder> {
   bool isShowingOverlay() => overlayEntry != null;
 
   void showOverlay() {
-    overlayEntry = new OverlayEntry(
+    overlayEntry = OverlayEntry(
       builder: widget.overlayBuilder,
     );
     addToOverlay(overlayEntry);
   }
 
-  void addToOverlay(OverlayEntry entry) async {
+  Future<void> addToOverlay(OverlayEntry entry) async {
     print('addToOverlay');
     Overlay.of(context).insert(entry);
+    return;
   }
 
   void hideOverlay() {
@@ -115,20 +116,20 @@ class _OverlayBuilderState extends State<OverlayBuilder> {
 }
 
 class CenterAbout extends StatelessWidget {
-  final Offset position;
-  final Widget child;
-
-  CenterAbout({
+  const CenterAbout({
     this.position,
     this.child,
   });
 
+  final Offset position;
+  final Widget child;
+
   @override
   Widget build(BuildContext context) {
-    return new Positioned(
+    return Positioned(
       top: position.dy,
       left: position.dx,
-      child: new FractionalTranslation(
+      child: FractionalTranslation(
         translation: const Offset(-0.5, -0.5),
         child: child,
       ),

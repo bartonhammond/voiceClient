@@ -9,6 +9,9 @@ import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 class StoriesPage extends StatelessWidget {
+  StoriesPage({this.onPush});
+  final ValueChanged<Map> onPush;
+
   final String title = 'My Family Voice';
   final nActivities = 20;
   final ScrollController _scrollController = ScrollController();
@@ -100,6 +103,8 @@ class StoriesPage extends StatelessWidget {
                         mainAxisSpacing: 4.0,
                         crossAxisSpacing: 4.0,
                         itemBuilder: (context, index) => StaggeredGridTile(
+                          onPush: onPush,
+                          id: activities[index]['id'],
                           imageUrl: activities[index]['image'],
                           audioUrl: activities[index]['audio'],
                         ),

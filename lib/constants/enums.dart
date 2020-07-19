@@ -7,4 +7,5 @@ enum TabItem {
   friends,
   messages,
   profile,
+  newStory,
 }
