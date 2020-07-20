@@ -154,7 +154,7 @@ class FirebaseEmailLinkHandler {
         );
 
         final GraphQLClient graphQLClient =
-            await graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+            graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
 
         QueryResult queryResult = await graphQLClient.query(_queryOptions);
 

@@ -82,6 +82,7 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   id
   email
   activities(
+    email: $email
     first: $first
     offset: $offset
   ) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:voiceClient/app/stories_page.dart';
-import 'package:voiceClient/app/story_page.dart';
+import 'package:voiceClient/app/stories_page.dart' show StoriesPage;
+import 'package:voiceClient/app/story_play.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class TabNavigatorRoutes {
@@ -14,13 +14,8 @@ class TabNavigatorStories extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final TabItem tabItem;
 
-  void _push(BuildContext context, {Map<String, String> map}) {
-    final routeBuilders = _routeBuilders(
-      context,
-      id: map['id'],
-      imageUrl: map['imageUrl'],
-      audioUrl: map['audioUrl'],
-    );
+  void _push(BuildContext context, String id) {
+    final routeBuilders = _routeBuilders(context, id: id);
 
     Navigator.push<dynamic>(
       context,
@@ -33,21 +28,16 @@ class TabNavigatorStories extends StatelessWidget {
   Map<String, WidgetBuilder> _routeBuilders(
     BuildContext context, {
     String id,
-    String imageUrl,
-    String audioUrl,
   }) {
-    final Map map = <String, String>{};
-    map['id'] = id;
-    map['imageUrl'] = imageUrl;
-    map['audioUrl'] = audioUrl;
     return {
       TabNavigatorRoutes.root: (context) => StoriesPage(
-            onPush: (map) => _push(context, map: map),
+            onPush: (id) => _push(
+              context,
+              id,
+            ),
           ),
-      TabNavigatorRoutes.detail: (context) => StoryPage(
-            id: id,
-            imageUrl: imageUrl,
-            audioUrl: audioUrl,
+      TabNavigatorRoutes.detail: (context) => StoryPlay(
+            id,
           ),
     };
   }

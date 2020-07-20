@@ -10,7 +10,7 @@ import 'package:voiceClient/services/service_locator.dart';
 
 class StoriesPage extends StatelessWidget {
   StoriesPage({this.onPush});
-  final ValueChanged<Map> onPush;
+  final ValueChanged<String> onPush;
 
   final String title = 'My Family Voice';
   final nActivities = 20;
@@ -104,9 +104,8 @@ class StoriesPage extends StatelessWidget {
                         crossAxisSpacing: 4.0,
                         itemBuilder: (context, index) => StaggeredGridTile(
                           onPush: onPush,
-                          id: activities[index]['id'],
-                          imageUrl: activities[index]['image'],
-                          audioUrl: activities[index]['audio'],
+                          activity:
+                              Map<String, dynamic>.from(activities[index]),
                         ),
                         staggeredTileBuilder: (index) => StaggeredTile.fit(2),
                       ),

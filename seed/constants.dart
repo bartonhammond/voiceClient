@@ -1,7 +1,7 @@
 const API_KEY = 'AIzaSyCo0W0CaeGoTx9XuIfCMyEdNTT8soQxwYc';
 const BASE_URL = 'https://texttospeech.googleapis.com/v1/';
 //const VOICE_NAME = 'en-US-Wavenet-D';
-const AUDIO_ENCODING = 'MP3';
+const AUDIO_ENCODING = 'mp3';
 //const LANGUAGE_CODE = 'en-us';
 const END_POINT = 'text:synthesize';
 

@@ -16,8 +16,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:uuid/uuid.dart';
-import 'package:voiceClient/common_widgets/player_widget.dart';
-//import 'package:voiceClient/common_widgets/drawer_widget.dart';
+
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/auth_service.dart';
 
@@ -27,18 +26,11 @@ import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class StoryPage extends StatefulWidget {
-  StoryPage({
-    this.onFinish,
-    this.id,
-    this.imageUrl,
-    this.audioUrl,
-  });
+  StoryPage({this.onFinish, this.id});
 
   final LocalFileSystem localFileSystem = LocalFileSystem();
   final String id;
-  final String imageUrl;
-  final String audioUrl;
-  final ValueChanged<TabItem> onFinish;
+  final ValueChanged<bool> onFinish;
 
   @override
   _StoryPageState createState() => _StoryPageState();
@@ -141,11 +133,11 @@ class _StoryPageState extends State<StoryPage> {
         // mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          if (widget.imageUrl != null && widget.imageUrl.isNotEmpty)
+          if (widget.id != null && widget.id.isNotEmpty)
             FadeInImage.memoryNetwork(
               height: 300,
               placeholder: kTransparentImage,
-              image: widget.imageUrl,
+              image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
             )
           else if (_image != null)
             Flexible(
@@ -201,15 +193,9 @@ class _StoryPageState extends State<StoryPage> {
           SizedBox(
             height: 8,
           ),
-          widget.id == null || widget.id.isEmpty
-              ? _buildImageControls()
-              : SizedBox(
-                  height: 0,
-                ),
-          widget.audioUrl == null || widget.audioUrl.isEmpty
-              ? _buildAudioControls()
-              : PlayerWidget(url: widget.audioUrl),
-          if (_image != null && _audio != null) _buildUploadButton()
+          _buildImageControls(),
+          _buildAudioControls(),
+          if (_image != null && _audio != null) _buildUploadButton(context)
         ],
       ),
     );
@@ -267,7 +253,31 @@ class _StoryPageState extends State<StoryPage> {
     );
   }
 
-  NeumorphicButton _buildUploadButton() {
+  GraphQLClient getGraphQLClient(GraphQLClientType type) {
+    const port = '4001';
+    const endPoint = 'graphql';
+    const url = 'http://192.168.1.39'; //HP
+    const uri = '$url:$port/$endPoint';
+    final httpLink = HttpLink(uri: uri);
+
+    final AuthService auth = Provider.of<AuthService>(context, listen: false);
+
+    final AuthLink authLink = AuthLink(getToken: () async {
+      final IdTokenResult tokenResult = await auth.currentUserIdToken();
+      return 'Bearer ${tokenResult.token}';
+    });
+
+    final link = authLink.concat(httpLink);
+
+    final GraphQLClient graphQLClient = GraphQLClient(
+      cache: InMemoryCache(),
+      link: link,
+    );
+
+    return graphQLClient;
+  }
+
+  NeumorphicButton _buildUploadButton(BuildContext context) {
     return NeumorphicButton(
       style: NeumorphicStyle(
           border: NeumorphicBorder(
@@ -280,17 +290,17 @@ class _StoryPageState extends State<StoryPage> {
           _uploadInProgress = true;
         });
         await doUploads(context);
-        await _stop();
-
         setState(() {
           _image = null;
           _audio = null;
           _uploadInProgress = false;
+          _recorder = null;
           _current = null;
           _currentStatus = RecordingStatus.Initialized;
         });
         //pop back to tab for stories
-        widget.onFinish(TabItem.stories);
+        widget.onFinish(true);
+        Navigator.pop(context);
       },
     );
   }
@@ -302,7 +312,7 @@ class _StoryPageState extends State<StoryPage> {
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     final GraphQLClient graphQLClientApolloServer =
-        GraphQLProvider.of(context).value;
+        getGraphQLClient(GraphQLClientType.ApolloServer);
 
     final String _id = uuid.v1();
     MultipartFile multipartFile = getMultipartFile(
@@ -320,15 +330,15 @@ class _StoryPageState extends State<StoryPage> {
 
     multipartFile = getMultipartFile(
       _audio,
-      '$_id.mp4',
+      '$_id.mp3',
       'audio',
-      'mp4',
+      'mp3',
     );
 
     audioFilePath = await performMutation(
       graphQLClientFileServer,
       multipartFile,
-      'mp4',
+      'mp3',
     );
 
     await addStory(
@@ -481,14 +491,14 @@ class _StoryPageState extends State<StoryPage> {
           appDocDirectory = await getExternalStorageDirectory();
         }
 
-        // can add extension like ".mp4" ".wav" ".m4a" ".aac"
+        // can add extension like ".mp3" ".wav" ".m4a" ".aac"
         customPath = appDocDirectory.path +
             customPath +
             DateTime.now().millisecondsSinceEpoch.toString() +
-            '.mp4';
+            '.mp3';
 
         // .wav <---> AudioFormat.WAV
-        // .mp4 .m4a .aac <---> AudioFormat.AAC
+        // .mp3 .m4a .aac <---> AudioFormat.AAC
         // AudioFormat is optional, if given value, will overwrite path extension when there is conflicts.
         _recorder =
             FlutterAudioRecorder(customPath, audioFormat: AudioFormat.AAC);
@@ -496,12 +506,12 @@ class _StoryPageState extends State<StoryPage> {
         await _recorder.initialized;
         // after initialization
         final current = await _recorder.current(channel: 0);
-        print(current);
+        print('storyPage current: $current');
         // should be "Initialized", if all working fine
         setState(() {
           _current = current;
           _currentStatus = current.status;
-          print(_currentStatus);
+          print('storyPage _currentStatus: $_currentStatus');
         });
       } else {
         Scaffold.of(context).showSnackBar(

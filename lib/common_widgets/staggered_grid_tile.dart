@@ -5,14 +5,10 @@ import 'package:voiceClient/constants/transparent_image.dart';
 class StaggeredGridTile extends StatelessWidget {
   const StaggeredGridTile({
     @required this.onPush,
-    @required this.id,
-    @required this.imageUrl,
-    @required this.audioUrl,
+    @required this.activity,
   });
-  final ValueChanged<Map> onPush;
-  final String id;
-  final String imageUrl;
-  final String audioUrl;
+  final ValueChanged<String> onPush;
+  final Map activity;
 
   @override
   Widget build(BuildContext context) {
@@ -24,28 +20,27 @@ class StaggeredGridTile extends StatelessWidget {
               //new Center(child: new CircularProgressIndicator()),
               Center(
                 child: GestureDetector(
-                    onTap: () {
-                      final Map map = <String, String>{};
-                      map['id'] = id;
-                      map['imageUrl'] = imageUrl;
-                      map['audioUrl'] = audioUrl;
-                      onPush(map);
-                    },
-                    child: FadeInImage.memoryNetwork(
-                      placeholder: kTransparentImage,
-                      image: imageUrl,
-                    )),
+                  onTap: () {
+                    onPush(activity['id']);
+                  },
+                  child: FadeInImage.memoryNetwork(
+                    placeholder: kTransparentImage,
+                    image: activity['image'],
+                  ),
+                ),
               ),
+              Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Column(
+                  children: <Widget>[
+                    PlayerWidget(
+                        key: Key("playWidget${activity['id']}"),
+                        url: activity['audio']),
+                  ],
+                ),
+              )
             ],
           ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Column(
-              children: <Widget>[
-                PlayerWidget(url: audioUrl),
-              ],
-            ),
-          )
         ],
       ),
     );

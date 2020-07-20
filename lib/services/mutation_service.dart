@@ -56,9 +56,6 @@ Future<void> addStory(
   DateTime now = DateTime.now();
   now = now.subtract(Duration(days: daysOffset));
 
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
-
   //Create the Story
   MutationOptions _mutationOptions = MutationOptions(
     documentNode: gql(createStory),
@@ -66,7 +63,7 @@ Future<void> addStory(
       'id': storyId,
       'image': imageFilePath,
       'audio': audioFilePath,
-      'created': formattedDate
+      'created': now.toIso8601String()
     },
   );
 

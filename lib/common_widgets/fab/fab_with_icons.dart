@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:voiceClient/constants/enums.dart';
 
 // https://stackoverflow.com/questions/46480221/flutter-floating-action-button-with-speed-dail
 class FabWithIcons extends StatefulWidget {
   const FabWithIcons({this.icons, this.onIconTapped});
   final List<IconData> icons;
-  final ValueChanged<int> onIconTapped;
+  final ValueChanged<Map<String, dynamic>> onIconTapped;
   @override
   State createState() => FabWithIconsState();
 }
@@ -29,7 +28,7 @@ class FabWithIconsState extends State<FabWithIcons>
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: List.generate(widget.icons.length, (int index) {
-        return _buildChild(index);
+        return _buildChild(context, index);
       }).toList()
         ..add(
           _buildFab(),
@@ -37,7 +36,7 @@ class FabWithIconsState extends State<FabWithIcons>
     );
   }
 
-  Widget _buildChild(int index) {
+  Widget _buildChild(BuildContext context, int index) {
     final Color backgroundColor = Theme.of(context).cardColor;
     final Color foregroundColor = Theme.of(context).accentColor;
     return Container(
@@ -54,7 +53,7 @@ class FabWithIconsState extends State<FabWithIcons>
           backgroundColor: backgroundColor,
           mini: true,
           child: Icon(widget.icons[index], color: foregroundColor),
-          onPressed: () => _onTapped(index),
+          onPressed: () => _onTapped(context, index),
         ),
       ),
     );
@@ -75,8 +74,11 @@ class FabWithIconsState extends State<FabWithIcons>
     );
   }
 
-  void _onTapped(int index) {
+  void _onTapped(BuildContext context, int index) {
     _controller.reverse();
-    widget.onIconTapped(index);
+    final Map<String, dynamic> map = <String, dynamic>{};
+    map['context'] = context;
+    map['index'] = index;
+    widget.onIconTapped(map);
   }
 }

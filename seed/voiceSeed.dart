@@ -59,8 +59,7 @@ Future<void> main() async {
   final Random randomVoiceGen = Random();
   final Random randomFileGen = Random();
 
-  //for (var userIndex = 0; userIndex < emails.length; userIndex++) {
-  for (var userIndex = 0; userIndex < 1; userIndex++) {
+  for (var userIndex = 0; userIndex < emails.length; userIndex++) {
     try {
       final String userId = await addUser(
         graphQLClientApolloServer,
@@ -90,7 +89,7 @@ Future<void> main() async {
       print('Exception voiceSeed: $e.toString()');
     }
   }
-  return;
+
   //Make everyone friends
   for (var userIndex = 0; userIndex < emails.length; userIndex++) {
     for (var friendIndex = 0; friendIndex < emails.length; friendIndex++) {
@@ -120,7 +119,8 @@ Future<String> addSingleStory(
   final String _storyId = uuid.v1();
   //Create Image
 
-  final int randomFile = randomFileGen.nextInt(files.length);
+  final int maxFile = files.length - 1;
+  final int randomFile = randomFileGen.nextInt(maxFile);
   MultipartFile multipartFile = getMultipartFile(
     File(files[randomFile]),
     '$_storyId.jpg',
@@ -134,7 +134,7 @@ Future<String> addSingleStory(
     'jpeg',
   );
 
-  //Create MP3 (userName, text, file)
+  //Create mp3 (userName, text, file)
   final int randomVoice = randomVoiceGen.nextInt(encodings.length);
   final String mp3Path = './seed/mp3/${text.replaceAll(RegExp(' +'), '_')}';
   print('Text: $text');
