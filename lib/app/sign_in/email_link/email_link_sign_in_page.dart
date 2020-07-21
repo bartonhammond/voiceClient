@@ -118,6 +118,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: NeumorphicAppBar(
+        color: NeumorphicTheme.currentTheme(context).variantColor,
         title: Text(Strings.signIn),
       ),
       body: SingleChildScrollView(

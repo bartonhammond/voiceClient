@@ -52,6 +52,7 @@ class SignInPage extends StatelessWidget {
     return Scaffold(
       appBar: NeumorphicAppBar(
         title: Text(title),
+        color: NeumorphicTheme.currentTheme(context).variantColor,
       ),
       body: _buildSignIn(context),
     );
@@ -67,7 +68,7 @@ class SignInPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              color: Colors.black,
+              color: NeumorphicTheme.currentTheme(context).variantColor,
               padding: EdgeInsets.all(10),
               child: Center(
                 child: RichText(
@@ -81,7 +82,7 @@ class SignInPage extends StatelessWidget {
                       TextSpan(
                           text: ' was inspired by the way your family shares ',
                           style: TextStyle(
-                              color: Colors.grey,
+                              color: Colors.black,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                       TextSpan(
@@ -95,7 +96,7 @@ class SignInPage extends StatelessWidget {
                       TextSpan(
                           text: ' from their ',
                           style: TextStyle(
-                              color: Colors.grey,
+                              color: Colors.black,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                       TextSpan(
@@ -111,7 +112,7 @@ class SignInPage extends StatelessWidget {
                           text:
                               ' that you can now share with others in your family. ',
                           style: TextStyle(
-                              color: Colors.grey,
+                              color: Colors.black,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                     ],
