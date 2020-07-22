@@ -2,51 +2,131 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:graphql/client.dart';
-import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
-import 'package:http/http.dart';
 import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 
-import 'constants.dart';
-import 'text_to_speech.dart';
-//import 'package:uuid/uuid.dart';
-//import 'package:voiceClient/constants/enums.dart';
-//import 'package:voiceClient/constants/graphql.dart';
-//import 'package:voiceClient/services/graphql_auth.dart';
+import 'addSingleStory.dart';
+import 'addUser.dart';
+import 'getPhotoFiles.dart';
+import 'graphQLClient.dart';
 
 Future<void> main() async {
   final userIds = <String>[];
-  final emails = [
-    'karenhammond@gmail.com',
-    'bartonhammond@gmail.com',
-    'charleshammond@gmail.com',
-    'marilynhammond@gmail.com',
-    'emilyhammond@gmail.com',
-    'neufy@gmail.com',
-    'felina@gmail.com',
-    'lily@gmail.com',
-    'cala@gmail.com',
-    'lordnatolie@gmail.com',
-    'peggyhammond@gmail.com',
-    'ermahammond@gmail.com'
+  final users = [
+    {
+      'email': 'karenhammond@gmail.com',
+      'announce': 'She hails for Durango but she has lived everywhere',
+      'name': 'Karen Hammond',
+      'home': 'Durango, CO',
+      'birth': 1952,
+      'profile': 'karen'
+    },
+    {
+      'email': 'bartonhammond@gmail.com',
+      'announce': 'The great man behind the key board',
+      'name': 'Barton Hammond',
+      'home': 'Fond du Lac, WI',
+      'birth': 1954,
+      'profile': 'barton'
+    },
+    {
+      'email': 'charleshammond@gmail.com',
+      'announce': 'Most honored son and all around great guy',
+      'name': 'Charles Hammond',
+      'home': 'Austin, TX',
+      'birth': 1960,
+      'profile': 'charles'
+    },
+    {
+      'email': 'marilynhammond@gmail.com',
+      'announce': 'The highly esteemed and greatly loved and admired',
+      'name': 'Marilyn Hammond',
+      'home': 'Fond du Lac, WI',
+      'birth': 1950,
+      'profile': 'marilyn'
+    },
+    {
+      'email': 'emilyhammond@gmail.com',
+      'announce': 'Most wonderful daughter and thoughtful wife',
+      'name': 'Emily Hammond',
+      'birth': 1964,
+      'home': 'Austin, TX',
+      'profile': 'emily'
+    },
+    {
+      'email': 'neufy@gmail.com',
+      'announce': 'The ninth dog, the french magician, the butterfly',
+      'name': 'Neufy',
+      'birth': 2019,
+      'home': 'Fond du Lac, WI',
+      'profile': 'neufy'
+    },
+    {
+      'email': 'felina@gmail.com',
+      'announce': 'From the cat who brings joy to everyone',
+      'name': 'Felina',
+      'birth': 2012,
+      'home': 'Fond du Lac, WI',
+      'profile': 'felina'
+    },
+    {
+      'email': 'lily@gmail.com',
+      'announce': 'the fastest, quickest, lure coursing Afghan Hound',
+      'name': 'lily',
+      'birth': 1980,
+      'home': 'Tulsa, OK',
+      'profile': 'lily'
+    },
+    {
+      'email': 'cala@gmail.com',
+      'announce': 'The sweetest greyhound, the great traveler',
+      'name': 'cala',
+      'home': 'Tulsa, OK',
+      'birth': 1982,
+      'profile': 'cala'
+    },
+    {
+      'email': 'lordnatolie@gmail.com',
+      'announce': 'The fastest greyhound Lord Natolie',
+      'name': 'Lord Natolie',
+      'home': 'Austin, TX',
+      'profile': 'natolie',
+      'birth': 1985
+    },
+    {
+      'email': 'peggyhammond@gmail.com',
+      'announce': 'The greatest mom ever, we miss her so much',
+      'name': 'Peggy Hammond',
+      'home': 'Gonzales, CA',
+      'profile': 'peggy',
+      'birth': 1934
+    },
+    {
+      'email': 'ermahammond@gmail.com',
+      'announce': 'Fantastic sister, mother and wife',
+      'name': 'Erma Hammond',
+      'profile': 'erma',
+      'birth': 1950,
+      'home': 'Bend, OR'
+    },
+    {
+      'email': 'thomhammond@gmail.com',
+      'announce': 'Fantastic nephew and college graduate',
+      'name': 'Thom Hammond',
+      'profile': 'thom',
+      'birth': 1990,
+      'home': 'Richmond, CA'
+    },
+    {
+      'email': 'brucefreeman@gmail.com',
+      'announce': 'He is not here, but he is always remembered',
+      'name': 'Bruce Freeman',
+      'profile': 'bruce',
+      'birth': 1950,
+      'home': 'El Sobrante, CA'
+    },
   ];
 
-  final names = [
-    'She hails for Durango, Miss Karen Hammond',
-    'The great Barton Hammond',
-    'Most honored son Charles Hammond',
-    'The highly esteemed Miss Marilyn Hammond',
-    'Most wonderful daughter Emily Hammond',
-    'The one and only Neufy',
-    'Most precious Felina',
-    'Greatest Afghan Hound Lily',
-    'Sweetest greyhound Cala',
-    'The fastest greyhound Lord Natolie',
-    'The greatest mom ever, miss peggy hammond',
-    'Miss Erma Hammond, the one, the only, the best'
-  ];
   final List<dynamic> files = getFiles();
 
   final GraphQLClient graphQLClientApolloServer =
@@ -59,18 +139,20 @@ Future<void> main() async {
   final Random randomVoiceGen = Random();
   final Random randomFileGen = Random();
 
-  for (var userIndex = 0; userIndex < emails.length; userIndex++) {
+  for (var userIndex = 0; userIndex < users.length; userIndex++) {
     try {
       final String userId = await addUser(
+        graphQLClientFileServer,
         graphQLClientApolloServer,
-        emails[userIndex],
+        users[userIndex],
       );
       userIds.add(userId);
       print('addUser: $userId');
 
       //For 10 Stories
       for (var storyIndex = 25; storyIndex > -1; storyIndex--) {
-        final String text = '${names[userIndex]} story number $storyIndex';
+        final String text =
+            '${users[userIndex]['announce']} ${users[userIndex]['name']} from ${users[userIndex]['home']} story number $storyIndex';
 
         //Create Story
         final storyId = await addSingleStory(
@@ -91,8 +173,8 @@ Future<void> main() async {
   }
 
   //Make everyone friends
-  for (var userIndex = 0; userIndex < emails.length; userIndex++) {
-    for (var friendIndex = 0; friendIndex < emails.length; friendIndex++) {
+  for (var userIndex = 0; userIndex < 8; userIndex++) {
+    for (var friendIndex = 0; friendIndex < 8; friendIndex++) {
       if (userIndex == friendIndex) {
         continue;
       }
@@ -104,126 +186,4 @@ Future<void> main() async {
     }
   }
   return;
-}
-
-Future<String> addSingleStory(
-    String userId,
-    List<dynamic> files,
-    GraphQLClient graphQLClientApolloServer,
-    GraphQLClient graphQLClientFileServer,
-    Random randomFileGen,
-    Random randomVoiceGen,
-    String text,
-    {int daysOffset = 0}) async {
-  final uuid = Uuid();
-  final String _storyId = uuid.v1();
-  //Create Image
-
-  final int maxFile = files.length - 1;
-  final int randomFile = randomFileGen.nextInt(maxFile);
-  MultipartFile multipartFile = getMultipartFile(
-    File(files[randomFile]),
-    '$_storyId.jpg',
-    'image',
-    'jpeg',
-  );
-
-  final String jpegPathUrl = await performMutation(
-    graphQLClientFileServer,
-    multipartFile,
-    'jpeg',
-  );
-
-  //Create mp3 (userName, text, file)
-  final int randomVoice = randomVoiceGen.nextInt(encodings.length);
-  final String mp3Path = './seed/mp3/${text.replaceAll(RegExp(' +'), '_')}';
-  print('Text: $text');
-  print('mp3Path: $mp3Path');
-
-  await textToSpeech(
-    text,
-    '$mp3Path',
-    encodings[randomVoice].substring(0, 5).toLowerCase(),
-    encodings[randomVoice],
-  );
-
-  multipartFile = getMultipartFile(
-    File('$mp3Path.mp3'),
-    '$_storyId.mp3',
-    'audio',
-    'mp3',
-  );
-
-  final String mp3PathUrl = await performMutation(
-    graphQLClientFileServer,
-    multipartFile,
-    'mp3',
-  );
-  print('mp3PathUrl: $mp3PathUrl');
-
-  await addStory(
-    graphQLClientApolloServer,
-    userId,
-    _storyId,
-    jpegPathUrl,
-    mp3PathUrl,
-    daysOffset: daysOffset,
-  );
-
-  return _storyId;
-}
-
-Future<String> addUser(GraphQLClient graphQLClient, String email) async {
-  final uuid = Uuid();
-  final DateTime now = DateTime.now();
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
-  final String id = uuid.v1();
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(createUser),
-    variables: <String, dynamic>{
-      'id': id,
-      'email': email,
-      'created': formattedDate
-    },
-  );
-  final QueryResult result = await graphQLClient.mutate(_mutationOptions);
-  if (result.hasException) {
-    throw result.exception;
-  }
-  return id;
-}
-
-List<dynamic> getFiles() {
-  final files = <dynamic>[];
-  final Directory dir = Directory('./seed/photos');
-  // execute an action on each entry
-  dir.listSync(recursive: true).forEach((f) {
-    if (f.path.endsWith('jpg')) {
-      files.add(f.path.toString());
-    }
-  });
-  return files;
-}
-
-GraphQLClient getGraphQLClient(GraphQLClientType type) {
-  var port = '4003'; //this one is not secured
-  var endPoint = 'graphql';
-
-  const uri = 'http://192.168.1.39'; //HP
-
-  if (type == GraphQLClientType.FileServer) {
-    port = '4002';
-    endPoint = 'query';
-  }
-  final httpLink = HttpLink(
-    uri: '$uri:$port/$endPoint',
-  );
-
-  final GraphQLClient graphQLClient = GraphQLClient(
-    cache: InMemoryCache(),
-    link: httpLink,
-  );
-
-  return graphQLClient;
 }

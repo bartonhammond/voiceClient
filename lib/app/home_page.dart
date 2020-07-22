@@ -4,6 +4,7 @@ import 'package:voiceClient/app/story_page.dart';
 import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
 import 'package:voiceClient/common_widgets/fab/fab_with_icons.dart';
 import 'package:voiceClient/common_widgets/fab/layout.dart';
+import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
 
 import 'package:voiceClient/constants/enums.dart';
@@ -106,6 +107,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         body: Stack(children: <Widget>[
           buildOffStageNavigatorStories(TabItem.stories),
+          buildOffStageNavigatorFriends(TabItem.friends),
           //buildOffStageNavigatorStory(TabItem.newStory),
           //_buildOffstageNavigator(TabItem.red),
           //_buildOffstageNavigator(TabItem.green),
@@ -134,6 +136,16 @@ class _HomePageState extends State<HomePage> {
     return Offstage(
       offstage: _currentTab != item,
       child: TabNavigatorStories(
+        navigatorKey: _navigatorKeys[item],
+        tabItem: item,
+      ),
+    );
+  }
+
+  Widget buildOffStageNavigatorFriends(TabItem item) {
+    return Offstage(
+      offstage: _currentTab != item,
+      child: TabNavigatorFriends(
         navigatorKey: _navigatorKeys[item],
         tabItem: item,
       ),

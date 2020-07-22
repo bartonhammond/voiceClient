@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 
-class StaggeredGridTile extends StatelessWidget {
-  const StaggeredGridTile({
+class StaggeredGridTileStory extends StatelessWidget {
+  const StaggeredGridTileStory({
     @required this.onPush,
     @required this.activity,
   });

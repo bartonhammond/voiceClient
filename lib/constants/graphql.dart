@@ -15,10 +15,14 @@ query getUserByEmail($email: String!) {
 ''';
 
 const String createUser = r'''
-mutation createUser($id: ID!, $email: String!, $created: String!) {
+mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $birth: Int, $image: String, $created: String!, ) {
   CreateUser(
     id: $id
+    name: $name
     email: $email
+    home: $home
+    image: $image
+    birth: $birth
     created: { formatted: $created }
   ) {
     id
@@ -105,6 +109,33 @@ query getStoryById ($id: String!) {
   id
   image
   audio
+  }
+}
+''';
+
+const String getFriendsOfMine = r'''
+query getFriendsOfMine ($email: String!) {
+  friends(email: $email){
+    isFriend
+		email
+    name
+    home
+    image
+    created{
+      formatted
+    }
+  }
+}
+''';
+const String userSearch = r'''
+query userSearch($searchString: String!) {
+  userSearch(searchString: $searchString) {
+    id
+    name
+    email
+    home
+    birth
+    image
   }
 }
 ''';

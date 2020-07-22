@@ -44,14 +44,14 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   @override
   void initState() {
     super.initState();
-    print('StaggeredGridTile initState start');
+    print('StaggeredGridTileStory initState start');
     initAudioPlayer();
-    print('StaggeredGridTile initState finished');
+    print('StaggeredGridTileStory initState finished');
   }
 
   @override
   void dispose() {
-    print('StaggeredGridTile dispose start');
+    print('StaggeredGridTileStory dispose start');
     _audioPlayer.dispose();
     _durationSubscription?.cancel();
     _positionSubscription?.cancel();
@@ -59,7 +59,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _playerErrorSubscription?.cancel();
     _playerStateSubscription?.cancel();
     super.dispose();
-    print('StaggeredGridTile dispose finished');
+    print('StaggeredGridTileStory dispose finished');
   }
 
   @override

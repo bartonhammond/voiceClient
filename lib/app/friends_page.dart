@@ -1,26 +1,51 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
-import 'package:voiceClient/common_widgets/staggered_grid_tile_story.dart';
+import 'package:voiceClient/common_widgets/staggered_grid_tile_friend.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
-class StoriesPage extends StatelessWidget {
-  StoriesPage({this.onPush});
-  final ValueChanged<String> onPush;
+class Debouncer {
+  final int milliseconds;
+  VoidCallback action;
+  Timer _timer;
 
+  Debouncer({this.milliseconds});
+
+  void run(VoidCallback action) {
+    if (null != _timer) {
+      _timer.cancel();
+    }
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+    return;
+  }
+}
+
+class FriendsPage extends StatefulWidget {
+  FriendsPage({this.onPush});
+  final ValueChanged<String> onPush;
+  @override
+  _FriendsPageState createState() => _FriendsPageState();
+}
+
+class _FriendsPageState extends State<FriendsPage> {
   final String title = 'My Family Voice';
-  final nActivities = 20;
+  final nFriends = 20;
   final ScrollController _scrollController = ScrollController();
+  String searchString = 'ham';
+  final _debouncer = Debouncer(milliseconds: 500);
 
   @override
   Widget build(BuildContext context) {
     int offset = 0;
+    bool shouldBeMore = true;
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    print('storiesPage build');
+    print('friendsPage build');
     return Scaffold(
         appBar: AppBar(
           backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
@@ -36,12 +61,28 @@ class StoriesPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
+              TextField(
+                decoration: InputDecoration(
+                  contentPadding: EdgeInsets.all(15.0),
+                  hintText: 'Filter by name or home',
+                ),
+                onChanged: (string) {
+                  if (string.isEmpty) {
+                    return;
+                  }
+                  _debouncer.run(() {
+                    setState(() {
+                      searchString = '$string*';
+                    });
+                  });
+                },
+              ),
               Query(
                   options: QueryOptions(
-                    documentNode: gql(userActivities),
+                    documentNode: gql(userSearch),
                     variables: <String, dynamic>{
-                      'email': graphQLAuth.getUser().email,
-                      'first': nActivities,
+                      'searchString': searchString,
+                      'first': nFriends,
                       'offset': offset
                       // set cursor to null so as to start at the beginning
                       // 'cursor': 10
@@ -49,7 +90,7 @@ class StoriesPage extends StatelessWidget {
                   ),
                   builder: (QueryResult result,
                       {refetch, FetchMore fetchMore}) {
-                    print('homePage queryResult: $result');
+                    print('friendsPage queryResult: $result');
                     if (result.loading && result.data == null) {
                       return const Center(
                         child: CircularProgressIndicator(),
@@ -61,10 +102,11 @@ class StoriesPage extends StatelessWidget {
                           '\nErrors: \n  ' + result.exception.toString());
                     }
 
-                    final List<dynamic> activities =
-                        result.data['User'][0]['activities'];
-
-                    offset += nActivities;
+                    final List<dynamic> friends = result.data['userSearch'];
+                    if (result.data.length < nFriends) {
+                      shouldBeMore = false;
+                    }
+                    offset += nFriends;
 
                     final FetchMoreOptions opts = FetchMoreOptions(
                       variables: <String, dynamic>{'offset': offset},
@@ -74,11 +116,11 @@ class StoriesPage extends StatelessWidget {
                         // in this case, we want to display previous repos plus next repos
                         // so, we combine data in both into a single list of repos
                         final List<dynamic> repos = <dynamic>[
-                          ...previousResultData['User'][0]['activities'],
-                          ...fetchMoreResultData['User'][0]['activities'],
+                          ...previousResultData['userSearch'],
+                          ...fetchMoreResultData['userSearch'],
                         ];
 
-                        fetchMoreResultData['User'][0]['activities'] = repos;
+                        fetchMoreResultData['userSearch'] = repos;
 
                         return fetchMoreResultData;
                       },
@@ -88,27 +130,31 @@ class StoriesPage extends StatelessWidget {
                       ..addListener(() {
                         if (_scrollController.position.pixels ==
                             _scrollController.position.maxScrollExtent) {
-                          if (!result.loading) {
+                          if (!result.loading && shouldBeMore) {
                             fetchMore(opts);
                           }
                         }
                       });
 
                     return Expanded(
-                      child: StaggeredGridView.countBuilder(
-                        controller: _scrollController,
-                        itemCount: activities.length,
-                        primary: false,
-                        crossAxisCount: 4,
-                        mainAxisSpacing: 4.0,
-                        crossAxisSpacing: 4.0,
-                        itemBuilder: (context, index) => StaggeredGridTileStory(
-                          onPush: onPush,
-                          activity:
-                              Map<String, dynamic>.from(activities[index]),
-                        ),
-                        staggeredTileBuilder: (index) => StaggeredTile.fit(2),
-                      ),
+                      child: friends == null
+                          ? Text('no data')
+                          : StaggeredGridView.countBuilder(
+                              controller: _scrollController,
+                              itemCount: friends.length,
+                              primary: false,
+                              crossAxisCount: 4,
+                              mainAxisSpacing: 4.0,
+                              crossAxisSpacing: 4.0,
+                              itemBuilder: (context, index) =>
+                                  StaggeredGridTileFriend(
+                                onPush: widget.onPush,
+                                friend:
+                                    Map<String, dynamic>.from(friends[index]),
+                              ),
+                              staggeredTileBuilder: (index) =>
+                                  StaggeredTile.fit(2),
+                            ),
                     );
                   })
             ],
