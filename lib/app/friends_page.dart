@@ -6,16 +6,16 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/staggered_grid_tile_friend.dart';
+import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 class Debouncer {
+  Debouncer({this.milliseconds});
   final int milliseconds;
   VoidCallback action;
   Timer _timer;
-
-  Debouncer({this.milliseconds});
 
   void run(VoidCallback action) {
     if (null != _timer) {
@@ -27,7 +27,7 @@ class Debouncer {
 }
 
 class FriendsPage extends StatefulWidget {
-  FriendsPage({this.onPush});
+  const FriendsPage({this.onPush});
   final ValueChanged<String> onPush;
   @override
   _FriendsPageState createState() => _FriendsPageState();
@@ -37,8 +37,74 @@ class _FriendsPageState extends State<FriendsPage> {
   final String title = 'My Family Voice';
   final nFriends = 20;
   final ScrollController _scrollController = ScrollController();
-  String searchString = 'ham';
+  String _searchString;
   final _debouncer = Debouncer(milliseconds: 500);
+  TypeUser _typeUser;
+
+  Map<int, String> searchResultsName = {
+    0: 'userSearchFriends',
+    1: 'userSearchNotFriends'
+  };
+
+  @override
+  void initState() {
+    _searchString = '*';
+    _typeUser = TypeUser.friends;
+  }
+
+  List<Widget> buildSearchField() {
+    return <Widget>[
+      Flexible(
+        child: TextField(
+          decoration: InputDecoration(
+            contentPadding: EdgeInsets.all(15.0),
+            hintText: 'Filter by name or home',
+          ),
+          onChanged: (string) {
+            _debouncer.run(() {
+              setState(() {
+                if (string.isEmpty) {
+                  _searchString = '*';
+                } else {
+                  _searchString = '$string*';
+                }
+              });
+            });
+          },
+        ),
+      )
+    ];
+  }
+
+  List<Widget> buildTypeUserButtons() {
+    return <Widget>[
+      Flexible(
+        child: RadioListTile<TypeUser>(
+          title: const Text('Friends'),
+          value: TypeUser.friends,
+          groupValue: _typeUser,
+          onChanged: (TypeUser value) {
+            setState(() {
+              _typeUser = value;
+            });
+          },
+        ),
+      ),
+      Flexible(
+        child: RadioListTile<TypeUser>(
+          title: const Text('Users'),
+          value: TypeUser.users,
+          groupValue: _typeUser,
+          onChanged: (TypeUser value) {
+            setState(() {
+              _typeUser = value;
+              print('typeUser');
+            });
+          },
+        ),
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,27 +127,23 @@ class _FriendsPageState extends State<FriendsPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              TextField(
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.all(15.0),
-                  hintText: 'Filter by name or home',
-                ),
-                onChanged: (string) {
-                  if (string.isEmpty) {
-                    return;
-                  }
-                  _debouncer.run(() {
-                    setState(() {
-                      searchString = '$string*';
-                    });
-                  });
-                },
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: buildSearchField(),
               ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: buildTypeUserButtons(),
+              ),
+              Divider(),
               Query(
                   options: QueryOptions(
-                    documentNode: gql(userSearch),
+                    documentNode: _typeUser == TypeUser.friends
+                        ? gql(userSearchFriends)
+                        : gql(userSearchNotFriends),
                     variables: <String, dynamic>{
-                      'searchString': searchString,
+                      'searchString': _searchString,
+                      'email': graphQLAuth.getUser().email,
                       'first': nFriends,
                       'offset': offset
                       // set cursor to null so as to start at the beginning
@@ -102,7 +164,8 @@ class _FriendsPageState extends State<FriendsPage> {
                           '\nErrors: \n  ' + result.exception.toString());
                     }
 
-                    final List<dynamic> friends = result.data['userSearch'];
+                    final List<dynamic> friends =
+                        result.data[searchResultsName[_typeUser.index]];
                     if (result.data.length < nFriends) {
                       shouldBeMore = false;
                     }
@@ -116,11 +179,14 @@ class _FriendsPageState extends State<FriendsPage> {
                         // in this case, we want to display previous repos plus next repos
                         // so, we combine data in both into a single list of repos
                         final List<dynamic> repos = <dynamic>[
-                          ...previousResultData['userSearch'],
-                          ...fetchMoreResultData['userSearch'],
+                          ...previousResultData[
+                              searchResultsName[_typeUser.index]],
+                          ...fetchMoreResultData[
+                              searchResultsName[_typeUser.index]],
                         ];
 
-                        fetchMoreResultData['userSearch'] = repos;
+                        fetchMoreResultData[
+                            searchResultsName[_typeUser.index]] = repos;
 
                         return fetchMoreResultData;
                       },
@@ -137,8 +203,8 @@ class _FriendsPageState extends State<FriendsPage> {
                       });
 
                     return Expanded(
-                      child: friends == null
-                          ? Text('no data')
+                      child: friends == null || friends.isEmpty
+                          ? Text('No results')
                           : StaggeredGridView.countBuilder(
                               controller: _scrollController,
                               itemCount: friends.length,

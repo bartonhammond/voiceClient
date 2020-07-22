@@ -9,3 +9,8 @@ enum TabItem {
   profile,
   newStory,
 }
+
+enum TypeUser {
+  friends,
+  users,
+}

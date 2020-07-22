@@ -139,3 +139,27 @@ query userSearch($searchString: String!) {
   }
 }
 ''';
+const String userSearchFriends = r'''
+query userSearchFriends($searchString: String!, $email: String!) {
+  userSearchFriends(searchString: $searchString, email: $email) {
+    id
+    name
+    email
+    home
+    birth
+    image
+  }
+}
+''';
+const String userSearchNotFriends = r'''
+query userSearchNotFriends($searchString: String!, $email: String!) {
+  userSearchNotFriends(searchString: $searchString, email: $email) {
+    id
+    name
+    email
+    home
+    birth
+    image
+  }
+}
+''';
