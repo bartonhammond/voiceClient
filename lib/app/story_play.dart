@@ -68,7 +68,9 @@ class _StoryPlayState extends State<StoryPlay> {
     return Card(
       child: Column(
         children: <Widget>[
-          //new Center(child: new CircularProgressIndicator()),
+          SizedBox(
+            height: 5,
+          ),
           Center(
             child: GestureDetector(
               onTap: () {},

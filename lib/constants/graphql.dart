@@ -110,11 +110,32 @@ const String mergeUserFriends = r'''
   }
 }
 ''';
+
+const String removeUserFriends = r'''
+  mutation removeUserFriends($from: ID!, $to: ID!) {
+  RemoveUserFriends(
+    from: { id: $from }
+    to: { id: $to }
+  ) {
+    from {
+      id
+    }
+    to {
+      id
+    }
+  }
+}
+''';
+
 const String userActivities = r'''
 query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
  User(email: $email) {
   id
   email
+  name
+  home
+  image
+  birth
   activities(
     email: $email
     first: $first
@@ -128,6 +149,10 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
       }
       user {
         email
+        name
+        home
+        birth
+        image
       }
     }
   }
@@ -140,6 +165,7 @@ query getUserStories ($email: String!, $first: Int!, $offset: Int!) {
   email
   home
   birth
+  image
   stories(
     first: $first
     offset: $offset

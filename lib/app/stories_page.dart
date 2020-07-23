@@ -159,7 +159,7 @@ class _StoriesPageState extends State<StoriesPage> {
                         final List<dynamic> activities = result.data['User'][0]
                             [resultType[widget.userId == null]];
 
-                        if (result.data.length < nActivities) {
+                        if (result.data['User'][0].length < nActivities) {
                           shouldBeMore = false;
                         }
                         offset += nActivities;
@@ -206,6 +206,7 @@ class _StoriesPageState extends State<StoriesPage> {
                             itemBuilder: (context, index) =>
                                 StaggeredGridTileStory(
                               onPush: widget.onPush,
+                              showFriend: widget.userId == null,
                               activity:
                                   Map<String, dynamic>.from(activities[index]),
                             ),

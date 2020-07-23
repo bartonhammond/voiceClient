@@ -7,4 +7,5 @@ class Keys {
   static const String storiesPage = 'storiesPage';
   static const String storyPage = 'storyPage';
   static const String friendsPage = 'friendsPage';
+  static const String newFriendsButton = 'friendsButton';
 }

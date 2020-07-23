@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
+import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/staggered_grid_tile_friend.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
@@ -29,6 +32,7 @@ class Debouncer {
 class FriendsPage extends StatefulWidget {
   const FriendsPage({Key key, this.onPush}) : super(key: key);
   final ValueChanged<String> onPush;
+
   @override
   _FriendsPageState createState() => _FriendsPageState();
 }
@@ -107,6 +111,51 @@ class _FriendsPageState extends State<FriendsPage> {
     ];
   }
 
+  Future<void> _newFriendRequest(String friendId) async {
+    print('newFriendRequest');
+    return;
+  }
+
+  Future<void> _quitFriendRequest(String friendId) async {
+    print('quitFriendRequest');
+    final bool didRequestSignOut = await PlatformAlertDialog(
+      title: 'Quit Friendship?',
+      content: 'Are you sure?',
+      cancelActionText: 'Cancel',
+      defaultActionText: 'Yes',
+    ).show(context);
+    if (didRequestSignOut == true) {
+      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+      final GraphQLClient graphQLClient =
+          graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
+      MutationOptions options = MutationOptions(
+        documentNode: gql(removeUserFriends),
+        variables: <String, dynamic>{
+          'from': graphQLAuth.getCurrentUserId(),
+          'to': friendId,
+        },
+      );
+
+      QueryResult result = await graphQLClient.mutate(options);
+
+      if (result.hasException) {
+        throw result.exception;
+      }
+      options = MutationOptions(
+        documentNode: gql(removeUserFriends),
+        variables: <String, dynamic>{
+          'to': graphQLAuth.getCurrentUserId(),
+          'from': friendId,
+        },
+      );
+
+      result = await graphQLClient.mutate(options);
+    } else {
+      print('do not quit');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     int offset = 0;
@@ -167,7 +216,9 @@ class _FriendsPageState extends State<FriendsPage> {
 
                     final List<dynamic> friends =
                         result.data[searchResultsName[_typeUser.index]];
-                    if (result.data.length < nFriends) {
+
+                    if (result.data[searchResultsName[_typeUser.index]].length <
+                        nFriends) {
                       shouldBeMore = false;
                     }
                     offset += nFriends;
@@ -215,9 +266,26 @@ class _FriendsPageState extends State<FriendsPage> {
                               crossAxisSpacing: 4.0,
                               itemBuilder: (context, index) =>
                                   StaggeredGridTileFriend(
-                                onPush: widget.onPush,
+                                onPush: _typeUser == TypeUser.friends
+                                    ? widget.onPush
+                                    : null,
                                 friend:
                                     Map<String, dynamic>.from(friends[index]),
+                                friendButton: _typeUser == TypeUser.friends
+                                    ? FriendButton(
+                                        key: Key(
+                                            '${Keys.newFriendsButton}-$index'),
+                                        text: 'Quit Friend?',
+                                        onPressed: () => _quitFriendRequest(
+                                            friends[index]['id']),
+                                      )
+                                    : FriendButton(
+                                        key: Key(
+                                            '${Keys.newFriendsButton}-$index'),
+                                        text: 'New  Friend?',
+                                        onPressed: () => _newFriendRequest(
+                                            friends[index]['id']),
+                                      ),
                               ),
                               staggeredTileBuilder: (index) =>
                                   StaggeredTile.fit(2),

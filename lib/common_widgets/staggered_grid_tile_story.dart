@@ -6,9 +6,38 @@ class StaggeredGridTileStory extends StatelessWidget {
   const StaggeredGridTileStory({
     @required this.onPush,
     @required this.activity,
+    @required this.showFriend,
   });
   final ValueChanged<String> onPush;
   final Map activity;
+  final bool showFriend;
+
+  Widget buildFriend() {
+    return Card(
+      child: Column(
+        children: <Widget>[
+          Center(
+            child: GestureDetector(
+              onTap: () {},
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(35.0),
+                child: FadeInImage.memoryNetwork(
+                  height: 35,
+                  width: 35,
+                  placeholder: kTransparentImage,
+                  image: activity['user']['image'],
+                ),
+              ),
+            ),
+          ),
+          Text(
+            activity['user']['name'],
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +70,7 @@ class StaggeredGridTileStory extends StatelessWidget {
               )
             ],
           ),
+          showFriend ? buildFriend() : SizedBox.shrink()
         ],
       ),
     );
