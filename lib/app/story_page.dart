@@ -26,7 +26,7 @@ import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class StoryPage extends StatefulWidget {
-  StoryPage({this.onFinish, this.id});
+  StoryPage({Key key, this.onFinish, this.id}) : super(key: key);
 
   final LocalFileSystem localFileSystem = LocalFileSystem();
   final String id;

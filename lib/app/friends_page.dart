@@ -27,7 +27,7 @@ class Debouncer {
 }
 
 class FriendsPage extends StatefulWidget {
-  const FriendsPage({this.onPush});
+  const FriendsPage({Key key, this.onPush}) : super(key: key);
   final ValueChanged<String> onPush;
   @override
   _FriendsPageState createState() => _FriendsPageState();
@@ -50,6 +50,7 @@ class _FriendsPageState extends State<FriendsPage> {
   void initState() {
     _searchString = '*';
     _typeUser = TypeUser.friends;
+    super.initState();
   }
 
   List<Widget> buildSearchField() {

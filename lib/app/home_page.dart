@@ -8,6 +8,7 @@ import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart'
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
 
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/keys.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -53,6 +54,7 @@ class _HomePageState extends State<HomePage> {
             map['context'],
             MaterialPageRoute<dynamic>(
                 builder: (context) => StoryPage(
+                      key: Key(Keys.storyPage),
                       onFinish: _setVisible,
                     )),
           );

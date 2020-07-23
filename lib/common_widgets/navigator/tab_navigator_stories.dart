@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:voiceClient/app/stories_page.dart' show StoriesPage;
 import 'package:voiceClient/app/story_play.dart';
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/keys.dart';
 
 class TabNavigatorRoutes {
   static const String root = '/';
@@ -35,9 +36,11 @@ class TabNavigatorStories extends StatelessWidget {
               context,
               id,
             ),
+            key: Key(Keys.storiesPage),
           ),
       TabNavigatorRoutes.detail: (context) => StoryPlay(
-            id,
+            key: Key(Keys.storyPage),
+            id: id,
           ),
     };
   }

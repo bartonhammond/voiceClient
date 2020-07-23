@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:voiceClient/app/friends_page.dart' show FriendsPage;
+import 'package:voiceClient/app/stories_page.dart' show StoriesPage;
 import 'package:voiceClient/app/story_play.dart';
+
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/keys.dart';
 
 class TabNavigatorRoutes {
   static const String root = '/';
-  static const String detail = '/detail';
+  static const String stories = '/stories';
+  static const String story = '/story';
 }
 
 class TabNavigatorFriends extends StatelessWidget {
@@ -20,7 +24,22 @@ class TabNavigatorFriends extends StatelessWidget {
     Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (context) => routeBuilders[TabNavigatorRoutes.detail](context),
+        builder: (context) => routeBuilders[TabNavigatorRoutes.stories](
+          context,
+        ),
+      ),
+    );
+  }
+
+  void _pushStory(BuildContext context, String id) {
+    final routeBuilders = _routeBuilders(context, id: id);
+
+    Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => routeBuilders[TabNavigatorRoutes.story](
+          context,
+        ),
       ),
     );
   }
@@ -31,13 +50,22 @@ class TabNavigatorFriends extends StatelessWidget {
   }) {
     return {
       TabNavigatorRoutes.root: (context) => FriendsPage(
+            key: Key(Keys.friendsPage),
             onPush: (id) => _push(
               context,
               id,
             ),
           ),
-      TabNavigatorRoutes.detail: (context) => StoryPlay(
-            id,
+      TabNavigatorRoutes.stories: (context) => StoriesPage(
+          key: Key(Keys.storiesPage),
+          onPush: (id) => _pushStory(
+                context,
+                id,
+              ),
+          userId: id),
+      TabNavigatorRoutes.story: (context) => StoryPlay(
+            key: Key(Keys.storyPage),
+            id: id,
           ),
     };
   }
@@ -50,7 +78,9 @@ class TabNavigatorFriends extends StatelessWidget {
       initialRoute: TabNavigatorRoutes.root,
       onGenerateRoute: (routeSettings) {
         return MaterialPageRoute<dynamic>(
-          builder: (context) => routeBuilders[routeSettings.name](context),
+          builder: (context) => routeBuilders[routeSettings.name](
+            context,
+          ),
         );
       },
     );

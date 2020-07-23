@@ -10,10 +10,40 @@ query getUserByEmail($email: String!) {
     id
     name
     email
+    home
+    birth
+    image
   }
 }
 ''';
-
+const String getUserById = r'''
+query getUserByEmail($id: ID!) {
+  User(id: $id) {
+    id
+    name
+    email
+    home
+    birth
+    image
+  }
+}
+''';
+const String getStoryById = r'''
+query getStoryById($id: ID!) {
+  Story(id: $id) {
+    id
+    image
+    audio
+    user {
+      name
+      home
+      image
+      birth
+      id
+    }
+  }
+}
+''';
 const String createUser = r'''
 mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $birth: Int, $image: String, $created: String!, ) {
   CreateUser(
@@ -103,16 +133,27 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   }
 }
 ''';
-const String getStoryById = r'''
-query getStoryById ($id: String!) {
- Story(id: $id) {
+const String userStories = r'''
+query getUserStories ($email: String!, $first: Int!, $offset: Int!) {
+ User(email: $email) {
   id
-  image
-  audio
+  email
+  home
+  birth
+  stories(
+    first: $first
+    offset: $offset
+  ) {
+      id
+      image
+      audio
+      created {
+        formatted
+      }
+    }
   }
 }
 ''';
-
 const String getFriendsOfMine = r'''
 query getFriendsOfMine ($email: String!) {
   friends(email: $email){
