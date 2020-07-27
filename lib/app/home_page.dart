@@ -5,6 +5,7 @@ import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
 import 'package:voiceClient/common_widgets/fab/fab_with_icons.dart';
 import 'package:voiceClient/common_widgets/fab/layout.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
+import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
 
 import 'package:voiceClient/constants/enums.dart';
@@ -21,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   //String _lastSelected = 'TAB: 0';
   TabItem _currentTab = TabItem.stories;
   bool _isVisible = true;
+  int _newMessageCount = 0;
 
   final Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
     TabItem.stories: GlobalKey<NavigatorState>(),
@@ -29,6 +31,12 @@ class _HomePageState extends State<HomePage> {
     TabItem.profile: GlobalKey<NavigatorState>(),
     TabItem.newStory: GlobalKey<NavigatorState>(),
   };
+
+  void _setMessageCount(int count) {
+    setState(() {
+      _newMessageCount = count;
+    });
+  }
 
   void _selectedTab(TabItem item) {
     setState(() {
@@ -110,7 +118,7 @@ class _HomePageState extends State<HomePage> {
         body: Stack(children: <Widget>[
           buildOffStageNavigatorStories(TabItem.stories),
           buildOffStageNavigatorFriends(TabItem.friends),
-          //buildOffStageNavigatorStory(TabItem.newStory),
+          buildOffStageNavigatorMessages(TabItem.messages),
           //_buildOffstageNavigator(TabItem.red),
           //_buildOffstageNavigator(TabItem.green),
           //_buildOffstageNavigator(TabItem.blue),
@@ -124,7 +132,11 @@ class _HomePageState extends State<HomePage> {
           items: [
             FABBottomAppBarItem(iconData: Icons.menu, text: 'Stories'),
             FABBottomAppBarItem(iconData: Icons.layers, text: 'Friends'),
-            FABBottomAppBarItem(iconData: Icons.dashboard, text: 'Messages'),
+            FABBottomAppBarItem(
+              iconData: Icons.dashboard,
+              text: 'Messages',
+              badge: _newMessageCount.toString(),
+            ),
             FABBottomAppBarItem(iconData: Icons.info, text: 'Profile'),
           ],
         ),
@@ -148,6 +160,16 @@ class _HomePageState extends State<HomePage> {
     return Offstage(
       offstage: _currentTab != item,
       child: TabNavigatorFriends(
+        navigatorKey: _navigatorKeys[item],
+        tabItem: item,
+      ),
+    );
+  }
+
+  Widget buildOffStageNavigatorMessages(TabItem item) {
+    return Offstage(
+      offstage: _currentTab != item,
+      child: TabNavigatorMessages(
         navigatorKey: _navigatorKeys[item],
         tabItem: item,
       ),

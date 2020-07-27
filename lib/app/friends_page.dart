@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
+
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
@@ -111,20 +114,57 @@ class _FriendsPageState extends State<FriendsPage> {
     ];
   }
 
-  Future<void> _newFriendRequest(String friendId) async {
+  Future<void> _newFriendRequest(String _friendId) async {
     print('newFriendRequest');
+    final bool addNewFriend = await PlatformAlertDialog(
+      title: 'Request Friendship?',
+      content: 'Are you sure?',
+      cancelActionText: 'Cancel',
+      defaultActionText: 'Yes',
+    ).show(context);
+    if (addNewFriend == true) {
+      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+      final GraphQLClient graphQLClient =
+          graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+      final uuid = Uuid();
+      final String _messageId = uuid.v1();
+
+      final DateTime now = DateTime.now();
+      final DateFormat formatter = DateFormat('yyyy-MM-dd');
+      final String formattedDate = formatter.format(now);
+
+      final MutationOptions options = MutationOptions(
+        documentNode: gql(addUserMessage),
+        variables: <String, dynamic>{
+          'from': graphQLAuth.getCurrentUserId(),
+          'to': _friendId,
+          'id': _messageId,
+          'created': formattedDate,
+          'status': 'new',
+          'text': 'friend request',
+          'type': 'friend-request',
+        },
+      );
+
+      final QueryResult result = await graphQLClient.mutate(options);
+      if (result.hasException) {
+        throw result.exception;
+      }
+    } else {
+      print('do not add friend');
+    }
     return;
   }
 
   Future<void> _quitFriendRequest(String friendId) async {
     print('quitFriendRequest');
-    final bool didRequestSignOut = await PlatformAlertDialog(
-      title: 'Quit Friendship?',
+    final bool endFriendship = await PlatformAlertDialog(
+      title: 'End Friendship?',
       content: 'Are you sure?',
       cancelActionText: 'Cancel',
       defaultActionText: 'Yes',
     ).show(context);
-    if (didRequestSignOut == true) {
+    if (endFriendship == true) {
       final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final GraphQLClient graphQLClient =
           graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);

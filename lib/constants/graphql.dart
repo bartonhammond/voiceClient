@@ -126,6 +126,38 @@ const String removeUserFriends = r'''
   }
 }
 ''';
+const String addUserMessage = r'''
+mutation addUserMessage($from: $ID!, $to: $ID!, $id: String!, $created: String!, $type: String!, $text: String!, $status: String!){
+  AddUserMessages(
+	from: {
+    id: $from
+  }
+  to: {
+    id: $to
+  }
+  data: {
+    id: id
+    created: {
+      formatted: $created
+    }
+    status: $status
+    type: $type
+    text: $text
+  }
+  ){
+    from {
+      id
+      name
+      email
+    }
+    to {
+      id
+      name
+      email
+    }
+  }
+}
+''';
 
 const String userActivities = r'''
 query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
@@ -229,4 +261,35 @@ query userSearchNotFriends($searchString: String!, $email: String!) {
     image
   }
 }
+''';
+const String getUserMessages = r'''
+query getUserMessages($email: String!, $status: String!) {
+  User(email: $email)  {
+    id
+    messages {  
+      from (
+        filter: {
+          status: $status
+        }
+      ) 
+      {
+        User {
+          id
+          name
+          email
+          home
+          birth
+          image
+        }
+        text
+        type
+        status
+        created {
+          formatted
+        }
+      }
+    }
+  } 
+}
+
 ''';

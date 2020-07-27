@@ -17,6 +17,11 @@ class GraphQLAuth {
   User user;
   String token;
   String currentUserId;
+  Map<String, dynamic> _userMap;
+
+  Map<String, dynamic> getUserMap() {
+    return _userMap;
+  }
 
   void setUser(User user) {
     this.user = user;
@@ -79,6 +84,7 @@ class GraphQLAuth {
         queryResult.data['User'] != null &&
         queryResult.data['User'].length > 0 &&
         queryResult.data['User'][0]['id'] != null) {
+      _userMap = queryResult.data['User'][0];
       setCurrentUserId(queryResult.data['User'][0]['id']);
     }
     return graphQLClient;

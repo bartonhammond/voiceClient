@@ -1,11 +1,13 @@
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class FABBottomAppBarItem {
-  FABBottomAppBarItem({this.iconData, this.text});
+  FABBottomAppBarItem({this.iconData, this.text, this.badge});
   IconData iconData;
   String text;
+  String badge;
 }
 
 class FABBottomAppBar extends StatefulWidget {
@@ -99,14 +101,24 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
           type: MaterialType.transparency,
           child: InkWell(
             onTap: () => onPressed(index),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Stack(
               children: <Widget>[
-                Icon(item.iconData, color: color, size: widget.iconSize),
-                Text(
-                  item.text,
-                  style: TextStyle(color: color),
+                item.badge == null
+                    ? Container()
+                    : Padding(
+                        padding: EdgeInsets.only(left: 35, top: 5),
+                        child: item.badge == '0'
+                            ? Container()
+                            : Badge(badgeContent: Text(item.badge)),
+                      ),
+                Padding(
+                  padding: EdgeInsets.only(left: 10, top: 10),
+                  child:
+                      Icon(item.iconData, color: color, size: widget.iconSize),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(top: 35),
+                  child: Text(item.text, style: TextStyle(color: color)),
                 )
               ],
             ),

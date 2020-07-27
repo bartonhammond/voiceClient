@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 
 class StaggeredGridTileFriend extends StatelessWidget {
-  const StaggeredGridTileFriend(
-      {@required this.onPush, @required this.friend, this.friendButton});
+  const StaggeredGridTileFriend({
+    @required this.onPush,
+    @required this.friend,
+    @required this.friendButton,
+  });
   final ValueChanged<String> onPush;
   final Map friend;
   final FriendButton friendButton;
