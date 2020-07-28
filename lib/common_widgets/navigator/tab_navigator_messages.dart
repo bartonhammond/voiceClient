@@ -14,11 +14,9 @@ class TabNavigatorMessages extends StatelessWidget {
   const TabNavigatorMessages({
     this.navigatorKey,
     this.tabItem,
-    this.onMessageCount,
   });
   final GlobalKey<NavigatorState> navigatorKey;
   final TabItem tabItem;
-  final VoidCallback onMessageCount;
 
   void _push(BuildContext context, String id) {
     final routeBuilders = _routeBuilders(context, id: id);

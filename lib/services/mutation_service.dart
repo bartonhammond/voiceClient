@@ -124,3 +124,39 @@ Future<void> addUserFriend(
   }
   return;
 }
+
+Future<void> updateFriendRequest(
+  GraphQLClient graphQLClient,
+  String fromId,
+  String toId,
+  String messageId,
+  String created,
+  String status,
+  String text,
+  String type,
+) async {
+  final DateTime now = DateTime.now();
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  final String formattedDate = formatter.format(now);
+
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(updateUserMessage),
+    variables: <String, dynamic>{
+      'from': fromId,
+      'to': toId,
+      'id': messageId,
+      'created': created,
+      'resolved': formattedDate,
+      'status': status,
+      'text': text,
+      'type': type,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}

@@ -9,6 +9,7 @@ class Keys {
   static const String friendsPage = 'friendsPage';
   static const String newFriendsButton = 'friendsButton';
   static const String messagesPage = 'messagesPage';
+  static const String messageGridTile = 'messageGridTile';
   static const String approveFriendRequestButton =
       'approveFriendsRequestButton';
   static const String rejectFriendRequestButton = 'rejectFriendsRequestButton';

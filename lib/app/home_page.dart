@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:voiceClient/app/story_page.dart';
 import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
 import 'package:voiceClient/common_widgets/fab/fab_with_icons.dart';
@@ -9,6 +10,7 @@ import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
 
 import 'package:voiceClient/constants/enums.dart';
+
 import 'package:voiceClient/constants/keys.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,7 +24,6 @@ class _HomePageState extends State<HomePage> {
   //String _lastSelected = 'TAB: 0';
   TabItem _currentTab = TabItem.stories;
   bool _isVisible = true;
-  int _newMessageCount = 0;
 
   final Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
     TabItem.stories: GlobalKey<NavigatorState>(),
@@ -31,12 +32,6 @@ class _HomePageState extends State<HomePage> {
     TabItem.profile: GlobalKey<NavigatorState>(),
     TabItem.newStory: GlobalKey<NavigatorState>(),
   };
-
-  void _setMessageCount(int count) {
-    setState(() {
-      _newMessageCount = count;
-    });
-  }
 
   void _selectedTab(TabItem item) {
     setState(() {
@@ -96,8 +91,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         final isFirstRouteInCurrentTab =
@@ -135,7 +129,7 @@ class _HomePageState extends State<HomePage> {
             FABBottomAppBarItem(
               iconData: Icons.dashboard,
               text: 'Messages',
-              badge: _newMessageCount.toString(),
+              badge: '0',
             ),
             FABBottomAppBarItem(iconData: Icons.info, text: 'Profile'),
           ],
@@ -144,6 +138,11 @@ class _HomePageState extends State<HomePage> {
         floatingActionButton: _buildFab(context), // This trailin
       ),
     );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _build(context);
   }
 
   Widget buildOffStageNavigatorStories(TabItem item) {

@@ -126,39 +126,6 @@ const String removeUserFriends = r'''
   }
 }
 ''';
-const String addUserMessage = r'''
-mutation addUserMessage($from: $ID!, $to: $ID!, $id: String!, $created: String!, $type: String!, $text: String!, $status: String!){
-  AddUserMessages(
-	from: {
-    id: $from
-  }
-  to: {
-    id: $to
-  }
-  data: {
-    id: id
-    created: {
-      formatted: $created
-    }
-    status: $status
-    type: $type
-    text: $text
-  }
-  ){
-    from {
-      id
-      name
-      email
-    }
-    to {
-      id
-      name
-      email
-    }
-  }
-}
-''';
-
 const String userActivities = r'''
 query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
  User(email: $email) {
@@ -190,6 +157,7 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   }
 }
 ''';
+
 const String userStories = r'''
 query getUserStories ($email: String!, $first: Int!, $offset: Int!) {
  User(email: $email) {
@@ -212,6 +180,7 @@ query getUserStories ($email: String!, $first: Int!, $offset: Int!) {
   }
 }
 ''';
+
 const String getFriendsOfMine = r'''
 query getFriendsOfMine ($email: String!) {
   friends(email: $email){
@@ -226,6 +195,7 @@ query getFriendsOfMine ($email: String!) {
   }
 }
 ''';
+
 const String userSearch = r'''
 query userSearch($searchString: String!) {
   userSearch(searchString: $searchString) {
@@ -238,6 +208,7 @@ query userSearch($searchString: String!) {
   }
 }
 ''';
+
 const String userSearchFriends = r'''
 query userSearchFriends($searchString: String!, $email: String!) {
   userSearchFriends(searchString: $searchString, email: $email) {
@@ -250,6 +221,7 @@ query userSearchFriends($searchString: String!, $email: String!) {
   }
 }
 ''';
+
 const String userSearchNotFriends = r'''
 query userSearchNotFriends($searchString: String!, $email: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email) {
@@ -262,6 +234,76 @@ query userSearchNotFriends($searchString: String!, $email: String!) {
   }
 }
 ''';
+
+const String addUserMessage = r'''
+mutation addUserMessage($from: ID!, $to: ID!, $id: ID!, $created: String!, $type: String!, $text: String!, $status: String!){
+  AddUserMessages(
+	from: {
+    id: $from
+  }
+  to: {
+    id: $to
+  }
+  data: {
+    id: $id
+    created: {
+      formatted: $created
+    }
+    status: $status
+    type: $type
+    text: $text
+  }
+  ){
+    from {
+      id
+      name
+      email
+    }
+    to {
+      id
+      name
+      email
+    }
+  }
+}
+''';
+
+const String updateUserMessage = r'''
+mutation updateUserMessage($from: ID!, $to: ID!, $resolved: String!, $status: String!, $id: ID!, $created: String!, $text: String!, $type: String!){
+  UpdateUserMessages(
+	from: {
+    id: $from
+  }
+  to: {
+    id: $to
+  }
+  data: {
+    id: $id
+    created: {
+      formatted: $created
+    }
+    resolved: {
+      formatted: $resolved
+    }
+    status: $status
+    text: $text
+    type: $type
+  }
+  ){
+    from {
+      id
+      name
+      email
+    }
+    to {
+      id
+      name
+      email
+    }
+  }
+}
+''';
+
 const String getUserMessages = r'''
 query getUserMessages($email: String!, $status: String!) {
   User(email: $email)  {
@@ -281,6 +323,7 @@ query getUserMessages($email: String!, $status: String!) {
           birth
           image
         }
+        id
         text
         type
         status
@@ -291,5 +334,65 @@ query getUserMessages($email: String!, $status: String!) {
     }
   } 
 }
+''';
 
+const String getAllNewFriendRequestsToMe = r'''
+query getAllNewFriendRequests($email: String) {
+User(email: $email) {
+    id
+    messages {
+      from (filter: {
+        type: "friend-request"
+        status: "new"
+      })
+      
+      {
+        id
+        type
+        status
+        resolved{
+          formatted
+        }
+        created {
+          formatted
+        }
+        User {
+          id
+          name
+          email
+        }
+      } 
+      }
+    }
+  }
+''';
+
+const String getAllMyFriendRequests = r'''
+query getAllFriendRequests($email: String) {
+User(email: $email) {
+    id
+    messages {
+      to (filter: {
+        type: "friend-request"          
+      })
+      
+      {
+        id
+        type
+        status
+        resolved{
+          formatted
+        }
+        created {
+          formatted
+        }
+        User {
+          id
+          name
+          email
+        }
+      } 
+      }
+    }
+  }
 ''';

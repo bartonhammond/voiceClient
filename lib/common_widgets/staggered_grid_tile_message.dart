@@ -4,11 +4,12 @@ import 'package:voiceClient/constants/transparent_image.dart';
 
 class StaggeredGridTileMessage extends StatelessWidget {
   const StaggeredGridTileMessage({
+    Key key,
     @required this.onPush,
     @required this.message,
     @required this.approveFriendButton,
     @required this.rejectFriendButton,
-  });
+  }) : super(key: key);
   final ValueChanged<String> onPush;
   final Map<String, dynamic> message;
   final FriendButton approveFriendButton;
