@@ -12,12 +12,12 @@ class StaggeredGridTileFriend extends StatelessWidget {
   final ValueChanged<String> onPush;
   final Map friend;
   final FriendButton friendButton;
+
   @override
   Widget build(BuildContext context) {
     return Card(
       child: Column(
         children: <Widget>[
-          //new Center(child: new CircularProgressIndicator()),
           Center(
             child: GestureDetector(
               onTap: () {

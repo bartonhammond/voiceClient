@@ -34,6 +34,7 @@ class _MessagesPageState extends State<MessagesPage> {
   int offset = 0;
   bool shouldBeMore = true;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+  VoidCallback _refetchQuery;
 
   @override
   void initState() {
@@ -62,6 +63,7 @@ class _MessagesPageState extends State<MessagesPage> {
         message['text'],
         message['type'],
       );
+      _refetchQuery();
     } else {
       print('do not add friend');
     }
@@ -76,23 +78,21 @@ class _MessagesPageState extends State<MessagesPage> {
       defaultActionText: 'Yes',
     ).show(context);
     if (approveFriendRequest) {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-      final GraphQLClient graphQLClient =
-          graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
-      addUserFriend(
+      await addUserFriend(
         graphQLClient,
         message['User']['id'],
         graphQLAuth.getCurrentUserId(),
       );
 
-      addUserFriend(
+      await addUserFriend(
         graphQLClient,
         graphQLAuth.getCurrentUserId(),
         message['User']['id'],
       );
 
-      updateFriendRequest(
+      await updateFriendRequest(
         graphQLClient,
         message['User']['id'],
         graphQLAuth.getCurrentUserId(),
@@ -102,6 +102,8 @@ class _MessagesPageState extends State<MessagesPage> {
         message['text'],
         message['type'],
       );
+
+      _refetchQuery();
     }
 
     return;
@@ -131,8 +133,12 @@ class _MessagesPageState extends State<MessagesPage> {
                   'status': 'new'
                 },
               ),
-              builder: (QueryResult result, {refetch, FetchMore fetchMore}) {
-                print('MessagesPage queryResult: $result');
+              builder: (
+                QueryResult result, {
+                VoidCallback refetch,
+                FetchMore fetchMore,
+              }) {
+                _refetchQuery = refetch;
                 if (result.loading && result.data == null) {
                   return const Center(
                     child: CircularProgressIndicator(),

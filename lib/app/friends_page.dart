@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
@@ -15,6 +13,7 @@ import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 class Debouncer {
@@ -50,9 +49,12 @@ class _FriendsPageState extends State<FriendsPage> {
   final _debouncer = Debouncer(milliseconds: 500);
   TypeUser _typeUser;
   int offset = 0;
+  VoidCallback _refetchQuery;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
   dynamic allMyFriendRequests;
-  dynamic allFriendRequestsToMe;
+  dynamic allNewFriendRequestsToMe;
+
   Map<int, bool> moreSearchResults = {
     0: true,
     1: true,
@@ -72,7 +74,10 @@ class _FriendsPageState extends State<FriendsPage> {
 
   Future<List<dynamic>> _getAllNewFriendRequestsToMe(
       BuildContext context) async {
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    final GraphQLClient graphQLClient =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getAllNewFriendRequestsToMe),
       variables: <String, dynamic>{
@@ -86,7 +91,9 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<List<dynamic>> _getAllMyFriendRequests(BuildContext context) async {
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    final GraphQLClient graphQLClient =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getAllMyFriendRequests),
       variables: <String, dynamic>{
@@ -95,7 +102,6 @@ class _FriendsPageState extends State<FriendsPage> {
     );
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    print(queryResult.data);
     return queryResult.data['User'][0]['messages']['to'];
   }
 
@@ -162,33 +168,20 @@ class _FriendsPageState extends State<FriendsPage> {
       defaultActionText: 'Yes',
     ).show(context);
     if (addNewFriend == true) {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-      final GraphQLClient graphQLClient =
-          graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
-      final uuid = Uuid();
-      final String _messageId = uuid.v1();
-
-      final DateTime now = DateTime.now();
-      final DateFormat formatter = DateFormat('yyyy-MM-dd');
-      final String formattedDate = formatter.format(now);
-
-      final MutationOptions options = MutationOptions(
-        documentNode: gql(addUserMessage),
-        variables: <String, dynamic>{
-          'from': graphQLAuth.getCurrentUserId(),
-          'to': _friendId,
-          'id': _messageId,
-          'created': formattedDate,
-          'status': 'new',
-          'text': 'friend request',
-          'type': 'friend-request',
-        },
+      final QueryResult result = await createUserMessage(
+        GraphQLProvider.of(context).value,
+        locator<GraphQLAuth>(),
+        _friendId,
       );
 
-      final QueryResult result = await graphQLClient.mutate(options);
       if (result.hasException) {
         throw result.exception;
       }
+
+      allMyFriendRequests = await _getAllMyFriendRequests(context);
+      allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
+
+      _refetchQuery();
     } else {
       print('do not add friend');
     }
@@ -204,9 +197,7 @@ class _FriendsPageState extends State<FriendsPage> {
       defaultActionText: 'Yes',
     ).show(context);
     if (endFriendship == true) {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-      final GraphQLClient graphQLClient =
-          graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
       MutationOptions options = MutationOptions(
         documentNode: gql(removeUserFriends),
@@ -230,6 +221,10 @@ class _FriendsPageState extends State<FriendsPage> {
       );
 
       result = await graphQLClient.mutate(options);
+
+      allMyFriendRequests = await _getAllMyFriendRequests(context);
+      allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
+      _refetchQuery();
     } else {
       print('do not quit');
     }
@@ -270,12 +265,14 @@ class _FriendsPageState extends State<FriendsPage> {
                   'email': graphQLAuth.getUser().email,
                   'first': nFriends,
                   'offset': offset
-                  // set cursor to null so as to start at the beginning
-                  // 'cursor': 10
                 },
               ),
-              builder: (QueryResult result, {refetch, FetchMore fetchMore}) {
-                print('friendsPage queryResult: $result');
+              builder: (
+                QueryResult result, {
+                VoidCallback refetch,
+                FetchMore fetchMore,
+              }) {
+                _refetchQuery = refetch;
                 if (result.loading && result.data == null) {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -292,6 +289,8 @@ class _FriendsPageState extends State<FriendsPage> {
                 if (result.data[searchResultsName[_typeUser.index]].length <
                     nFriends) {
                   moreSearchResults[_typeUser.index] = false;
+                } else {
+                  moreSearchResults[_typeUser.index] = true;
                 }
                 offset += nFriends;
 
@@ -325,38 +324,62 @@ class _FriendsPageState extends State<FriendsPage> {
                       }
                     }
                   });
-
-                return Expanded(
-                  child: friends == null || friends.isEmpty
-                      ? Text('No results')
-                      : StaggeredGridView.countBuilder(
-                          controller: _scrollController,
-                          itemCount: friends.length,
-                          primary: false,
-                          crossAxisCount: 4,
-                          mainAxisSpacing: 4.0,
-                          crossAxisSpacing: 4.0,
-                          itemBuilder: (context, index) =>
-                              StaggeredGridTileFriend(
-                            onPush: _typeUser == TypeUser.friends
-                                ? widget.onPush
-                                : null,
-                            friend: friends[index],
-                            friendButton: getFriendButton(
-                              allFriendRequestsToMe,
-                              allMyFriendRequests,
-                              friends,
-                              index,
-                            ),
-                          ),
-                          staggeredTileBuilder: (index) => StaggeredTile.fit(2),
-                        ),
-                );
+                return _futures(context, friends);
               },
             )
           ],
         ),
       ),
+    );
+  }
+
+  Expanded _expanded(List<dynamic> friends) {
+    return Expanded(
+      child: friends == null || friends.isEmpty
+          ? Text('No results')
+          : StaggeredGridView.countBuilder(
+              controller: _scrollController,
+              itemCount: friends.length,
+              primary: false,
+              crossAxisCount: 4,
+              mainAxisSpacing: 4.0,
+              crossAxisSpacing: 4.0,
+              itemBuilder: (context, index) => StaggeredGridTileFriend(
+                onPush: _typeUser == TypeUser.friends ? widget.onPush : null,
+                friend: friends[index],
+                friendButton: getFriendButton(
+                  allNewFriendRequestsToMe,
+                  allMyFriendRequests,
+                  friends,
+                  index,
+                ),
+              ),
+              staggeredTileBuilder: (index) => StaggeredTile.fit(2),
+            ),
+    );
+  }
+
+  Widget _futures(BuildContext context, List<dynamic> friends) {
+    return FutureBuilder(
+      future: _getAllMyFriendRequests(context),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          allMyFriendRequests = snapshot.data;
+          return FutureBuilder(
+            future: _getAllNewFriendRequestsToMe(context),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                allNewFriendRequestsToMe = snapshot.data;
+                return _expanded(friends);
+              } else {
+                return _progressIndicator();
+              }
+            },
+          );
+        } else {
+          return _progressIndicator();
+        }
+      },
     );
   }
 
@@ -420,36 +443,19 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Widget _progressIndicator() {
-    return Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
+    return SizedBox(
+      width: 200.0,
+      height: 300.0,
+      child: Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    print('friendsPage build');
-    return FutureBuilder(
-      future: _getAllMyFriendRequests(context),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          allMyFriendRequests = snapshot.data;
-          return FutureBuilder(
-            future: _getAllNewFriendRequestsToMe(context),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                allFriendRequestsToMe = snapshot.data;
-                return _build(context);
-              } else {
-                return _progressIndicator();
-              }
-            },
-          );
-        } else {
-          return _progressIndicator();
-        }
-      },
-    );
+    return _build(context);
   }
 }

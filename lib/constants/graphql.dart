@@ -7,6 +7,7 @@ mutation($file: Upload!) {
 const String getUserByEmail = r'''
 query getUserByEmail($email: String!) {
   User(email: $email) {
+    __typename
     id
     name
     email
@@ -19,6 +20,7 @@ query getUserByEmail($email: String!) {
 const String getUserById = r'''
 query getUserByEmail($id: ID!) {
   User(id: $id) {
+    __typename
     id
     name
     email
@@ -31,6 +33,7 @@ query getUserByEmail($id: ID!) {
 const String getStoryById = r'''
 query getStoryById($id: ID!) {
   Story(id: $id) {
+    __typename
     id
     image
     audio
@@ -55,6 +58,7 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $bi
     birth: $birth
     created: { formatted: $created }
   ) {
+    __typename
     id
     name
   }
@@ -69,6 +73,7 @@ CreateStory(
     audio: $audio
     created: { formatted: $created }
   ) {
+    __typename
     id
     image 
     audio
@@ -82,6 +87,8 @@ MergeStoryUser(
     from: $from
     to: $to
   ) {
+    __typename
+    id
     from {
       email
     }
@@ -100,6 +107,7 @@ const String mergeUserFriends = r'''
     to: { id: $to }
     data: { id: $id, created: { formatted: $created } }
   ) {
+    __typename
     id
     from {
       email
@@ -117,6 +125,7 @@ const String removeUserFriends = r'''
     from: { id: $from }
     to: { id: $to }
   ) {
+    __typename
     from {
       id
     }
@@ -140,6 +149,7 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
     first: $first
     offset: $offset
   ) {
+      __typename
       id
       image
       audio
@@ -161,6 +171,7 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
 const String userStories = r'''
 query getUserStories ($email: String!, $first: Int!, $offset: Int!) {
  User(email: $email) {
+  __typename
   id
   email
   home
@@ -184,6 +195,8 @@ query getUserStories ($email: String!, $first: Int!, $offset: Int!) {
 const String getFriendsOfMine = r'''
 query getFriendsOfMine ($email: String!) {
   friends(email: $email){
+    __typename
+    id
     isFriend
 		email
     name
@@ -199,6 +212,7 @@ query getFriendsOfMine ($email: String!) {
 const String userSearch = r'''
 query userSearch($searchString: String!) {
   userSearch(searchString: $searchString) {
+    __typename
     id
     name
     email
@@ -212,6 +226,7 @@ query userSearch($searchString: String!) {
 const String userSearchFriends = r'''
 query userSearchFriends($searchString: String!, $email: String!) {
   userSearchFriends(searchString: $searchString, email: $email) {
+    __typename
     id
     name
     email
@@ -225,6 +240,7 @@ query userSearchFriends($searchString: String!, $email: String!) {
 const String userSearchNotFriends = r'''
 query userSearchNotFriends($searchString: String!, $email: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email) {
+    __typename
     id
     name
     email
@@ -254,6 +270,8 @@ mutation addUserMessage($from: ID!, $to: ID!, $id: ID!, $created: String!, $type
     text: $text
   }
   ){
+    __typename
+    id
     from {
       id
       name
@@ -290,6 +308,8 @@ mutation updateUserMessage($from: ID!, $to: ID!, $resolved: String!, $status: St
     type: $type
   }
   ){
+    __typename
+    id
     from {
       id
       name
@@ -307,6 +327,7 @@ mutation updateUserMessage($from: ID!, $to: ID!, $resolved: String!, $status: St
 const String getUserMessages = r'''
 query getUserMessages($email: String!, $status: String!) {
   User(email: $email)  {
+    __typename
     id
     messages {  
       from (
@@ -339,6 +360,7 @@ query getUserMessages($email: String!, $status: String!) {
 const String getAllNewFriendRequestsToMe = r'''
 query getAllNewFriendRequests($email: String) {
 User(email: $email) {
+    __typename
     id
     messages {
       from (filter: {
@@ -370,6 +392,7 @@ User(email: $email) {
 const String getAllMyFriendRequests = r'''
 query getAllFriendRequests($email: String) {
 User(email: $email) {
+    __typename
     id
     messages {
       to (filter: {
@@ -377,6 +400,7 @@ User(email: $email) {
       })
       
       {
+        __typename
         id
         type
         status
@@ -395,4 +419,13 @@ User(email: $email) {
       }
     }
   }
+''';
+
+const String newMessagesCount = r'''
+query newMessagesCount($email: String!) {
+  newMessagesCount(email: $email) {
+    __typename
+    count
+  }
+}
 ''';

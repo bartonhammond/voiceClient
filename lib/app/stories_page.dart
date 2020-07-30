@@ -23,10 +23,18 @@ class _StoriesPageState extends State<StoriesPage> {
   final nActivities = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
+  int offset = 0;
+  List<dynamic> activities;
+
   @override
   void initState() {
     super.initState();
   }
+
+  Map<bool, bool> moreSearchResults = {
+    true: true,
+    false: true,
+  };
 
   Map<bool, String> resultType = <bool, String>{
     true: 'activities',
@@ -88,8 +96,6 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool shouldBeMore = true;
-    int offset = 0;
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return FutureBuilder(
       future: getUserFromUserId(),
@@ -101,7 +107,6 @@ class _StoriesPageState extends State<StoriesPage> {
             ),
           );
         } else {
-          print('storiesPage build');
           user = snapshot.data;
           return Scaffold(
             appBar: AppBar(
@@ -128,8 +133,6 @@ class _StoriesPageState extends State<StoriesPage> {
                                 'email': graphQLAuth.getUser().email,
                                 'first': nActivities,
                                 'offset': offset
-                                // set cursor to null so as to start at the beginning
-                                // 'cursor': 10
                               },
                             )
                           : QueryOptions(
@@ -138,13 +141,13 @@ class _StoriesPageState extends State<StoriesPage> {
                                 'email': user['email'],
                                 'first': nActivities,
                                 'offset': offset
-                                // set cursor to null so as to start at the beginning
-                                // 'cursor': 10
                               },
                             ),
-                      builder: (QueryResult result,
-                          {refetch, FetchMore fetchMore}) {
-                        print('homePage queryResult: $result');
+                      builder: (
+                        QueryResult result, {
+                        VoidCallback refetch,
+                        FetchMore fetchMore,
+                      }) {
                         if (result.loading && result.data == null) {
                           return const Center(
                             child: CircularProgressIndicator(),
@@ -156,13 +159,19 @@ class _StoriesPageState extends State<StoriesPage> {
                               '\nErrors: \n  ' + result.exception.toString());
                         }
 
-                        final List<dynamic> activities = result.data['User'][0]
+                        activities = result.data['User'][0]
                             [resultType[widget.userId == null]];
 
-                        if (result.data['User'][0].length < nActivities) {
-                          shouldBeMore = false;
+                        if (result
+                                .data['User'][0]
+                                    [resultType[widget.userId == null]]
+                                .length <
+                            nActivities) {
+                          moreSearchResults[widget.userId == null] = false;
+                        } else {
+                          offset += nActivities;
+                          moreSearchResults[widget.userId == null] = true;
                         }
-                        offset += nActivities;
 
                         final FetchMoreOptions opts = FetchMoreOptions(
                           variables: <String, dynamic>{'offset': offset},
@@ -173,13 +182,13 @@ class _StoriesPageState extends State<StoriesPage> {
                             // so, we combine data in both into a single list of repos
                             final List<dynamic> repos = <dynamic>[
                               ...previousResultData['User'][0]
-                                  [widget.userId == null],
+                                  [resultType[widget.userId == null]],
                               ...fetchMoreResultData['User'][0]
-                                  [widget.userId == null],
+                                  [resultType[widget.userId == null]],
                             ];
 
                             fetchMoreResultData['User'][0]
-                                [widget.userId == null] = repos;
+                                [resultType[widget.userId == null]] = repos;
 
                             return fetchMoreResultData;
                           },
@@ -189,30 +198,33 @@ class _StoriesPageState extends State<StoriesPage> {
                           ..addListener(() {
                             if (_scrollController.position.pixels ==
                                 _scrollController.position.maxScrollExtent) {
-                              if (!result.loading && shouldBeMore) {
+                              if (!result.loading &&
+                                  moreSearchResults[widget.userId == null]) {
                                 fetchMore(opts);
                               }
                             }
                           });
 
                         return Expanded(
-                          child: StaggeredGridView.countBuilder(
-                            controller: _scrollController,
-                            itemCount: activities.length,
-                            primary: false,
-                            crossAxisCount: 4,
-                            mainAxisSpacing: 4.0,
-                            crossAxisSpacing: 4.0,
-                            itemBuilder: (context, index) =>
-                                StaggeredGridTileStory(
-                              onPush: widget.onPush,
-                              showFriend: widget.userId == null,
-                              activity:
-                                  Map<String, dynamic>.from(activities[index]),
-                            ),
-                            staggeredTileBuilder: (index) =>
-                                StaggeredTile.fit(2),
-                          ),
+                          child: activities == null || activities.isEmpty
+                              ? Text('No stories are available')
+                              : StaggeredGridView.countBuilder(
+                                  controller: _scrollController,
+                                  itemCount: activities.length,
+                                  primary: false,
+                                  crossAxisCount: 4,
+                                  mainAxisSpacing: 4.0,
+                                  crossAxisSpacing: 4.0,
+                                  itemBuilder: (context, index) =>
+                                      StaggeredGridTileStory(
+                                    onPush: widget.onPush,
+                                    showFriend: widget.userId == null,
+                                    activity: Map<String, dynamic>.from(
+                                        activities[index]),
+                                  ),
+                                  staggeredTileBuilder: (index) =>
+                                      StaggeredTile.fit(2),
+                                ),
                         );
                       })
                 ],

@@ -1,7 +1,11 @@
 import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/service_locator.dart';
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.iconData, this.text, this.badge});
@@ -39,7 +43,7 @@ class FABBottomAppBar extends StatefulWidget {
 
 class FABBottomAppBarState extends State<FABBottomAppBar> {
   int _selectedIndex = 0;
-
+  int count = 0;
   void _updateIndex(int index) {
     widget.onTabSelected(TabItem.values[index]);
     setState(() {
@@ -49,23 +53,53 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> items = List.generate(widget.items.length, (int index) {
-      return _buildTabItem(
-        item: widget.items[index],
-        index: index,
-        onPressed: _updateIndex,
-      );
-    });
-    items.insert(items.length >> 1, _buildMiddleTabItem());
-
-    return BottomAppBar(
-      shape: widget.notchedShape,
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: items,
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    return Query(
+      options: QueryOptions(
+        documentNode: gql(newMessagesCount),
+        variables: <String, dynamic>{
+          'email': graphQLAuth.getUser().email,
+          // set cursor to null so as to start at the beginning
+          // 'cursor': 10
+        }, // this is the query string you just created
+        pollInterval: 10,
       ),
-      color: NeumorphicTheme.currentTheme(context).variantColor,
+      // Just like in apollo refetch() could be used to manually trigger a refetch
+      // while fetchMore() can be used for pagination purpose
+      builder: (QueryResult result, {refetch, FetchMore fetchMore}) {
+        if (result.hasException) {
+          return Text(result.exception.toString());
+        }
+
+        if (result.loading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        count = result.data['newMessagesCount']['count'];
+
+        final List<Widget> items =
+            List.generate(widget.items.length, (int index) {
+          return _buildTabItem(
+            item: widget.items[index],
+            index: index,
+            onPressed: _updateIndex,
+            count: count,
+          );
+        });
+        items.insert(items.length >> 1, _buildMiddleTabItem());
+
+        return BottomAppBar(
+          shape: widget.notchedShape,
+          child: Row(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: items,
+          ),
+          color: NeumorphicTheme.currentTheme(context).variantColor,
+        );
+      },
     );
   }
 
@@ -92,6 +126,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     FABBottomAppBarItem item,
     int index,
     ValueChanged<int> onPressed,
+    int count,
   }) {
     final Color color = _selectedIndex == index ? Colors.black : Colors.white;
     return Expanded(
@@ -103,13 +138,13 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
             onTap: () => onPressed(index),
             child: Stack(
               children: <Widget>[
-                item.badge == null
+                item.text != 'Messages'
                     ? Container()
                     : Padding(
                         padding: EdgeInsets.only(left: 35, top: 5),
-                        child: item.badge == '0'
+                        child: count == 0
                             ? Container()
-                            : Badge(badgeContent: Text(item.badge)),
+                            : Badge(badgeContent: Text(count.toString())),
                       ),
                 Padding(
                   padding: EdgeInsets.only(left: 10, top: 10),

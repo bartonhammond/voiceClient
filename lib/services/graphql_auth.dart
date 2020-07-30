@@ -51,9 +51,7 @@ class GraphQLAuth {
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
 
     final AuthLink authLink = AuthLink(getToken: () async {
-      print('graphql_auth getting tokenResult');
       final IdTokenResult tokenResult = await auth.currentUserIdToken();
-      print('graphql_auth got tokenResult');
       token = tokenResult.token;
       return 'Bearer $token';
     });
@@ -61,7 +59,9 @@ class GraphQLAuth {
     final link = authLink.concat(httpLink);
 
     final GraphQLClient graphQLClient = GraphQLClient(
-      cache: InMemoryCache(),
+      cache: NormalizedInMemoryCache(
+        dataIdFromObject: typenameDataIdFromObject,
+      ),
       link: link,
     );
 
