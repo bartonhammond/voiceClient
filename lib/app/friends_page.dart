@@ -48,7 +48,7 @@ class _FriendsPageState extends State<FriendsPage> {
   String _searchString;
   final _debouncer = Debouncer(milliseconds: 500);
   TypeUser _typeUser;
-  int offset = 0;
+
   VoidCallback _refetchQuery;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
@@ -264,7 +264,7 @@ class _FriendsPageState extends State<FriendsPage> {
                   'searchString': _searchString,
                   'email': graphQLAuth.getUser().email,
                   'first': nFriends,
-                  'offset': offset
+                  'offset': 0
                 },
               ),
               builder: (
@@ -292,10 +292,9 @@ class _FriendsPageState extends State<FriendsPage> {
                 } else {
                   moreSearchResults[_typeUser.index] = true;
                 }
-                offset += nFriends;
 
                 final FetchMoreOptions opts = FetchMoreOptions(
-                  variables: <String, dynamic>{'offset': offset},
+                  variables: <String, dynamic>{'offset': friends.length},
                   updateQuery: (dynamic previousResultData,
                       dynamic fetchMoreResultData) {
                     // this is where you combine your previous data and response

@@ -31,7 +31,6 @@ class _MessagesPageState extends State<MessagesPage> {
   final String title = 'My Family Voice';
   final nMessages = 20;
   final ScrollController _scrollController = ScrollController();
-  int offset = 0;
   bool shouldBeMore = true;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   VoidCallback _refetchQuery;
@@ -156,10 +155,9 @@ class _MessagesPageState extends State<MessagesPage> {
                     nMessages) {
                   shouldBeMore = false;
                 }
-                offset += nMessages;
 
                 final FetchMoreOptions opts = FetchMoreOptions(
-                  variables: <String, dynamic>{'offset': offset},
+                  variables: <String, dynamic>{'offset': messages.length},
                   updateQuery: (dynamic previousResultData,
                       dynamic fetchMoreResultData) {
                     // this is where you combine your previous data and response

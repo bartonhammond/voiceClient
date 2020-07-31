@@ -23,7 +23,6 @@ class _StoriesPageState extends State<StoriesPage> {
   final nActivities = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
-  int offset = 0;
   List<dynamic> activities;
 
   @override
@@ -37,8 +36,8 @@ class _StoriesPageState extends State<StoriesPage> {
   };
 
   Map<bool, String> resultType = <bool, String>{
-    true: 'activities',
-    false: 'stories'
+    true: 'userFriendsStories',
+    false: 'userStories'
   };
 
   Future<Map> getUserFromUserId() async {
@@ -94,6 +93,17 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
+  String getCursorForActivities() {
+    String datetime;
+    if (activities == null || activities.isEmpty) {
+      datetime = DateTime.now().toIso8601String();
+    } else {
+      datetime = activities[activities.length - 1]['created']['formatted'];
+    }
+    print('getCursorForActivities datetime: $datetime');
+    return datetime;
+  }
+
   @override
   Widget build(BuildContext context) {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -128,19 +138,19 @@ class _StoriesPageState extends State<StoriesPage> {
                   Query(
                       options: widget.userId == null
                           ? QueryOptions(
-                              documentNode: gql(userActivities),
+                              documentNode: gql(getUserFriendsStories),
                               variables: <String, dynamic>{
                                 'email': graphQLAuth.getUser().email,
-                                'first': nActivities,
-                                'offset': offset
+                                'limit': nActivities.toString(),
+                                'cursor': getCursorForActivities(),
                               },
                             )
                           : QueryOptions(
-                              documentNode: gql(userStories),
+                              documentNode: gql(getUserStories),
                               variables: <String, dynamic>{
                                 'email': user['email'],
-                                'first': nActivities,
-                                'offset': offset
+                                'limit': nActivities.toString(),
+                                'cursor': getCursorForActivities(),
                               },
                             ),
                       builder: (
@@ -159,36 +169,34 @@ class _StoriesPageState extends State<StoriesPage> {
                               '\nErrors: \n  ' + result.exception.toString());
                         }
 
-                        activities = result.data['User'][0]
-                            [resultType[widget.userId == null]];
+                        activities =
+                            result.data[resultType[widget.userId == null]];
 
-                        if (result
-                                .data['User'][0]
-                                    [resultType[widget.userId == null]]
-                                .length <
-                            nActivities) {
+                        if (activities.isEmpty ||
+                            activities.length % nActivities != 0) {
                           moreSearchResults[widget.userId == null] = false;
                         } else {
-                          offset += nActivities;
                           moreSearchResults[widget.userId == null] = true;
                         }
 
                         final FetchMoreOptions opts = FetchMoreOptions(
-                          variables: <String, dynamic>{'offset': offset},
+                          variables: <String, dynamic>{
+                            'cursor': getCursorForActivities(),
+                          },
                           updateQuery: (dynamic previousResultData,
                               dynamic fetchMoreResultData) {
                             // this is where you combine your previous data and response
                             // in this case, we want to display previous repos plus next repos
                             // so, we combine data in both into a single list of repos
                             final List<dynamic> repos = <dynamic>[
-                              ...previousResultData['User'][0]
-                                  [resultType[widget.userId == null]],
-                              ...fetchMoreResultData['User'][0]
-                                  [resultType[widget.userId == null]],
+                              ...previousResultData[
+                                  resultType[widget.userId == null]],
+                              ...fetchMoreResultData[
+                                  resultType[widget.userId == null]],
                             ];
 
-                            fetchMoreResultData['User'][0]
-                                [resultType[widget.userId == null]] = repos;
+                            fetchMoreResultData[
+                                resultType[widget.userId == null]] = repos;
 
                             return fetchMoreResultData;
                           },

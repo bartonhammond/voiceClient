@@ -34,6 +34,10 @@ class StaggeredGridTileStory extends StatelessWidget {
             activity['user']['name'],
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
           ),
+          Text(
+            activity['created']['formatted'],
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+          ),
         ],
       ),
     );
@@ -46,7 +50,6 @@ class StaggeredGridTileStory extends StatelessWidget {
         children: <Widget>[
           Stack(
             children: <Widget>[
-              //new Center(child: new CircularProgressIndicator()),
               Center(
                 child: GestureDetector(
                   onTap: () {

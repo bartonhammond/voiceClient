@@ -3,8 +3,6 @@ import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 import 'package:voiceClient/app/story_page.dart';
 import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
-import 'package:voiceClient/common_widgets/fab/fab_with_icons.dart';
-import 'package:voiceClient/common_widgets/fab/layout.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
@@ -23,7 +21,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   //String _lastSelected = 'TAB: 0';
   TabItem _currentTab = TabItem.stories;
-  bool _isVisible = true;
 
   final Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
     TabItem.stories: GlobalKey<NavigatorState>(),
@@ -39,55 +36,21 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _setVisible(bool value) {
-    setState(() {
-      _isVisible = value;
-    });
-  }
-
-  void _selectedFab(Map<String, dynamic> map) {
-    setState(() {
-      switch (map['index']) {
-        case 0:
-          setState(() {
-            _isVisible = false;
-          });
-
-          Navigator.push<dynamic>(
-            map['context'],
-            MaterialPageRoute<dynamic>(
-                builder: (context) => StoryPage(
-                      key: Key(Keys.storyPage),
-                      onFinish: _setVisible,
-                    )),
-          );
-          break;
-      }
-    });
-  }
-
   Widget _buildFab(BuildContext context) {
-    final icons = [Icons.sms, Icons.mail, Icons.phone];
-    return Visibility(
-      visible: _isVisible,
-      child: AnchoredOverlay(
-        showOverlay: true,
-        overlayBuilder: (context, offset) {
-          return CenterAbout(
-            position: Offset(offset.dx, offset.dy - icons.length * 35.0),
-            child: FabWithIcons(
-              icons: icons,
-              onIconTapped: _selectedFab,
-            ),
-          );
-        },
-        child: FloatingActionButton(
-          onPressed: () {},
-          tooltip: 'Increment',
-          child: Icon(Icons.add),
-          elevation: 2.0,
-        ),
-      ),
+    return FloatingActionButton(
+      onPressed: () {
+        Navigator.push<dynamic>(
+          context,
+          MaterialPageRoute<dynamic>(
+              builder: (context) => StoryPage(
+                    key: Key(Keys.storyPage),
+                    onFinish: null,
+                  )),
+        );
+      },
+      tooltip: 'Increment',
+      child: Icon(Icons.add),
+      elevation: 2.0,
     );
   }
 

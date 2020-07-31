@@ -168,25 +168,26 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
 }
 ''';
 
-const String userStories = r'''
-query getUserStories ($email: String!, $first: Int!, $offset: Int!) {
- User(email: $email) {
-  __typename
-  id
-  email
-  home
-  birth
-  image
-  stories(
-    first: $first
-    offset: $offset
-  ) {
-      id
+const String getUserStories = r'''
+query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
+ userStories(
+  		email: $email 
+			limit: $limit
+  		cursor: $cursor
+		){
+    __typename
+    id
+    image
+    audio
+    created {
+      formatted
+    }
+    user {
+      email
+      name
+      home
+      birth
       image
-      audio
-      created {
-        formatted
-      }
     }
   }
 }
@@ -426,6 +427,31 @@ query newMessagesCount($email: String!) {
   newMessagesCount(email: $email) {
     __typename
     count
+  }
+}
+''';
+
+const String getUserFriendsStories = r'''
+query getUserFriendsStories($email: String!, $limit: String!, $cursor: String!) {
+userFriendsStories(
+  		email: $email 
+			limit: $limit
+  		cursor: $cursor
+		) {
+    __typename
+    id
+    image
+    audio
+    created {
+      formatted
+    }
+    user {
+      email
+      name
+      home
+      birth
+      image
+    }
   }
 }
 ''';

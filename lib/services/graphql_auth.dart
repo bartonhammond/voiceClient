@@ -59,9 +59,7 @@ class GraphQLAuth {
     final link = authLink.concat(httpLink);
 
     final GraphQLClient graphQLClient = GraphQLClient(
-      cache: NormalizedInMemoryCache(
-        dataIdFromObject: typenameDataIdFromObject,
-      ),
+      cache: InMemoryCache(),
       link: link,
     );
 
