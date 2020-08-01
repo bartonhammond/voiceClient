@@ -23,7 +23,6 @@ class _StoriesPageState extends State<StoriesPage> {
   final nActivities = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
-  List<dynamic> activities;
 
   @override
   void initState() {
@@ -93,15 +92,61 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
-  String getCursorForActivities() {
+  String getCursorForActivities(List<dynamic> _list) {
     String datetime;
-    if (activities == null || activities.isEmpty) {
+    if (_list == null || _list.isEmpty) {
       datetime = DateTime.now().toIso8601String();
     } else {
-      datetime = activities[activities.length - 1]['created']['formatted'];
+      datetime = _list[_list.length - 1]['created']['formatted'];
     }
     print('getCursorForActivities datetime: $datetime');
     return datetime;
+  }
+
+  List<dynamic> dumpActivities(List<dynamic> _list, String description) {
+    print('dump $description');
+    for (var i = 0; i < _list.length; i++) {
+      print('$i ${_list[i]['created']['formatted']}');
+    }
+    return _list;
+  }
+
+  RaisedButton getButton(
+    FetchMore fetchMore,
+    List<dynamic> activities,
+  ) {
+    return RaisedButton(
+        child: Text('LOAD MORE'),
+        onPressed: () {
+          final FetchMoreOptions opts = FetchMoreOptions(
+            variables: <String, dynamic>{
+              'cursor': getCursorForActivities(activities),
+            },
+            updateQuery:
+                (dynamic previousResultData, dynamic fetchMoreResultData) {
+              // this is where you combine your previous data and response
+              // in this case, we want to display previous repos plus next repos
+              // so, we combine data in both into a single list of repos
+              dumpActivities(
+                previousResultData[resultType[widget.userId == null]],
+                'previousResultData',
+              );
+              dumpActivities(
+                fetchMoreResultData[resultType[widget.userId == null]],
+                'fetchMoreResultData',
+              );
+              final List<dynamic> data = <dynamic>[
+                ...previousResultData[resultType[widget.userId == null]],
+                ...fetchMoreResultData[resultType[widget.userId == null]],
+              ];
+
+              fetchMoreResultData[resultType[widget.userId == null]] = data;
+
+              return fetchMoreResultData;
+            },
+          );
+          fetchMore(opts);
+        });
   }
 
   @override
@@ -142,7 +187,7 @@ class _StoriesPageState extends State<StoriesPage> {
                               variables: <String, dynamic>{
                                 'email': graphQLAuth.getUser().email,
                                 'limit': nActivities.toString(),
-                                'cursor': getCursorForActivities(),
+                                'cursor': DateTime.now().toIso8601String(),
                               },
                             )
                           : QueryOptions(
@@ -150,7 +195,7 @@ class _StoriesPageState extends State<StoriesPage> {
                               variables: <String, dynamic>{
                                 'email': user['email'],
                                 'limit': nActivities.toString(),
-                                'cursor': getCursorForActivities(),
+                                'cursor': DateTime.now().toIso8601String(),
                               },
                             ),
                       builder: (
@@ -169,8 +214,13 @@ class _StoriesPageState extends State<StoriesPage> {
                               '\nErrors: \n  ' + result.exception.toString());
                         }
 
-                        activities =
-                            result.data[resultType[widget.userId == null]];
+                        List<dynamic> activities = List<dynamic>.from(
+                            result.data[resultType[widget.userId == null]]);
+
+                        activities = dumpActivities(
+                          activities,
+                          'activities',
+                        );
 
                         if (activities.isEmpty ||
                             activities.length % nActivities != 0) {
@@ -179,57 +229,31 @@ class _StoriesPageState extends State<StoriesPage> {
                           moreSearchResults[widget.userId == null] = true;
                         }
 
-                        final FetchMoreOptions opts = FetchMoreOptions(
-                          variables: <String, dynamic>{
-                            'cursor': getCursorForActivities(),
-                          },
-                          updateQuery: (dynamic previousResultData,
-                              dynamic fetchMoreResultData) {
-                            // this is where you combine your previous data and response
-                            // in this case, we want to display previous repos plus next repos
-                            // so, we combine data in both into a single list of repos
-                            final List<dynamic> repos = <dynamic>[
-                              ...previousResultData[
-                                  resultType[widget.userId == null]],
-                              ...fetchMoreResultData[
-                                  resultType[widget.userId == null]],
-                            ];
-
-                            fetchMoreResultData[
-                                resultType[widget.userId == null]] = repos;
-
-                            return fetchMoreResultData;
-                          },
-                        );
-
-                        _scrollController
-                          ..addListener(() {
-                            if (_scrollController.position.pixels ==
-                                _scrollController.position.maxScrollExtent) {
-                              if (!result.loading &&
-                                  moreSearchResults[widget.userId == null]) {
-                                fetchMore(opts);
-                              }
-                            }
-                          });
-
                         return Expanded(
                           child: activities == null || activities.isEmpty
                               ? Text('No stories are available')
                               : StaggeredGridView.countBuilder(
                                   controller: _scrollController,
-                                  itemCount: activities.length,
+                                  itemCount: activities.length + 1,
                                   primary: false,
                                   crossAxisCount: 4,
                                   mainAxisSpacing: 4.0,
                                   crossAxisSpacing: 4.0,
-                                  itemBuilder: (context, index) =>
-                                      StaggeredGridTileStory(
-                                    onPush: widget.onPush,
-                                    showFriend: widget.userId == null,
-                                    activity: Map<String, dynamic>.from(
-                                        activities[index]),
-                                  ),
+                                  itemBuilder: (context, index) {
+                                    if (index < activities.length) {
+                                      return StaggeredGridTileStory(
+                                        onPush: widget.onPush,
+                                        showFriend: widget.userId == null,
+                                        activity: Map<String, dynamic>.from(
+                                            activities[index]),
+                                      );
+                                    } else {
+                                      if (moreSearchResults[
+                                          widget.userId == null]) {
+                                        return getButton(fetchMore, activities);
+                                      }
+                                    }
+                                  },
                                   staggeredTileBuilder: (index) =>
                                       StaggeredTile.fit(2),
                                 ),

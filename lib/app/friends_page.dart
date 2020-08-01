@@ -286,12 +286,8 @@ class _FriendsPageState extends State<FriendsPage> {
                 final List<dynamic> friends =
                     result.data[searchResultsName[_typeUser.index]];
 
-                if (result.data[searchResultsName[_typeUser.index]].length <
-                    nFriends) {
-                  moreSearchResults[_typeUser.index] = false;
-                } else {
-                  moreSearchResults[_typeUser.index] = true;
-                }
+                //don't want to paginate the search results
+                moreSearchResults[_typeUser.index] = false;
 
                 final FetchMoreOptions opts = FetchMoreOptions(
                   variables: <String, dynamic>{'offset': friends.length},

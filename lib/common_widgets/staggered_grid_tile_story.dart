@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 
@@ -13,6 +14,9 @@ class StaggeredGridTileStory extends StatelessWidget {
   final bool showFriend;
 
   Widget buildFriend() {
+    final DateTime dt = DateTime.parse(activity['created']['formatted']);
+    final DateFormat df = DateFormat.yMd().add_jm();
+
     return Card(
       child: Column(
         children: <Widget>[
@@ -35,7 +39,7 @@ class StaggeredGridTileStory extends StatelessWidget {
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
           ),
           Text(
-            activity['created']['formatted'],
+            df.format(dt),
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
           ),
         ],
