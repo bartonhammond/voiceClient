@@ -1,17 +1,16 @@
-import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/constants/enums.dart';
+
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 class FABBottomAppBarItem {
-  FABBottomAppBarItem({this.iconData, this.text, this.badge});
+  FABBottomAppBarItem({this.iconData, this.text});
   IconData iconData;
   String text;
-  String badge;
 }
 
 class FABBottomAppBar extends StatefulWidget {
@@ -43,7 +42,7 @@ class FABBottomAppBar extends StatefulWidget {
 
 class FABBottomAppBarState extends State<FABBottomAppBar> {
   int _selectedIndex = 0;
-  int count = 0;
+
   void _updateIndex(int index) {
     widget.onTabSelected(TabItem.values[index]);
     setState(() {
@@ -53,6 +52,8 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
 
   @override
   Widget build(BuildContext context) {
+    final List<int> counts = [0, 0, 0, 0];
+
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return Query(
       options: QueryOptions(
@@ -77,7 +78,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
           );
         }
 
-        count = result.data['newMessagesCount']['count'];
+        counts[2] = result.data['newMessagesCount']['count'];
 
         final List<Widget> items =
             List.generate(widget.items.length, (int index) {
@@ -85,7 +86,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
             item: widget.items[index],
             index: index,
             onPressed: _updateIndex,
-            count: count,
+            count: counts[index],
           );
         });
         items.insert(items.length >> 1, _buildMiddleTabItem());
@@ -129,37 +130,56 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     int count,
   }) {
     final Color color = _selectedIndex == index ? Colors.black : Colors.white;
+
     return Expanded(
-      child: SizedBox(
-        height: widget.height,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            onTap: () => onPressed(index),
-            child: Stack(
-              children: <Widget>[
-                item.text != 'Messages'
+        child: SizedBox(
+      height: widget.height,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: () => onPressed(index),
+          child: Stack(
+            children: <Widget>[
+              Positioned(
+                top: 5,
+                left: 25,
+                child: Icon(item.iconData, color: color, size: widget.iconSize),
+              ),
+              Positioned(
+                top: 30,
+                left: 15,
+                child: Text(item.text, style: TextStyle(color: color)),
+              ),
+              Positioned(
+                right: 10,
+                child: count == 0
                     ? Container()
-                    : Padding(
-                        padding: EdgeInsets.only(left: 35, top: 5),
+                    : Container(
+                        padding: EdgeInsets.all(1),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        constraints: BoxConstraints(
+                          minWidth: 15,
+                          minHeight: 15,
+                        ),
                         child: count == 0
                             ? Container()
-                            : Badge(badgeContent: Text(count.toString())),
+                            : Text(
+                                '$count',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                       ),
-                Padding(
-                  padding: EdgeInsets.only(left: 10, top: 10),
-                  child:
-                      Icon(item.iconData, color: color, size: widget.iconSize),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 35),
-                  child: Text(item.text, style: TextStyle(color: color)),
-                )
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
-    );
+    ));
   }
 }

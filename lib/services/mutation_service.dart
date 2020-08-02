@@ -167,10 +167,6 @@ Future<QueryResult> createUserMessage(
   GraphQLAuth graphQLAuth,
   String friendId,
 ) async {
-  final DateTime now = DateTime.now();
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
-
   final uuid = Uuid();
 
   final MutationOptions options = MutationOptions(
@@ -179,7 +175,7 @@ Future<QueryResult> createUserMessage(
       'from': graphQLAuth.getCurrentUserId(),
       'to': friendId,
       'id': uuid.v1(),
-      'created': formattedDate,
+      'created': DateTime.now().toIso8601String(),
       'status': 'new',
       'text': 'friend request',
       'type': 'friend-request',

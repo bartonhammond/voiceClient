@@ -129,8 +129,9 @@ class _MessagesPageState extends State<MessagesPage> {
                 documentNode: gql(getUserMessages),
                 variables: <String, dynamic>{
                   'email': graphQLAuth.getUser().email,
-                  'status': 'new'
+                  'status': 'new',
                 },
+                pollInterval: 10,
               ),
               builder: (
                 QueryResult result, {
@@ -147,69 +148,54 @@ class _MessagesPageState extends State<MessagesPage> {
                 if (result.hasException) {
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
-
-                final List<dynamic> messages =
-                    result.data['User'][0]['messages']['from'];
-
-                if (result.data['User'][0]['messages']['from'].length <
-                    nMessages) {
-                  shouldBeMore = false;
+                List<dynamic> messages = <dynamic>[];
+                if (result.data['User'][0]['messages']['from'].length != 0) {
+                  messages = List<dynamic>.from(
+                      result.data['User'][0]['messages']['from']);
                 }
-
-                final FetchMoreOptions opts = FetchMoreOptions(
-                  variables: <String, dynamic>{'offset': messages.length},
-                  updateQuery: (dynamic previousResultData,
-                      dynamic fetchMoreResultData) {
-                    // this is where you combine your previous data and response
-                    // in this case, we want to display previous repos plus next repos
-                    // so, we combine data in both into a single list of repos
-                    final List<dynamic> repos = <dynamic>[
-                      ...previousResultData['User'][0]['messages']['from'],
-                      ...fetchMoreResultData['User'][0]['messages']['from'],
-                    ];
-
-                    fetchMoreResultData['User'][0]['messages']['from'] = repos;
-
-                    return fetchMoreResultData;
-                  },
-                );
-
-                _scrollController
-                  ..addListener(() {
-                    if (_scrollController.position.pixels ==
-                        _scrollController.position.maxScrollExtent) {
-                      if (!result.loading && shouldBeMore) {
-                        fetchMore(opts);
-                      }
-                    }
-                  });
+                if (messages.isEmpty || messages.length % nMessages != 0) {
+                  shouldBeMore = false;
+                } else {
+                  shouldBeMore = true;
+                }
 
                 return Expanded(
                   child: messages == null || messages.isEmpty
-                      ? Text('No results')
+                      ? Center(
+                          child: Container(
+                            child: Column(
+                              children: <Widget>[
+                                Text('No Notices are available')
+                              ],
+                            ),
+                          ),
+                        )
                       : ListView.builder(
                           controller: _scrollController,
                           itemCount: messages.length,
                           primary: false,
-                          itemBuilder: (context, index) =>
-                              StaggeredGridTileMessage(
-                            key: Key('${Keys.messageGridTile}_$index'),
-                            onPush: widget.onPush,
-                            message: messages[index],
-                            approveFriendButton: FriendButton(
-                              key: Key(
-                                  '${Keys.approveFriendRequestButton}-$index'),
-                              text: 'Approve',
-                              onPressed: () =>
-                                  _approveFriendRequest(messages[index]),
-                            ),
-                            rejectFriendButton: FriendButton(
-                                key: Key(
-                                    '${Keys.rejectFriendRequestButton}-$index'),
-                                text: 'Reject',
-                                onPressed: () =>
-                                    _rejectFriendRequest(messages[index])),
-                          ),
+                          itemBuilder: (context, index) {
+                            if (index < messages.length) {
+                              return StaggeredGridTileMessage(
+                                key: Key('${Keys.messageGridTile}_$index'),
+                                onPush: widget.onPush,
+                                message: messages[index],
+                                approveFriendButton: FriendButton(
+                                  key: Key(
+                                      '${Keys.approveFriendRequestButton}-$index'),
+                                  text: 'Approve',
+                                  onPressed: () =>
+                                      _approveFriendRequest(messages[index]),
+                                ),
+                                rejectFriendButton: FriendButton(
+                                    key: Key(
+                                        '${Keys.rejectFriendRequestButton}-$index'),
+                                    text: 'Reject',
+                                    onPressed: () =>
+                                        _rejectFriendRequest(messages[index])),
+                              );
+                            }
+                          },
                         ),
                 );
               },

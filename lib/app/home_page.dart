@@ -87,14 +87,23 @@ class _HomePageState extends State<HomePage> {
           notchedShape: CircularNotchedRectangle(),
           onTabSelected: _selectedTab,
           items: [
-            FABBottomAppBarItem(iconData: Icons.menu, text: 'Stories'),
-            FABBottomAppBarItem(iconData: Icons.layers, text: 'Friends'),
+            FABBottomAppBarItem(
+              iconData: Icons.menu,
+              text: 'Stories',
+            ),
+            FABBottomAppBarItem(
+              iconData: Icons.layers,
+              text: 'Friends',
+            ),
             FABBottomAppBarItem(
               iconData: Icons.dashboard,
-              text: 'Messages',
-              badge: '0',
+              text: 'Notices',
+              // badge: '0',
             ),
-            FABBottomAppBarItem(iconData: Icons.info, text: 'Profile'),
+            FABBottomAppBarItem(
+              iconData: Icons.info,
+              text: 'Profile',
+            ),
           ],
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

@@ -399,7 +399,7 @@ class _FriendsPageState extends State<FriendsPage> {
               case 'reject':
                 button = FriendButton(
                   key: Key('${Keys.newFriendsButton}-$index'),
-                  text: "Rejected ${friend['resolved']['formatted']}",
+                  text: 'Pending',
                   onPressed: null,
                 );
                 break;

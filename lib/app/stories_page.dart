@@ -92,7 +92,7 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
-  String getCursorForActivities(List<dynamic> _list) {
+  String getCursor(List<dynamic> _list) {
     String datetime;
     if (_list == null || _list.isEmpty) {
       datetime = DateTime.now().toIso8601String();
@@ -101,14 +101,6 @@ class _StoriesPageState extends State<StoriesPage> {
     }
     print('getCursorForActivities datetime: $datetime');
     return datetime;
-  }
-
-  List<dynamic> dumpActivities(List<dynamic> _list, String description) {
-    print('dump $description');
-    for (var i = 0; i < _list.length; i++) {
-      print('$i ${_list[i]['created']['formatted']}');
-    }
-    return _list;
   }
 
   RaisedButton getButton(
@@ -120,21 +112,10 @@ class _StoriesPageState extends State<StoriesPage> {
         onPressed: () {
           final FetchMoreOptions opts = FetchMoreOptions(
             variables: <String, dynamic>{
-              'cursor': getCursorForActivities(activities),
+              'cursor': getCursor(activities),
             },
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
-              // this is where you combine your previous data and response
-              // in this case, we want to display previous repos plus next repos
-              // so, we combine data in both into a single list of repos
-              dumpActivities(
-                previousResultData[resultType[widget.userId == null]],
-                'previousResultData',
-              );
-              dumpActivities(
-                fetchMoreResultData[resultType[widget.userId == null]],
-                'fetchMoreResultData',
-              );
               final List<dynamic> data = <dynamic>[
                 ...previousResultData[resultType[widget.userId == null]],
                 ...fetchMoreResultData[resultType[widget.userId == null]],
@@ -214,13 +195,8 @@ class _StoriesPageState extends State<StoriesPage> {
                               '\nErrors: \n  ' + result.exception.toString());
                         }
 
-                        List<dynamic> activities = List<dynamic>.from(
+                        final List<dynamic> activities = List<dynamic>.from(
                             result.data[resultType[widget.userId == null]]);
-
-                        activities = dumpActivities(
-                          activities,
-                          'activities',
-                        );
 
                         if (activities.isEmpty ||
                             activities.length % nActivities != 0) {
