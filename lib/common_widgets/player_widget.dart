@@ -156,7 +156,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     });
 
     _playerErrorSubscription = _audioPlayer.onPlayerError.listen((msg) {
-      print('playerWidget audioPlayer error : $msg');
       setState(() {
         _playerState = PlayerState.stopped;
         _duration = Duration(seconds: 0);
@@ -171,7 +170,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Future<int> _play() async {
     try {
-      print('PlaywerWidget play start');
       final playPosition = (_position != null &&
               _duration != null &&
               _position.inMilliseconds > 0 &&
@@ -183,12 +181,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       if (result == 1) {
         setState(() => _playerState = PlayerState.playing);
       }
-
-      // default playback rate is 1.0
-      // this should be called after _audioPlayer.play() or _audioPlayer.resume()
-      // this can also be called everytime the user wants to change playback rate in the UI
-      //_audioPlayer.setPlaybackRate(playbackRate: 1.0);
-      print('PlaywerWidget play finished');
       return result;
     } catch (error) {
       print(error.toString());
@@ -198,22 +190,18 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
   Future<int> _pause() async {
     try {
-      print('PlaywerWidget pause start');
       final result = await _audioPlayer.pause();
       if (result == 1) {
         setState(() => _playerState = PlayerState.paused);
       }
-      print('PlaywerWidget pause finished');
       return result;
     } catch (error) {
-      print('PlayerWidget pause: $error.toString()');
       rethrow;
     }
   }
 
   Future<int> _stop() async {
     try {
-      print('PlayerWidget stop start');
       final result = await _audioPlayer.stop();
       if (result == 1) {
         setState(() {
@@ -221,21 +209,16 @@ class _PlayerWidgetState extends State<PlayerWidget> {
           _position = Duration();
         });
       }
-      print('PlaywerWidget stop finished');
       return result;
     } catch (error) {
-      print('PlayerWidget stop: $error.toString()');
       rethrow;
     }
   }
 
   void _onComplete() {
     try {
-      print('PlaywerWidget onComplete start');
       setState(() => _playerState = PlayerState.stopped);
-      print('PlaywerWidget onComplete finished');
     } catch (error) {
-      print('PlayerWidget onComplete: $error.toString()');
       rethrow;
     }
   }

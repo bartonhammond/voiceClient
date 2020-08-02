@@ -155,27 +155,28 @@ class _StoryPageState extends State<StoryPage> {
                     height: 300,
                   ),
                   Container(
-                      padding: EdgeInsets.all(5.0),
-                      alignment: Alignment.topCenter,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: <Color>[
-                            Colors.black.withAlpha(30),
-                            Colors.black12,
-                            Colors.black54
-                          ],
-                        ),
+                    padding: EdgeInsets.all(5.0),
+                    alignment: Alignment.topCenter,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Colors.black.withAlpha(30),
+                          Colors.black12,
+                          Colors.black54
+                        ],
                       ),
-                      child: Text(
-                        'Image Placeholder',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ))
+                    ),
+                    child: Text(
+                      'Image Placeholder',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),

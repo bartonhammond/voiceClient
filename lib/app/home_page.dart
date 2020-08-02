@@ -5,6 +5,7 @@ import 'package:voiceClient/app/story_page.dart';
 import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart';
+import 'package:voiceClient/common_widgets/navigator/tab_navigator_profile.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
 
 import 'package:voiceClient/constants/enums.dart';
@@ -76,6 +77,7 @@ class _HomePageState extends State<HomePage> {
           buildOffStageNavigatorStories(TabItem.stories),
           buildOffStageNavigatorFriends(TabItem.friends),
           buildOffStageNavigatorMessages(TabItem.messages),
+          buildOffStageNavigatorProfile(TabItem.profile),
           //_buildOffstageNavigator(TabItem.red),
           //_buildOffstageNavigator(TabItem.green),
           //_buildOffstageNavigator(TabItem.blue),
@@ -141,6 +143,16 @@ class _HomePageState extends State<HomePage> {
     return Offstage(
       offstage: _currentTab != item,
       child: TabNavigatorMessages(
+        navigatorKey: _navigatorKeys[item],
+        tabItem: item,
+      ),
+    );
+  }
+
+  Widget buildOffStageNavigatorProfile(TabItem item) {
+    return Offstage(
+      offstage: _currentTab != item,
+      child: TabNavigatorProfile(
         navigatorKey: _navigatorKeys[item],
         tabItem: item,
       ),
