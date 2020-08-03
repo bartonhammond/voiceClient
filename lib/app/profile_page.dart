@@ -198,7 +198,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                 child: Stack(
                   children: <Widget>[
                     Positioned(
-                      left: 120,
+                      left: (MediaQuery.of(context).size.width / 2) - 50,
                       top: 35,
                       child: ClipRRect(
                         borderRadius: BorderRadius.only(
