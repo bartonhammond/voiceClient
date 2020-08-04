@@ -13,4 +13,11 @@ class Keys {
   static const String approveFriendRequestButton =
       'approveFriendsRequestButton';
   static const String rejectFriendRequestButton = 'rejectFriendsRequestButton';
+  static const String storyPageGalleryButton = 'storyPageGalleryButton';
+  static const String storyPageCameraButton = 'storyPageCameraButton';
+  static const String storyPageUploadButton = 'storyPageUploadButton';
+  static const String storyPageRecordButton = 'storyPageRecordButton';
+  static const String storyPageStopButton = 'storyPageStopButton';
+  static const String storyPagePlayButton = 'storyPagePlayButton';
+  static const String profilePageUploadButton = 'profilePageUploadButton';
 }

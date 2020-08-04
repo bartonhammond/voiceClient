@@ -87,8 +87,6 @@ MergeStoryUser(
     from: $from
     to: $to
   ) {
-    __typename
-    id
     from {
       email
     }
@@ -107,8 +105,6 @@ const String mergeUserFriends = r'''
     to: { id: $to }
     data: { id: $id, created: { formatted: $created } }
   ) {
-    __typename
-    id
     from {
       email
     }
@@ -451,6 +447,32 @@ userFriendsStories(
       home
       birth
       image
+    }
+  }
+}
+''';
+
+const String updateUser = r'''
+mutation updateUser($id: ID!, $name: String, $home: String, $updated: String, $image: String, $birth: Int ){
+UpdateUser(
+  id: $id
+  name: $name
+  home: $home
+  updated: {formatted: $updated}
+  image: $image
+  birth: $birth
+) {
+    id
+    name
+    email
+    created {
+      formatted
+    }
+    home
+    image
+    birth
+    updated {
+      formatted
     }
   }
 }

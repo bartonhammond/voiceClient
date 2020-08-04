@@ -4,10 +4,14 @@ import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 class SignInButton extends CustomRaisedButton {
   const SignInButton(
-      {Key key, @required String text, @required VoidCallback onPressed})
+      {Key key,
+      @required String text,
+      @required VoidCallback onPressed,
+      Icon icon})
       : super(
           key: key,
           text: text,
           onPressed: onPressed,
+          icon: icon,
         );
 }

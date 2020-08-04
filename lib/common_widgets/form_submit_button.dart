@@ -7,10 +7,11 @@ class FormSubmitButton extends CustomRaisedButton {
     String text,
     bool loading = false,
     VoidCallback onPressed,
+    Icon icon,
   }) : super(
-          key: key,
-          text: text,
-          loading: loading,
-          onPressed: onPressed,
-        );
+            key: key,
+            text: text,
+            loading: loading,
+            onPressed: onPressed,
+            icon: icon);
 }

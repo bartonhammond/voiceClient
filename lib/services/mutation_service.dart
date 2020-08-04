@@ -184,8 +184,32 @@ Future<QueryResult> createUserMessage(
       if (result.hasException) {
         throw result.exception;
       }
-      print('hello');
     },
   );
   return await graphQLClient.mutate(options);
+}
+
+Future<QueryResult> updateUserInfo(
+    GraphQLClient graphQLClientFileServer, GraphQLClient graphQLClient,
+    {String jpegPathUrl,
+    String id,
+    String name,
+    String home,
+    int birth}) async {
+  final DateTime now = DateTime.now();
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  final String formattedDate = formatter.format(now);
+
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(updateUser),
+    variables: <String, dynamic>{
+      'id': id,
+      'name': name,
+      'home': home,
+      'birth': birth,
+      'image': jpegPathUrl,
+      'updated': formattedDate
+    },
+  );
+  return await graphQLClient.mutate(_mutationOptions);
 }

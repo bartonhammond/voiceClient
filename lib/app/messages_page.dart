@@ -114,7 +114,6 @@ class _MessagesPageState extends State<MessagesPage> {
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
         title: Text(
           title,
-          style: TextStyle(color: Colors.black),
         ),
       ),
       drawer: getDrawer(context),
@@ -164,7 +163,7 @@ class _MessagesPageState extends State<MessagesPage> {
                       ? Center(
                           child: Container(
                             child: Column(
-                              children: <Widget>[
+                              children: const <Widget>[
                                 Text('No Notices are available')
                               ],
                             ),
@@ -175,26 +174,24 @@ class _MessagesPageState extends State<MessagesPage> {
                           itemCount: messages.length,
                           primary: false,
                           itemBuilder: (context, index) {
-                            if (index < messages.length) {
-                              return StaggeredGridTileMessage(
-                                key: Key('${Keys.messageGridTile}_$index'),
-                                onPush: widget.onPush,
-                                message: messages[index],
-                                approveFriendButton: FriendButton(
+                            return StaggeredGridTileMessage(
+                              key: Key('${Keys.messageGridTile}_$index'),
+                              onPush: widget.onPush,
+                              message: messages[index],
+                              approveFriendButton: FriendButton(
+                                key: Key(
+                                    '${Keys.approveFriendRequestButton}-$index'),
+                                text: 'Approve',
+                                onPressed: () =>
+                                    _approveFriendRequest(messages[index]),
+                              ),
+                              rejectFriendButton: FriendButton(
                                   key: Key(
-                                      '${Keys.approveFriendRequestButton}-$index'),
-                                  text: 'Approve',
+                                      '${Keys.rejectFriendRequestButton}-$index'),
+                                  text: 'Reject',
                                   onPressed: () =>
-                                      _approveFriendRequest(messages[index]),
-                                ),
-                                rejectFriendButton: FriendButton(
-                                    key: Key(
-                                        '${Keys.rejectFriendRequestButton}-$index'),
-                                    text: 'Reject',
-                                    onPressed: () =>
-                                        _rejectFriendRequest(messages[index])),
-                              );
-                            }
+                                      _rejectFriendRequest(messages[index])),
+                            );
                           },
                         ),
                 );

@@ -8,11 +8,13 @@ class CustomRaisedButton extends StatelessWidget {
     @required this.text,
     this.loading = false,
     this.onPressed,
+    this.icon,
   }) : super(key: key);
 
   final String text;
   final bool loading;
   final VoidCallback onPressed;
+  final Icon icon;
 
   Widget buildSpinner(BuildContext context) {
     final ThemeData data = Theme.of(context);
@@ -41,24 +43,37 @@ class CustomRaisedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: NeumorphicButton(
-        child: loading
-            ? buildSpinner(context)
-            : buildText(
-                text,
-                context,
-              ),
-        onPressed: onPressed,
-        margin: EdgeInsets.all(13),
-        style: NeumorphicStyle(
-          border: NeumorphicBorder(
-            isEnabled: true,
-            width: 1,
-            color: Color.fromARGB(50, 235, 166, 166),
-          ),
-        ),
-      ),
-    );
+    return loading == true
+        ? buildSpinner(context)
+        : icon != null
+            ? SizedBox(
+                child: RaisedButton.icon(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  color: NeumorphicTheme.currentTheme(context).variantColor,
+                  onPressed: onPressed,
+                  icon: icon,
+                  padding: EdgeInsets.all(10),
+                  label: buildText(
+                    text,
+                    context,
+                  ),
+                ),
+              )
+            : SizedBox(
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  color: NeumorphicTheme.currentTheme(context).variantColor,
+                  onPressed: onPressed,
+                  padding: EdgeInsets.all(0),
+                  child: loading
+                      ? buildSpinner(context)
+                      : buildText(
+                          text,
+                          context,
+                        ),
+                ),
+              );
   }
 }

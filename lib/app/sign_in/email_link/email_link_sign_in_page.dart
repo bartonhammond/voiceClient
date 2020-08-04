@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:voiceClient/app/sign_in/validator.dart';
 import 'package:voiceClient/common_widgets/form_submit_button.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
@@ -33,7 +34,7 @@ class EmailLinkSignInPage extends StatefulWidget {
         Provider.of<FirebaseEmailLinkHandler>(context, listen: false);
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        fullscreenDialog: true,
+        fullscreenDialog: false,
         builder: (_) => EmailLinkSignInPage(
           authService: authService,
           linkHandler: linkHandler,
@@ -117,9 +118,9 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NeumorphicAppBar(
-        color: NeumorphicTheme.currentTheme(context).variantColor,
-        title: Text(Strings.signIn),
+      appBar: AppBar(
+        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        title: Text(Strings.MFV),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -140,25 +141,38 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
 
   Widget _buildForm(bool isLoading) {
     final TextStyle hintStyle =
-        TextStyle(fontSize: 18.0, color: Colors.grey[400]);
+        TextStyle(fontSize: 25.0, color: Colors.grey[400]);
     return Form(
       key: _formKey,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(Strings.submitEmailAddressLink),
+          Text(
+            Strings.submitEmailAddressLink,
+            style: TextStyle(fontSize: 20.0, color: Colors.black),
+          ),
           SizedBox(height: 16.0),
-          Neumorphic(
-            //margin: EdgeInsets.only(left: 8, right: 8, top: 2, bottom: 4),
-            style: NeumorphicStyle(
-              depth: NeumorphicTheme.embossDepth(context),
-              boxShape: NeumorphicBoxShape.stadium(),
-            ),
-            padding: EdgeInsets.symmetric(vertical: 2, horizontal: 18),
+          Container(
+            margin: const EdgeInsets.only(right: 10, left: 10),
             child: TextFormField(
               controller: _emailController,
               decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Colors.blue,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Colors.grey,
+                    width: 2.0,
+                  ),
+                ),
+                border: const OutlineInputBorder(),
+                filled: true,
                 labelText: Strings.emailLabel,
                 hintText: Strings.emailHint,
                 hintStyle: hintStyle,
@@ -187,6 +201,10 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
             onPressed: isLoading ? null : _validateAndSubmit,
             loading: isLoading,
             text: Strings.sendActivationLink,
+            icon: Icon(
+              MdiIcons.email,
+              color: Colors.white,
+            ),
           ),
           SizedBox(height: 12.0),
         ],

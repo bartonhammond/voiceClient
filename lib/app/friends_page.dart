@@ -75,8 +75,8 @@ class _FriendsPageState extends State<FriendsPage> {
   Future<List<dynamic>> _getAllNewFriendRequestsToMe(
       BuildContext context) async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final GraphQLClient graphQLClient =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getAllNewFriendRequestsToMe),
@@ -92,8 +92,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
   Future<List<dynamic>> _getAllMyFriendRequests(BuildContext context) async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final GraphQLClient graphQLClient =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getAllMyFriendRequests),
       variables: <String, dynamic>{
@@ -236,7 +235,6 @@ class _FriendsPageState extends State<FriendsPage> {
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
         title: Text(
           title,
-          style: TextStyle(color: Colors.black),
         ),
       ),
       drawer: getDrawer(context),

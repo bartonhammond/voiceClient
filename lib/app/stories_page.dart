@@ -150,7 +150,6 @@ class _StoriesPageState extends State<StoriesPage> {
                   NeumorphicTheme.currentTheme(context).variantColor,
               title: Text(
                 title,
-                style: TextStyle(color: Colors.black),
               ),
             ),
             drawer: widget.userId == null ? getDrawer(context) : null,
@@ -216,19 +215,17 @@ class _StoriesPageState extends State<StoriesPage> {
                                   mainAxisSpacing: 4.0,
                                   crossAxisSpacing: 4.0,
                                   itemBuilder: (context, index) {
-                                    if (index < activities.length) {
-                                      return StaggeredGridTileStory(
-                                        onPush: widget.onPush,
-                                        showFriend: widget.userId == null,
-                                        activity: Map<String, dynamic>.from(
-                                            activities[index]),
-                                      );
-                                    } else {
-                                      if (moreSearchResults[
-                                          widget.userId == null]) {
-                                        return getButton(fetchMore, activities);
-                                      }
-                                    }
+                                    return index < activities.length
+                                        ? StaggeredGridTileStory(
+                                            onPush: widget.onPush,
+                                            showFriend: widget.userId == null,
+                                            activity: Map<String, dynamic>.from(
+                                                activities[index]),
+                                          )
+                                        : moreSearchResults[
+                                                widget.userId == null]
+                                            ? getButton(fetchMore, activities)
+                                            : Container();
                                   },
                                   staggeredTileBuilder: (index) =>
                                       StaggeredTile.fit(2),

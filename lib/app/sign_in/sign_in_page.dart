@@ -1,11 +1,12 @@
-import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
-import 'package:voiceClient/app/sign_in/sign_in_button.dart';
-import 'package:voiceClient/constants/strings.dart';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
+
+import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
+import 'package:voiceClient/app/sign_in/sign_in_button.dart';
+import 'package:voiceClient/constants/strings.dart';
 
 class SignInPageBuilder extends StatelessWidget {
   @override
@@ -50,9 +51,9 @@ class SignInPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: NeumorphicAppBar(
+      appBar: AppBar(
         title: Text(title),
-        color: NeumorphicTheme.currentTheme(context).variantColor,
+        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
       ),
       body: _buildSignIn(context),
     );
@@ -68,27 +69,27 @@ class SignInPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              color: NeumorphicTheme.currentTheme(context).variantColor,
+              //color: NeumorphicTheme.currentTheme(context).variantColor,
               padding: EdgeInsets.all(10),
               child: Center(
                 child: RichText(
                   text: TextSpan(
                     text: 'My Family Voice ',
                     style: TextStyle(
-                        color: Colors.white,
+                        color: Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(
                           text: ' was inspired by the way your family shares ',
                           style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.grey,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                       TextSpan(
                         text: 'memories of photos',
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.black,
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                             decoration: TextDecoration.underline),
@@ -96,25 +97,27 @@ class SignInPage extends StatelessWidget {
                       TextSpan(
                           text: ' from their ',
                           style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.grey,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                       TextSpan(
                         text:
                             'youth, high school, adventures, marriage, military, children, etc.',
                         style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            decoration: TextDecoration.underline),
+                          color: Colors.grey,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          decoration: TextDecoration.underline,
+                        ),
                       ),
                       TextSpan(
                           text:
-                              ' that you can now share with others in your family. ',
+                              ' so that you can now share with others in your family. ',
                           style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold)),
+                            color: Colors.black,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          )),
                     ],
                   ),
                 ),
@@ -124,10 +127,14 @@ class SignInPage extends StatelessWidget {
               height: 10.0,
             ),
             SignInButton(
-              key: emailLinkButtonKey,
-              text: Strings.signInWithEmailLink,
-              onPressed: isLoading ? null : () => _signInWithEmailLink(context),
-            ),
+                key: emailLinkButtonKey,
+                text: Strings.signInWithEmailLink,
+                onPressed:
+                    isLoading ? null : () => _signInWithEmailLink(context),
+                icon: Icon(
+                  MdiIcons.login,
+                  color: Colors.white,
+                )),
           ],
         ),
       ),

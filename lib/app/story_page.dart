@@ -16,6 +16,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:uuid/uuid.dart';
+import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
+import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/strings.dart';
 
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/auth_service.dart';
@@ -26,7 +29,11 @@ import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/enums.dart';
 
 class StoryPage extends StatefulWidget {
-  StoryPage({Key key, this.onFinish, this.id}) : super(key: key);
+  StoryPage({
+    Key key,
+    this.onFinish,
+    this.id,
+  }) : super(key: key);
 
   final LocalFileSystem localFileSystem = LocalFileSystem();
   final String id;
@@ -111,11 +118,10 @@ class _StoryPageState extends State<StoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'My Family Voice',
-          style: TextStyle(color: Colors.black.withOpacity(0.6)),
-        ),
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        title: Text(
+          Strings.MFV,
+        ),
       ),
       //drawer: getDrawer(context),
       body: _buildPage(context),
@@ -124,7 +130,7 @@ class _StoryPageState extends State<StoryPage> {
 
   Widget _buildPage(BuildContext context) {
     return Neumorphic(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      margin: EdgeInsets.symmetric(horizontal: 1, vertical: 1),
       padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       style: NeumorphicStyle(
         boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
@@ -195,7 +201,28 @@ class _StoryPageState extends State<StoryPage> {
             height: 8,
           ),
           _buildImageControls(),
+          SizedBox(
+            height: 8,
+          ),
+          widget.id == null || widget.id.isEmpty
+              ? Text(
+                  'Audio Controls',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                )
+              : SizedBox(
+                  height: 0,
+                ),
+          widget.id == null || widget.id.isEmpty
+              ? SizedBox(
+                  height: 8,
+                )
+              : SizedBox(
+                  height: 0,
+                ),
           _buildAudioControls(),
+          SizedBox(
+            height: 12,
+          ),
           if (_image != null && _audio != null) _buildUploadButton(context)
         ],
       ),
@@ -208,44 +235,24 @@ class _StoryPageState extends State<StoryPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          NeumorphicButton(
-            style: NeumorphicStyle(
-                border: NeumorphicBorder(
-              color: Color(0x33000000),
-              width: 0.8,
-            )),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(Icons.photo_library),
-                SizedBox(
-                  width: 5,
-                ),
-                Text('Gallery'),
-              ],
+          CustomRaisedButton(
+            key: Key(Keys.storyPageGalleryButton),
+            text: 'Gallery',
+            icon: Icon(
+              Icons.photo_library,
+              color: Colors.white,
             ),
             onPressed: () => selectImage(ImageSource.gallery),
           ),
           SizedBox(
             width: 8,
           ),
-          NeumorphicButton(
-            style: NeumorphicStyle(
-                border: NeumorphicBorder(
-              color: Color(0x33000000),
-              width: 0.8,
-            )),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Icon(Icons.camera),
-                SizedBox(
-                  width: 5,
-                ),
-                Text('Camera'),
-              ],
+          CustomRaisedButton(
+            key: Key(Keys.storyPageCameraButton),
+            text: 'Camera',
+            icon: Icon(
+              Icons.camera,
+              color: Colors.white,
             ),
             onPressed: () => selectImage(ImageSource.camera),
           ),
@@ -278,32 +285,36 @@ class _StoryPageState extends State<StoryPage> {
     return graphQLClient;
   }
 
-  NeumorphicButton _buildUploadButton(BuildContext context) {
-    return NeumorphicButton(
-      style: NeumorphicStyle(
-          border: NeumorphicBorder(
-        color: Color(0x33000000),
-        width: 0.8,
-      )),
-      child: _isLoadingInProgress(),
-      onPressed: () async {
-        setState(() {
-          _uploadInProgress = true;
-        });
-        await doUploads(context);
-        setState(() {
-          _image = null;
-          _audio = null;
-          _uploadInProgress = false;
-          _recorder = null;
-          _current = null;
-          _currentStatus = RecordingStatus.Initialized;
-        });
-        //pop back to tab for stories
-        widget.onFinish(true);
-        Navigator.pop(context);
-      },
-    );
+  Widget _buildUploadButton(BuildContext context) {
+    return _uploadInProgress
+        ? CircularProgressIndicator()
+        : CustomRaisedButton(
+            key: Key(Keys.storyPageUploadButton),
+            icon: Icon(
+              Icons.file_upload,
+              color: Colors.white,
+            ),
+            text: 'Upload',
+            onPressed: () async {
+              setState(() {
+                _uploadInProgress = true;
+              });
+              await doUploads(context);
+              setState(() {
+                _image = null;
+                _audio = null;
+                _uploadInProgress = false;
+                _recorder = null;
+                _current = null;
+                _currentStatus = RecordingStatus.Initialized;
+              });
+              //pop back to tab for stories
+              if (widget.onFinish != null) {
+                widget.onFinish(true);
+              }
+              Navigator.pop(context);
+            },
+          );
   }
 
   Future<void> doUploads(BuildContext context) async {
@@ -353,37 +364,12 @@ class _StoryPageState extends State<StoryPage> {
     return;
   }
 
-  Widget _isLoadingInProgress() {
-    return _uploadInProgress
-        ? CircularProgressIndicator()
-        : Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Icon(Icons.file_upload),
-              SizedBox(
-                width: 5,
-              ),
-              Text('Upload'),
-            ],
-          );
-  }
-
   Widget _buildAudioControls() {
-    return Neumorphic(
-      margin: EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-      padding: EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-      style: NeumorphicStyle(
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-      ),
-      child: Column(
+    return Flexible(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          Text(
-            'Audio Controls',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            height: 8,
-          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -393,49 +379,29 @@ class _StoryPageState extends State<StoryPage> {
                       width: 0,
                     ),
               SizedBox(
-                width: 0,
+                width: 4,
               ),
-              NeumorphicButton(
-                style: NeumorphicStyle(
-                    border: NeumorphicBorder(
-                  color: Color(0x33000000),
-                  width: 0.8,
-                )),
+              CustomRaisedButton(
+                key: Key(Keys.storyPageStopButton),
+                text: 'Stop',
+                icon: Icon(
+                  Icons.stop,
+                  color: Colors.white,
+                ),
                 onPressed:
                     _currentStatus != RecordingStatus.Unset ? _stop : null,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(Icons.stop),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text('Stop'),
-                  ],
-                ),
               ),
               SizedBox(
                 width: 4,
               ),
-              NeumorphicButton(
-                style: NeumorphicStyle(
-                    border: NeumorphicBorder(
-                  color: Color(0x33000000),
-                  width: 0.8,
-                )),
-                onPressed: onPlayAudio,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Icon(Icons.play_circle_outline),
-                    SizedBox(
-                      width: 5,
-                    ),
-                    Text('Play'),
-                  ],
+              CustomRaisedButton(
+                key: Key(Keys.storyPagePlayButton),
+                text: 'Play',
+                icon: Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.white,
                 ),
+                onPressed: onPlayAudio,
               ),
             ],
           ),
@@ -445,12 +411,14 @@ class _StoryPageState extends State<StoryPage> {
   }
 
   Widget getRecordButton() {
-    return NeumorphicButton(
-      style: NeumorphicStyle(
-          border: NeumorphicBorder(
-        color: Color(0x33000000),
-        width: 0.8,
-      )),
+    final dynamic textAndIcon = _buildText(_currentStatus);
+    return CustomRaisedButton(
+      key: Key(Keys.storyPageGalleryButton),
+      text: textAndIcon['text'],
+      icon: Icon(
+        textAndIcon['icon'],
+        color: Colors.white,
+      ),
       onPressed: () {
         switch (_currentStatus) {
           case RecordingStatus.Initialized:
@@ -477,7 +445,6 @@ class _StoryPageState extends State<StoryPage> {
             break;
         }
       },
-      child: _buildText(_currentStatus),
     );
   }
 
@@ -576,7 +543,7 @@ class _StoryPageState extends State<StoryPage> {
     return;
   }
 
-  Widget _buildText(RecordingStatus status) {
+  dynamic _buildText(RecordingStatus status) {
     var text = '';
     IconData iconData;
     switch (_currentStatus) {
@@ -607,18 +574,7 @@ class _StoryPageState extends State<StoryPage> {
       default:
         break;
     }
-    //return Text(text, style: TextStyle(color: Colors.white));
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Icon(iconData),
-        SizedBox(
-          width: 2,
-        ),
-        Text(text),
-      ],
-    );
+    return {'icon': iconData, 'text': text};
   }
 
   Future<void> onPlayAudio() async {

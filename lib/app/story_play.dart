@@ -38,7 +38,6 @@ class _StoryPlayState extends State<StoryPlay> {
             appBar: AppBar(
               title: Text(
                 'My Family Voice',
-                style: TextStyle(color: Colors.black.withOpacity(0.6)),
               ),
               backgroundColor:
                   NeumorphicTheme.currentTheme(context).variantColor,
