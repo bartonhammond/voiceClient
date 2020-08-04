@@ -15,7 +15,8 @@ class Strings {
   static const String logoutAreYouSure =
       'Are you sure that you want to logout?';
   static const String logoutFailed = 'Logout failed';
-  static const String changeLocale = 'Change locale';
+  static const String usLocale = 'Change to English';
+  static const String esLocale = 'Change to Spanish';
 
   // Sign In Page
   static const String signIn = 'Sign in';

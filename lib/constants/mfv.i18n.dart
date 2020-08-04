@@ -47,7 +47,14 @@ extension Localization on String {
         'en': Strings.logoutAreYouSure,
         'es': '¿Estás seguro de que quieres cerrar sesión?',
       } +
-      {'en': Strings.changeLocale, 'es': '¿Cambiar configuración regional?'} +
+      {
+        'en': Strings.usLocale,
+        'es': '¿Cambiar a Inglés?',
+      } +
+      {
+        'en': Strings.esLocale,
+        'es': '¿Cambiar al español?',
+      } +
       {
         'en': Strings.logoutFailed,
         'es': 'Cierre de sesión fallido',

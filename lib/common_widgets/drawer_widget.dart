@@ -9,6 +9,7 @@ import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart'
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:flag/flag.dart';
 
 Future<void> _signOut(BuildContext context) async {
   try {
@@ -45,19 +46,40 @@ Widget getDrawer(BuildContext context) {
             color: NeumorphicTheme.currentTheme(context).variantColor,
           ),
         ),
-        ListTile(
-          title: Text(Strings.logout.i18n),
-          onTap: () {
-            _confirmSignOut(context);
-          },
+        Card(
+          child: ListTile(
+            title: Text(Strings.logout.i18n),
+            onTap: () {
+              _confirmSignOut(context);
+            },
+          ),
         ),
-        ListTile(
-          title: Text(Strings.changeLocale.i18n),
-          onTap: () {
-            I18n.of(context).locale =
-                (I18n.localeStr == 'es') ? null : Locale('es');
-          },
-        )
+        Card(
+          child: ListTile(
+            trailing: Flag(
+              'US',
+              height: 30,
+              width: 30,
+            ),
+            title: Text(Strings.usLocale.i18n),
+            onTap: () {
+              I18n.of(context).locale = null;
+            },
+          ),
+        ),
+        Card(
+          child: ListTile(
+            trailing: Flag(
+              'ES',
+              height: 30,
+              width: 30,
+            ),
+            title: Text(Strings.esLocale.i18n),
+            onTap: () {
+              I18n.of(context).locale = Locale('es');
+            },
+          ),
+        ),
       ],
     ),
   );
