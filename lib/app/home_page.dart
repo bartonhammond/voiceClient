@@ -7,10 +7,9 @@ import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart'
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_profile.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
-
 import 'package:voiceClient/constants/enums.dart';
-
 import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 
 class HomePage extends StatefulWidget {
@@ -50,7 +49,7 @@ class _HomePageState extends State<HomePage> {
                   )),
         );
       },
-      tooltip: Strings.toolTipFAB,
+      tooltip: Strings.toolTipFAB.i18n,
       child: Icon(Icons.add),
       elevation: 2.0,
     );
@@ -89,20 +88,20 @@ class _HomePageState extends State<HomePage> {
           items: [
             FABBottomAppBarItem(
               iconData: Icons.menu,
-              text: Strings.storiesTabName,
+              text: Strings.storiesTabName.i18n,
             ),
             FABBottomAppBarItem(
               iconData: Icons.layers,
-              text: Strings.friendsTabName,
+              text: Strings.friendsTabName.i18n,
             ),
             FABBottomAppBarItem(
               iconData: Icons.dashboard,
-              text: Strings.noticesTabName,
+              text: Strings.noticesTabName.i18n,
               // badge: '0',
             ),
             FABBottomAppBarItem(
               iconData: Icons.info,
-              text: Strings.profileTabName,
+              text: Strings.profileTabName.i18n,
             ),
           ],
         ),

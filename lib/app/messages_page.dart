@@ -14,6 +14,7 @@ import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class MessagesPage extends StatefulWidget {
   const MessagesPage({
@@ -29,7 +30,7 @@ class MessagesPage extends StatefulWidget {
 }
 
 class _MessagesPageState extends State<MessagesPage> {
-  final String title = Strings.MFV;
+  final String title = Strings.MFV.i18n;
   final nMessages = 20;
   final ScrollController _scrollController = ScrollController();
   bool shouldBeMore = true;
@@ -43,10 +44,10 @@ class _MessagesPageState extends State<MessagesPage> {
 
   Future<void> _rejectFriendRequest(Map<String, dynamic> message) async {
     final bool rejectFriendRequest = await PlatformAlertDialog(
-      title: Strings.rejectFriendshipRequest,
-      content: Strings.areYouSure,
-      cancelActionText: Strings.cancel,
-      defaultActionText: Strings.yes,
+      title: Strings.rejectFriendshipRequest.i18n,
+      content: Strings.areYouSure.i18n,
+      cancelActionText: Strings.cancel.i18n,
+      defaultActionText: Strings.yes.i18n,
     ).show(context);
     if (rejectFriendRequest == true) {
       final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -68,10 +69,10 @@ class _MessagesPageState extends State<MessagesPage> {
 
   Future<void> _approveFriendRequest(Map<String, dynamic> message) async {
     final bool approveFriendRequest = await PlatformAlertDialog(
-      title: Strings.approveFriendshipRequest,
-      content: Strings.areYouSure,
-      cancelActionText: Strings.cancel,
-      defaultActionText: Strings.yes,
+      title: Strings.approveFriendshipRequest.i18n,
+      content: Strings.areYouSure.i18n,
+      cancelActionText: Strings.cancel.i18n,
+      defaultActionText: Strings.yes.i18n,
     ).show(context);
     if (approveFriendRequest) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
@@ -160,10 +161,8 @@ class _MessagesPageState extends State<MessagesPage> {
                       ? Center(
                           child: Container(
                             child: Column(
-                              children: const <Widget>[
-                                Text(
-                                  Strings.noResults,
-                                )
+                              children: <Widget>[
+                                Text(Strings.noResults.i18n),
                               ],
                             ),
                           ),
@@ -180,14 +179,14 @@ class _MessagesPageState extends State<MessagesPage> {
                               approveFriendButton: FriendButton(
                                 key: Key(
                                     '${Keys.approveFriendRequestButton}-$index'),
-                                text: Strings.approveFriendButton,
+                                text: Strings.approveFriendButton.i18n,
                                 onPressed: () =>
                                     _approveFriendRequest(messages[index]),
                               ),
                               rejectFriendButton: FriendButton(
                                   key: Key(
                                       '${Keys.rejectFriendRequestButton}-$index'),
-                                  text: Strings.rejectFriendButton,
+                                  text: Strings.rejectFriendButton.i18n,
                                   onPressed: () =>
                                       _rejectFriendRequest(messages[index])),
                             );

@@ -27,6 +27,7 @@ import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class StoryPage extends StatefulWidget {
   StoryPage({
@@ -120,7 +121,7 @@ class _StoryPageState extends State<StoryPage> {
       appBar: AppBar(
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
         title: Text(
-          Strings.MFV,
+          Strings.MFV.i18n,
         ),
       ),
       //drawer: getDrawer(context),
@@ -175,7 +176,7 @@ class _StoryPageState extends State<StoryPage> {
                       ),
                     ),
                     child: Text(
-                      Strings.imagePlaceholder,
+                      Strings.imagePlaceholder.i18n,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20.0,
@@ -191,7 +192,7 @@ class _StoryPageState extends State<StoryPage> {
           ),
           widget.id == null || widget.id.isEmpty
               ? Text(
-                  Strings.imageSelection,
+                  Strings.imageSelection.i18n,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 )
               : SizedBox(
@@ -206,7 +207,7 @@ class _StoryPageState extends State<StoryPage> {
           ),
           widget.id == null || widget.id.isEmpty
               ? Text(
-                  Strings.audioControls,
+                  Strings.audioControls.i18n,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 )
               : SizedBox(
@@ -237,7 +238,7 @@ class _StoryPageState extends State<StoryPage> {
         children: <Widget>[
           CustomRaisedButton(
             key: Key(Keys.storyPageGalleryButton),
-            text: Strings.pictureGallery,
+            text: Strings.pictureGallery.i18n,
             icon: Icon(
               Icons.photo_library,
               color: Colors.white,
@@ -249,7 +250,7 @@ class _StoryPageState extends State<StoryPage> {
           ),
           CustomRaisedButton(
             key: Key(Keys.storyPageCameraButton),
-            text: Strings.pictureCamera,
+            text: Strings.pictureCamera.i18n,
             icon: Icon(
               Icons.camera,
               color: Colors.white,
@@ -294,7 +295,7 @@ class _StoryPageState extends State<StoryPage> {
               Icons.file_upload,
               color: Colors.white,
             ),
-            text: Strings.upload,
+            text: Strings.upload.i18n,
             onPressed: () async {
               setState(() {
                 _uploadInProgress = true;
@@ -383,7 +384,7 @@ class _StoryPageState extends State<StoryPage> {
               ),
               CustomRaisedButton(
                 key: Key(Keys.storyPageStopButton),
-                text: Strings.audioStop,
+                text: Strings.audioStop.i18n,
                 icon: Icon(
                   Icons.stop,
                   color: Colors.white,
@@ -396,7 +397,7 @@ class _StoryPageState extends State<StoryPage> {
               ),
               CustomRaisedButton(
                 key: Key(Keys.storyPagePlayButton),
-                text: Strings.audioPlay,
+                text: Strings.audioPlay.i18n,
                 icon: Icon(
                   Icons.play_circle_outline,
                   color: Colors.white,
@@ -481,7 +482,7 @@ class _StoryPageState extends State<StoryPage> {
         });
       } else {
         Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text(Strings.mustAcceptPermissions)));
+            SnackBar(content: Text(Strings.mustAcceptPermissions.i18n)));
       }
     } catch (e) {
       print(e);
@@ -544,25 +545,25 @@ class _StoryPageState extends State<StoryPage> {
     switch (_currentStatus) {
       case RecordingStatus.Initialized:
         {
-          text = Strings.audioRecord;
+          text = Strings.audioRecord.i18n;
           iconData = Icons.mic;
           break;
         }
       case RecordingStatus.Recording:
         {
-          text = Strings.audioPause;
+          text = Strings.audioPause.i18n;
           iconData = Icons.pause_circle_outline;
           break;
         }
       case RecordingStatus.Paused:
         {
-          text = Strings.audioResume;
+          text = Strings.audioResume.i18n;
           iconData = Icons.mic_off;
           break;
         }
       case RecordingStatus.Stopped:
         {
-          text = Strings.audioClear;
+          text = Strings.audioClear.i18n;
           iconData = Icons.clear;
           break;
         }

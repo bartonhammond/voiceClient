@@ -1,3 +1,4 @@
+// ignore: avoid_classes_with_only_static_members
 class Strings {
   static const String MFV = 'My Family Voice';
   // Generic strings
@@ -5,14 +6,16 @@ class Strings {
   static const String cancel = 'Cancel';
   static const String areYouSure = 'Are you sure?';
   static const String yes = 'Yes';
-  static const String noResults = 'No results.';
+  static const String noResults = 'No results';
   static const String upload = 'Upload';
   static const String loadMore = 'Load More';
-  // Logout
+
+  // Logout / Drawer
   static const String logout = 'Logout';
   static const String logoutAreYouSure =
       'Are you sure that you want to logout?';
   static const String logoutFailed = 'Logout failed';
+  static const String changeLocale = 'Change locale';
 
   // Sign In Page
   static const String signIn = 'Sign in';
@@ -27,12 +30,12 @@ class Strings {
   static const String memoriesText = 'memories of photos';
   static const String youCanShare =
       ' so that you can now share with others in your family. ';
+
   // Email link page
   static const String submitEmailAddressLink =
       'Submit your email address to receive an activation link.';
   static const String checkYourEmail = 'Check your email';
-  static String activationLinkSent(String email) =>
-      'We have sent an activation link to $email';
+  static String activationLinkSent = 'We have sent an activation link';
   static const String errorSendingEmail = 'Error sending email';
   static const String sendActivationLink = 'Send activation link';
   static const String activationLinkError = 'Email activation error';
@@ -44,8 +47,7 @@ class Strings {
       'Invalid activation link';
 
   // Home page
-  static const String homePage = 'Home Page';
-  static const String toolTipFAB = 'Increment';
+  static const String toolTipFAB = 'Add Story';
   static const String storiesTabName = 'Stories';
   static const String friendsTabName = 'Friends';
   static const String noticesTabName = 'Notices';
@@ -68,7 +70,7 @@ class Strings {
   static const String rejectFriendButton = 'Reject';
 
   //Profile page
-  static const profilePageName = 'Profile';
+  static const String profilePageName = 'Profile';
   static const String galleryImageButton = 'Gallery';
   static const String cameraImageButton = 'Camera';
   static const String imagePlaceholderText = 'Your Image Placeholder';
@@ -99,7 +101,10 @@ class Strings {
   static const String mustAcceptPermissions = 'You must accept permissions';
 
   //Fab With Icons
-  static const String incrementToolTip = 'Increment';
+  static const String incrementToolTip = 'Add Story';
+
+  //Staggered Grid Tile Message
+  static const String friendRequest = 'Friend Request';
 
   // Developer menu
   static const String developerMenu = 'Developer menu';

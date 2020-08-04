@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class StaggeredGridTileMessage extends StatelessWidget {
   const StaggeredGridTileMessage({
@@ -25,7 +26,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
           children: <Widget>[
             Center(
               child: Text(
-                Strings.friendRequest,
+                Strings.friendRequest.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
             ),

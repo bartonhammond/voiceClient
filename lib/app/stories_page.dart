@@ -10,6 +10,7 @@ import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class StoriesPage extends StatefulWidget {
   const StoriesPage({Key key, this.onPush, this.userId}) : super(key: key);
@@ -20,7 +21,7 @@ class StoriesPage extends StatefulWidget {
 }
 
 class _StoriesPageState extends State<StoriesPage> {
-  final String title = Strings.MFV;
+  final String title = 'My Family xxxVoice';
   final nActivities = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
@@ -108,7 +109,7 @@ class _StoriesPageState extends State<StoriesPage> {
     List<dynamic> activities,
   ) {
     return RaisedButton(
-        child: Text(Strings.loadMore),
+        child: Text(Strings.loadMore.i18n),
         onPressed: () {
           final FetchMoreOptions opts = FetchMoreOptions(
             variables: <String, dynamic>{
@@ -149,7 +150,7 @@ class _StoriesPageState extends State<StoriesPage> {
               backgroundColor:
                   NeumorphicTheme.currentTheme(context).variantColor,
               title: Text(
-                title,
+                Strings.MFV.i18n,
               ),
             ),
             drawer: widget.userId == null ? getDrawer(context) : null,
@@ -206,7 +207,7 @@ class _StoriesPageState extends State<StoriesPage> {
 
                         return Expanded(
                           child: activities == null || activities.isEmpty
-                              ? Text(Strings.noResults)
+                              ? Text(Strings.noResults.i18n)
                               : StaggeredGridView.countBuilder(
                                   controller: _scrollController,
                                   itemCount: activities.length + 1,

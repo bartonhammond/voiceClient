@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:i18n_extension/i18n_widget.dart';
 
 import 'package:voiceClient/app/auth_widget.dart';
 import 'package:voiceClient/app/auth_widget_builder.dart';
@@ -15,8 +17,6 @@ import 'package:voiceClient/services/auth_service_adapter.dart';
 import 'package:voiceClient/services/email_secure_store.dart';
 import 'package:voiceClient/services/firebase_email_link_handler.dart';
 import 'package:voiceClient/services/service_locator.dart';
-
-import 'constants/strings.dart';
 
 Future<void> main() async {
   // Fix for: Unhandled Exception: ServicesBinding.defaultBinaryMessenger was accessed before the binding was initialized.
@@ -66,8 +66,16 @@ class MyApp extends StatelessWidget {
       ) {
         setupServiceLocator(context);
         return NeumorphicApp(
+          localizationsDelegates: [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', ''),
+            Locale('es', ''),
+          ],
           debugShowCheckedModeBanner: false,
-          title: Strings.MFV,
           themeMode: ThemeMode.light,
           theme: NeumorphicThemeData(
             baseColor: Color(0xFFF9EBE8),
@@ -79,12 +87,13 @@ class MyApp extends StatelessWidget {
             lightSource: LightSource.topRight,
             depth: 50,
           ),
-          home: EmailLinkErrorPresenter.create(
+          home: I18n(
+              child: EmailLinkErrorPresenter.create(
             context,
             child: AuthWidget(
               userSnapshot: userSnapshot,
             ),
-          ),
+          )),
         );
       }),
     );

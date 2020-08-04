@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
 import 'package:voiceClient/app/sign_in/sign_in_button.dart';
 import 'package:voiceClient/constants/strings.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class SignInPageBuilder extends StatelessWidget {
   @override
@@ -16,7 +17,7 @@ class SignInPageBuilder extends StatelessWidget {
       child: Consumer<ValueNotifier<bool>>(
         builder: (_, ValueNotifier<bool> isLoading, __) => SignInPage._(
           isLoading: isLoading.value,
-          title: Strings.MFV,
+          title: Strings.MFV.i18n,
         ),
       ),
     );
@@ -74,20 +75,20 @@ class SignInPage extends StatelessWidget {
               child: Center(
                 child: RichText(
                   text: TextSpan(
-                    text: Strings.MFV,
+                    text: Strings.MFV.i18n,
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(
-                          text: Strings.inspiredText,
+                          text: Strings.inspiredText.i18n,
                           style: TextStyle(
                               color: Colors.grey,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                       TextSpan(
-                        text: Strings.memoriesText,
+                        text: Strings.memoriesText.i18n,
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -95,7 +96,7 @@ class SignInPage extends StatelessWidget {
                             decoration: TextDecoration.underline),
                       ),
                       TextSpan(
-                        text: Strings.firebase,
+                        text: Strings.firebase.i18n,
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 20,
@@ -104,7 +105,7 @@ class SignInPage extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                          text: Strings.youCanShare,
+                          text: Strings.youCanShare.i18n,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -120,7 +121,7 @@ class SignInPage extends StatelessWidget {
             ),
             SignInButton(
                 key: emailLinkButtonKey,
-                text: Strings.signInWithEmailLink,
+                text: Strings.signInWithEmailLink.i18n,
                 onPressed:
                     isLoading ? null : () => _signInWithEmailLink(context),
                 icon: Icon(

@@ -18,6 +18,7 @@ import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -119,7 +120,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
         children: <Widget>[
           CustomRaisedButton(
             key: Key(Keys.storyPageGalleryButton),
-            text: Strings.galleryImageButton,
+            text: Strings.galleryImageButton.i18n,
             icon: Icon(
               Icons.photo_library,
               color: Colors.white,
@@ -131,7 +132,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
           ),
           CustomRaisedButton(
             key: Key(Keys.storyPageCameraButton),
-            text: Strings.cameraImageButton,
+            text: Strings.cameraImageButton.i18n,
             icon: Icon(
               Icons.camera,
               color: Colors.white,
@@ -152,7 +153,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               Icons.file_upload,
               color: Colors.white,
             ),
-            text: Strings.upload,
+            text: Strings.upload.i18n,
             onPressed: !formReady
                 ? null
                 : () async {
@@ -216,7 +217,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
     return Scaffold(
       drawer: getDrawer(context),
       appBar: AppBar(
-        title: Text(Strings.profilePageName),
+        title: Text(Strings.profilePageName.i18n),
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
       ),
       body: Form(
@@ -274,7 +275,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                         ),
                       ),
                       child: Text(
-                        Strings.imagePlaceholderText,
+                        Strings.imagePlaceholderText.i18n,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20.0,
@@ -289,7 +290,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               height: 10,
             ),
             Text(
-              Strings.yourPictureSelection,
+              Strings.yourPictureSelection.i18n,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(
@@ -322,8 +323,8 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                           NeumorphicTheme.currentTheme(context).variantColor),
                   border: const OutlineInputBorder(),
                   filled: true,
-                  hintText: Strings.yourFullNameText,
-                  labelText: Strings.yourFullNameLabel,
+                  hintText: Strings.yourFullNameText.i18n,
+                  labelText: Strings.yourFullNameLabel.i18n,
                   labelStyle: TextStyle(
                       color:
                           NeumorphicTheme.currentTheme(context).variantColor),
@@ -340,7 +341,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                 },
                 validator: (value) {
                   if (value.isEmpty) {
-                    return Strings.nameEmptyMessage;
+                    return Strings.nameEmptyMessage.i18n;
                   }
                   return null;
                 },
@@ -371,11 +372,11 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                     ),
                     border: const OutlineInputBorder(),
                     filled: true,
-                    hintText: Strings.yourHomeText,
+                    hintText: Strings.yourHomeText.i18n,
                     hintStyle: TextStyle(
                         color:
                             NeumorphicTheme.currentTheme(context).variantColor),
-                    labelText: Strings.yourHomeLabel,
+                    labelText: Strings.yourHomeLabel.i18n,
                     labelStyle: TextStyle(
                         color: NeumorphicTheme.currentTheme(context)
                             .variantColor)),
@@ -389,7 +390,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                 },
                 validator: (value) {
                   if (value.isEmpty) {
-                    return Strings.homeEmptyMessage;
+                    return Strings.homeEmptyMessage.i18n;
                   }
                   return null;
                 },
@@ -424,11 +425,11 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                     ),
                     border: const OutlineInputBorder(),
                     filled: true,
-                    hintText: Strings.yourBirthText,
+                    hintText: Strings.yourBirthText.i18n,
                     hintStyle: TextStyle(
                         color:
                             NeumorphicTheme.currentTheme(context).variantColor),
-                    labelText: Strings.yourBirthLabel,
+                    labelText: Strings.yourBirthLabel.i18n,
                     labelStyle: TextStyle(
                         color: NeumorphicTheme.currentTheme(context)
                             .variantColor)),
@@ -444,11 +445,11 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                 },
                 validator: (value) {
                   if (value.isEmpty) {
-                    return Strings.birthEmptyMessage;
+                    return Strings.birthEmptyMessage.i18n;
                   }
                   final int _birthYear = int.parse(value);
                   if (_birthYear < 1900 || _birthYear > DateTime.now().year) {
-                    return Strings.birthValidationMessage;
+                    return Strings.birthValidationMessage.i18n;
                   }
                   return null;
                 },

@@ -14,6 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class EmailLinkSignInPage extends StatefulWidget {
   const EmailLinkSignInPage({
@@ -96,13 +97,13 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
       );
       // Tell user we sent an email
       PlatformAlertDialog(
-        title: Strings.checkYourEmail,
-        content: Strings.activationLinkSent(_email),
-        defaultActionText: Strings.ok,
+        title: Strings.checkYourEmail.i18n,
+        content: Strings.activationLinkSent.i18n,
+        defaultActionText: Strings.ok.i18n,
       ).show(context);
     } on PlatformException catch (e) {
       PlatformExceptionAlertDialog(
-        title: Strings.errorSendingEmail,
+        title: Strings.errorSendingEmail.i18n,
         exception: e,
       ).show(context);
     }
@@ -120,7 +121,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
-        title: Text(Strings.MFV),
+        title: Text(Strings.MFV.i18n),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -149,7 +150,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            Strings.submitEmailAddressLink,
+            Strings.submitEmailAddressLink.i18n,
             style: TextStyle(fontSize: 20.0, color: Colors.black),
           ),
           SizedBox(height: 16.0),
@@ -173,8 +174,8 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
                 ),
                 border: const OutlineInputBorder(),
                 filled: true,
-                labelText: Strings.emailLabel,
-                hintText: Strings.emailHint,
+                labelText: Strings.emailLabel.i18n,
+                hintText: Strings.emailHint.i18n,
                 hintStyle: hintStyle,
               ),
               enabled: !isLoading,
@@ -182,7 +183,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
               validator: (String value) {
                 return _emailSubmitValidator.isValid(value)
                     ? null
-                    : Strings.invalidEmailErrorText;
+                    : Strings.invalidEmailErrorText.i18n;
               },
               inputFormatters: <TextInputFormatter>[
                 ValidatorInputFormatter(
@@ -200,7 +201,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
           FormSubmitButton(
             onPressed: isLoading ? null : _validateAndSubmit,
             loading: isLoading,
-            text: Strings.sendActivationLink,
+            text: Strings.sendActivationLink.i18n,
             icon: Icon(
               MdiIcons.email,
               color: Colors.white,
