@@ -32,7 +32,6 @@ class GraphQLAuth {
   }
 
   void setCurrentUserId(String id) {
-    print('graphQL_auth.setCurrentUserId: $id');
     currentUserId = id;
   }
 

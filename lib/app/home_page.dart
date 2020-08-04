@@ -11,6 +11,7 @@ import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart'
 import 'package:voiceClient/constants/enums.dart';
 
 import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/strings.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -49,7 +50,7 @@ class _HomePageState extends State<HomePage> {
                   )),
         );
       },
-      tooltip: 'Increment',
+      tooltip: Strings.toolTipFAB,
       child: Icon(Icons.add),
       elevation: 2.0,
     );
@@ -78,9 +79,6 @@ class _HomePageState extends State<HomePage> {
           buildOffStageNavigatorFriends(TabItem.friends),
           buildOffStageNavigatorMessages(TabItem.messages),
           buildOffStageNavigatorProfile(TabItem.profile),
-          //_buildOffstageNavigator(TabItem.red),
-          //_buildOffstageNavigator(TabItem.green),
-          //_buildOffstageNavigator(TabItem.blue),
         ]),
         bottomNavigationBar: FABBottomAppBar(
           backgroundColor: NeumorphicTheme.currentTheme(context).baseColor,
@@ -91,20 +89,20 @@ class _HomePageState extends State<HomePage> {
           items: [
             FABBottomAppBarItem(
               iconData: Icons.menu,
-              text: 'Stories',
+              text: Strings.storiesTabName,
             ),
             FABBottomAppBarItem(
               iconData: Icons.layers,
-              text: 'Friends',
+              text: Strings.friendsTabName,
             ),
             FABBottomAppBarItem(
               iconData: Icons.dashboard,
-              text: 'Notices',
+              text: Strings.noticesTabName,
               // badge: '0',
             ),
             FABBottomAppBarItem(
               iconData: Icons.info,
-              text: 'Profile',
+              text: Strings.profileTabName,
             ),
           ],
         ),

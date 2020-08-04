@@ -74,20 +74,20 @@ class SignInPage extends StatelessWidget {
               child: Center(
                 child: RichText(
                   text: TextSpan(
-                    text: 'My Family Voice ',
+                    text: Strings.MFV,
                     style: TextStyle(
                         color: Colors.black,
                         fontSize: 20,
                         fontWeight: FontWeight.bold),
                     children: <TextSpan>[
                       TextSpan(
-                          text: ' was inspired by the way your family shares ',
+                          text: Strings.inspiredText,
                           style: TextStyle(
                               color: Colors.grey,
                               fontSize: 20,
                               fontWeight: FontWeight.bold)),
                       TextSpan(
-                        text: 'memories of photos',
+                        text: Strings.memoriesText,
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,
@@ -95,14 +95,7 @@ class SignInPage extends StatelessWidget {
                             decoration: TextDecoration.underline),
                       ),
                       TextSpan(
-                          text: ' from their ',
-                          style: TextStyle(
-                              color: Colors.grey,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold)),
-                      TextSpan(
-                        text:
-                            'youth, high school, adventures, marriage, military, children, etc.',
+                        text: Strings.firebase,
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 20,
@@ -111,8 +104,7 @@ class SignInPage extends StatelessWidget {
                         ),
                       ),
                       TextSpan(
-                          text:
-                              ' so that you can now share with others in your family. ',
+                          text: Strings.youCanShare,
                           style: TextStyle(
                             color: Colors.black,
                             fontSize: 20,

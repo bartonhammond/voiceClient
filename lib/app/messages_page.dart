@@ -10,6 +10,7 @@ import 'package:voiceClient/common_widgets/staggered_grid_tile_message.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
@@ -28,7 +29,7 @@ class MessagesPage extends StatefulWidget {
 }
 
 class _MessagesPageState extends State<MessagesPage> {
-  final String title = 'My Family Voice';
+  final String title = Strings.MFV;
   final nMessages = 20;
   final ScrollController _scrollController = ScrollController();
   bool shouldBeMore = true;
@@ -41,12 +42,11 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   Future<void> _rejectFriendRequest(Map<String, dynamic> message) async {
-    print("_rejectFriendRequest ${message['User']['id']}");
     final bool rejectFriendRequest = await PlatformAlertDialog(
-      title: 'Reject Friendship Request?',
-      content: 'Are you sure?',
-      cancelActionText: 'Cancel',
-      defaultActionText: 'Yes',
+      title: Strings.rejectFriendshipRequest,
+      content: Strings.areYouSure,
+      cancelActionText: Strings.cancel,
+      defaultActionText: Strings.yes,
     ).show(context);
     if (rejectFriendRequest == true) {
       final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -63,18 +63,15 @@ class _MessagesPageState extends State<MessagesPage> {
         message['type'],
       );
       _refetchQuery();
-    } else {
-      print('do not add friend');
     }
   }
 
   Future<void> _approveFriendRequest(Map<String, dynamic> message) async {
-    print("_approveFriendRequest ${message['User']['id']}");
     final bool approveFriendRequest = await PlatformAlertDialog(
-      title: 'Approve Friendship Request?',
-      content: 'Are you sure?',
-      cancelActionText: 'Cancel',
-      defaultActionText: 'Yes',
+      title: Strings.approveFriendshipRequest,
+      content: Strings.areYouSure,
+      cancelActionText: Strings.cancel,
+      defaultActionText: Strings.yes,
     ).show(context);
     if (approveFriendRequest) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
@@ -164,7 +161,9 @@ class _MessagesPageState extends State<MessagesPage> {
                           child: Container(
                             child: Column(
                               children: const <Widget>[
-                                Text('No Notices are available')
+                                Text(
+                                  Strings.noResults,
+                                )
                               ],
                             ),
                           ),
@@ -181,14 +180,14 @@ class _MessagesPageState extends State<MessagesPage> {
                               approveFriendButton: FriendButton(
                                 key: Key(
                                     '${Keys.approveFriendRequestButton}-$index'),
-                                text: 'Approve',
+                                text: Strings.approveFriendButton,
                                 onPressed: () =>
                                     _approveFriendRequest(messages[index]),
                               ),
                               rejectFriendButton: FriendButton(
                                   key: Key(
                                       '${Keys.rejectFriendRequestButton}-$index'),
-                                  text: 'Reject',
+                                  text: Strings.rejectFriendButton,
                                   onPressed: () =>
                                       _rejectFriendRequest(messages[index])),
                             );

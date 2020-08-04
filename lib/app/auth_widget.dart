@@ -19,7 +19,6 @@ class AuthWidget extends StatelessWidget {
   final AsyncSnapshot<User> userSnapshot;
   @override
   Widget build(BuildContext context) {
-    print('auth_widget build ${userSnapshot.connectionState}');
     if (userSnapshot.connectionState == ConnectionState.active) {
       if (userSnapshot.hasData) {
         final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();

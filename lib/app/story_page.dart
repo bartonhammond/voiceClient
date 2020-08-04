@@ -175,7 +175,7 @@ class _StoryPageState extends State<StoryPage> {
                       ),
                     ),
                     child: Text(
-                      'Image Placeholder',
+                      Strings.imagePlaceholder,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 20.0,
@@ -191,7 +191,7 @@ class _StoryPageState extends State<StoryPage> {
           ),
           widget.id == null || widget.id.isEmpty
               ? Text(
-                  'Image Selection',
+                  Strings.imageSelection,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 )
               : SizedBox(
@@ -206,7 +206,7 @@ class _StoryPageState extends State<StoryPage> {
           ),
           widget.id == null || widget.id.isEmpty
               ? Text(
-                  'Audio Controls',
+                  Strings.audioControls,
                   style: TextStyle(fontWeight: FontWeight.bold),
                 )
               : SizedBox(
@@ -237,7 +237,7 @@ class _StoryPageState extends State<StoryPage> {
         children: <Widget>[
           CustomRaisedButton(
             key: Key(Keys.storyPageGalleryButton),
-            text: 'Gallery',
+            text: Strings.pictureGallery,
             icon: Icon(
               Icons.photo_library,
               color: Colors.white,
@@ -249,7 +249,7 @@ class _StoryPageState extends State<StoryPage> {
           ),
           CustomRaisedButton(
             key: Key(Keys.storyPageCameraButton),
-            text: 'Camera',
+            text: Strings.pictureCamera,
             icon: Icon(
               Icons.camera,
               color: Colors.white,
@@ -294,7 +294,7 @@ class _StoryPageState extends State<StoryPage> {
               Icons.file_upload,
               color: Colors.white,
             ),
-            text: 'Upload',
+            text: Strings.upload,
             onPressed: () async {
               setState(() {
                 _uploadInProgress = true;
@@ -383,7 +383,7 @@ class _StoryPageState extends State<StoryPage> {
               ),
               CustomRaisedButton(
                 key: Key(Keys.storyPageStopButton),
-                text: 'Stop',
+                text: Strings.audioStop,
                 icon: Icon(
                   Icons.stop,
                   color: Colors.white,
@@ -396,7 +396,7 @@ class _StoryPageState extends State<StoryPage> {
               ),
               CustomRaisedButton(
                 key: Key(Keys.storyPagePlayButton),
-                text: 'Play',
+                text: Strings.audioPlay,
                 icon: Icon(
                   Icons.play_circle_outline,
                   color: Colors.white,
@@ -474,16 +474,14 @@ class _StoryPageState extends State<StoryPage> {
         await _recorder.initialized;
         // after initialization
         final current = await _recorder.current(channel: 0);
-        print('storyPage current: $current');
         // should be "Initialized", if all working fine
         setState(() {
           _current = current;
           _currentStatus = current.status;
-          print('storyPage _currentStatus: $_currentStatus');
         });
       } else {
         Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text('You must accept permissions')));
+            SnackBar(content: Text(Strings.mustAcceptPermissions)));
       }
     } catch (e) {
       print(e);
@@ -532,10 +530,7 @@ class _StoryPageState extends State<StoryPage> {
 
   Future<void> _stop() async {
     final result = await _recorder.stop();
-    print('Stop recording: ${result.path}');
-    print('Stop recording: ${result.duration}');
     _audio = widget.localFileSystem.file(result.path);
-    print('File length: ${await _audio.length()}');
     setState(() {
       _current = result;
       _currentStatus = _current.status;
@@ -549,25 +544,25 @@ class _StoryPageState extends State<StoryPage> {
     switch (_currentStatus) {
       case RecordingStatus.Initialized:
         {
-          text = 'Record';
+          text = Strings.audioRecord;
           iconData = Icons.mic;
           break;
         }
       case RecordingStatus.Recording:
         {
-          text = 'Pause';
+          text = Strings.audioPause;
           iconData = Icons.pause_circle_outline;
           break;
         }
       case RecordingStatus.Paused:
         {
-          text = 'Resume';
+          text = Strings.audioResume;
           iconData = Icons.mic_off;
           break;
         }
       case RecordingStatus.Stopped:
         {
-          text = 'Clear';
+          text = Strings.audioClear;
           iconData = Icons.clear;
           break;
         }

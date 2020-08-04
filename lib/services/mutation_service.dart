@@ -53,7 +53,6 @@ Future<void> addStory(
     String imageFilePath,
     String audioFilePath,
     {int daysOffset = 0}) async {
-  print('addStory.daysOffset: $daysOffset');
   DateTime now = DateTime.now();
   now = now.subtract(Duration(days: daysOffset));
 

@@ -16,6 +16,8 @@ import 'package:voiceClient/services/email_secure_store.dart';
 import 'package:voiceClient/services/firebase_email_link_handler.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
+import 'constants/strings.dart';
+
 Future<void> main() async {
   // Fix for: Unhandled Exception: ServicesBinding.defaultBinaryMessenger was accessed before the binding was initialized.
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,7 +67,7 @@ class MyApp extends StatelessWidget {
         setupServiceLocator(context);
         return NeumorphicApp(
           debugShowCheckedModeBanner: false,
-          title: 'My Family Voice',
+          title: Strings.MFV,
           themeMode: ThemeMode.light,
           theme: NeumorphicThemeData(
             baseColor: Color(0xFFF9EBE8),

@@ -13,6 +13,7 @@ import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
@@ -118,7 +119,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
         children: <Widget>[
           CustomRaisedButton(
             key: Key(Keys.storyPageGalleryButton),
-            text: 'Gallery',
+            text: Strings.galleryImageButton,
             icon: Icon(
               Icons.photo_library,
               color: Colors.white,
@@ -130,7 +131,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
           ),
           CustomRaisedButton(
             key: Key(Keys.storyPageCameraButton),
-            text: 'Camera',
+            text: Strings.cameraImageButton,
             icon: Icon(
               Icons.camera,
               color: Colors.white,
@@ -151,7 +152,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               Icons.file_upload,
               color: Colors.white,
             ),
-            text: 'Upload',
+            text: Strings.upload,
             onPressed: !formReady
                 ? null
                 : () async {
@@ -165,9 +166,6 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                         formReady = false;
                         _uploadInProgress = false;
                       });
-                      //pop back to tab for stories
-                      //widget.onFinish(true);
-                      //Navigator.pop(context);
                     }
                   },
           );
@@ -218,7 +216,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
     return Scaffold(
       drawer: getDrawer(context),
       appBar: AppBar(
-        title: Text('Profile'),
+        title: Text(Strings.profilePageName),
         backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
       ),
       body: Form(
@@ -276,7 +274,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                         ),
                       ),
                       child: Text(
-                        'Your Image Placeholder',
+                        Strings.imagePlaceholderText,
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 20.0,
@@ -291,7 +289,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               height: 10,
             ),
             Text(
-              'Your picture selection',
+              Strings.yourPictureSelection,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(
@@ -309,20 +307,26 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
                     borderSide: BorderSide(
-                      color: Colors.blue,
+                      color: NeumorphicTheme.currentTheme(context).variantColor,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
                     borderSide: BorderSide(
-                      color: Colors.grey,
+                      color: NeumorphicTheme.currentTheme(context).variantColor,
                       width: 2.0,
                     ),
                   ),
+                  hintStyle: TextStyle(
+                      color:
+                          NeumorphicTheme.currentTheme(context).variantColor),
                   border: const OutlineInputBorder(),
                   filled: true,
-                  hintText: 'Enter your full name...',
-                  labelText: 'Name',
+                  hintText: Strings.yourFullNameText,
+                  labelText: Strings.yourFullNameLabel,
+                  labelStyle: TextStyle(
+                      color:
+                          NeumorphicTheme.currentTheme(context).variantColor),
                 ),
                 onSaved: (value) {
                   setState(() {
@@ -334,6 +338,12 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                     formReady = true;
                   });
                 },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return Strings.nameEmptyMessage;
+                  }
+                  return null;
+                },
               ),
             ),
             SizedBox(
@@ -344,24 +354,31 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               child: TextFormField(
                 initialValue: cityState,
                 decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color:
+                            NeumorphicTheme.currentTheme(context).variantColor,
+                      ),
                     ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                      width: 2.0,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color:
+                            NeumorphicTheme.currentTheme(context).variantColor,
+                        width: 2.0,
+                      ),
                     ),
-                  ),
-                  border: const OutlineInputBorder(),
-                  filled: true,
-                  hintText: 'Enter your city, state',
-                  labelText: 'Home',
-                ),
+                    border: const OutlineInputBorder(),
+                    filled: true,
+                    hintText: Strings.yourHomeText,
+                    hintStyle: TextStyle(
+                        color:
+                            NeumorphicTheme.currentTheme(context).variantColor),
+                    labelText: Strings.yourHomeLabel,
+                    labelStyle: TextStyle(
+                        color: NeumorphicTheme.currentTheme(context)
+                            .variantColor)),
                 onSaved: (value) {
                   cityState = value;
                 },
@@ -369,6 +386,12 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                   setState(() {
                     formReady = true;
                   });
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return Strings.homeEmptyMessage;
+                  }
+                  return null;
                 },
               ),
             ),
@@ -379,39 +402,36 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               margin: const EdgeInsets.only(right: 10, left: 10),
               child: TextFormField(
                 initialValue: birthYear.toString(),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  final int _birthYear = int.parse(value);
-                  if (_birthYear < 1900 || _birthYear > DateTime.now().year) {
-                    return 'Please enter a valid year';
-                  }
-                  return null;
-                },
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   WhitelistingTextInputFormatter.digitsOnly
                 ],
                 decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                      color: Colors.blue,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color:
+                            NeumorphicTheme.currentTheme(context).variantColor,
+                      ),
                     ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                      width: 2.0,
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color:
+                            NeumorphicTheme.currentTheme(context).variantColor,
+                        width: 2.0,
+                      ),
                     ),
-                  ),
-                  border: const OutlineInputBorder(),
-                  filled: true,
-                  hintText: 'Birth year',
-                  labelText: 'Year of your birth',
-                ),
+                    border: const OutlineInputBorder(),
+                    filled: true,
+                    hintText: Strings.yourBirthText,
+                    hintStyle: TextStyle(
+                        color:
+                            NeumorphicTheme.currentTheme(context).variantColor),
+                    labelText: Strings.yourBirthLabel,
+                    labelStyle: TextStyle(
+                        color: NeumorphicTheme.currentTheme(context)
+                            .variantColor)),
                 onSaved: (dynamic value) {
                   setState(() {
                     birthYear = int.parse(value);
@@ -421,6 +441,16 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                   setState(() {
                     formReady = true;
                   });
+                },
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return Strings.birthEmptyMessage;
+                  }
+                  final int _birthYear = int.parse(value);
+                  if (_birthYear < 1900 || _birthYear > DateTime.now().year) {
+                    return Strings.birthValidationMessage;
+                  }
+                  return null;
                 },
               ),
             ),

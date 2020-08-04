@@ -66,7 +66,7 @@ class CustomRaisedButton extends StatelessWidget {
                       borderRadius: BorderRadius.all(Radius.circular(10.0))),
                   color: NeumorphicTheme.currentTheme(context).variantColor,
                   onPressed: onPressed,
-                  padding: EdgeInsets.all(0),
+                  padding: EdgeInsets.all(5),
                   child: loading
                       ? buildSpinner(context)
                       : buildText(

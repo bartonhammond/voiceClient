@@ -6,6 +6,7 @@ import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/staggered_grid_tile_story.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
@@ -19,7 +20,7 @@ class StoriesPage extends StatefulWidget {
 }
 
 class _StoriesPageState extends State<StoriesPage> {
-  final String title = 'My Family Voice';
+  final String title = Strings.MFV;
   final nActivities = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
@@ -99,7 +100,6 @@ class _StoriesPageState extends State<StoriesPage> {
     } else {
       datetime = _list[_list.length - 1]['created']['formatted'];
     }
-    print('getCursorForActivities datetime: $datetime');
     return datetime;
   }
 
@@ -108,7 +108,7 @@ class _StoriesPageState extends State<StoriesPage> {
     List<dynamic> activities,
   ) {
     return RaisedButton(
-        child: Text('LOAD MORE'),
+        child: Text(Strings.loadMore),
         onPressed: () {
           final FetchMoreOptions opts = FetchMoreOptions(
             variables: <String, dynamic>{
@@ -206,7 +206,7 @@ class _StoriesPageState extends State<StoriesPage> {
 
                         return Expanded(
                           child: activities == null || activities.isEmpty
-                              ? Text('No stories are available')
+                              ? Text(Strings.noResults)
                               : StaggeredGridView.countBuilder(
                                   controller: _scrollController,
                                   itemCount: activities.length + 1,

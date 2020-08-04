@@ -12,6 +12,7 @@ import 'package:voiceClient/common_widgets/staggered_grid_tile_friend.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
@@ -42,7 +43,7 @@ class FriendsPage extends StatefulWidget {
 }
 
 class _FriendsPageState extends State<FriendsPage> {
-  final String title = 'My Family Voice';
+  final String title = Strings.MFV;
   final nFriends = 20;
   final ScrollController _scrollController = ScrollController();
   String _searchString;
@@ -109,9 +110,20 @@ class _FriendsPageState extends State<FriendsPage> {
       Flexible(
         child: TextField(
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.all(15.0),
-            hintText: 'Filter by name or home',
-          ),
+              focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                      color:
+                          NeumorphicTheme.currentTheme(context).variantColor)),
+              labelStyle: TextStyle(
+                  color: NeumorphicTheme.currentTheme(context).variantColor),
+              border: UnderlineInputBorder(
+                  borderSide: BorderSide(
+                      color:
+                          NeumorphicTheme.currentTheme(context).variantColor)),
+              contentPadding: EdgeInsets.all(15.0),
+              hintText: Strings.filterText,
+              hintStyle: TextStyle(
+                  color: NeumorphicTheme.currentTheme(context).variantColor)),
           onChanged: (string) {
             _debouncer.run(() {
               setState(() {
@@ -132,8 +144,16 @@ class _FriendsPageState extends State<FriendsPage> {
     return <Widget>[
       Flexible(
         child: RadioListTile<TypeUser>(
-          title: const Text('Friends'),
+          title: Text(
+            Strings.typeUserButtonFriends,
+            style: TextStyle(
+                color: NeumorphicTheme.currentTheme(context).variantColor,
+                fontWeight: _typeUser == TypeUser.friends
+                    ? FontWeight.bold
+                    : FontWeight.normal),
+          ),
           value: TypeUser.friends,
+          activeColor: NeumorphicTheme.currentTheme(context).variantColor,
           groupValue: _typeUser,
           onChanged: (TypeUser value) {
             setState(() {
@@ -144,13 +164,19 @@ class _FriendsPageState extends State<FriendsPage> {
       ),
       Flexible(
         child: RadioListTile<TypeUser>(
-          title: const Text('Users'),
+          title: Text(
+            Strings.typeUserButtonUsers,
+            style: TextStyle(
+                color: NeumorphicTheme.currentTheme(context).variantColor,
+                fontWeight: _typeUser == TypeUser.friends
+                    ? FontWeight.normal
+                    : FontWeight.bold),
+          ),
           value: TypeUser.users,
           groupValue: _typeUser,
           onChanged: (TypeUser value) {
             setState(() {
               _typeUser = value;
-              print('typeUser');
             });
           },
         ),
@@ -159,12 +185,11 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<void> _newFriendRequest(String _friendId) async {
-    print('newFriendRequest');
     final bool addNewFriend = await PlatformAlertDialog(
-      title: 'Request Friendship?',
-      content: 'Are you sure?',
-      cancelActionText: 'Cancel',
-      defaultActionText: 'Yes',
+      title: Strings.requestFriendship,
+      content: Strings.areYouSure,
+      cancelActionText: Strings.cancel,
+      defaultActionText: Strings.yes,
     ).show(context);
     if (addNewFriend == true) {
       final QueryResult result = await createUserMessage(
@@ -181,19 +206,16 @@ class _FriendsPageState extends State<FriendsPage> {
       allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
 
       _refetchQuery();
-    } else {
-      print('do not add friend');
     }
     return;
   }
 
   Future<void> _quitFriendRequest(String friendId) async {
-    print('quitFriendRequest');
     final bool endFriendship = await PlatformAlertDialog(
-      title: 'End Friendship?',
+      title: Strings.cancelFriendship,
       content: 'Are you sure?',
-      cancelActionText: 'Cancel',
-      defaultActionText: 'Yes',
+      cancelActionText: Strings.areYouSure,
+      defaultActionText: Strings.yes,
     ).show(context);
     if (endFriendship == true) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
@@ -224,8 +246,6 @@ class _FriendsPageState extends State<FriendsPage> {
       allMyFriendRequests = await _getAllMyFriendRequests(context);
       allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
       _refetchQuery();
-    } else {
-      print('do not quit');
     }
   }
 
@@ -329,7 +349,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Expanded _expanded(List<dynamic> friends) {
     return Expanded(
       child: friends == null || friends.isEmpty
-          ? Text('No results')
+          ? Text(Strings.noResults)
           : StaggeredGridView.countBuilder(
               controller: _scrollController,
               itemCount: friends.length,
@@ -386,7 +406,7 @@ class _FriendsPageState extends State<FriendsPage> {
     if (_typeUser == TypeUser.friends) {
       button = FriendButton(
         key: Key('${Keys.newFriendsButton}-$index'),
-        text: 'Quit Friend?',
+        text: Strings.quitFriend,
         onPressed: () => _quitFriendRequest(friends[index]['id']),
       );
     } else {
@@ -397,14 +417,14 @@ class _FriendsPageState extends State<FriendsPage> {
               case 'reject':
                 button = FriendButton(
                   key: Key('${Keys.newFriendsButton}-$index'),
-                  text: 'Pending',
+                  text: Strings.pending,
                   onPressed: null,
                 );
                 break;
               case 'new':
                 button = FriendButton(
                   key: Key('${Keys.newFriendsButton}-$index'),
-                  text: 'Pending',
+                  text: Strings.pending,
                   onPressed: null,
                 );
                 break;
@@ -419,7 +439,7 @@ class _FriendsPageState extends State<FriendsPage> {
             if (friendRequestToMe['User']['id'] == friends[index]['id']) {
               button = FriendButton(
                 key: Key('${Keys.newFriendsButton}-$index'),
-                text: 'Pending',
+                text: Strings.pending,
                 onPressed: null,
               );
             }
@@ -428,7 +448,7 @@ class _FriendsPageState extends State<FriendsPage> {
       }
       button ??= FriendButton(
         key: Key('${Keys.newFriendsButton}-$index'),
-        text: 'New Friend?',
+        text: Strings.newFriend,
         onPressed: () => _newFriendRequest(friends[index]['id']),
       );
     }

@@ -37,13 +37,13 @@ Widget getDrawer(BuildContext context) {
       padding: EdgeInsets.zero,
       children: <Widget>[
         DrawerHeader(
-          child: Text('My Family Voice'),
+          child: Text(Strings.MFV),
           decoration: BoxDecoration(
             color: NeumorphicTheme.currentTheme(context).variantColor,
           ),
         ),
         ListTile(
-          title: Text('Log out'),
+          title: Text(Strings.logout),
           onTap: () {
             _confirmSignOut(context);
           },

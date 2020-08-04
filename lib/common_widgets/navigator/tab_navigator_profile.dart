@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 import 'package:voiceClient/app/profile_page.dart';
-import 'package:voiceClient/app/stories_page.dart' show StoriesPage;
-import 'package:voiceClient/app/story_play.dart';
 
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/keys.dart';
@@ -33,19 +31,6 @@ class TabNavigatorProfile extends StatelessWidget {
     );
   }
 
-  void _pushStory(BuildContext context, String id) {
-    final routeBuilders = _routeBuilders(context, id: id);
-
-    Navigator.push<dynamic>(
-      context,
-      MaterialPageRoute<dynamic>(
-        builder: (context) => routeBuilders[TabNavigatorRoutes.story](
-          context,
-        ),
-      ),
-    );
-  }
-
   Map<String, WidgetBuilder> _routeBuilders(
     BuildContext context, {
     String id,
@@ -57,17 +42,6 @@ class TabNavigatorProfile extends StatelessWidget {
               context,
               id,
             ),
-          ),
-      TabNavigatorRoutes.stories: (context) => StoriesPage(
-          key: Key(Keys.storiesPage),
-          onPush: (id) => _pushStory(
-                context,
-                id,
-              ),
-          userId: id),
-      TabNavigatorRoutes.story: (context) => StoryPlay(
-            key: Key(Keys.storyPage),
-            id: id,
           ),
     };
   }

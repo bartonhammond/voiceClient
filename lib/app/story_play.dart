@@ -5,6 +5,7 @@ import 'package:graphql/client.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/constants/strings.dart';
 
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
@@ -37,7 +38,7 @@ class _StoryPlayState extends State<StoryPlay> {
           return Scaffold(
             appBar: AppBar(
               title: Text(
-                'My Family Voice',
+                Strings.MFV,
               ),
               backgroundColor:
                   NeumorphicTheme.currentTheme(context).variantColor,
