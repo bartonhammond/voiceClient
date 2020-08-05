@@ -5,7 +5,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:file/local.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -14,20 +13,19 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-
+import 'package:simple_timer/simple_timer.dart';
 import 'package:uuid/uuid.dart';
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/strings.dart';
 
+import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
+import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/auth_service.dart';
-
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class StoryPage extends StatefulWidget {
   StoryPage({
@@ -44,7 +42,8 @@ class StoryPage extends StatefulWidget {
   _StoryPageState createState() => _StoryPageState();
 }
 
-class _StoryPageState extends State<StoryPage> {
+class _StoryPageState extends State<StoryPage>
+    with SingleTickerProviderStateMixin {
   FlutterAudioRecorder _recorder;
   Recording _current;
   RecordingStatus _currentStatus = RecordingStatus.Unset;
@@ -58,9 +57,19 @@ class _StoryPageState extends State<StoryPage> {
   String imageFilePath;
   String audioFilePath;
 
+  TimerController _timerController;
+  final TimerStyle _timerStyle = TimerStyle.ring;
+  final TimerProgressIndicatorDirection _progressIndicatorDirection =
+      TimerProgressIndicatorDirection.counter_clockwise;
+  final TimerProgressTextCountDirection _progressTextCountDirection =
+      TimerProgressTextCountDirection.count_down;
+
+  final int _timerDuration = 180;
+
   @override
   void initState() {
     super.initState();
+    _timerController = TimerController(this);
     _init();
   }
 
@@ -143,13 +152,18 @@ class _StoryPageState extends State<StoryPage> {
           if (widget.id != null && widget.id.isNotEmpty)
             FadeInImage.memoryNetwork(
               height: 300,
+              width: 300,
               placeholder: kTransparentImage,
               image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
             )
           else if (_image != null)
             Flexible(
-              flex: 9,
-              child: Image.file(_image),
+              flex: 2,
+              child: Image.file(
+                _image,
+                width: 300,
+                height: 300,
+              ),
             )
           else
             Flexible(
@@ -187,9 +201,6 @@ class _StoryPageState extends State<StoryPage> {
                 ],
               ),
             ),
-          SizedBox(
-            height: 8,
-          ),
           widget.id == null || widget.id.isEmpty
               ? Text(
                   Strings.imageSelection.i18n,
@@ -198,9 +209,6 @@ class _StoryPageState extends State<StoryPage> {
               : SizedBox(
                   height: 0,
                 ),
-          SizedBox(
-            height: 8,
-          ),
           _buildImageControls(),
           SizedBox(
             height: 8,
@@ -222,10 +230,35 @@ class _StoryPageState extends State<StoryPage> {
                 ),
           _buildAudioControls(),
           SizedBox(
-            height: 12,
+            height: 8,
           ),
+          getCountdownTimer(),
           if (_image != null && _audio != null) _buildUploadButton(context)
         ],
+      ),
+    );
+  }
+
+  void handleTimerOnEnd() {
+    _stop();
+  }
+
+  Widget getCountdownTimer() {
+    return Container(
+      height: 50,
+      margin: EdgeInsets.symmetric(vertical: 10),
+      child: SimpleTimer(
+        duration: Duration(seconds: _timerDuration),
+        controller: _timerController,
+        timerStyle: _timerStyle,
+        backgroundColor: Colors.grey,
+        onEnd: handleTimerOnEnd,
+        progressIndicatorColor:
+            NeumorphicTheme.currentTheme(context).variantColor,
+        progressIndicatorDirection: _progressIndicatorDirection,
+        progressTextCountDirection: _progressTextCountDirection,
+        progressTextStyle: TextStyle(color: Colors.black),
+        strokeWidth: 5,
       ),
     );
   }
@@ -477,6 +510,7 @@ class _StoryPageState extends State<StoryPage> {
         final current = await _recorder.current(channel: 0);
         // should be "Initialized", if all working fine
         setState(() {
+          _timerController.reset();
           _current = current;
           _currentStatus = current.status;
         });
@@ -495,6 +529,7 @@ class _StoryPageState extends State<StoryPage> {
       await _recorder.start();
       final recording = await _recorder.current(channel: 0);
       setState(() {
+        _timerController.start();
         _current = recording;
       });
 
@@ -519,13 +554,17 @@ class _StoryPageState extends State<StoryPage> {
 
   Future<void> _resume() async {
     await _recorder.resume();
-    setState(() {});
+    setState(() {
+      _timerController.start();
+    });
     return;
   }
 
   Future<void> _pause() async {
     await _recorder.pause();
-    setState(() {});
+    setState(() {
+      _timerController.pause();
+    });
     return;
   }
 
@@ -535,6 +574,7 @@ class _StoryPageState extends State<StoryPage> {
     setState(() {
       _current = result;
       _currentStatus = _current.status;
+      _timerController.pause();
     });
     return;
   }
