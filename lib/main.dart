@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_device_locale/flutter_device_locale.dart';
 import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
@@ -34,68 +35,88 @@ class MyApp extends StatelessWidget {
   });
   final AuthServiceType initialAuthServiceType;
 
+  Future<Locale> getDeviceLocal() async {
+    return await DeviceLocale.getCurrentLocale();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // MultiProvider for top-level services that can be created right away
-    return MultiProvider(
-      providers: [
-        Provider<AuthService>(
-          create: (_) => AuthServiceAdapter(
-            initialAuthServiceType: initialAuthServiceType,
-          ),
-          dispose: (_, AuthService authService) => authService.dispose(),
-        ),
-        Provider<EmailSecureStore>(
-          create: (_) => EmailSecureStore(
-            flutterSecureStorage: FlutterSecureStorage(),
-          ),
-        ),
-        ProxyProvider2<AuthService, EmailSecureStore, FirebaseEmailLinkHandler>(
-          update: (_, AuthService authService, EmailSecureStore storage, __) =>
-              FirebaseEmailLinkHandler(
-            auth: authService,
-            emailStore: storage,
-            firebaseDynamicLinks: FirebaseDynamicLinks.instance,
-          )..init(),
-          dispose: (_, linkHandler) => linkHandler.dispose(),
-        ),
-      ],
-      child: AuthWidgetBuilder(builder: (
-        BuildContext context,
-        AsyncSnapshot<User> userSnapshot,
-      ) {
-        setupServiceLocator(context);
-        return NeumorphicApp(
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en', ''),
-            Locale('es', ''),
-          ],
-          debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.light,
-          theme: NeumorphicThemeData(
-            baseColor: Color(0xFFF9EBE8),
-            lightSource: LightSource.topRight,
-            depth: 50,
-          ),
-          darkTheme: NeumorphicThemeData(
-            baseColor: Color(0xFF3E3E3E),
-            lightSource: LightSource.topRight,
-            depth: 50,
-          ),
-          home: I18n(
-              child: EmailLinkErrorPresenter.create(
-            context,
-            child: AuthWidget(
-              userSnapshot: userSnapshot,
-            ),
-          )),
-        );
-      }),
-    );
+    Locale locale;
+    return FutureBuilder(
+        future: getDeviceLocal(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            locale = snapshot.data;
+            return MultiProvider(
+              providers: [
+                Provider<AuthService>(
+                  create: (_) => AuthServiceAdapter(
+                    initialAuthServiceType: initialAuthServiceType,
+                  ),
+                  dispose: (_, AuthService authService) =>
+                      authService.dispose(),
+                ),
+                Provider<EmailSecureStore>(
+                  create: (_) => EmailSecureStore(
+                    flutterSecureStorage: FlutterSecureStorage(),
+                  ),
+                ),
+                ProxyProvider2<AuthService, EmailSecureStore,
+                    FirebaseEmailLinkHandler>(
+                  update: (_, AuthService authService, EmailSecureStore storage,
+                          __) =>
+                      FirebaseEmailLinkHandler(
+                    auth: authService,
+                    emailStore: storage,
+                    firebaseDynamicLinks: FirebaseDynamicLinks.instance,
+                  )..init(),
+                  dispose: (_, linkHandler) => linkHandler.dispose(),
+                ),
+              ],
+              child: AuthWidgetBuilder(builder: (
+                BuildContext context,
+                AsyncSnapshot<User> userSnapshot,
+              ) {
+                setupServiceLocator(context);
+                return NeumorphicApp(
+                  localizationsDelegates: [
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate,
+                  ],
+                  supportedLocales: const [
+                    Locale('en', ''),
+                    Locale('es', ''),
+                  ],
+                  debugShowCheckedModeBanner: false,
+                  themeMode: ThemeMode.light,
+                  theme: NeumorphicThemeData(
+                    baseColor: Color(0xFFF9EBE8),
+                    lightSource: LightSource.topRight,
+                    depth: 50,
+                  ),
+                  darkTheme: NeumorphicThemeData(
+                    baseColor: Color(0xFF3E3E3E),
+                    lightSource: LightSource.topRight,
+                    depth: 50,
+                  ),
+                  home: I18n(
+                      initialLocale:
+                          locale?.languageCode == 'es' ? Locale('es') : null,
+                      child: EmailLinkErrorPresenter.create(
+                        context,
+                        child: AuthWidget(
+                          userSnapshot: userSnapshot,
+                        ),
+                      )),
+                );
+              }),
+            );
+          } else {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        });
   }
 }

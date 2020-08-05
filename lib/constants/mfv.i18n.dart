@@ -73,7 +73,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.signInWithEmailLink,
-        'es': 'Haga clic para iniciar sesión / Registrarse',
+        'es': 'Haga clic para iniciar sesión',
       } +
       {
         'en': Strings.invalidEmailErrorText,
