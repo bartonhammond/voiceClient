@@ -22,6 +22,8 @@ Future<void> main() async {
   // Fix for: Unhandled Exception: ServicesBinding.defaultBinaryMessenger was accessed before the binding was initialized.
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([]);
+
+  //start app
   runApp(MyApp());
 }
 
