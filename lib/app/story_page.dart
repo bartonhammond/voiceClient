@@ -6,7 +6,7 @@ import 'package:file/local.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -128,7 +128,7 @@ class _StoryPageState extends State<StoryPage>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        backgroundColor: Color(0xff00bcd4),
         title: Text(
           Strings.MFV.i18n,
         ),
@@ -139,103 +139,96 @@ class _StoryPageState extends State<StoryPage>
   }
 
   Widget _buildPage(BuildContext context) {
-    return Neumorphic(
-      margin: EdgeInsets.symmetric(horizontal: 1, vertical: 1),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      style: NeumorphicStyle(
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-      ),
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          if (widget.id != null && widget.id.isNotEmpty)
-            FadeInImage.memoryNetwork(
-              height: 300,
+    return Column(
+      // mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        if (widget.id != null && widget.id.isNotEmpty)
+          FadeInImage.memoryNetwork(
+            height: 300,
+            width: 300,
+            placeholder: kTransparentImage,
+            image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
+          )
+        else if (_image != null)
+          Flexible(
+            flex: 2,
+            child: Image.file(
+              _image,
               width: 300,
-              placeholder: kTransparentImage,
-              image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
-            )
-          else if (_image != null)
-            Flexible(
-              flex: 2,
-              child: Image.file(
-                _image,
-                width: 300,
-                height: 300,
-              ),
-            )
-          else
-            Flexible(
-              flex: 2,
-              child: Stack(
-                children: <Widget>[
-                  Image(
-                    image: AssetImage('assets/placeholder.png'),
-                    width: 300,
-                    height: 300,
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(5.0),
-                    alignment: Alignment.topCenter,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: <Color>[
-                          Colors.black.withAlpha(30),
-                          Colors.black12,
-                          Colors.black54
-                        ],
-                      ),
-                    ),
-                    child: Text(
-                      Strings.imagePlaceholder.i18n,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  )
-                ],
-              ),
+              height: 300,
             ),
-          widget.id == null || widget.id.isEmpty
-              ? Text(
-                  Strings.imageSelection.i18n,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              : SizedBox(
-                  height: 0,
+          )
+        else
+          Flexible(
+            flex: 2,
+            child: Stack(
+              children: <Widget>[
+                Image(
+                  image: AssetImage('assets/placeholder.png'),
+                  width: 300,
+                  height: 300,
                 ),
-          _buildImageControls(),
-          SizedBox(
-            height: 8,
+                Container(
+                  padding: EdgeInsets.all(5.0),
+                  alignment: Alignment.topCenter,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: <Color>[
+                        Colors.black.withAlpha(30),
+                        Colors.black12,
+                        Colors.black54
+                      ],
+                    ),
+                  ),
+                  child: Text(
+                    Strings.imagePlaceholder.i18n,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
-          widget.id == null || widget.id.isEmpty
-              ? Text(
-                  Strings.audioControls.i18n,
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )
-              : SizedBox(
-                  height: 0,
-                ),
-          widget.id == null || widget.id.isEmpty
-              ? SizedBox(
-                  height: 8,
-                )
-              : SizedBox(
-                  height: 0,
-                ),
-          _buildAudioControls(),
-          SizedBox(
-            height: 8,
-          ),
-          getCountdownTimer(),
-          if (_image != null && _audio != null) _buildUploadButton(context)
-        ],
-      ),
+        widget.id == null || widget.id.isEmpty
+            ? Text(
+                Strings.imageSelection.i18n,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )
+            : SizedBox(
+                height: 0,
+              ),
+        _buildImageControls(),
+        SizedBox(
+          height: 8,
+        ),
+        widget.id == null || widget.id.isEmpty
+            ? Text(
+                Strings.audioControls.i18n,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )
+            : SizedBox(
+                height: 0,
+              ),
+        widget.id == null || widget.id.isEmpty
+            ? SizedBox(
+                height: 8,
+              )
+            : SizedBox(
+                height: 0,
+              ),
+        _buildAudioControls(),
+        SizedBox(
+          height: 8,
+        ),
+        getCountdownTimer(),
+        if (_image != null && _audio != null) _buildUploadButton(context)
+      ],
     );
   }
 
@@ -253,8 +246,7 @@ class _StoryPageState extends State<StoryPage>
         timerStyle: _timerStyle,
         backgroundColor: Colors.grey,
         onEnd: handleTimerOnEnd,
-        progressIndicatorColor:
-            NeumorphicTheme.currentTheme(context).variantColor,
+        progressIndicatorColor: Color(0xff00bcd4),
         progressIndicatorDirection: _progressIndicatorDirection,
         progressTextCountDirection: _progressTextCountDirection,
         progressTextStyle: TextStyle(color: Colors.black),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import 'package:voiceClient/app/sign_in/friend_button.dart';
@@ -109,7 +108,7 @@ class _MessagesPageState extends State<MessagesPage> {
   Widget _build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        backgroundColor: Color(0xff00bcd4),
         title: Text(
           title,
         ),

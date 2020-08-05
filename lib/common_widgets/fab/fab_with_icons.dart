@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 
-// https://stackoverflow.com/questions/46480221/flutter-floating-action-button-with-speed-dail
 class FabWithIcons extends StatefulWidget {
   const FabWithIcons({this.icons, this.onIconTapped});
   final List<IconData> icons;
@@ -39,8 +38,6 @@ class FabWithIconsState extends State<FabWithIcons>
   }
 
   Widget _buildChild(BuildContext context, int index) {
-    final Color backgroundColor = Theme.of(context).cardColor;
-    final Color foregroundColor = Theme.of(context).accentColor;
     return Container(
       height: 70.0,
       width: 56.0,
@@ -52,9 +49,10 @@ class FabWithIconsState extends State<FabWithIcons>
               curve: Curves.easeOut),
         ),
         child: FloatingActionButton(
-          backgroundColor: backgroundColor,
-          mini: true,
-          child: Icon(widget.icons[index], color: foregroundColor),
+          mini: false,
+          child: Icon(
+            widget.icons[index],
+          ),
           onPressed: () => _onTapped(context, index),
         ),
       ),
@@ -63,6 +61,7 @@ class FabWithIconsState extends State<FabWithIcons>
 
   Widget _buildFab() {
     return FloatingActionButton(
+      backgroundColor: Color(0xff00bcd4),
       onPressed: () {
         if (_controller.isDismissed) {
           _controller.forward();

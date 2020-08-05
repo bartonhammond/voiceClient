@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 
 @immutable
 class CustomRaisedButton extends StatelessWidget {
@@ -36,7 +35,7 @@ class CustomRaisedButton extends StatelessWidget {
       style: TextStyle(
         fontSize: 20,
         fontWeight: FontWeight.w400,
-        color: NeumorphicTheme.defaultTextColor(context),
+        color: Colors.black,
       ),
     );
   }
@@ -50,7 +49,7 @@ class CustomRaisedButton extends StatelessWidget {
                 child: RaisedButton.icon(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  color: NeumorphicTheme.currentTheme(context).variantColor,
+                  color: Color(0xff00bcd4),
                   onPressed: onPressed,
                   icon: icon,
                   padding: EdgeInsets.all(10),
@@ -64,7 +63,7 @@ class CustomRaisedButton extends StatelessWidget {
                 child: RaisedButton(
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10.0))),
-                  color: NeumorphicTheme.currentTheme(context).variantColor,
+                  color: Color(0xff00bcd4),
                   onPressed: onPressed,
                   padding: EdgeInsets.all(5),
                   child: loading

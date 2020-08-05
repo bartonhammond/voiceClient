@@ -4,7 +4,6 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_device_locale/flutter_device_locale.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -78,7 +77,7 @@ class MyApp extends StatelessWidget {
                 AsyncSnapshot<User> userSnapshot,
               ) {
                 setupServiceLocator(context);
-                return NeumorphicApp(
+                return MaterialApp(
                   localizationsDelegates: [
                     GlobalMaterialLocalizations.delegate,
                     GlobalWidgetsLocalizations.delegate,
@@ -90,16 +89,7 @@ class MyApp extends StatelessWidget {
                   ],
                   debugShowCheckedModeBanner: false,
                   themeMode: ThemeMode.light,
-                  theme: NeumorphicThemeData(
-                    baseColor: Color(0xFFF9EBE8),
-                    lightSource: LightSource.topRight,
-                    depth: 50,
-                  ),
-                  darkTheme: NeumorphicThemeData(
-                    baseColor: Color(0xFF3E3E3E),
-                    lightSource: LightSource.topRight,
-                    depth: 50,
-                  ),
+                  color: Color(0xFFF9EBE8),
                   home: I18n(
                       initialLocale:
                           locale?.languageCode == 'es' ? Locale('es') : null,

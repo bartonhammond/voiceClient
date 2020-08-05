@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
-
 import 'package:voiceClient/app/story_page.dart';
 import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
@@ -39,6 +37,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildFab(BuildContext context) {
     return FloatingActionButton(
+      backgroundColor: Color(0xff00bcd4),
       onPressed: () {
         Navigator.push<dynamic>(
           context,
@@ -80,7 +79,7 @@ class _HomePageState extends State<HomePage> {
           buildOffStageNavigatorProfile(TabItem.profile),
         ]),
         bottomNavigationBar: FABBottomAppBar(
-          backgroundColor: NeumorphicTheme.currentTheme(context).baseColor,
+          backgroundColor: Color(0xFFF9EBE8),
           color: Colors.grey,
           selectedColor: Colors.red,
           notchedShape: CircularNotchedRectangle(),

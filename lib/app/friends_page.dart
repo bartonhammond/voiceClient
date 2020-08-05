@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -112,19 +112,13 @@ class _FriendsPageState extends State<FriendsPage> {
         child: TextField(
           decoration: InputDecoration(
               focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color:
-                          NeumorphicTheme.currentTheme(context).variantColor)),
-              labelStyle: TextStyle(
-                  color: NeumorphicTheme.currentTheme(context).variantColor),
+                  borderSide: BorderSide(color: Color(0xff00bcd4))),
+              labelStyle: TextStyle(color: Color(0xff00bcd4)),
               border: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color:
-                          NeumorphicTheme.currentTheme(context).variantColor)),
+                  borderSide: BorderSide(color: Color(0xff00bcd4))),
               contentPadding: EdgeInsets.all(15.0),
               hintText: Strings.filterText.i18n,
-              hintStyle: TextStyle(
-                  color: NeumorphicTheme.currentTheme(context).variantColor)),
+              hintStyle: TextStyle(color: Color(0xff00bcd4))),
           onChanged: (string) {
             _debouncer.run(() {
               setState(() {
@@ -148,13 +142,13 @@ class _FriendsPageState extends State<FriendsPage> {
           title: Text(
             Strings.typeUserButtonFriends.i18n,
             style: TextStyle(
-                color: NeumorphicTheme.currentTheme(context).variantColor,
+                color: Color(0xff00bcd4),
                 fontWeight: _typeUser == TypeUser.friends
                     ? FontWeight.bold
                     : FontWeight.normal),
           ),
           value: TypeUser.friends,
-          activeColor: NeumorphicTheme.currentTheme(context).variantColor,
+          activeColor: Color(0xff00bcd4),
           groupValue: _typeUser,
           onChanged: (TypeUser value) {
             setState(() {
@@ -168,7 +162,7 @@ class _FriendsPageState extends State<FriendsPage> {
           title: Text(
             Strings.typeUserButtonUsers.i18n,
             style: TextStyle(
-                color: NeumorphicTheme.currentTheme(context).variantColor,
+                color: Color(0xff00bcd4),
                 fontWeight: _typeUser == TypeUser.friends
                     ? FontWeight.normal
                     : FontWeight.bold),
@@ -253,7 +247,7 @@ class _FriendsPageState extends State<FriendsPage> {
   Widget _build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        backgroundColor: Color(0xff00bcd4),
         title: Text(
           title.i18n,
         ),

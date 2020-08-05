@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/constants/enums.dart';
 
@@ -98,7 +98,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: items,
           ),
-          color: NeumorphicTheme.currentTheme(context).variantColor,
+          color: Color(0xff00bcd4),
         );
       },
     );
@@ -115,7 +115,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
             SizedBox(height: widget.iconSize),
             Text(
               widget.centerItemText ?? '',
-              style: TextStyle(color: widget.color),
+              style: TextStyle(color: Color(0xff00bcd4)),
             ),
           ],
         ),
@@ -143,7 +143,11 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
               Positioned(
                 top: 5,
                 left: 25,
-                child: Icon(item.iconData, color: color, size: widget.iconSize),
+                child: Icon(
+                  item.iconData,
+                  color: color,
+                  size: widget.iconSize,
+                ),
               ),
               Positioned(
                 top: 30,

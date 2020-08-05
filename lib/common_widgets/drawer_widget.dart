@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -43,7 +43,7 @@ Widget getDrawer(BuildContext context) {
         DrawerHeader(
           child: Text(Strings.MFV.i18n),
           decoration: BoxDecoration(
-            color: NeumorphicTheme.currentTheme(context).variantColor,
+            color: Color(0xff00bcd4),
           ),
         ),
         Card(

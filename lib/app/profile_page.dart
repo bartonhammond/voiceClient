@@ -2,7 +2,7 @@ import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
@@ -218,7 +218,7 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
       drawer: getDrawer(context),
       appBar: AppBar(
         title: Text(Strings.profilePageName.i18n),
-        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        backgroundColor: Color(0xff00bcd4),
       ),
       body: Form(
         key: _formKey,
@@ -308,26 +308,22 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
                     borderSide: BorderSide(
-                      color: NeumorphicTheme.currentTheme(context).variantColor,
+                      color: Color(0xff00bcd4),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
                     borderSide: BorderSide(
-                      color: NeumorphicTheme.currentTheme(context).variantColor,
+                      color: Color(0xff00bcd4),
                       width: 2.0,
                     ),
                   ),
-                  hintStyle: TextStyle(
-                      color:
-                          NeumorphicTheme.currentTheme(context).variantColor),
+                  hintStyle: TextStyle(color: Color(0xff00bcd4)),
                   border: const OutlineInputBorder(),
                   filled: true,
                   hintText: Strings.yourFullNameText.i18n,
                   labelText: Strings.yourFullNameLabel.i18n,
-                  labelStyle: TextStyle(
-                      color:
-                          NeumorphicTheme.currentTheme(context).variantColor),
+                  labelStyle: TextStyle(color: Color(0xff00bcd4)),
                 ),
                 onSaved: (value) {
                   setState(() {
@@ -358,28 +354,22 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25.0),
                       borderSide: BorderSide(
-                        color:
-                            NeumorphicTheme.currentTheme(context).variantColor,
+                        color: Color(0xff00bcd4),
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25.0),
                       borderSide: BorderSide(
-                        color:
-                            NeumorphicTheme.currentTheme(context).variantColor,
+                        color: Color(0xff00bcd4),
                         width: 2.0,
                       ),
                     ),
                     border: const OutlineInputBorder(),
                     filled: true,
                     hintText: Strings.yourHomeText.i18n,
-                    hintStyle: TextStyle(
-                        color:
-                            NeumorphicTheme.currentTheme(context).variantColor),
+                    hintStyle: TextStyle(color: Color(0xff00bcd4)),
                     labelText: Strings.yourHomeLabel.i18n,
-                    labelStyle: TextStyle(
-                        color: NeumorphicTheme.currentTheme(context)
-                            .variantColor)),
+                    labelStyle: TextStyle(color: Color(0xff00bcd4))),
                 onSaved: (value) {
                   cityState = value;
                 },
@@ -411,28 +401,22 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25.0),
                       borderSide: BorderSide(
-                        color:
-                            NeumorphicTheme.currentTheme(context).variantColor,
+                        color: Color(0xff00bcd4),
                       ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25.0),
                       borderSide: BorderSide(
-                        color:
-                            NeumorphicTheme.currentTheme(context).variantColor,
+                        color: Color(0xff00bcd4),
                         width: 2.0,
                       ),
                     ),
                     border: const OutlineInputBorder(),
                     filled: true,
                     hintText: Strings.yourBirthText.i18n,
-                    hintStyle: TextStyle(
-                        color:
-                            NeumorphicTheme.currentTheme(context).variantColor),
+                    hintStyle: TextStyle(color: Color(0xff00bcd4)),
                     labelText: Strings.yourBirthLabel.i18n,
-                    labelStyle: TextStyle(
-                        color: NeumorphicTheme.currentTheme(context)
-                            .variantColor)),
+                    labelStyle: TextStyle(color: Color(0xff00bcd4))),
                 onSaved: (dynamic value) {
                   setState(() {
                     birthYear = int.parse(value);

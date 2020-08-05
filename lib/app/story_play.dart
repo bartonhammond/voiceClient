@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
 import 'package:graphql/client.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/enums.dart';
@@ -40,8 +39,7 @@ class _StoryPlayState extends State<StoryPlay> {
               title: Text(
                 Strings.MFV,
               ),
-              backgroundColor:
-                  NeumorphicTheme.currentTheme(context).variantColor,
+              backgroundColor: Color(0xff00bcd4),
             ),
             //drawer: getDrawer(context),
             body: _buildPage(context),
@@ -102,29 +100,20 @@ class _StoryPlayState extends State<StoryPlay> {
   }
 
   Widget _buildPage(BuildContext context) {
-    return Neumorphic(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      style: NeumorphicStyle(
-        boxShape: NeumorphicBoxShape.roundRect(BorderRadius.circular(12)),
-      ),
-      child: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          buildFriend(story),
-          FadeInImage.memoryNetwork(
-            height: 300,
-            placeholder: kTransparentImage,
-            image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          PlayerWidget(
-              url: 'http://192.168.1.39:4002/storage/${widget.id}.mp3'),
-        ],
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        buildFriend(story),
+        FadeInImage.memoryNetwork(
+          height: 300,
+          placeholder: kTransparentImage,
+          image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
+        ),
+        SizedBox(
+          height: 8,
+        ),
+        PlayerWidget(url: 'http://192.168.1.39:4002/storage/${widget.id}.mp3'),
+      ],
     );
   }
 }

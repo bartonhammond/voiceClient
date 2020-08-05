@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:provider/provider.dart';
 
@@ -28,16 +28,6 @@ class SignInPage extends StatelessWidget {
   const SignInPage._({Key key, this.isLoading, this.title}) : super(key: key);
   final String title;
   final bool isLoading;
-  LightSource get lightSource => LightSource.topLeft;
-  NeumorphicShape get shape => NeumorphicShape.flat;
-  double get depth => 2;
-  double get intensity => 0.8;
-  double get surfaceIntensity => 0.5;
-  double get height => 150.0;
-  double get cornerRadius => 20;
-  double get width => 150.0;
-  double get fontSize => 75;
-  int get fontWeight => 500;
 
   static const Key emailLinkButtonKey = Key('email-link');
 
@@ -54,7 +44,7 @@ class SignInPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(title),
-        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        backgroundColor: Color(0xff00bcd4),
       ),
       body: _buildSignIn(context),
     );

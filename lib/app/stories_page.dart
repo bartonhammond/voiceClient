@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
@@ -147,8 +147,7 @@ class _StoriesPageState extends State<StoriesPage> {
           user = snapshot.data;
           return Scaffold(
             appBar: AppBar(
-              backgroundColor:
-                  NeumorphicTheme.currentTheme(context).variantColor,
+              backgroundColor: Color(0xff00bcd4),
               title: Text(
                 Strings.MFV.i18n,
               ),

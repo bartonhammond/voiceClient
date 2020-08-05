@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_neumorphic/flutter_neumorphic.dart';
+
 import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class EmailLinkSignInPage extends StatefulWidget {
@@ -120,7 +120,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: NeumorphicTheme.currentTheme(context).variantColor,
+        backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
       ),
       body: SingleChildScrollView(
