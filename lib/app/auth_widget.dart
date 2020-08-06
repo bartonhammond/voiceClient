@@ -1,5 +1,5 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:voiceClient/app/sign_in/sign_in_page.dart';
+import 'package:voiceClient/app/sign_in/sign_in_page/sign_in_page.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:voiceClient/services/graphql_auth.dart';

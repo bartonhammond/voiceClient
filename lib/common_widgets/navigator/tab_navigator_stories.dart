@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:voiceClient/app/stories_page.dart' show StoriesPage;
+import 'package:voiceClient/app/stories_page/stories_page.dart'
+    show StoriesPage;
 import 'package:voiceClient/app/story_play.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/keys.dart';

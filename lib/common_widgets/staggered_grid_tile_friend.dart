@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
@@ -15,6 +16,16 @@ class StaggeredGridTileFriend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    double _fontSize = 16;
+    switch (deviceType) {
+      case DeviceScreenType.watch:
+        _fontSize = 10;
+        break;
+      default:
+        _fontSize = 16;
+    }
     return Card(
       child: Column(
         children: <Widget>[
@@ -31,15 +42,15 @@ class StaggeredGridTileFriend extends StatelessWidget {
           ),
           Text(
             friend['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
           ),
           Text(
             friend['home'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
           ),
           Text(
             friend['birth'].toString(),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
           ),
           friendButton
         ],

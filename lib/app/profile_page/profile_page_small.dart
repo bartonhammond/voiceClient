@@ -20,8 +20,8 @@ import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({
+class ProfilePageSmall extends StatefulWidget {
+  const ProfilePageSmall({
     Key key,
     this.id,
     this.onPush,
@@ -30,10 +30,10 @@ class ProfilePage extends StatefulWidget {
   final String id;
 
   @override
-  _FormWidgetsDemoState createState() => _FormWidgetsDemoState();
+  _ProfilePageSmallState createState() => _ProfilePageSmallState();
 }
 
-class _FormWidgetsDemoState extends State<ProfilePage> {
+class _ProfilePageSmallState extends State<ProfilePageSmall> {
   final _formKey = GlobalKey<FormState>();
   String userId = '';
   String name = '';
@@ -119,11 +119,13 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           CustomRaisedButton(
+            fontSize: 12,
             key: Key(Keys.storyPageGalleryButton),
             text: Strings.galleryImageButton.i18n,
             icon: Icon(
               Icons.photo_library,
               color: Colors.white,
+              size: 15,
             ),
             onPressed: () => selectImage(ImageSource.gallery),
           ),
@@ -131,11 +133,13 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
             width: 8,
           ),
           CustomRaisedButton(
+            fontSize: 12,
             key: Key(Keys.storyPageCameraButton),
             text: Strings.cameraImageButton.i18n,
             icon: Icon(
               Icons.camera,
               color: Colors.white,
+              size: 15,
             ),
             onPressed: () => selectImage(ImageSource.camera),
           ),
@@ -148,10 +152,12 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
     return _uploadInProgress
         ? CircularProgressIndicator()
         : CustomRaisedButton(
+            fontSize: 12,
             key: Key(Keys.profilePageUploadButton),
             icon: Icon(
               Icons.file_upload,
               color: Colors.white,
+              size: 20,
             ),
             text: Strings.upload.i18n,
             onPressed: !formReady
@@ -226,12 +232,12 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
           children: <Widget>[
             if (_image != null)
               Container(
-                height: 150,
+                height: 50,
                 child: Image.file(_image),
               )
             else if (userId != null && userId.isNotEmpty)
               Container(
-                  height: 150,
+                  height: 100,
                   child: FadeInImage.memoryNetwork(
                     height: 300,
                     placeholder: kTransparentImage,
@@ -287,41 +293,25 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
                 ),
               ),
             SizedBox(
-              height: 10,
+              height: 5,
             ),
             Text(
               Strings.yourPictureSelection.i18n,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
             ),
             SizedBox(
-              height: 10,
+              height: 5,
             ),
             _buildImageControls(),
             SizedBox(
-              height: 8,
+              height: 5,
             ),
             Container(
               margin: const EdgeInsets.only(right: 10, left: 10),
               child: TextFormField(
+                style: TextStyle(fontSize: 12),
                 initialValue: name,
                 decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                      color: Color(0xff00bcd4),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                      color: Color(0xff00bcd4),
-                      width: 2.0,
-                    ),
-                  ),
-                  hintStyle: TextStyle(color: Color(0xff00bcd4)),
-                  border: const OutlineInputBorder(),
-                  filled: true,
-                  hintText: Strings.yourFullNameText.i18n,
                   labelText: Strings.yourFullNameLabel.i18n,
                   labelStyle: TextStyle(color: Color(0xff00bcd4)),
                 ),
@@ -344,30 +334,14 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               ),
             ),
             SizedBox(
-              height: 15,
+              height: 5,
             ),
             Container(
-              margin: const EdgeInsets.only(right: 10, left: 10),
+              margin: const EdgeInsets.only(right: 5, left: 5),
               child: TextFormField(
+                style: TextStyle(fontSize: 12),
                 initialValue: cityState,
                 decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                        width: 2.0,
-                      ),
-                    ),
-                    border: const OutlineInputBorder(),
-                    filled: true,
-                    hintText: Strings.yourHomeText.i18n,
-                    hintStyle: TextStyle(color: Color(0xff00bcd4)),
                     labelText: Strings.yourHomeLabel.i18n,
                     labelStyle: TextStyle(color: Color(0xff00bcd4))),
                 onSaved: (value) {
@@ -387,34 +361,18 @@ class _FormWidgetsDemoState extends State<ProfilePage> {
               ),
             ),
             SizedBox(
-              height: 15,
+              height: 5,
             ),
             Container(
               margin: const EdgeInsets.only(right: 10, left: 10),
               child: TextFormField(
+                style: TextStyle(fontSize: 12),
                 initialValue: birthYear.toString(),
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   WhitelistingTextInputFormatter.digitsOnly
                 ],
                 decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                        width: 2.0,
-                      ),
-                    ),
-                    border: const OutlineInputBorder(),
-                    filled: true,
-                    hintText: Strings.yourBirthText.i18n,
-                    hintStyle: TextStyle(color: Color(0xff00bcd4)),
                     labelText: Strings.yourBirthLabel.i18n,
                     labelStyle: TextStyle(color: Color(0xff00bcd4))),
                 onSaved: (dynamic value) {

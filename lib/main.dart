@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:device_preview/device_preview.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_widget.dart';
+import 'package:flutter/services.dart' as services;
+import 'package:responsive_builder/responsive_builder.dart';
 
 import 'package:voiceClient/app/auth_widget.dart';
 import 'package:voiceClient/app/auth_widget_builder.dart';
@@ -22,9 +25,16 @@ Future<void> main() async {
   // Fix for: Unhandled Exception: ServicesBinding.defaultBinaryMessenger was accessed before the binding was initialized.
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIOverlays([]);
-
+  ResponsiveSizingConfig.instance.setCustomBreakpoints(ScreenBreakpoints(
+    desktop: 950,
+    tablet: 600,
+    watch: 325,
+  ));
   //start app
-  runApp(MyApp());
+  runApp(DevicePreview(
+    enabled: true,
+    builder: (BuildContext context) => MyApp(),
+  ));
 }
 
 String get host => Platform.isAndroid ? '10.0.2.2' : 'localhost';
@@ -42,6 +52,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      services.DeviceOrientation.portraitDown,
+      services.DeviceOrientation.portraitUp,
+    ]);
     Locale locale;
     return FutureBuilder(
         future: getDeviceLocal(),
@@ -80,6 +94,8 @@ class MyApp extends StatelessWidget {
               ) {
                 setupServiceLocator(context);
                 return MaterialApp(
+                  locale: DevicePreview.of(context).locale,
+                  builder: DevicePreview.appBuilder,
                   localizationsDelegates: [
                     GlobalMaterialLocalizations.delegate,
                     GlobalWidgetsLocalizations.delegate,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 
@@ -179,15 +180,26 @@ class _MessagesPageState extends State<MessagesPage> {
                                 key: Key(
                                     '${Keys.approveFriendRequestButton}-$index'),
                                 text: Strings.approveFriendButton.i18n,
+                                fontSize: 16,
                                 onPressed: () =>
                                     _approveFriendRequest(messages[index]),
+                                icon: Icon(
+                                  MdiIcons.accountPlus,
+                                  color: Colors.white,
+                                ),
                               ),
                               rejectFriendButton: FriendButton(
-                                  key: Key(
-                                      '${Keys.rejectFriendRequestButton}-$index'),
-                                  text: Strings.rejectFriendButton.i18n,
-                                  onPressed: () =>
-                                      _rejectFriendRequest(messages[index])),
+                                key: Key(
+                                    '${Keys.rejectFriendRequestButton}-$index'),
+                                text: Strings.rejectFriendButton.i18n,
+                                fontSize: 16,
+                                onPressed: () =>
+                                    _rejectFriendRequest(messages[index]),
+                                icon: Icon(
+                                  MdiIcons.accountRemove,
+                                  color: Colors.white,
+                                ),
+                              ),
                             );
                           },
                         ),
