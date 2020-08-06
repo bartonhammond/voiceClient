@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
@@ -56,6 +58,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
   dynamic allMyFriendRequests;
   dynamic allNewFriendRequestsToMe;
+  int staggeredViewSize = 2;
 
   Map<int, bool> moreSearchResults = {
     0: true,
@@ -88,7 +91,9 @@ class _FriendsPageState extends State<FriendsPage> {
     );
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    print(queryResult.data);
+    if (queryResult.hasException) {
+      throw queryResult.exception;
+    }
     return queryResult.data['User'][0]['messages']['from'];
   }
 
@@ -245,6 +250,18 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Widget _build(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        staggeredViewSize = 1;
+        break;
+
+      default:
+        staggeredViewSize = 2;
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
@@ -362,7 +379,8 @@ class _FriendsPageState extends State<FriendsPage> {
                   index,
                 ),
               ),
-              staggeredTileBuilder: (index) => StaggeredTile.fit(2),
+              staggeredTileBuilder: (index) =>
+                  StaggeredTile.fit(staggeredViewSize),
             ),
     );
   }
@@ -398,11 +416,26 @@ class _FriendsPageState extends State<FriendsPage> {
     int index,
   ) {
     FriendButton button;
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    double _fontSize = 20;
+    switch (deviceType) {
+      case DeviceScreenType.watch:
+        _fontSize = 12;
+        break;
+      default:
+        _fontSize = 20;
+    }
     if (_typeUser == TypeUser.friends) {
       button = FriendButton(
         key: Key('${Keys.newFriendsButton}-$index'),
         text: Strings.quitFriend.i18n,
         onPressed: () => _quitFriendRequest(friends[index]['id']),
+        fontSize: _fontSize,
+        icon: Icon(
+          MdiIcons.accountRemove,
+          color: Colors.white,
+        ),
       );
     } else {
       if (allMyFriendRequests != null) {
@@ -414,6 +447,11 @@ class _FriendsPageState extends State<FriendsPage> {
                   key: Key('${Keys.newFriendsButton}-$index'),
                   text: Strings.pending.i18n,
                   onPressed: null,
+                  fontSize: _fontSize,
+                  icon: Icon(
+                    MdiIcons.accountClockOutline,
+                    color: Colors.white,
+                  ),
                 );
                 break;
               case 'new':
@@ -421,6 +459,11 @@ class _FriendsPageState extends State<FriendsPage> {
                   key: Key('${Keys.newFriendsButton}-$index'),
                   text: Strings.pending.i18n,
                   onPressed: null,
+                  fontSize: _fontSize,
+                  icon: Icon(
+                    MdiIcons.accountClockOutline,
+                    color: Colors.white,
+                  ),
                 );
                 break;
               default:
@@ -436,6 +479,11 @@ class _FriendsPageState extends State<FriendsPage> {
                 key: Key('${Keys.newFriendsButton}-$index'),
                 text: Strings.pending.i18n,
                 onPressed: null,
+                fontSize: _fontSize,
+                icon: Icon(
+                  MdiIcons.accountClockOutline,
+                  color: Colors.white,
+                ),
               );
             }
           }
@@ -445,6 +493,11 @@ class _FriendsPageState extends State<FriendsPage> {
         key: Key('${Keys.newFriendsButton}-$index'),
         text: Strings.newFriend.i18n,
         onPressed: () => _newFriendRequest(friends[index]['id']),
+        fontSize: _fontSize,
+        icon: Icon(
+          MdiIcons.accountPlusOutline,
+          color: Colors.white,
+        ),
       );
     }
     return button;

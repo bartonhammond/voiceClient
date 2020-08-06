@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:graphql/client.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
@@ -64,6 +65,7 @@ class _StoryPlayState extends State<StoryPlay> {
 
   Widget buildFriend(Map<String, dynamic> story) {
     return Card(
+      margin: EdgeInsets.all(10),
       child: Column(
         children: <Widget>[
           SizedBox(
@@ -84,36 +86,60 @@ class _StoryPlayState extends State<StoryPlay> {
           ),
           Text(
             story['user']['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
           ),
           Text(
             story['user']['home'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
           ),
           Text(
             story['user']['birth'].toString(),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
-          )
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+          ),
+          SizedBox(
+            height: 8,
+          ),
         ],
       ),
     );
   }
 
   Widget _buildPage(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        buildFriend(story),
-        FadeInImage.memoryNetwork(
-          height: 300,
-          placeholder: kTransparentImage,
-          image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
-        ),
-        SizedBox(
-          height: 8,
-        ),
-        PlayerWidget(url: 'http://192.168.1.39:4002/storage/${widget.id}.mp3'),
-      ],
-    );
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int imageHeight = 200;
+    int spacer = 8;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        imageHeight = 400;
+        spacer = 20;
+        break;
+
+      default:
+        imageHeight = 200;
+        spacer = 8;
+    }
+    return Card(
+        margin: EdgeInsets.all(10),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            buildFriend(story),
+            SizedBox(
+              height: spacer.toDouble(),
+            ),
+            FadeInImage.memoryNetwork(
+              height: imageHeight.toDouble(),
+              placeholder: kTransparentImage,
+              image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
+            ),
+            SizedBox(
+              height: spacer.toDouble(),
+            ),
+            PlayerWidget(
+                url: 'http://192.168.1.39:4002/storage/${widget.id}.mp3'),
+          ],
+        ));
   }
 }
