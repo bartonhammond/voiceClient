@@ -49,6 +49,8 @@ class StaggeredGridTileStory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final DateTime dt = DateTime.parse(activity['created']['formatted']);
+    final DateFormat df = DateFormat.yMd().add_jm();
     return Card(
       child: Column(
         children: <Widget>[
@@ -77,7 +79,12 @@ class StaggeredGridTileStory extends StatelessWidget {
               )
             ],
           ),
-          showFriend ? buildFriend() : SizedBox.shrink()
+          showFriend
+              ? buildFriend()
+              : Text(
+                  df.format(dt),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                )
         ],
       ),
     );

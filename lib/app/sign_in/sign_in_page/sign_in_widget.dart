@@ -1,34 +1,13 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:provider/provider.dart';
-
 import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
-import 'package:voiceClient/app/sign_in/sign_in_button.dart';
-import 'package:voiceClient/constants/strings.dart';
+
 import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/constants/strings.dart';
 
-class SignInPageBuilder extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ValueNotifier<bool>>(
-      create: (_) => ValueNotifier<bool>(false),
-      child: Consumer<ValueNotifier<bool>>(
-        builder: (_, ValueNotifier<bool> isLoading, __) => SignInPage._(
-          isLoading: isLoading.value,
-          title: Strings.MFV.i18n,
-        ),
-      ),
-    );
-  }
-}
+import '../sign_in_button.dart';
 
-class SignInPage extends StatelessWidget {
-  const SignInPage._({Key key, this.isLoading, this.title}) : super(key: key);
-  final String title;
-  final bool isLoading;
-
+class SignInWidget {
   static const Key emailLinkButtonKey = Key('email-link');
 
   Future<void> _signInWithEmailLink(BuildContext context) async {
@@ -39,18 +18,7 @@ class SignInPage extends StatelessWidget {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Color(0xff00bcd4),
-      ),
-      body: _buildSignIn(context),
-    );
-  }
-
-  Widget _buildSignIn(BuildContext context) {
+  Widget buildSignIn(BuildContext context, bool isLoading) {
     // Make content scrollable so that it fits on small screens
     return SingleChildScrollView(
       child: Container(
@@ -60,7 +28,6 @@ class SignInPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Container(
-              //color: NeumorphicTheme.currentTheme(context).variantColor,
               padding: EdgeInsets.all(10),
               child: Center(
                 child: RichText(
@@ -86,7 +53,7 @@ class SignInPage extends StatelessWidget {
                             decoration: TextDecoration.underline),
                       ),
                       TextSpan(
-                        text: Strings.firebase.i18n,
+                        text: Strings.fromYouthAndOtherThings.i18n,
                         style: TextStyle(
                           color: Colors.grey,
                           fontSize: 20,

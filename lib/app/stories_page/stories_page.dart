@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:responsive_builder/responsive_builder.dart';
+import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/staggered_grid_tile_story.dart';
-import 'package:voiceClient/constants/enums.dart';
+
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
@@ -21,7 +23,6 @@ class StoriesPage extends StatefulWidget {
 }
 
 class _StoriesPageState extends State<StoriesPage> {
-  final String title = 'My Family xxxVoice';
   final nActivities = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
@@ -51,9 +52,8 @@ class _StoriesPageState extends State<StoriesPage> {
       documentNode: gql(getUserById),
       variables: <String, dynamic>{'id': widget.userId},
     );
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final GraphQLClient graphQLClient =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     return queryResult.data['User'][0];
@@ -79,15 +79,15 @@ class _StoriesPageState extends State<StoriesPage> {
           ),
           Text(
             user['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
           ),
           Text(
             user['home'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
           ),
           Text(
             user['birth'].toString(),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
           )
         ],
       ),
@@ -104,12 +104,16 @@ class _StoriesPageState extends State<StoriesPage> {
     return datetime;
   }
 
-  RaisedButton getButton(
+  Widget getButton(
     FetchMore fetchMore,
     List<dynamic> activities,
   ) {
-    return RaisedButton(
-        child: Text(Strings.loadMore.i18n),
+    return CustomRaisedButton(
+        text: Strings.loadMore.i18n,
+        icon: Icon(
+          Icons.arrow_downward,
+          color: Colors.white,
+        ),
         onPressed: () {
           final FetchMoreOptions opts = FetchMoreOptions(
             variables: <String, dynamic>{
@@ -133,6 +137,23 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _staggeredViewSize = 2;
+    int _crossAxisCount = 4;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _staggeredViewSize = 1;
+        break;
+      case DeviceScreenType.watch:
+        _crossAxisCount = 1;
+        break;
+      default:
+        _staggeredViewSize = 2;
+        _crossAxisCount = 4;
+    }
+
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return FutureBuilder(
       future: getUserFromUserId(),
@@ -211,7 +232,7 @@ class _StoriesPageState extends State<StoriesPage> {
                                   controller: _scrollController,
                                   itemCount: activities.length + 1,
                                   primary: false,
-                                  crossAxisCount: 4,
+                                  crossAxisCount: _crossAxisCount,
                                   mainAxisSpacing: 4.0,
                                   crossAxisSpacing: 4.0,
                                   itemBuilder: (context, index) {
@@ -228,7 +249,7 @@ class _StoriesPageState extends State<StoriesPage> {
                                             : Container();
                                   },
                                   staggeredTileBuilder: (index) =>
-                                      StaggeredTile.fit(2),
+                                      StaggeredTile.fit(_staggeredViewSize),
                                 ),
                         );
                       })

@@ -195,6 +195,9 @@ class _StoryPageState extends State<StoryPage>
               ],
             ),
           ),
+        SizedBox(
+          height: 8,
+        ),
         widget.id == null || widget.id.isEmpty
             ? Text(
                 Strings.imageSelection.i18n,
@@ -203,6 +206,9 @@ class _StoryPageState extends State<StoryPage>
             : SizedBox(
                 height: 0,
               ),
+        SizedBox(
+          height: 8,
+        ),
         _buildImageControls(),
         SizedBox(
           height: 8,
@@ -244,9 +250,9 @@ class _StoryPageState extends State<StoryPage>
         duration: Duration(seconds: _timerDuration),
         controller: _timerController,
         timerStyle: _timerStyle,
-        backgroundColor: Colors.grey,
+        backgroundColor: Color(0xff00bcd4),
         onEnd: handleTimerOnEnd,
-        progressIndicatorColor: Color(0xff00bcd4),
+        progressIndicatorColor: Colors.red,
         progressIndicatorDirection: _progressIndicatorDirection,
         progressTextCountDirection: _progressTextCountDirection,
         progressTextStyle: TextStyle(color: Colors.black),
