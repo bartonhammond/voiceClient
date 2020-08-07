@@ -1,5 +1,7 @@
+import 'package:configurable_expansion_tile/configurable_expansion_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 
@@ -12,6 +14,79 @@ class StaggeredGridTileStory extends StatelessWidget {
   final ValueChanged<String> onPush;
   final Map activity;
   final bool showFriend;
+
+  Widget getCommentDetail(Map<String, dynamic> comment) {
+    final DateTime dt = DateTime.parse(comment['created']['formatted']);
+    final DateFormat df = DateFormat.yMd().add_jm();
+    return Column(
+      children: <Widget>[
+        Row(
+          children: <Widget>[
+            PlayerWidget(
+              key: Key("playWidget${comment['id']}"),
+              url: comment['audio'],
+              showSlider: false,
+            ),
+          ],
+        ),
+        Text(
+          comment['from']['name'],
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+        ),
+        Text(
+          df.format(dt),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+        ),
+        ConfigurableExpansionTile(
+          animatedWidgetFollowingHeader: const Icon(
+            Icons.expand_more,
+            color: Color(0xff00bcd4),
+          ),
+          header: Container(
+              color: Colors.transparent,
+              child: Center(
+                  child: Text('', style: TextStyle(color: Color(0xff00bcd4))))),
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const <Widget>[Text('Delete')],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const <Widget>[Text('Hide')],
+            )
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget getComments() {
+    if (activity['comments'].length == 0) {
+      return Container();
+    }
+
+    final List<Widget> comments = <Widget>[];
+    for (var i = 0; i < activity['comments'].length; i++) {
+      comments.add(getCommentDetail(activity['comments'][i]));
+      if (i < activity['comments'].length - 1) {
+        comments.add(Divider(
+          thickness: 3.0,
+        ));
+      }
+    }
+    return ConfigurableExpansionTile(
+      key: Key(activity['id']),
+      animatedWidgetFollowingHeader:
+          const Icon(Icons.expand_more, color: Color(0xff00bcd4)),
+      header: Container(
+          color: Colors.transparent,
+          child: Center(
+            child: Text('Comments', style: TextStyle(color: Color(0xff00bcd4))),
+          )),
+      children: comments,
+    );
+  }
 
   Widget buildFriend() {
     final DateTime dt = DateTime.parse(activity['created']['formatted']);
@@ -42,6 +117,7 @@ class StaggeredGridTileStory extends StatelessWidget {
             df.format(dt),
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
           ),
+          getComments(),
         ],
       ),
     );

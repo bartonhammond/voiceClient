@@ -185,6 +185,19 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       birth
       image
     }
+    comments {
+      id
+      audio
+      created {
+        formatted
+      }
+      from {
+        id
+        email
+        name
+      }
+      status
+    }
   }
 }
 ''';
@@ -447,6 +460,19 @@ userFriendsStories(
       home
       birth
       image
+    }
+    comments {
+      id
+      audio
+      created {
+        formatted
+      }
+      status
+      from {
+        id
+        email
+        name
+      }
     }
   }
 }
