@@ -15,15 +15,19 @@ import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 
 class StoriesPage extends StatefulWidget {
-  const StoriesPage({Key key, this.onPush, this.userId}) : super(key: key);
-  final ValueChanged<String> onPush;
-  final String userId;
+  const StoriesPage({
+    Key key,
+    this.onPush,
+    this.params,
+  }) : super(key: key);
+  final ValueChanged<Map<String, dynamic>> onPush;
+  final Map<String, dynamic> params;
   @override
   _StoriesPageState createState() => _StoriesPageState();
 }
 
 class _StoriesPageState extends State<StoriesPage> {
-  final nActivities = 20;
+  final nStories = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
 
@@ -42,15 +46,25 @@ class _StoriesPageState extends State<StoriesPage> {
     false: 'userStories'
   };
 
+  String getId() {
+    if (widget.params == null) {
+      return null;
+    }
+    if (widget.params['id'] == null) {
+      return null;
+    }
+    return widget.params['id'];
+  }
+
   Future<Map> getUserFromUserId() async {
     final Map<String, dynamic> user = <String, dynamic>{'empty': true};
 
-    if (widget.userId == null) {
+    if (widget.params == null || getId() == null) {
       return user;
     }
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getUserById),
-      variables: <String, dynamic>{'id': widget.userId},
+      variables: <String, dynamic>{'id': getId()},
     );
 
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
@@ -122,11 +136,11 @@ class _StoriesPageState extends State<StoriesPage> {
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
               final List<dynamic> data = <dynamic>[
-                ...previousResultData[resultType[widget.userId == null]],
-                ...fetchMoreResultData[resultType[widget.userId == null]],
+                ...previousResultData[resultType[getId() == null]],
+                ...fetchMoreResultData[resultType[getId() == null]],
               ];
 
-              fetchMoreResultData[resultType[widget.userId == null]] = data;
+              fetchMoreResultData[resultType[getId() == null]] = data;
 
               return fetchMoreResultData;
             },
@@ -173,21 +187,21 @@ class _StoriesPageState extends State<StoriesPage> {
                 Strings.MFV.i18n,
               ),
             ),
-            drawer: widget.userId == null ? getDrawer(context) : null,
+            drawer: getId() == null ? getDrawer(context) : null,
             body: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  widget.userId == null ? Container() : buildFriend(user),
+                  getId() == null ? Container() : buildFriend(user),
                   Query(
-                      options: widget.userId == null
+                      options: getId() == null
                           ? QueryOptions(
                               documentNode: gql(getUserFriendsStories),
                               variables: <String, dynamic>{
                                 'email': graphQLAuth.getUser().email,
-                                'limit': nActivities.toString(),
+                                'limit': nStories.toString(),
                                 'cursor': DateTime.now().toIso8601String(),
                               },
                             )
@@ -195,7 +209,7 @@ class _StoriesPageState extends State<StoriesPage> {
                               documentNode: gql(getUserStories),
                               variables: <String, dynamic>{
                                 'email': user['email'],
-                                'limit': nActivities.toString(),
+                                'limit': nStories.toString(),
                                 'cursor': DateTime.now().toIso8601String(),
                               },
                             ),
@@ -215,37 +229,35 @@ class _StoriesPageState extends State<StoriesPage> {
                               '\nErrors: \n  ' + result.exception.toString());
                         }
 
-                        final List<dynamic> activities = List<dynamic>.from(
-                            result.data[resultType[widget.userId == null]]);
+                        final List<dynamic> stories = List<dynamic>.from(
+                            result.data[resultType[getId() == null]]);
 
-                        if (activities.isEmpty ||
-                            activities.length % nActivities != 0) {
-                          moreSearchResults[widget.userId == null] = false;
+                        if (stories.isEmpty || stories.length % nStories != 0) {
+                          moreSearchResults[getId() == null] = false;
                         } else {
-                          moreSearchResults[widget.userId == null] = true;
+                          moreSearchResults[getId() == null] = true;
                         }
 
                         return Expanded(
-                          child: activities == null || activities.isEmpty
+                          child: stories == null || stories.isEmpty
                               ? Text(Strings.noResults.i18n)
                               : StaggeredGridView.countBuilder(
                                   controller: _scrollController,
-                                  itemCount: activities.length + 1,
+                                  itemCount: stories.length + 1,
                                   primary: false,
                                   crossAxisCount: _crossAxisCount,
                                   mainAxisSpacing: 4.0,
                                   crossAxisSpacing: 4.0,
                                   itemBuilder: (context, index) {
-                                    return index < activities.length
+                                    return index < stories.length
                                         ? StaggeredGridTileStory(
                                             onPush: widget.onPush,
-                                            showFriend: widget.userId == null,
-                                            activity: Map<String, dynamic>.from(
-                                                activities[index]),
+                                            showFriend: getId() == null,
+                                            story: Map<String, dynamic>.from(
+                                                stories[index]),
                                           )
-                                        : moreSearchResults[
-                                                widget.userId == null]
-                                            ? getButton(fetchMore, activities)
+                                        : moreSearchResults[getId() == null]
+                                            ? getButton(fetchMore, stories)
                                             : Container();
                                   },
                                   staggeredTileBuilder: (index) =>

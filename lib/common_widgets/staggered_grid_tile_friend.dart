@@ -10,7 +10,7 @@ class StaggeredGridTileFriend extends StatelessWidget {
     @required this.friend,
     @required this.friendButton,
   });
-  final ValueChanged<String> onPush;
+  final ValueChanged<Map<String, dynamic>> onPush;
   final Map friend;
   final FriendButton friendButton;
 
@@ -32,7 +32,9 @@ class StaggeredGridTileFriend extends StatelessWidget {
           Center(
             child: GestureDetector(
               onTap: () {
-                onPush(friend['id']);
+                onPush(<String, dynamic>{
+                  'id': friend['id'],
+                });
               },
               child: FadeInImage.memoryNetwork(
                 placeholder: kTransparentImage,

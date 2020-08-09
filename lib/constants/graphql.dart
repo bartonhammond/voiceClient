@@ -30,23 +30,41 @@ query getUserByEmail($id: ID!) {
   }
 }
 ''';
-const String getStoryById = r'''
+const String getStoryByIdQL = r'''
 query getStoryById($id: ID!) {
   Story(id: $id) {
     __typename
     id
     image
     audio
+    created {
+      formatted
+    }
     user {
+      email
       name
       home
       image
       birth
       id
     }
+    comments {
+      id
+      audio
+      from {
+        id
+        name
+        email
+      }
+      created {
+        formatted
+      }
+      status
+    }
   }
 }
 ''';
+
 const String createUser = r'''
 mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $birth: Int, $image: String, $created: String!, ) {
   CreateUser(
@@ -499,6 +517,76 @@ UpdateUser(
     birth
     updated {
       formatted
+    }
+  }
+}
+''';
+
+const String createCommentQL = r'''
+mutation createComment($commentId: ID!, $storyId: ID!, $audio: String!, $status: String!, $created: String!, ) {
+  CreateComment(
+    id: $commentId
+    story: $storyId
+    audio: $audio
+    status: $status
+    created: { 
+      formatted: $created 
+      }
+  ) {
+    __typename
+    id
+    story
+    audio
+    status
+    created {
+      formatted
+    }
+  }
+}
+''';
+
+const String mergeCommentFromQL = r'''
+mutation mergeCommentFrom($userId: ID!, $commentId: ID!) {
+  MergeCommentFrom(
+    from: {
+      id: $userId,
+    }
+    to: {
+      id: $commentId
+    }
+  ) {
+    from {
+      email
+      name
+      id
+    }
+    to {
+      id
+      audio
+    }
+    
+  }
+}
+''';
+
+const String addStoryCommentsQL = r'''
+mutation addStoryComments($storyId: ID!, $commentId: ID!) {
+  AddStoryComments(
+    from: {
+      id: $storyId
+    }
+    to: {
+      id: $commentId
+    }
+  ) {
+    from {
+      id
+      image
+      audio
+    }
+    to {
+			id
+      audio
     }
   }
 }

@@ -1,20 +1,30 @@
-import 'package:flutter/material.dart';
+import 'dart:io' as io;
+import 'package:http/http.dart';
 
+import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:uuid/uuid.dart';
+import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
+
+import 'package:voiceClient/common_widgets/comments.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
+import 'package:voiceClient/common_widgets/recorder_widget.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
-
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 class StoryPlay extends StatefulWidget {
-  const StoryPlay({Key key, this.id}) : super(key: key);
-
-  final String id;
+  const StoryPlay({Key key, this.params}) : super(key: key);
+  final Map<String, dynamic> params;
 
   @override
   _StoryPlayState createState() => _StoryPlayState();
@@ -22,6 +32,16 @@ class StoryPlay extends StatefulWidget {
 
 class _StoryPlayState extends State<StoryPlay> {
   Map<String, dynamic> story;
+  io.File _audio;
+  bool _uploadInProgress = false;
+  var uuid = Uuid();
+
+  void setAudioFile(io.File audio) {
+    setState(() {
+      _audio = audio;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -35,15 +55,24 @@ class _StoryPlayState extends State<StoryPlay> {
           );
         } else {
           story = snapshot.data;
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                Strings.MFV,
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  Strings.MFV,
+                ),
+                backgroundColor: Color(0xff00bcd4),
+                leading: IconButton(
+                    icon: Icon(MdiIcons.lessThan),
+                    onPressed: () {
+                      widget.params['onFinish']();
+                      Navigator.of(context).pop('upload');
+                    }),
               ),
-              backgroundColor: Color(0xff00bcd4),
+              //drawer: getDrawer(context),
+              body: _buildPage(context),
             ),
-            //drawer: getDrawer(context),
-            body: _buildPage(context),
           );
         }
       },
@@ -52,12 +81,11 @@ class _StoryPlayState extends State<StoryPlay> {
 
   Future<Map> getStory() async {
     final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getStoryById),
-      variables: <String, dynamic>{'id': widget.id},
+      documentNode: gql(getStoryByIdQL),
+      variables: <String, dynamic>{'id': widget.params['id']},
     );
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final GraphQLClient graphQLClient =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     return queryResult.data['Story'][0];
@@ -104,6 +132,76 @@ class _StoryPlayState extends State<StoryPlay> {
     );
   }
 
+  Future<void> doUploads(BuildContext context) async {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClientApolloServer =
+        GraphQLProvider.of(context).value;
+
+    final String _commentId = uuid.v1();
+    final MultipartFile multipartFile = getMultipartFile(
+      _audio,
+      '$_commentId.mp3',
+      'audio',
+      'mp3',
+    );
+
+    final String _audioFilePath = await performMutation(
+      graphQLClientFileServer,
+      multipartFile,
+      'mp3',
+    );
+
+    await createComment(
+      graphQLClientApolloServer,
+      _commentId,
+      story['id'],
+      _audioFilePath,
+      'new',
+    );
+
+    await mergeCommentFrom(
+      graphQLClientApolloServer,
+      graphQLAuth.getCurrentUserId(),
+      _commentId,
+    );
+
+    await addStoryComments(
+      graphQLClientApolloServer,
+      story['id'],
+      _commentId,
+    );
+    return;
+  }
+
+  Widget _buildUploadButton(BuildContext context) {
+    return _uploadInProgress
+        ? CircularProgressIndicator()
+        : CustomRaisedButton(
+            key: Key(Keys.commentsUploadButton),
+            icon: Icon(
+              Icons.file_upload,
+              color: Colors.white,
+            ),
+            text: Strings.upload.i18n,
+            onPressed: () async {
+              setState(() {
+                _uploadInProgress = true;
+              });
+              await doUploads(context);
+              setState(() {
+                _audio = null;
+                _uploadInProgress = false;
+              });
+
+              //Navigator.pop(context);
+            },
+          );
+  }
+
   Widget _buildPage(BuildContext context) {
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
@@ -132,13 +230,41 @@ class _StoryPlayState extends State<StoryPlay> {
             FadeInImage.memoryNetwork(
               height: imageHeight.toDouble(),
               placeholder: kTransparentImage,
-              image: 'http://192.168.1.39:4002/storage/${widget.id}.jpg',
+              image: story['image'],
             ),
             SizedBox(
               height: spacer.toDouble(),
             ),
             PlayerWidget(
-                url: 'http://192.168.1.39:4002/storage/${widget.id}.mp3'),
+              url: story['audio'],
+            ),
+            Divider(
+              height: spacer.toDouble(),
+              thickness: 5,
+            ),
+            Text('Record a comment',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            SizedBox(
+              height: spacer.toDouble(),
+            ),
+            RecorderWidget(
+              id: story['id'],
+              setAudioFile: setAudioFile,
+              timerDuration: 90,
+            ),
+            if (_audio != null) _buildUploadButton(context),
+            Divider(
+              height: spacer.toDouble(),
+              thickness: 5,
+            ),
+            Text('Comments',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
+            Comments(
+              key: Key(Keys.commentsWidgetExpansionTile),
+              story: story,
+              fontSize: 16,
+              showExpand: true,
+            ),
           ],
         ));
   }
