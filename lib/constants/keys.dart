@@ -20,4 +20,7 @@ class Keys {
   static const String storyPageStopButton = 'storyPageStopButton';
   static const String storyPagePlayButton = 'storyPagePlayButton';
   static const String profilePageUploadButton = 'profilePageUploadButton';
+  static const String commentsWidgetExpansionTile =
+      'commentsWidgetExpansionTile';
+  static const String commentsUploadButton = 'commentsUploadButton';
 }

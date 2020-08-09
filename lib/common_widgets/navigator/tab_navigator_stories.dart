@@ -16,8 +16,14 @@ class TabNavigatorStories extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final TabItem tabItem;
 
-  void _push(BuildContext context, String id) {
-    final routeBuilders = _routeBuilders(context, id: id);
+  void _push(
+    BuildContext context,
+    Map<String, dynamic> params,
+  ) {
+    final routeBuilders = _routeBuilders(
+      context,
+      params: params,
+    );
 
     Navigator.push<dynamic>(
       context,
@@ -29,19 +35,20 @@ class TabNavigatorStories extends StatelessWidget {
 
   Map<String, WidgetBuilder> _routeBuilders(
     BuildContext context, {
-    String id,
+    Map<String, dynamic> params,
   }) {
     return {
       TabNavigatorRoutes.root: (context) => StoriesPage(
-            onPush: (id) => _push(
+            onPush: (params) => _push(
               context,
-              id,
+              params,
             ),
+            params: params,
             key: Key(Keys.storiesPage),
           ),
       TabNavigatorRoutes.detail: (context) => StoryPlay(
-            key: Key(Keys.storyPage),
-            id: id,
+            key: UniqueKey(),
+            params: params,
           ),
     };
   }

@@ -40,7 +40,7 @@ class FriendsPage extends StatefulWidget {
     Key key,
     this.onPush,
   }) : super(key: key);
-  final ValueChanged<String> onPush;
+  final ValueChanged<Map<String, dynamic>> onPush;
   @override
   _FriendsPageState createState() => _FriendsPageState();
 }

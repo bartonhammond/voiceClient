@@ -1,20 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:graphql/client.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
+
 import 'package:voiceClient/common_widgets/player_widget.dart';
+import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 
-class StaggeredGridTileStory extends StatelessWidget {
-  const StaggeredGridTileStory({
+import 'comments.dart';
+
+// ignore: must_be_immutable
+class StaggeredGridTileStory extends StatefulWidget {
+  StaggeredGridTileStory({
     @required this.onPush,
-    @required this.activity,
+    @required this.story,
     @required this.showFriend,
   });
-  final ValueChanged<String> onPush;
-  final Map activity;
+  final ValueChanged<Map<String, dynamic>> onPush;
+  Map story;
   final bool showFriend;
 
+  @override
+  State<StatefulWidget> createState() => _StaggeredGridTileStoryState();
+}
+
+class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
+  Future<void> callBack() async {
+    final QueryOptions _queryOptions = QueryOptions(
+      documentNode: gql(getStoryByIdQL),
+      variables: <String, dynamic>{'id': widget.story['id']},
+    );
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+
+    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+
+    setState(() {
+      widget.story = queryResult.data['Story'][0];
+    });
+  }
+
   Widget buildFriend() {
-    final DateTime dt = DateTime.parse(activity['created']['formatted']);
+    final DateTime dt = DateTime.parse(widget.story['created']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
 
     return Card(
@@ -29,13 +57,13 @@ class StaggeredGridTileStory extends StatelessWidget {
                   height: 35,
                   width: 35,
                   placeholder: kTransparentImage,
-                  image: activity['user']['image'],
+                  image: widget.story['user']['image'],
                 ),
               ),
             ),
           ),
           Text(
-            activity['user']['name'],
+            widget.story['user']['name'],
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
           ),
           Text(
@@ -49,7 +77,7 @@ class StaggeredGridTileStory extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime dt = DateTime.parse(activity['created']['formatted']);
+    final DateTime dt = DateTime.parse(widget.story['created']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
     return Card(
       child: Column(
@@ -59,11 +87,14 @@ class StaggeredGridTileStory extends StatelessWidget {
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    onPush(activity['id']);
+                    widget.onPush(<String, dynamic>{
+                      'id': widget.story['id'],
+                      'onFinish': callBack
+                    });
                   },
                   child: FadeInImage.memoryNetwork(
                     placeholder: kTransparentImage,
-                    image: activity['image'],
+                    image: widget.story['image'],
                   ),
                 ),
               ),
@@ -72,19 +103,24 @@ class StaggeredGridTileStory extends StatelessWidget {
                 child: Column(
                   children: <Widget>[
                     PlayerWidget(
-                        key: Key("playWidget${activity['id']}"),
-                        url: activity['audio']),
+                        key: Key("playWidget${widget.story['id']}"),
+                        url: widget.story['audio']),
                   ],
                 ),
               )
             ],
           ),
-          showFriend
+          widget.showFriend
               ? buildFriend()
               : Text(
                   df.format(dt),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-                )
+                ),
+          Comments(
+            key: Key(Keys.commentsWidgetExpansionTile),
+            story: widget.story,
+            fontSize: 12,
+          ),
         ],
       ),
     );

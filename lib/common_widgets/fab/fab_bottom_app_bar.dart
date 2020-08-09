@@ -63,7 +63,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
           // set cursor to null so as to start at the beginning
           // 'cursor': 10
         }, // this is the query string you just created
-        pollInterval: 10,
+        //pollInterval: 10,
       ),
       // Just like in apollo refetch() could be used to manually trigger a refetch
       // while fetchMore() can be used for pagination purpose
