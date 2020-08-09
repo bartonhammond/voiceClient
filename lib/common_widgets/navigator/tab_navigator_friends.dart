@@ -21,8 +21,11 @@ class TabNavigatorFriends extends StatelessWidget {
   final TabItem tabItem;
   final dynamic onMessageCount;
 
-  void _push(BuildContext context, String id) {
-    final routeBuilders = _routeBuilders(context, id: id);
+  void _push(BuildContext context, Map<String, dynamic> params) {
+    final routeBuilders = _routeBuilders(
+      context,
+      params: params,
+    );
 
     Navigator.push<dynamic>(
       context,
@@ -34,8 +37,11 @@ class TabNavigatorFriends extends StatelessWidget {
     );
   }
 
-  void _pushStory(BuildContext context, String id) {
-    final routeBuilders = _routeBuilders(context, id: id);
+  void _pushStory(BuildContext context, Map<String, dynamic> params) {
+    final routeBuilders = _routeBuilders(
+      context,
+      params: params,
+    );
 
     Navigator.push<dynamic>(
       context,
@@ -49,26 +55,27 @@ class TabNavigatorFriends extends StatelessWidget {
 
   Map<String, WidgetBuilder> _routeBuilders(
     BuildContext context, {
-    String id,
+    Map<String, dynamic> params,
   }) {
     return {
       TabNavigatorRoutes.root: (context) => FriendsPage(
             key: Key(Keys.friendsPage),
-            onPush: (id) => _push(
+            onPush: (params) => _push(
               context,
-              id,
+              params,
             ),
           ),
       TabNavigatorRoutes.stories: (context) => StoriesPage(
-          key: Key(Keys.storiesPage),
-          onPush: (id) => _pushStory(
-                context,
-                id,
-              ),
-          userId: id),
+            key: Key(Keys.storiesPage),
+            onPush: (params) => _pushStory(
+              context,
+              params,
+            ),
+            params: params,
+          ),
       TabNavigatorRoutes.story: (context) => StoryPlay(
-            key: Key(Keys.storyPage),
-            id: id,
+            key: UniqueKey(),
+            params: params,
           ),
     };
   }

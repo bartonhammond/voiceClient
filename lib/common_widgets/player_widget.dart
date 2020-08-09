@@ -9,22 +9,31 @@ enum PlayingRouteState { speakers, earpiece }
 
 class PlayerWidget extends StatefulWidget {
   const PlayerWidget(
-      {Key key, @required this.url, this.mode = PlayerMode.MEDIA_PLAYER})
+      {Key key,
+      @required this.url,
+      this.mode = PlayerMode.MEDIA_PLAYER,
+      this.showSlider = true})
       : super(key: key);
 
   final String url;
   final PlayerMode mode;
+  final bool showSlider;
 
   @override
   State<StatefulWidget> createState() {
-    return _PlayerWidgetState(url, mode);
+    return _PlayerWidgetState(
+      url,
+      mode,
+      showSlider,
+    );
   }
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
-  _PlayerWidgetState(this.url, this.mode);
+  _PlayerWidgetState(this.url, this.mode, this.showSlider);
   String url;
   PlayerMode mode;
+  bool showSlider;
 
   AudioPlayer _audioPlayer;
 
@@ -63,29 +72,31 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            activeTrackColor: Colors.blue[700],
-            inactiveTrackColor: Colors.blue[100],
-            trackShape: RectangularSliderTrackShape(),
-            trackHeight: 4.0,
-            thumbColor: Colors.cyan,
-            thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
-            overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
-          ),
-          child: Slider(
-            onChanged: (v) {
-              final position = v * _duration.inMilliseconds;
-              _audioPlayer.seek(Duration(milliseconds: position.round()));
-            },
-            value: (_position != null &&
-                    _duration != null &&
-                    _position.inMilliseconds > 0 &&
-                    _position.inMilliseconds < _duration.inMilliseconds)
-                ? _position.inMilliseconds / _duration.inMilliseconds
-                : 0.0,
-          ),
-        ),
+        showSlider
+            ? SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  activeTrackColor: Colors.blue[700],
+                  inactiveTrackColor: Colors.blue[100],
+                  trackShape: RectangularSliderTrackShape(),
+                  trackHeight: 4.0,
+                  thumbColor: Colors.cyan,
+                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                  overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
+                ),
+                child: Slider(
+                  onChanged: (v) {
+                    final position = v * _duration.inMilliseconds;
+                    _audioPlayer.seek(Duration(milliseconds: position.round()));
+                  },
+                  value: (_position != null &&
+                          _duration != null &&
+                          _position.inMilliseconds > 0 &&
+                          _position.inMilliseconds < _duration.inMilliseconds)
+                      ? _position.inMilliseconds / _duration.inMilliseconds
+                      : 0.0,
+                ),
+              )
+            : Container(),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [

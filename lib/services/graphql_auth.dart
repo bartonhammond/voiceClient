@@ -13,7 +13,7 @@ class GraphQLAuth {
   final BuildContext context;
   var port = '4001';
   var endPoint = 'graphql';
-  var url = 'http://192.168.1.39'; //HP
+  var url = 'https://2b10ac7b63c9.ngrok.io'; //'http://192.168.1.39'; //HP
   User user;
   String token;
   String currentUserId;
@@ -41,10 +41,11 @@ class GraphQLAuth {
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
     if (type == GraphQLClientType.FileServer) {
+      url = 'https://b93ca6524d05.ngrok.io';
       port = '4002';
       endPoint = 'query';
     }
-    final uri = '$url:$port/$endPoint';
+    final uri = '$url/$endPoint'; //'$url:$port/$endPoint';
     final httpLink = HttpLink(uri: uri);
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
@@ -57,9 +58,19 @@ class GraphQLAuth {
 
     final link = authLink.concat(httpLink);
 
+    //Trying to get rid of cacheing
+    //https://github.com/zino-app/graphql-flutter/issues/692
+    final policies = Policies(
+      fetch: FetchPolicy.networkOnly,
+    );
     final GraphQLClient graphQLClient = GraphQLClient(
       cache: InMemoryCache(),
       link: link,
+      defaultPolicies: DefaultPolicies(
+        watchQuery: policies,
+        query: policies,
+        mutate: policies,
+      ),
     );
 
     return graphQLClient;

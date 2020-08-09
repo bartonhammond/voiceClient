@@ -44,7 +44,6 @@ class _HomePageState extends State<HomePage> {
           MaterialPageRoute<dynamic>(
               builder: (context) => StoryPage(
                     key: Key(Keys.storyPage),
-                    onFinish: null,
                   )),
         );
       },
