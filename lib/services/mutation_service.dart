@@ -281,3 +281,43 @@ Future<void> addStoryComments(
 
   return;
 }
+
+Future<void> addHashTag(
+  GraphQLClient graphQLClient,
+  String hashTag,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addHashTagQL),
+    variables: <String, dynamic>{
+      'tag': hashTag,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addStoryHashtags(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String hashTag,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addStoryHashtagsQL),
+    variables: <String, dynamic>{
+      'id': storyId,
+      'tag': hashTag,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}

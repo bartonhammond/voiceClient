@@ -1,21 +1,26 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_tags/flutter_tags.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
+import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
@@ -35,7 +40,7 @@ class _StoryPageState extends State<StoryPage> {
   bool _uploadInProgress = false;
   final picker = ImagePicker();
   var uuid = Uuid();
-
+  List<String> _tags = <String>[];
   String _imageFilePath;
   String _audioFilePath;
 
@@ -48,6 +53,60 @@ class _StoryPageState extends State<StoryPage> {
     setState(() {
       _audio = audio;
     });
+  }
+
+  /*
+   * Not sure why GraphQLProvider wouldn't work here....
+   */
+  GraphQLClient getGraphQLClient(GraphQLClientType type) {
+    const port = '4001';
+    const endPoint = 'graphql';
+    const url = 'http://192.168.1.39'; //HP
+    const uri = '$url:$port/$endPoint';
+    final httpLink = HttpLink(uri: uri);
+
+    final AuthService auth = Provider.of<AuthService>(context, listen: false);
+
+    final AuthLink authLink = AuthLink(getToken: () async {
+      final IdTokenResult tokenResult = await auth.currentUserIdToken();
+      return 'Bearer ${tokenResult.token}';
+    });
+
+    final link = authLink.concat(httpLink);
+
+    final GraphQLClient graphQLClient = GraphQLClient(
+      cache: InMemoryCache(),
+      link: link,
+    );
+
+    return graphQLClient;
+  }
+
+  Future<List<String>> getUserHashtagCounts(BuildContext context) async {
+    try {
+      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+      final GraphQLClient graphQLClient =
+          getGraphQLClient(GraphQLClientType.ApolloServer);
+
+      final QueryOptions _queryOptions = QueryOptions(
+        documentNode: gql(userHashTagsCountQL),
+        variables: <String, dynamic>{
+          'email': graphQLAuth.getUserMap()['email'],
+        },
+      );
+
+      final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+      final List<dynamic> tagCounts = queryResult.data['userHashTagsCount'];
+      final List<String> tags = [];
+      for (var i = 0; i < tagCounts.length; i++) {
+        tags.add(tagCounts[i]['hashtag']);
+      }
+
+      return tags;
+    } catch (e) {
+      print(e.toString());
+      rethrow;
+    }
   }
 
   Future selectImage(ImageSource source) async {
@@ -103,15 +162,99 @@ class _StoryPageState extends State<StoryPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xff00bcd4),
-        title: Text(
-          Strings.MFV.i18n,
+    return FutureBuilder(
+        future: getUserHashtagCounts(context),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text(snapshot.error.toString());
+          } else {
+            _tags = snapshot.data;
+            return Scaffold(
+              appBar: AppBar(
+                backgroundColor: Color(0xff00bcd4),
+                title: Text(
+                  Strings.MFV.i18n,
+                ),
+              ),
+              body: _buildPage(context),
+            );
+          }
+        });
+  }
+
+  Widget _getTags() {
+    return Container(
+      height: 100,
+      child: getTags(),
+    );
+  }
+
+  Widget getTags() {
+    const double _fontSize = 18;
+
+    const ItemTagsCombine combine = ItemTagsCombine.onlyText;
+
+    return Tags(
+      key: Key('tags'),
+      symmetry: false,
+      columns: 4,
+      horizontalScroll: false,
+      verticalDirection: VerticalDirection.up,
+      textDirection: TextDirection.rtl,
+      heightHorizontalScroll: 60 * (_fontSize / 14),
+      textField: TagsTextField(
+        autofocus: false,
+        hintText: 'Add tag here',
+        textStyle: TextStyle(
+          fontSize: _fontSize,
+
+          //height: 1
         ),
+        enabled: true,
+        constraintSuggestion: false,
+        suggestions: null,
+        onSubmitted: (String str) {
+          setState(() {
+            _tags.add(str);
+          });
+        },
       ),
-      //drawer: getDrawer(context),
-      body: _buildPage(context),
+      itemCount: _tags.length,
+      itemBuilder: (index) {
+        final String item = _tags[index];
+
+        return GestureDetector(
+            child: ItemTags(
+          key: Key(index.toString()),
+          index: index,
+          title: item,
+          pressEnabled: false,
+          activeColor: Color(0xff00bcd4),
+          combine: combine,
+          image: null,
+          icon: null,
+          removeButton: ItemTagsRemoveButton(
+            backgroundColor: Colors.black,
+            onRemoved: () {
+              setState(() {
+                _tags.removeAt(index);
+              });
+              return true;
+            },
+          ),
+          textScaleFactor:
+              utf8.encode(item.substring(0, 1)).length > 2 ? 0.8 : 1,
+          textStyle: TextStyle(
+            fontSize: _fontSize,
+          ),
+        ));
+      },
     );
   }
 
@@ -120,7 +263,9 @@ class _StoryPageState extends State<StoryPage> {
       // mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
-        if (widget.params['id'] != null && widget.params['id'].isNotEmpty)
+        if (widget.params != null &&
+            widget.params['id'] != null &&
+            widget.params['id'].isNotEmpty)
           FadeInImage.memoryNetwork(
             height: 300,
             width: 300,
@@ -148,6 +293,8 @@ class _StoryPageState extends State<StoryPage> {
                   height: 300,
                 ),
                 Container(
+                  height: 300,
+                  width: 300,
                   padding: EdgeInsets.all(5.0),
                   alignment: Alignment.topCenter,
                   decoration: BoxDecoration(
@@ -176,7 +323,9 @@ class _StoryPageState extends State<StoryPage> {
         SizedBox(
           height: 8,
         ),
-        widget.params['id'] == null || widget.params['id'].isEmpty
+        widget.params == null ||
+                widget.params['id'] == null ||
+                widget.params['id'].isEmpty
             ? Text(
                 Strings.imageSelection.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -191,7 +340,9 @@ class _StoryPageState extends State<StoryPage> {
         SizedBox(
           height: 8,
         ),
-        widget.params['id'] == null || widget.params['id'].isEmpty
+        widget.params == null ||
+                widget.params['id'] == null ||
+                widget.params['id'].isEmpty
             ? Text(
                 Strings.audioControls.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -199,7 +350,9 @@ class _StoryPageState extends State<StoryPage> {
             : SizedBox(
                 height: 0,
               ),
-        widget.params['id'] == null || widget.params['id'].isEmpty
+        widget.params == null ||
+                widget.params['id'] == null ||
+                widget.params['id'].isEmpty
             ? SizedBox(
                 height: 8,
               )
@@ -207,9 +360,23 @@ class _StoryPageState extends State<StoryPage> {
                 height: 0,
               ),
         RecorderWidget(
-          id: widget.params['id'],
+          id: UniqueKey().toString(),
           setAudioFile: setAudioFile,
         ),
+        _getTags(),
+        Container(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              children: <Widget>[
+                Divider(
+                  color: Colors.blueGrey,
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 20),
+                  child: Text(''),
+                ),
+              ],
+            )),
         if (_image != null && _audio != null) _buildUploadButton(context)
       ],
     );
@@ -281,7 +448,7 @@ class _StoryPageState extends State<StoryPage> {
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     final GraphQLClient graphQLClientApolloServer =
-        GraphQLProvider.of(context).value;
+        getGraphQLClient(GraphQLClientType.ApolloServer);
 
     final String _id = uuid.v1();
     MultipartFile multipartFile = getMultipartFile(
@@ -318,6 +485,18 @@ class _StoryPageState extends State<StoryPage> {
       _audioFilePath,
       daysOffset: 0,
     );
+
+    for (var tag in _tags) {
+      await addHashTag(
+        graphQLClientApolloServer,
+        tag,
+      );
+      await addStoryHashtags(
+        graphQLClientApolloServer,
+        _id,
+        tag,
+      );
+    }
     return;
   }
 }

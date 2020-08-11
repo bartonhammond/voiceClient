@@ -13,7 +13,7 @@ class GraphQLAuth {
   final BuildContext context;
   var port = '4001';
   var endPoint = 'graphql';
-  var url = 'https://2b10ac7b63c9.ngrok.io'; //'http://192.168.1.39'; //HP
+  var url = 'http://192.168.1.39'; //HP
   User user;
   String token;
   String currentUserId;
@@ -41,11 +41,11 @@ class GraphQLAuth {
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
     if (type == GraphQLClientType.FileServer) {
-      url = 'https://b93ca6524d05.ngrok.io';
+      //url = 'https://b93ca6524d05.ngrok.io';
       port = '4002';
       endPoint = 'query';
     }
-    final uri = '$url/$endPoint'; //'$url:$port/$endPoint';
+    final uri = '$url:$port/$endPoint';
     final httpLink = HttpLink(uri: uri);
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);

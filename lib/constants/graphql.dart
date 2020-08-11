@@ -591,3 +591,43 @@ mutation addStoryComments($storyId: ID!, $commentId: ID!) {
   }
 }
 ''';
+
+const String addHashTagQL = r'''
+mutation addHashTag($tag: String!) {
+  CreateHashTag(
+    tag: $tag
+  ) {
+    tag
+  }
+}
+''';
+
+const String addStoryHashtagsQL = r'''
+mutation addStoryHashtags($id: ID!, $tag: String!) {
+  AddStoryHashtags(
+    from:  {
+      id: $id
+      }
+    to: {
+      tag: $tag
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      tag
+    }
+  }
+}
+''';
+
+const String userHashTagsCountQL = r'''
+query userHashTagsCount($email: String!){
+  userHashTagsCount(email: $email) {
+    __typename
+    hashtag
+    count
+  }
+}
+''';
