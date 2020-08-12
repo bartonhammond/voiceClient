@@ -631,3 +631,81 @@ query userHashTagsCount($email: String!){
   }
 }
 ''';
+
+const String getUserFriendsStoriesByHashtagQL = r'''
+query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $cursor: String!, $limit: String!){
+  userFriendsStoriesByHashtag(
+    email: $email
+    searchString: $searchString
+    cursor: $cursor
+    limit: $limit
+    ){
+    __typename
+    id
+    image
+    audio
+    created {
+      formatted
+    }
+    user {
+      email
+      name
+      home
+      birth
+      image
+    }
+    comments {
+      id
+      audio
+      created {
+        formatted
+      }
+      from {
+        id
+        email
+        name
+      }
+      status
+    }
+  }
+} 
+''';
+
+const String getUserStoriesByHashtagQL = r'''
+query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: String!, $limit: String!){
+  userStoriesByHashtag(
+    email: $email
+    searchString: $searchString
+    cursor: $cursor
+    limit: $limit
+    ){
+    __typename
+    id
+    image
+    audio
+    created {
+      formatted
+    }
+    user {
+      email
+      name
+      home
+      birth
+      image
+    }
+    comments {
+      id
+      audio
+      created {
+        formatted
+      }
+      from {
+        id
+        email
+        name
+      }
+      status
+    }
+  }
+} 
+''';

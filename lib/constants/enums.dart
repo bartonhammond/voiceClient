@@ -14,3 +14,13 @@ enum TypeUser {
   friends,
   users,
 }
+
+enum TypeSearch {
+  date,
+  hashtag,
+}
+
+enum TypeStoriesView {
+  allFriends,
+  oneFriend,
+}
