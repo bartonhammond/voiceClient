@@ -40,9 +40,12 @@ class _StoryPageState extends State<StoryPage> {
   bool _uploadInProgress = false;
   final picker = ImagePicker();
   var uuid = Uuid();
+
   List<String> _tags = <String>[];
+  List<String> _allTags = <String>[];
   String _imageFilePath;
   String _audioFilePath;
+  bool _showAllTags = false;
 
   @override
   void initState() {
@@ -97,11 +100,11 @@ class _StoryPageState extends State<StoryPage> {
 
       final QueryResult queryResult = await graphQLClient.query(_queryOptions);
       final List<dynamic> tagCounts = queryResult.data['userHashTagsCount'];
-      final List<String> tags = [];
+      List<String> tags = [];
       for (var i = 0; i < tagCounts.length; i++) {
         tags.add(tagCounts[i]['hashtag']);
       }
-
+      tags = tags.toSet().toList();
       return tags;
     } catch (e) {
       print(e.toString());
@@ -174,7 +177,7 @@ class _StoryPageState extends State<StoryPage> {
           } else if (snapshot.hasError) {
             return Text(snapshot.error.toString());
           } else {
-            _tags = snapshot.data;
+            _allTags = snapshot.data;
             return Scaffold(
               appBar: AppBar(
                 backgroundColor: Color(0xff00bcd4),
@@ -368,6 +371,23 @@ class _StoryPageState extends State<StoryPage> {
             padding: EdgeInsets.all(20),
             child: Column(
               children: <Widget>[
+                Text('Show all tags',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Checkbox(
+                  value: _showAllTags,
+                  onChanged: (bool show) {
+                    if (show) {
+                      _allTags.forEach(_tags.add);
+                    } else {
+                      _allTags.forEach(_tags.remove);
+                    }
+
+                    setState(() {
+                      _showAllTags = show;
+                    });
+                  },
+                ),
                 Divider(
                   color: Colors.blueGrey,
                 ),
@@ -485,6 +505,8 @@ class _StoryPageState extends State<StoryPage> {
       _audioFilePath,
       daysOffset: 0,
     );
+
+    _tags = _tags.toSet().toList();
 
     for (var tag in _tags) {
       await addHashTag(
