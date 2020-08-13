@@ -12,6 +12,7 @@ import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/comments.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
+import 'package:voiceClient/common_widgets/tags.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
@@ -60,7 +61,7 @@ class _StoryPlayState extends State<StoryPlay> {
             child: Scaffold(
               appBar: AppBar(
                 title: Text(
-                  Strings.MFV,
+                  Strings.MFV.i18n,
                 ),
                 backgroundColor: Color(0xff00bcd4),
                 leading: IconButton(
@@ -218,10 +219,25 @@ class _StoryPlayState extends State<StoryPlay> {
         imageHeight = 200;
         spacer = 8;
     }
+    final tags = <String>[];
+    final List<dynamic> hashtags = story['hashtags'];
+    for (var tag in hashtags) {
+      tags.add(tag['tag']);
+    }
+    return Center(
+        child: ListView(
+      shrinkWrap: true,
+      children: <Widget>[
+        getCard(tags, imageHeight, spacer),
+      ],
+    ));
+  }
+
+  Widget getCard(List<String> tags, int imageHeight, int spacer) {
     return Card(
         margin: EdgeInsets.all(10),
         child: Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             buildFriend(story),
             SizedBox(
@@ -242,7 +258,16 @@ class _StoryPlayState extends State<StoryPlay> {
               height: spacer.toDouble(),
               thickness: 5,
             ),
-            Text('Record a comment',
+            Text('Tags',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                )),
+            TagsWidget(tags: tags, height: 50, updatedAble: false),
+            SizedBox(
+              height: spacer.toDouble(),
+            ),
+            Text(Strings.recordAComment.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(
               height: spacer.toDouble(),
@@ -257,7 +282,7 @@ class _StoryPlayState extends State<StoryPlay> {
               height: spacer.toDouble(),
               thickness: 5,
             ),
-            Text('Comments',
+            Text(Strings.commentsLabel.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
             Comments(
               key: Key(Keys.commentsWidgetExpansionTile),

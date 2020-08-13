@@ -26,7 +26,7 @@ Future<void> main() async {
 
   final userIds = <String>[];
 
-  for (var userIndex = 0; userIndex < 100; userIndex++) {
+  for (var userIndex = 0; userIndex < 500; userIndex++) {
     try {
       final Response response =
           await get('https://randomuser.me/api/?format=json&nat=us');
@@ -43,7 +43,7 @@ Future<void> main() async {
       print('addUser: $userId');
 
       //For 10 Stories
-      for (var storyIndex = 10; storyIndex > -1; storyIndex--) {
+      for (var storyIndex = 25; storyIndex > -1; storyIndex--) {
         final Map<String, dynamic> map = p.toMap();
         final String text =
             '${map['name']} from ${map['home']} story number $storyIndex';

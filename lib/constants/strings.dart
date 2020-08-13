@@ -1,6 +1,7 @@
 // ignore: avoid_classes_with_only_static_members
 class Strings {
   static const String MFV = 'My Family Voice';
+
   // Generic strings
   static const String ok = 'OK';
   static const String cancel = 'Cancel';
@@ -58,11 +59,12 @@ class Strings {
   static const String filterText = 'Filter by name or home';
   static const String typeUserButtonFriends = 'Friends';
   static const String typeUserButtonUsers = 'Users';
+  static const String typeUserButtonMe = 'Me';
   static const String requestFriendship = 'Request Friendship?';
   static const String cancelFriendship = 'End Friendship?';
   static const String quitFriend = 'Quit friend?';
   static const String pending = 'Pending';
-  static const String newFriend = 'New Friend?';
+  static const String newFriend = 'Friend?';
 
   //Messages page
   static const String rejectFriendshipRequest = 'Reject Friendship Request?';
@@ -100,6 +102,8 @@ class Strings {
   static const String audioResume = 'Resume';
   static const String audioClear = 'Clear';
   static const String mustAcceptPermissions = 'You must accept permissions';
+  static const String addTagHere = 'Add tag here';
+  static const String showAllTags = 'Show all tags';
 
   //Fab With Icons
   static const String incrementToolTip = 'Add Story';
@@ -112,4 +116,16 @@ class Strings {
   static const String authenticationType = 'Authentication type';
   static const String firebase = 'Firebase';
   static const String mock = 'Mock';
+
+  //Story play
+  static const String recordAComment = 'Record a comment';
+  static const String commentsLabel = 'Comments';
+
+  //Stories Page
+  static const String dateLabel = 'Date';
+  static const String tagsLabel = 'Tags';
+
+  //Comments
+  static const String deleteComment = 'Delete';
+  static const String hideComment = 'Hide';
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -6,6 +8,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/staggered_grid_tile_story.dart';
+import 'package:voiceClient/constants/enums.dart';
 
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/strings.dart';
@@ -13,6 +16,102 @@ import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
+
+class Debouncer {
+  Debouncer({this.milliseconds});
+  final int milliseconds;
+  VoidCallback action;
+  Timer _timer;
+
+  void run(VoidCallback action) {
+    if (null != _timer) {
+      _timer.cancel();
+    }
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
+    return;
+  }
+}
+
+class ResultTypes {
+  ResultTypes(
+    this._typeStoriesView,
+    this._typeSearch,
+  );
+
+  TypeSearch _typeSearch;
+  final TypeStoriesView _typeStoriesView;
+
+  final String _userFriendStoriesByDate = 'userFriendsStories';
+  final String _userFriendStoriesByHashTag = 'userFriendsStoriesByHashtag';
+  final String _userStoriesByDate = 'userStories';
+  final String _userStoriesByHashTag = 'userStoriesByHashtag';
+
+  bool _userFriendStoriesByDateHasMore = true;
+  bool _userFriendStoriesByHashTagHasMore = true;
+  bool _userStoriesByDateHasMore = true;
+  bool _userStoriesByHashTagHasMore = true;
+
+  TypeStoriesView getTypeStoriesView() {
+    return _typeStoriesView;
+  }
+
+  void setHasMore(bool value) {
+    if (_typeStoriesView == TypeStoriesView.allFriends) {
+      if (_typeSearch == TypeSearch.hashtag) {
+        _userFriendStoriesByHashTagHasMore = value;
+      } else {
+        _userFriendStoriesByDateHasMore = value;
+      }
+    }
+    if (_typeStoriesView == TypeStoriesView.oneFriend) {
+      if (_typeSearch == TypeSearch.hashtag) {
+        _userStoriesByHashTagHasMore = value;
+      } else {
+        _userStoriesByDateHasMore = value;
+      }
+    }
+  }
+
+  bool getHasMore() {
+    if (_typeStoriesView == TypeStoriesView.allFriends) {
+      if (_typeSearch == TypeSearch.hashtag) {
+        return _userFriendStoriesByHashTagHasMore;
+      } else {
+        return _userFriendStoriesByDateHasMore;
+      }
+    }
+    if (_typeStoriesView == TypeStoriesView.oneFriend) {
+      if (_typeSearch == TypeSearch.hashtag) {
+        return _userStoriesByHashTagHasMore;
+      }
+    }
+    return _userStoriesByDateHasMore;
+  }
+
+  void setTypeSearch(TypeSearch typeSearch) {
+    _typeSearch = typeSearch;
+  }
+
+  TypeSearch getTypeSearch() {
+    return _typeSearch;
+  }
+
+  String getResultType() {
+    if (_typeStoriesView == TypeStoriesView.allFriends) {
+      if (_typeSearch == TypeSearch.hashtag) {
+        return _userFriendStoriesByHashTag;
+      } else {
+        return _userFriendStoriesByDate;
+      }
+    }
+    if (_typeStoriesView == TypeStoriesView.oneFriend) {
+      if (_typeSearch == TypeSearch.hashtag) {
+        return _userStoriesByHashTag;
+      }
+    }
+    return _userStoriesByDate;
+  }
+}
 
 class StoriesPage extends StatefulWidget {
   const StoriesPage({
@@ -30,21 +129,27 @@ class _StoriesPageState extends State<StoriesPage> {
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
+  final _debouncer = Debouncer(milliseconds: 500);
+  String _searchString;
+
+  ResultTypes _resultTypes;
 
   @override
   void initState() {
     super.initState();
+    _searchString = '*';
+    if (getId() == null) {
+      _resultTypes = ResultTypes(
+        TypeStoriesView.allFriends,
+        TypeSearch.hashtag,
+      );
+    } else {
+      _resultTypes = ResultTypes(
+        TypeStoriesView.oneFriend,
+        TypeSearch.hashtag,
+      );
+    }
   }
-
-  Map<bool, bool> moreSearchResults = {
-    true: true,
-    false: true,
-  };
-
-  Map<bool, String> resultType = <bool, String>{
-    true: 'userFriendsStories',
-    false: 'userStories'
-  };
 
   String getId() {
     if (widget.params == null) {
@@ -71,6 +176,60 @@ class _StoriesPageState extends State<StoriesPage> {
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     return queryResult.data['User'][0];
+  }
+
+  Widget getDropDownTypeSearchButtons() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<TypeSearch>(
+        value: _resultTypes.getTypeSearch(),
+        items: [
+          DropdownMenuItem(
+              child: Text(
+                Strings.dateLabel.i18n,
+              ),
+              value: TypeSearch.date),
+          DropdownMenuItem(
+            child: Text(
+              Strings.tagsLabel.i18n,
+            ),
+            value: TypeSearch.hashtag,
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _resultTypes.setTypeSearch(value);
+          });
+        },
+      ),
+    );
+  }
+
+  Widget buildSearchField() {
+    return Flexible(
+      fit: FlexFit.loose,
+      child: TextField(
+        decoration: InputDecoration(
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff00bcd4))),
+            labelStyle: TextStyle(color: Color(0xff00bcd4)),
+            border: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff00bcd4))),
+            contentPadding: EdgeInsets.all(15.0),
+            hintText: Strings.filterText.i18n,
+            hintStyle: TextStyle(color: Color(0xff00bcd4))),
+        onChanged: (string) {
+          _debouncer.run(() {
+            setState(() {
+              if (string.isEmpty) {
+                _searchString = '*';
+              } else {
+                _searchString = '$string*';
+              }
+            });
+          });
+        },
+      ),
+    );
   }
 
   Widget buildFriend(Map<String, dynamic> user) {
@@ -136,17 +295,63 @@ class _StoriesPageState extends State<StoriesPage> {
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
               final List<dynamic> data = <dynamic>[
-                ...previousResultData[resultType[getId() == null]],
-                ...fetchMoreResultData[resultType[getId() == null]],
+                ...previousResultData[_resultTypes.getResultType()],
+                ...fetchMoreResultData[_resultTypes.getResultType()],
               ];
 
-              fetchMoreResultData[resultType[getId() == null]] = data;
+              fetchMoreResultData[_resultTypes.getResultType()] = data;
 
               return fetchMoreResultData;
             },
           );
           fetchMore(opts);
         });
+  }
+
+  QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
+    if (_resultTypes.getTypeStoriesView() == TypeStoriesView.allFriends) {
+      if (_resultTypes.getTypeSearch() == TypeSearch.hashtag) {
+        return QueryOptions(
+          documentNode: gql(getUserFriendsStoriesByHashtagQL),
+          variables: <String, dynamic>{
+            'email': graphQLAuth.getUser().email,
+            'searchString': _searchString,
+            'limit': nStories.toString(),
+            'cursor': DateTime.now().toIso8601String(),
+          },
+        );
+      } else {
+        return QueryOptions(
+          documentNode: gql(getUserFriendsStories),
+          variables: <String, dynamic>{
+            'email': graphQLAuth.getUser().email,
+            'limit': nStories.toString(),
+            'cursor': DateTime.now().toIso8601String(),
+          },
+        );
+      }
+    }
+    if (_resultTypes.getTypeStoriesView() == TypeStoriesView.oneFriend) {
+      if (_resultTypes.getTypeSearch() == TypeSearch.hashtag) {
+        return QueryOptions(
+          documentNode: gql(getUserStoriesByHashtagQL),
+          variables: <String, dynamic>{
+            'email': user['email'],
+            'searchString': _searchString,
+            'limit': nStories.toString(),
+            'cursor': DateTime.now().toIso8601String(),
+          },
+        );
+      }
+    }
+    return QueryOptions(
+      documentNode: gql(getUserStories),
+      variables: <String, dynamic>{
+        'email': user['email'],
+        'limit': nStories.toString(),
+        'cursor': DateTime.now().toIso8601String(),
+      },
+    );
   }
 
   @override
@@ -195,24 +400,15 @@ class _StoriesPageState extends State<StoriesPage> {
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
                   getId() == null ? Container() : buildFriend(user),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      getDropDownTypeSearchButtons(),
+                      buildSearchField(),
+                    ],
+                  ),
                   Query(
-                      options: getId() == null
-                          ? QueryOptions(
-                              documentNode: gql(getUserFriendsStories),
-                              variables: <String, dynamic>{
-                                'email': graphQLAuth.getUser().email,
-                                'limit': nStories.toString(),
-                                'cursor': DateTime.now().toIso8601String(),
-                              },
-                            )
-                          : QueryOptions(
-                              documentNode: gql(getUserStories),
-                              variables: <String, dynamic>{
-                                'email': user['email'],
-                                'limit': nStories.toString(),
-                                'cursor': DateTime.now().toIso8601String(),
-                              },
-                            ),
+                      options: getQueryOptions(graphQLAuth),
                       builder: (
                         QueryResult result, {
                         VoidCallback refetch,
@@ -230,12 +426,12 @@ class _StoriesPageState extends State<StoriesPage> {
                         }
 
                         final List<dynamic> stories = List<dynamic>.from(
-                            result.data[resultType[getId() == null]]);
+                            result.data[_resultTypes.getResultType()]);
 
                         if (stories.isEmpty || stories.length % nStories != 0) {
-                          moreSearchResults[getId() == null] = false;
+                          _resultTypes.setHasMore(false);
                         } else {
-                          moreSearchResults[getId() == null] = true;
+                          _resultTypes.setHasMore(true);
                         }
 
                         return Expanded(
@@ -256,7 +452,7 @@ class _StoriesPageState extends State<StoriesPage> {
                                             story: Map<String, dynamic>.from(
                                                 stories[index]),
                                           )
-                                        : moreSearchResults[getId() == null]
+                                        : _resultTypes.getHasMore()
                                             ? getButton(fetchMore, stories)
                                             : Container();
                                   },

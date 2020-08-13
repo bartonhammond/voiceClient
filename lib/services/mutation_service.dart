@@ -6,7 +6,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
 
 Future<dynamic> performMutation(
   GraphQLClient graphQLClient,
@@ -163,7 +162,7 @@ Future<void> updateFriendRequest(
 
 Future<QueryResult> createUserMessage(
   GraphQLClient graphQLClient,
-  GraphQLAuth graphQLAuth,
+  String currentUserId,
   String friendId,
 ) async {
   final uuid = Uuid();
@@ -171,7 +170,7 @@ Future<QueryResult> createUserMessage(
   final MutationOptions options = MutationOptions(
     documentNode: gql(addUserMessage),
     variables: <String, dynamic>{
-      'from': graphQLAuth.getCurrentUserId(),
+      'from': currentUserId,
       'to': friendId,
       'id': uuid.v1(),
       'created': DateTime.now().toIso8601String(),
@@ -271,6 +270,46 @@ Future<void> addStoryComments(
     variables: <String, dynamic>{
       'storyId': storyId,
       'commentId': commentId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addHashTag(
+  GraphQLClient graphQLClient,
+  String hashTag,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addHashTagQL),
+    variables: <String, dynamic>{
+      'tag': hashTag,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addStoryHashtags(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String hashTag,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addStoryHashtagsQL),
+    variables: <String, dynamic>{
+      'id': storyId,
+      'tag': hashTag,
     },
   );
 
