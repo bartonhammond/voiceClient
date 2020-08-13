@@ -40,7 +40,7 @@ Future<AudioOutputBase64Encoded> _getAudioBase64Output(
   String text,
 ) async {
   //create api URL from global constants
-  final _apiURL = '$BASE_URL$END_POINT?key=$API_KEY';
+  const _apiURL = '$BASE_URL$END_POINT?key=$API_KEY';
 
   //create json body from global constants and input variables
   final body =

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:voiceClient/app/story_page.dart';
 import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
+
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_profile.dart';
@@ -29,9 +30,9 @@ class _HomePageState extends State<HomePage> {
     TabItem.newStory: GlobalKey<NavigatorState>(),
   };
 
-  void _selectedTab(TabItem item) {
+  void _selectedTab(int tabIndex) {
     setState(() {
-      _currentTab = item;
+      _currentTab = TabItem.values[tabIndex];
     });
   }
 
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
           // if not on the 'main' tab
           if (_currentTab != TabItem.stories) {
             // select 'main' tab
-            _selectedTab(TabItem.stories);
+            _selectedTab(TabItem.stories.index);
             // back button handled by app
             return false;
           }
@@ -78,9 +79,9 @@ class _HomePageState extends State<HomePage> {
           buildOffStageNavigatorProfile(TabItem.profile),
         ]),
         bottomNavigationBar: FABBottomAppBar(
-          backgroundColor: Color(0xFFF9EBE8),
-          color: Colors.grey,
-          selectedColor: Colors.red,
+          backgroundColor: Color(0xff00bcd4),
+          color: Colors.white,
+          selectedColor: Colors.black,
           notchedShape: CircularNotchedRectangle(),
           onTabSelected: _selectedTab,
           items: [

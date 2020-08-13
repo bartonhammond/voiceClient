@@ -48,6 +48,9 @@ query getStoryById($id: ID!) {
       birth
       id
     }
+    hashtags {
+      tag
+    }
     comments {
       id
       audio
@@ -268,6 +271,20 @@ query userSearchFriends($searchString: String!, $email: String!) {
 const String userSearchNotFriends = r'''
 query userSearchNotFriends($searchString: String!, $email: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email) {
+    __typename
+    id
+    name
+    email
+    home
+    birth
+    image
+  }
+}
+''';
+
+const String userSearchMeQL = r'''
+query userSearchMe($email: String!) {
+  User(email: $email) {
     __typename
     id
     name
@@ -590,4 +607,122 @@ mutation addStoryComments($storyId: ID!, $commentId: ID!) {
     }
   }
 }
+''';
+
+const String addHashTagQL = r'''
+mutation addHashTag($tag: String!) {
+  CreateHashTag(
+    tag: $tag
+  ) {
+    tag
+  }
+}
+''';
+
+const String addStoryHashtagsQL = r'''
+mutation addStoryHashtags($id: ID!, $tag: String!) {
+  AddStoryHashtags(
+    from:  {
+      id: $id
+      }
+    to: {
+      tag: $tag
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      tag
+    }
+  }
+}
+''';
+
+const String userHashTagsCountQL = r'''
+query userHashTagsCount($email: String!){
+  userHashTagsCount(email: $email) {
+    __typename
+    hashtag
+    count
+  }
+}
+''';
+
+const String getUserFriendsStoriesByHashtagQL = r'''
+query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $cursor: String!, $limit: String!){
+  userFriendsStoriesByHashtag(
+    email: $email
+    searchString: $searchString
+    cursor: $cursor
+    limit: $limit
+    ){
+    __typename
+    id
+    image
+    audio
+    created {
+      formatted
+    }
+    user {
+      email
+      name
+      home
+      birth
+      image
+    }
+    comments {
+      id
+      audio
+      created {
+        formatted
+      }
+      from {
+        id
+        email
+        name
+      }
+      status
+    }
+  }
+} 
+''';
+
+const String getUserStoriesByHashtagQL = r'''
+query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: String!, $limit: String!){
+  userStoriesByHashtag(
+    email: $email
+    searchString: $searchString
+    cursor: $cursor
+    limit: $limit
+    ){
+    __typename
+    id
+    image
+    audio
+    created {
+      formatted
+    }
+    user {
+      email
+      name
+      home
+      birth
+      image
+    }
+    comments {
+      id
+      audio
+      created {
+        formatted
+      }
+      from {
+        id
+        email
+        name
+      }
+      status
+    }
+  }
+} 
 ''';

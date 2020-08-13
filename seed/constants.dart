@@ -20,3 +20,14 @@ const encodings = [
   'en-US-Standard-D',
   'en-US-Standard-E',
 ];
+
+const tags = '''Frog unbridled firefly specially gosh peculiarly 
+    far while helpful hello over dug resentful fulsomely jeepers 
+    much gagged far incoherent to less aboard oh strenuously fragrantly or well 
+    hello far unlike slowly beyond jeez exotic and esoterically save thus gnashed 
+    crazily fanatically matter-of-factly inset sewed yikes voluble that far 
+    and naughty goodness stunningly during before lighted pulled and thus dear 
+    alas wherever that less iguana rebuilt darn walked telepathically chameleon 
+    domestically therefore untiringly following avowed moral far bent some far 
+    leaned fired commendable lorikeet that auspicious gorgeous dubiously woodpecker 
+    goodness''';
