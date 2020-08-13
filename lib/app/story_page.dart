@@ -191,143 +191,156 @@ class _StoryPageState extends State<StoryPage> {
   }
 
   Widget _buildPage(BuildContext context) {
-    return Column(
-      // mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        if (widget.params != null &&
-            widget.params['id'] != null &&
-            widget.params['id'].isNotEmpty)
-          FadeInImage.memoryNetwork(
-            height: 300,
-            width: 300,
-            placeholder: kTransparentImage,
-            image:
-                'http://192.168.1.39:4002/storage/${widget.params['id']}.jpg',
-          )
-        else if (_image != null)
-          Flexible(
-            flex: 2,
-            child: Image.file(
-              _image,
-              width: 300,
-              height: 300,
-            ),
-          )
-        else
-          Flexible(
-            flex: 2,
-            child: Stack(
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          Card(
+            margin: EdgeInsets.all(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                Image(
-                  image: AssetImage('assets/placeholder.png'),
-                  width: 300,
-                  height: 300,
-                ),
-                Container(
-                  height: 300,
-                  width: 300,
-                  padding: EdgeInsets.all(5.0),
-                  alignment: Alignment.topCenter,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[
-                        Colors.black.withAlpha(30),
-                        Colors.black12,
-                        Colors.black54
+                if (widget.params != null &&
+                    widget.params['id'] != null &&
+                    widget.params['id'].isNotEmpty)
+                  FadeInImage.memoryNetwork(
+                    height: 300,
+                    width: 300,
+                    placeholder: kTransparentImage,
+                    image:
+                        'http://192.168.1.39:4002/storage/${widget.params['id']}.jpg',
+                  )
+                else if (_image != null)
+                  Flexible(
+                    flex: 2,
+                    child: Image.file(
+                      _image,
+                      width: 300,
+                      height: 300,
+                    ),
+                  )
+                else
+                  Flexible(
+                    flex: 2,
+                    child: Stack(
+                      children: <Widget>[
+                        Image(
+                          image: AssetImage('assets/placeholder.png'),
+                          width: 300,
+                          height: 300,
+                        ),
+                        Container(
+                          height: 300,
+                          width: 300,
+                          padding: EdgeInsets.all(5.0),
+                          alignment: Alignment.topCenter,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: <Color>[
+                                Colors.black.withAlpha(30),
+                                Colors.black12,
+                                Colors.black54
+                              ],
+                            ),
+                          ),
+                          child: Text(
+                            Strings.imagePlaceholder.i18n,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        )
                       ],
                     ),
                   ),
-                  child: Text(
-                    Strings.imagePlaceholder.i18n,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                )
+                SizedBox(
+                  height: 8,
+                ),
+                widget.params == null ||
+                        widget.params['id'] == null ||
+                        widget.params['id'].isEmpty
+                    ? Text(
+                        Strings.imageSelection.i18n,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )
+                    : SizedBox(
+                        height: 0,
+                      ),
+                SizedBox(
+                  height: 8,
+                ),
+                _buildImageControls(),
+                SizedBox(
+                  height: 8,
+                ),
+                widget.params == null ||
+                        widget.params['id'] == null ||
+                        widget.params['id'].isEmpty
+                    ? Text(
+                        Strings.audioControls.i18n,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      )
+                    : SizedBox(
+                        height: 0,
+                      ),
+                widget.params == null ||
+                        widget.params['id'] == null ||
+                        widget.params['id'].isEmpty
+                    ? SizedBox(
+                        height: 8,
+                      )
+                    : SizedBox(
+                        height: 0,
+                      ),
+                RecorderWidget(
+                  id: UniqueKey().toString(),
+                  setAudioFile: setAudioFile,
+                ),
+                TagsWidget(
+                  tags: _tags,
+                  height: 50,
+                ),
+                Container(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      children: <Widget>[
+                        Text(Strings.showAllTags.i18n,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        Checkbox(
+                          value: _showAllTags,
+                          onChanged: (bool show) {
+                            if (show) {
+                              _allTags.forEach(_tags.add);
+                            } else {
+                              _allTags.forEach(_tags.remove);
+                            }
+
+                            setState(() {
+                              _showAllTags = show;
+                            });
+                          },
+                        ),
+                        Divider(
+                          color: Colors.blueGrey,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Text(''),
+                        ),
+                      ],
+                    )),
+                if (_image != null && _audio != null)
+                  _buildUploadButton(context)
               ],
             ),
           ),
-        SizedBox(
-          height: 8,
-        ),
-        widget.params == null ||
-                widget.params['id'] == null ||
-                widget.params['id'].isEmpty
-            ? Text(
-                Strings.imageSelection.i18n,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )
-            : SizedBox(
-                height: 0,
-              ),
-        SizedBox(
-          height: 8,
-        ),
-        _buildImageControls(),
-        SizedBox(
-          height: 8,
-        ),
-        widget.params == null ||
-                widget.params['id'] == null ||
-                widget.params['id'].isEmpty
-            ? Text(
-                Strings.audioControls.i18n,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              )
-            : SizedBox(
-                height: 0,
-              ),
-        widget.params == null ||
-                widget.params['id'] == null ||
-                widget.params['id'].isEmpty
-            ? SizedBox(
-                height: 8,
-              )
-            : SizedBox(
-                height: 0,
-              ),
-        RecorderWidget(
-          id: UniqueKey().toString(),
-          setAudioFile: setAudioFile,
-        ),
-        TagsWidget(tags: _tags),
-        Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: <Widget>[
-                Text(Strings.showAllTags.i18n,
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Checkbox(
-                  value: _showAllTags,
-                  onChanged: (bool show) {
-                    if (show) {
-                      _allTags.forEach(_tags.add);
-                    } else {
-                      _allTags.forEach(_tags.remove);
-                    }
-
-                    setState(() {
-                      _showAllTags = show;
-                    });
-                  },
-                ),
-                Divider(
-                  color: Colors.blueGrey,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text(''),
-                ),
-              ],
-            )),
-        if (_image != null && _audio != null) _buildUploadButton(context)
-      ],
+        ],
+      ),
     );
   }
 

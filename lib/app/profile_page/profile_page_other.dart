@@ -229,14 +229,18 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
                 height: 150,
                 child: Image.file(_image),
               )
-            else if (userId != null && userId.isNotEmpty)
+            else if (userId != null &&
+                userId.isNotEmpty &&
+                user != null &&
+                user['image'] != null)
               Container(
-                  height: 150,
-                  child: FadeInImage.memoryNetwork(
-                    height: 300,
-                    placeholder: kTransparentImage,
-                    image: user['image'],
-                  ))
+                height: 150,
+                child: FadeInImage.memoryNetwork(
+                  height: 300,
+                  placeholder: kTransparentImage,
+                  image: user['image'],
+                ),
+              )
             else
               Flexible(
                 flex: 2,

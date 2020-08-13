@@ -64,7 +64,7 @@ class Strings {
   static const String cancelFriendship = 'End Friendship?';
   static const String quitFriend = 'Quit friend?';
   static const String pending = 'Pending';
-  static const String newFriend = 'New Friend?';
+  static const String newFriend = 'Friend?';
 
   //Messages page
   static const String rejectFriendshipRequest = 'Reject Friendship Request?';

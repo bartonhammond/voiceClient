@@ -177,11 +177,11 @@ extension Localization on String {
       } +
       {
         'en': Strings.requestFriendship,
-        'es': 'Solicitar amistad?',
+        'es': 'Amistad?',
       } +
       {
         'en': Strings.cancelFriendship,
-        'es': '¿Fin de la amistad?',
+        'es': '¿Fin?',
       } +
       {
         'en': Strings.quitFriend,

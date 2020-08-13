@@ -32,7 +32,7 @@ Future<void> main() async {
   ));
   //start app
   runApp(DevicePreview(
-    enabled: true,
+    enabled: false,
     builder: (BuildContext context) => MyApp(),
   ));
 }

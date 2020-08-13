@@ -178,77 +178,58 @@ class _StoriesPageState extends State<StoriesPage> {
     return queryResult.data['User'][0];
   }
 
-  List<Widget> buildTypeSearchButtons() {
-    return <Widget>[
-      Flexible(
-        child: RadioListTile<TypeSearch>(
-          title: Text(
-            Strings.dateLabel.i18n,
-            style: TextStyle(
-                color: Color(0xff00bcd4),
-                fontWeight: _resultTypes.getTypeSearch() == TypeSearch.hashtag
-                    ? FontWeight.normal
-                    : FontWeight.bold),
+  Widget getDropDownTypeSearchButtons() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<TypeSearch>(
+        value: _resultTypes.getTypeSearch(),
+        items: [
+          DropdownMenuItem(
+              child: Text(
+                Strings.dateLabel.i18n,
+              ),
+              value: TypeSearch.date),
+          DropdownMenuItem(
+            child: Text(
+              Strings.tagsLabel.i18n,
+            ),
+            value: TypeSearch.hashtag,
           ),
-          value: TypeSearch.date,
-          groupValue: _resultTypes.getTypeSearch(),
-          onChanged: (TypeSearch value) {
-            setState(() {
-              _resultTypes.setTypeSearch(value);
-            });
-          },
-        ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _resultTypes.setTypeSearch(value);
+          });
+        },
       ),
-      Flexible(
-        child: RadioListTile<TypeSearch>(
-          title: Text(
-            Strings.tagsLabel.i18n,
-            style: TextStyle(
-                color: Color(0xff00bcd4),
-                fontWeight: _resultTypes.getTypeSearch() == TypeSearch.hashtag
-                    ? FontWeight.bold
-                    : FontWeight.normal),
-          ),
-          value: TypeSearch.hashtag,
-          activeColor: Color(0xff00bcd4),
-          groupValue: _resultTypes.getTypeSearch(),
-          onChanged: (TypeSearch value) {
-            setState(() {
-              _resultTypes.setTypeSearch(value);
-            });
-          },
-        ),
-      ),
-    ];
+    );
   }
 
-  List<Widget> buildSearchField() {
-    return <Widget>[
-      Flexible(
-        child: TextField(
-          decoration: InputDecoration(
-              focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xff00bcd4))),
-              labelStyle: TextStyle(color: Color(0xff00bcd4)),
-              border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xff00bcd4))),
-              contentPadding: EdgeInsets.all(15.0),
-              hintText: Strings.filterText.i18n,
-              hintStyle: TextStyle(color: Color(0xff00bcd4))),
-          onChanged: (string) {
-            _debouncer.run(() {
-              setState(() {
-                if (string.isEmpty) {
-                  _searchString = '*';
-                } else {
-                  _searchString = '$string*';
-                }
-              });
+  Widget buildSearchField() {
+    return Flexible(
+      fit: FlexFit.loose,
+      child: TextField(
+        decoration: InputDecoration(
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff00bcd4))),
+            labelStyle: TextStyle(color: Color(0xff00bcd4)),
+            border: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff00bcd4))),
+            contentPadding: EdgeInsets.all(15.0),
+            hintText: Strings.filterText.i18n,
+            hintStyle: TextStyle(color: Color(0xff00bcd4))),
+        onChanged: (string) {
+          _debouncer.run(() {
+            setState(() {
+              if (string.isEmpty) {
+                _searchString = '*';
+              } else {
+                _searchString = '$string*';
+              }
             });
-          },
-        ),
-      )
-    ];
+          });
+        },
+      ),
+    );
   }
 
   Widget buildFriend(Map<String, dynamic> user) {
@@ -421,11 +402,10 @@ class _StoriesPageState extends State<StoriesPage> {
                   getId() == null ? Container() : buildFriend(user),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    children: buildSearchField(),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: buildTypeSearchButtons(),
+                    children: <Widget>[
+                      getDropDownTypeSearchButtons(),
+                      buildSearchField(),
+                    ],
                   ),
                   Query(
                       options: getQueryOptions(graphQLAuth),

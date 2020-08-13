@@ -116,97 +116,65 @@ class _FriendsPageState extends State<FriendsPage> {
     return queryResult.data['User'][0]['messages']['to'];
   }
 
-  List<Widget> buildSearchField() {
-    return <Widget>[
-      Flexible(
-        child: TextField(
-          decoration: InputDecoration(
-              focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xff00bcd4))),
-              labelStyle: TextStyle(color: Color(0xff00bcd4)),
-              border: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Color(0xff00bcd4))),
-              contentPadding: EdgeInsets.all(15.0),
-              hintText: Strings.filterText.i18n,
-              hintStyle: TextStyle(color: Color(0xff00bcd4))),
-          onChanged: (string) {
-            _debouncer.run(() {
-              setState(() {
-                if (string.isEmpty) {
-                  _searchString = '*';
-                } else {
-                  _searchString = '$string*';
-                }
-              });
+  Widget buildSearchField() {
+    return Flexible(
+      fit: FlexFit.loose,
+      child: TextField(
+        decoration: InputDecoration(
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff00bcd4))),
+            labelStyle: TextStyle(color: Color(0xff00bcd4)),
+            border: UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xff00bcd4))),
+            contentPadding: EdgeInsets.all(15.0),
+            hintText: Strings.filterText.i18n,
+            hintStyle: TextStyle(color: Color(0xff00bcd4))),
+        onChanged: (string) {
+          _debouncer.run(() {
+            setState(() {
+              if (string.isEmpty) {
+                _searchString = '*';
+              } else {
+                _searchString = '$string*';
+              }
             });
-          },
-        ),
-      )
-    ];
+          });
+        },
+      ),
+    );
   }
 
-  List<Widget> buildTypeUserButtons() {
-    return <Widget>[
-      Flexible(
-        child: RadioListTile<TypeUser>(
-          title: Text(
-            Strings.typeUserButtonFriends.i18n,
-            style: TextStyle(
-                color: Color(0xff00bcd4),
-                fontWeight: _typeUser == TypeUser.friends
-                    ? FontWeight.bold
-                    : FontWeight.normal),
+  Widget getDropDownTypeUserButtons() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<TypeUser>(
+        value: _typeUser,
+        items: [
+          DropdownMenuItem(
+            child: Text(
+              Strings.typeUserButtonFriends.i18n,
+            ),
+            value: TypeUser.friends,
           ),
-          value: TypeUser.friends,
-          activeColor: Color(0xff00bcd4),
-          groupValue: _typeUser,
-          onChanged: (TypeUser value) {
-            setState(() {
-              _typeUser = value;
-            });
-          },
-        ),
-      ),
-      Flexible(
-        child: RadioListTile<TypeUser>(
-          title: Text(
-            Strings.typeUserButtonUsers.i18n,
-            style: TextStyle(
-                color: Color(0xff00bcd4),
-                fontWeight: _typeUser == TypeUser.users
-                    ? FontWeight.bold
-                    : FontWeight.normal),
+          DropdownMenuItem(
+            child: Text(
+              Strings.typeUserButtonUsers.i18n,
+            ),
+            value: TypeUser.users,
           ),
-          value: TypeUser.users,
-          groupValue: _typeUser,
-          onChanged: (TypeUser value) {
-            setState(() {
-              _typeUser = value;
-            });
-          },
-        ),
-      ),
-      Flexible(
-        child: RadioListTile<TypeUser>(
-          title: Text(
-            Strings.typeUserButtonMe.i18n,
-            style: TextStyle(
-                color: Color(0xff00bcd4),
-                fontWeight: _typeUser == TypeUser.me
-                    ? FontWeight.bold
-                    : FontWeight.normal),
+          DropdownMenuItem(
+            child: Text(
+              Strings.typeUserButtonMe.i18n,
+            ),
+            value: TypeUser.me,
           ),
-          value: TypeUser.me,
-          activeColor: Color(0xff00bcd4),
-          groupValue: _typeUser,
-          onChanged: (TypeUser value) {
-            setState(() {
-              _typeUser = value;
-            });
-          },
-        ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _typeUser = value;
+          });
+        },
       ),
-    ];
+    );
   }
 
   Future<void> _newFriendRequest(String _friendId) async {
@@ -334,11 +302,10 @@ class _FriendsPageState extends State<FriendsPage> {
           children: <Widget>[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: buildSearchField(),
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: buildTypeUserButtons(),
+              children: <Widget>[
+                getDropDownTypeUserButtons(),
+                buildSearchField(),
+              ],
             ),
             Divider(),
             Query(
