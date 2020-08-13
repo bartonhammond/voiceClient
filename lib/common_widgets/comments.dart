@@ -2,7 +2,10 @@ import 'package:configurable_expansion_tile/configurable_expansion_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'package:voiceClient/common_widgets/player_widget.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/constants/strings.dart';
 
 class Comments extends StatelessWidget {
   const Comments(
@@ -51,11 +54,11 @@ class Comments extends StatelessWidget {
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[Text('Delete')],
+                    children: <Widget>[Text(Strings.deleteComment.i18n)],
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: const <Widget>[Text('Hide')],
+                    children: <Widget>[Text(Strings.hideComment.i18n)],
                   )
                 ],
               )

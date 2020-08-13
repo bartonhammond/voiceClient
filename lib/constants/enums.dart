@@ -13,6 +13,7 @@ enum TabItem {
 enum TypeUser {
   friends,
   users,
+  me,
 }
 
 enum TypeSearch {

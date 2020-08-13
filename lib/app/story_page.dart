@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io' as io;
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_tags/flutter_tags.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -14,6 +12,7 @@ import 'package:uuid/uuid.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
+import 'package:voiceClient/common_widgets/tags.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
@@ -191,76 +190,6 @@ class _StoryPageState extends State<StoryPage> {
         });
   }
 
-  Widget _getTags() {
-    return Container(
-      height: 100,
-      child: getTags(),
-    );
-  }
-
-  Widget getTags() {
-    const double _fontSize = 18;
-
-    const ItemTagsCombine combine = ItemTagsCombine.onlyText;
-
-    return Tags(
-      key: Key('tags'),
-      symmetry: false,
-      columns: 4,
-      horizontalScroll: false,
-      verticalDirection: VerticalDirection.up,
-      textDirection: TextDirection.rtl,
-      heightHorizontalScroll: 60 * (_fontSize / 14),
-      textField: TagsTextField(
-        autofocus: false,
-        hintText: 'Add tag here',
-        textStyle: TextStyle(
-          fontSize: _fontSize,
-
-          //height: 1
-        ),
-        enabled: true,
-        constraintSuggestion: false,
-        suggestions: null,
-        onSubmitted: (String str) {
-          setState(() {
-            _tags.add(str);
-          });
-        },
-      ),
-      itemCount: _tags.length,
-      itemBuilder: (index) {
-        final String item = _tags[index];
-
-        return GestureDetector(
-            child: ItemTags(
-          key: Key(index.toString()),
-          index: index,
-          title: item,
-          pressEnabled: false,
-          activeColor: Color(0xff00bcd4),
-          combine: combine,
-          image: null,
-          icon: null,
-          removeButton: ItemTagsRemoveButton(
-            backgroundColor: Colors.black,
-            onRemoved: () {
-              setState(() {
-                _tags.removeAt(index);
-              });
-              return true;
-            },
-          ),
-          textScaleFactor:
-              utf8.encode(item.substring(0, 1)).length > 2 ? 0.8 : 1,
-          textStyle: TextStyle(
-            fontSize: _fontSize,
-          ),
-        ));
-      },
-    );
-  }
-
   Widget _buildPage(BuildContext context) {
     return Column(
       // mainAxisAlignment: MainAxisAlignment.center,
@@ -366,12 +295,12 @@ class _StoryPageState extends State<StoryPage> {
           id: UniqueKey().toString(),
           setAudioFile: setAudioFile,
         ),
-        _getTags(),
+        TagsWidget(tags: _tags),
         Container(
             padding: EdgeInsets.all(20),
             child: Column(
               children: <Widget>[
-                Text('Show all tags',
+                Text(Strings.showAllTags.i18n,
                     style:
                         TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 Checkbox(

@@ -6,7 +6,6 @@ import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
 
 Future<dynamic> performMutation(
   GraphQLClient graphQLClient,
@@ -163,7 +162,7 @@ Future<void> updateFriendRequest(
 
 Future<QueryResult> createUserMessage(
   GraphQLClient graphQLClient,
-  GraphQLAuth graphQLAuth,
+  String currentUserId,
   String friendId,
 ) async {
   final uuid = Uuid();
@@ -171,7 +170,7 @@ Future<QueryResult> createUserMessage(
   final MutationOptions options = MutationOptions(
     documentNode: gql(addUserMessage),
     variables: <String, dynamic>{
-      'from': graphQLAuth.getCurrentUserId(),
+      'from': currentUserId,
       'to': friendId,
       'id': uuid.v1(),
       'created': DateTime.now().toIso8601String(),

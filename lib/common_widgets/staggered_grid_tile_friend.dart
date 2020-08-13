@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 
 class StaggeredGridTileFriend extends StatelessWidget {
@@ -12,7 +11,7 @@ class StaggeredGridTileFriend extends StatelessWidget {
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map friend;
-  final FriendButton friendButton;
+  final Widget friendButton;
 
   @override
   Widget build(BuildContext context) {

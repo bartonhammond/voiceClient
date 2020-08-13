@@ -183,7 +183,7 @@ class _StoriesPageState extends State<StoriesPage> {
       Flexible(
         child: RadioListTile<TypeSearch>(
           title: Text(
-            'Date',
+            Strings.dateLabel.i18n,
             style: TextStyle(
                 color: Color(0xff00bcd4),
                 fontWeight: _resultTypes.getTypeSearch() == TypeSearch.hashtag
@@ -202,7 +202,7 @@ class _StoriesPageState extends State<StoriesPage> {
       Flexible(
         child: RadioListTile<TypeSearch>(
           title: Text(
-            'Tags',
+            Strings.tagsLabel.i18n,
             style: TextStyle(
                 color: Color(0xff00bcd4),
                 fontWeight: _resultTypes.getTypeSearch() == TypeSearch.hashtag

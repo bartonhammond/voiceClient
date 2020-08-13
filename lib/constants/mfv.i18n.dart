@@ -172,6 +172,10 @@ extension Localization on String {
         'es': 'Los usuarios',
       } +
       {
+        'en': Strings.typeUserButtonMe,
+        'es': 'Yo',
+      } +
+      {
         'en': Strings.requestFriendship,
         'es': 'Solicitar amistad?',
       } +
@@ -316,12 +320,44 @@ extension Localization on String {
         'es': 'Debes aceptar permisos',
       } +
       {
+        'en': Strings.addTagHere,
+        'es': 'Agregar etiqueta aquí',
+      } +
+      {
+        'en': Strings.showAllTags,
+        'es': 'Mostrar todas las etiquetas',
+      } +
+      {
         'en': Strings.incrementToolTip,
         'es': 'Añadir historia',
       } +
       {
         'en': Strings.friendRequest,
         'es': 'Solicitud de amistad',
+      } +
+      {
+        'en': Strings.recordAComment,
+        'es': 'Grabar un comentario',
+      } +
+      {
+        'en': Strings.commentsLabel,
+        'es': 'Comentarios',
+      } +
+      {
+        'en': Strings.dateLabel,
+        'es': 'Fecha',
+      } +
+      {
+        'en': Strings.tagsLabel,
+        'es': 'Etiquetas',
+      } +
+      {
+        'en': Strings.deleteComment,
+        'es': 'Eliminar',
+      } +
+      {
+        'en': Strings.hideComment,
+        'es': 'Esconder',
       };
 
   String get i18n => localize(this, _t);

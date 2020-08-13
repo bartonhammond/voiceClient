@@ -48,6 +48,9 @@ query getStoryById($id: ID!) {
       birth
       id
     }
+    hashtags {
+      tag
+    }
     comments {
       id
       audio
@@ -268,6 +271,20 @@ query userSearchFriends($searchString: String!, $email: String!) {
 const String userSearchNotFriends = r'''
 query userSearchNotFriends($searchString: String!, $email: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email) {
+    __typename
+    id
+    name
+    email
+    home
+    birth
+    image
+  }
+}
+''';
+
+const String userSearchMeQL = r'''
+query userSearchMe($email: String!) {
+  User(email: $email) {
     __typename
     id
     name

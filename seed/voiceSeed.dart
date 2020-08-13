@@ -1,11 +1,14 @@
 import 'dart:math';
 
 import 'package:graphql/client.dart';
+
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 
+import 'addComments.dart';
 import 'addSingleStory.dart';
 import 'addUser.dart';
+import 'constants.dart';
 import 'getPhotoFiles.dart';
 import 'graphQLClient.dart';
 
@@ -137,6 +140,11 @@ Future<void> main() async {
   //Create User
   final Random randomVoiceGen = Random();
   final Random randomFileGen = Random();
+  final Random randomTagGen = Random();
+  final Random randomCommentGen = Random();
+  final Random randomUserGen = Random();
+
+  final List<String> allTags = tags.replaceAll('\n/', '').split(' ');
 
   for (var userIndex = 0; userIndex < users.length; userIndex++) {
     try {
@@ -147,9 +155,41 @@ Future<void> main() async {
       );
       userIds.add(userId);
       print('addUser: $userId');
+    } catch (e) {
+      print(e);
+    }
+  } //for
 
-      //For 10 Stories
+  //Make everyone friends
+  for (var userIndex = 0; userIndex < users.length; userIndex++) {
+    for (var friendIndex = 0; friendIndex < users.length; friendIndex++) {
+      if (userIndex == friendIndex) {
+        continue;
+      }
+      await addUserFriend(
+        graphQLClientApolloServer,
+        userIds[userIndex],
+        userIds[friendIndex],
+      );
+      print('added User Friend');
+    }
+  }
+  //Create the system wide tags
+  for (var i = 0; i < allTags.length; i++) {
+    if (allTags[i].isNotEmpty && allTags[i].length > 5) {
+      await addHashTag(
+        graphQLClientApolloServer,
+        allTags[i],
+      );
+      print('add tag: ${allTags[i]}');
+    }
+  }
+
+  //Make stories
+  for (var userIndex = 0; userIndex < users.length; userIndex++) {
+    try {
       for (var storyIndex = 25; storyIndex > -1; storyIndex--) {
+        final String userId = userIds[userIndex];
         final String text =
             '${users[userIndex]['announce']} ${users[userIndex]['name']} from ${users[userIndex]['home']} story number $storyIndex';
 
@@ -165,24 +205,42 @@ Future<void> main() async {
             daysOffset: storyIndex);
 
         print('addStory: $storyId');
+
+        final int maxTag = allTags.length - 1;
+
+        for (var i = 0; i < 5; i++) {
+          final int randomTag = randomTagGen.nextInt(maxTag);
+          if (allTags[randomTag].isNotEmpty && allTags[randomTag].length > 5) {
+            await addStoryHashtags(
+              graphQLClientApolloServer,
+              storyId,
+              allTags[randomTag],
+            );
+            print('add story $storyId, tag: ${allTags[randomTag]}');
+          }
+        }
+        final int randomComments = randomCommentGen.nextInt(5);
+
+        for (var i = 0; i < randomComments; i++) {
+          final int randomUserIndex = randomUserGen.nextInt(users.length);
+          final String text =
+              '${users[randomUserIndex]['name']} commented on story $storyIndex written by ${users[userIndex]['name']} from ${users[userIndex]['home']}';
+
+          await addComments(
+            graphQLClientApolloServer,
+            graphQLClientFileServer,
+            storyId,
+            userIds[randomUserIndex],
+            randomVoiceGen,
+            text,
+          );
+          print('added comments');
+        }
       }
     } catch (e) {
       print('Exception voiceSeed: $e.toString()');
     }
   }
 
-  //Make everyone friends
-  for (var userIndex = 0; userIndex < 8; userIndex++) {
-    for (var friendIndex = 0; friendIndex < 8; friendIndex++) {
-      if (userIndex == friendIndex) {
-        continue;
-      }
-      await addUserFriend(
-        graphQLClientApolloServer,
-        userIds[userIndex],
-        userIds[friendIndex],
-      );
-    }
-  }
   return;
 }

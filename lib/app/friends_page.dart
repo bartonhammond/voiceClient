@@ -63,11 +63,13 @@ class _FriendsPageState extends State<FriendsPage> {
   Map<int, bool> moreSearchResults = {
     0: true,
     1: true,
+    2: true,
   };
 
   Map<int, String> searchResultsName = {
     0: 'userSearchFriends',
-    1: 'userSearchNotFriends'
+    1: 'userSearchNotFriends',
+    2: 'User'
   };
 
   @override
@@ -92,7 +94,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
-      throw queryResult.exception;
+      return null;
     }
     return queryResult.data['User'][0]['messages']['from'];
   }
@@ -108,6 +110,9 @@ class _FriendsPageState extends State<FriendsPage> {
     );
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    if (queryResult.hasException) {
+      return null;
+    }
     return queryResult.data['User'][0]['messages']['to'];
   }
 
@@ -168,11 +173,31 @@ class _FriendsPageState extends State<FriendsPage> {
             Strings.typeUserButtonUsers.i18n,
             style: TextStyle(
                 color: Color(0xff00bcd4),
-                fontWeight: _typeUser == TypeUser.friends
-                    ? FontWeight.normal
-                    : FontWeight.bold),
+                fontWeight: _typeUser == TypeUser.users
+                    ? FontWeight.bold
+                    : FontWeight.normal),
           ),
           value: TypeUser.users,
+          groupValue: _typeUser,
+          onChanged: (TypeUser value) {
+            setState(() {
+              _typeUser = value;
+            });
+          },
+        ),
+      ),
+      Flexible(
+        child: RadioListTile<TypeUser>(
+          title: Text(
+            Strings.typeUserButtonMe.i18n,
+            style: TextStyle(
+                color: Color(0xff00bcd4),
+                fontWeight: _typeUser == TypeUser.me
+                    ? FontWeight.bold
+                    : FontWeight.normal),
+          ),
+          value: TypeUser.me,
+          activeColor: Color(0xff00bcd4),
           groupValue: _typeUser,
           onChanged: (TypeUser value) {
             setState(() {
@@ -194,7 +219,7 @@ class _FriendsPageState extends State<FriendsPage> {
     if (addNewFriend == true) {
       final QueryResult result = await createUserMessage(
         GraphQLProvider.of(context).value,
-        locator<GraphQLAuth>(),
+        locator<GraphQLAuth>().getCurrentUserId(),
         _friendId,
       );
 
@@ -249,6 +274,37 @@ class _FriendsPageState extends State<FriendsPage> {
     }
   }
 
+  QueryOptions getQueryOptions() {
+    String gqlString;
+    var _variables = <String, dynamic>{
+      'searchString': _searchString,
+      'email': graphQLAuth.getUser().email,
+      'first': nFriends,
+      'offset': 0
+    };
+    switch (_typeUser) {
+      case TypeUser.friends:
+        gqlString = userSearchFriends;
+        break;
+      case TypeUser.users:
+        gqlString = userSearchNotFriends;
+        break;
+
+      case TypeUser.me:
+        gqlString = userSearchMeQL;
+        _variables = <String, dynamic>{
+          'email': graphQLAuth.getUser().email,
+        };
+        break;
+
+      default:
+    }
+    return QueryOptions(
+      documentNode: gql(gqlString),
+      variables: _variables,
+    );
+  }
+
   Widget _build(BuildContext context) {
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
@@ -286,17 +342,7 @@ class _FriendsPageState extends State<FriendsPage> {
             ),
             Divider(),
             Query(
-              options: QueryOptions(
-                documentNode: _typeUser == TypeUser.friends
-                    ? gql(userSearchFriends)
-                    : gql(userSearchNotFriends),
-                variables: <String, dynamic>{
-                  'searchString': _searchString,
-                  'email': graphQLAuth.getUser().email,
-                  'first': nFriends,
-                  'offset': 0
-                },
-              ),
+              options: getQueryOptions(),
               builder: (
                 QueryResult result, {
                 VoidCallback refetch,
@@ -370,7 +416,10 @@ class _FriendsPageState extends State<FriendsPage> {
               mainAxisSpacing: 4.0,
               crossAxisSpacing: 4.0,
               itemBuilder: (context, index) => StaggeredGridTileFriend(
-                onPush: _typeUser == TypeUser.friends ? widget.onPush : null,
+                onPush:
+                    _typeUser == TypeUser.friends || _typeUser == TypeUser.me
+                        ? widget.onPush
+                        : null,
                 friend: friends[index],
                 friendButton: getFriendButton(
                   allNewFriendRequestsToMe,
@@ -409,7 +458,7 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  FriendButton getFriendButton(
+  Widget getFriendButton(
     dynamic allFriendRequestsToMe,
     dynamic allMyFriendRequests,
     dynamic friends,
@@ -425,6 +474,9 @@ class _FriendsPageState extends State<FriendsPage> {
         break;
       default:
         _fontSize = 20;
+    }
+    if (_typeUser == TypeUser.me) {
+      return Container();
     }
     if (_typeUser == TypeUser.friends) {
       button = FriendButton(
