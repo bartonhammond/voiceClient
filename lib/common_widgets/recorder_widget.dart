@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:simple_timer/simple_timer.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
@@ -57,15 +58,17 @@ class _RecorderWidgetState extends State<RecorderWidget>
     return;
   }
 
-  Widget getRecordButton() {
+  Widget getRecordButton(bool _showIcon) {
     final dynamic textAndIcon = _buildText(_currentStatus);
     return CustomRaisedButton(
       key: Key(Keys.storyPageGalleryButton),
       text: textAndIcon['text'],
-      icon: Icon(
-        textAndIcon['icon'],
-        color: Colors.white,
-      ),
+      icon: _showIcon
+          ? Icon(
+              textAndIcon['icon'],
+              color: Colors.white,
+            )
+          : null,
       onPressed: () {
         switch (_currentStatus) {
           case RecordingStatus.Initialized:
@@ -251,6 +254,22 @@ class _RecorderWidgetState extends State<RecorderWidget>
 
   @override
   Widget build(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    bool _showIcon = true;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+      case DeviceScreenType.mobile:
+        _showIcon = true;
+        break;
+      case DeviceScreenType.watch:
+        _showIcon = false;
+        break;
+      default:
+        _showIcon = true;
+    }
+
     return Flexible(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -258,17 +277,19 @@ class _RecorderWidgetState extends State<RecorderWidget>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              getRecordButton(),
+              getRecordButton(_showIcon),
               SizedBox(
                 width: 4,
               ),
               CustomRaisedButton(
                 key: Key(Keys.storyPageStopButton),
                 text: Strings.audioStop.i18n,
-                icon: Icon(
-                  Icons.stop,
-                  color: Colors.white,
-                ),
+                icon: _showIcon
+                    ? Icon(
+                        Icons.stop,
+                        color: Colors.white,
+                      )
+                    : null,
                 onPressed:
                     _currentStatus != RecordingStatus.Unset ? _stop : null,
               ),
@@ -278,10 +299,12 @@ class _RecorderWidgetState extends State<RecorderWidget>
               CustomRaisedButton(
                 key: Key(Keys.storyPagePlayButton),
                 text: Strings.audioPlay.i18n,
-                icon: Icon(
-                  Icons.play_circle_outline,
-                  color: Colors.white,
-                ),
+                icon: _showIcon
+                    ? Icon(
+                        Icons.play_circle_outline,
+                        color: Colors.white,
+                      )
+                    : null,
                 onPressed: onPlayAudio,
               ),
             ],

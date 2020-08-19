@@ -3,6 +3,7 @@ import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/services/host.dart';
 
 class StaggeredGridTileMessage extends StatelessWidget {
   const StaggeredGridTileMessage({
@@ -35,7 +36,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
                 onTap: () {},
                 child: FadeInImage.memoryNetwork(
                   placeholder: kTransparentImage,
-                  image: message['User']['image'],
+                  image: host(message['User']['image']),
                   height: 50,
                 ),
               ),

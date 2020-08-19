@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:voiceClient/app/friends_page.dart' show FriendsPage;
-import 'package:voiceClient/app/stories_page/stories_page.dart'
-    show StoriesPage;
+import 'package:voiceClient/app/stories_page.dart' show StoriesPage;
 import 'package:voiceClient/app/story_play.dart';
 
 import 'package:voiceClient/constants/enums.dart';

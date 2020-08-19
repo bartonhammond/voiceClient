@@ -25,7 +25,7 @@ Future<dynamic> performMutation(
     throw result.exception;
   }
 
-  return result.data['upload'];
+  return result.data['uploadFile'];
 }
 
 MultipartFile getMultipartFile(

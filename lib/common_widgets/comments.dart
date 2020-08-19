@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
+import 'package:voiceClient/services/host.dart';
 
 class Comments extends StatelessWidget {
   const Comments(
@@ -27,7 +28,7 @@ class Comments extends StatelessWidget {
           children: <Widget>[
             PlayerWidget(
               key: Key("playWidget${comment['id']}"),
-              url: comment['audio'],
+              url: host(comment['audio']),
               showSlider: false,
             ),
           ],
@@ -82,6 +83,8 @@ class Comments extends StatelessWidget {
       _comments.add(_getCommentDetail(comments[i], fontSize));
       if (i < comments.length - 1) {
         _comments.add(Divider(
+          indent: 50,
+          endIndent: 50,
           thickness: 3.0,
         ));
       }

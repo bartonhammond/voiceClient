@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
+import 'package:voiceClient/services/host.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 
 import 'comments.dart';
 
@@ -26,6 +30,7 @@ class StaggeredGridTileStory extends StatefulWidget {
 }
 
 class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
+  bool showComments = false;
   Future<void> callBack() async {
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
@@ -42,22 +47,55 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   }
 
   Widget buildFriend() {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _width = 100;
+    int _height = 200;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 50;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 50;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 50;
+        break;
+      default:
+        _width = _height = 100;
+    }
+
     final DateTime dt = DateTime.parse(widget.story['created']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
 
     return Card(
+      shadowColor: Colors.white,
       child: Column(
         children: <Widget>[
           Center(
             child: GestureDetector(
-              onTap: () {},
+              onTap: () {
+                widget.onPush(
+                  <String, dynamic>{
+                    'id': widget.story['id'],
+                    'onFinish': callBack
+                  },
+                );
+              },
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(35.0),
+                borderRadius: BorderRadius.circular(25.0),
                 child: FadeInImage.memoryNetwork(
-                  height: 35,
-                  width: 35,
+                  height: _height.toDouble(),
+                  width: _width.toDouble(),
                   placeholder: kTransparentImage,
-                  image: widget.story['user']['image'],
+                  image: host(
+                    widget.story['user']['image'],
+                    width: _width,
+                    height: _height,
+                    resizingType: 'fill',
+                    enlarge: 1,
+                  ),
                 ),
               ),
             ),
@@ -70,6 +108,9 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             df.format(dt),
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
           ),
+          SizedBox(
+            height: 7.toDouble(),
+          ),
         ],
       ),
     );
@@ -77,51 +118,106 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   @override
   Widget build(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _width = 100;
+    int _height = 100;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 200;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 250;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 250;
+        break;
+      default:
+        _width = _height = 100;
+    }
+
     final DateTime dt = DateTime.parse(widget.story['created']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
     return Card(
-      child: Column(
-        children: <Widget>[
-          Stack(
-            children: <Widget>[
-              Center(
-                child: GestureDetector(
-                  onTap: () {
-                    widget.onPush(<String, dynamic>{
-                      'id': widget.story['id'],
-                      'onFinish': callBack
-                    });
-                  },
-                  child: FadeInImage.memoryNetwork(
-                    placeholder: kTransparentImage,
-                    image: widget.story['image'],
+      shadowColor: Colors.black,
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () {
+          widget.onPush(<String, dynamic>{
+            'id': widget.story['id'],
+            'onFinish': callBack
+          });
+        },
+        child: Column(
+          children: <Widget>[
+            InkWell(
+              onTap: () {
+                widget.onPush(<String, dynamic>{
+                  'id': widget.story['id'],
+                  'onFinish': callBack
+                });
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(25.0),
+                child: FadeInImage.memoryNetwork(
+                  placeholder: kTransparentImage,
+                  image: host(
+                    widget.story['image'],
+                    width: _width,
+                    height: _height,
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Column(
-                  children: <Widget>[
-                    PlayerWidget(
-                        key: Key("playWidget${widget.story['id']}"),
-                        url: widget.story['audio']),
-                  ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Column(
+                children: <Widget>[
+                  PlayerWidget(
+                    key: Key("playWidget${widget.story['id']}"),
+                    url: host(
+                      widget.story['audio'],
+                    ),
+                    width: _width,
+                  ),
+                ],
+              ),
+            ),
+            widget.showFriend
+                ? buildFriend()
+                : Text(
+                    df.format(dt),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                  ),
+            SizedBox(
+              height: 7.toDouble(),
+            ),
+            InkWell(
+                child: Text(
+                  Strings.gridStoryShowCommentsText
+                      .plural(widget.story['comments'].length),
+                  style: TextStyle(
+                    color: Color(0xff00bcd4),
+                    fontSize: 16.0,
+                  ),
                 ),
-              )
-            ],
-          ),
-          widget.showFriend
-              ? buildFriend()
-              : Text(
-                  df.format(dt),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-                ),
-          Comments(
-            key: Key(Keys.commentsWidgetExpansionTile),
-            story: widget.story,
-            fontSize: 12,
-          ),
-        ],
+                onTap: () {
+                  setState(() {
+                    showComments = !showComments;
+                  });
+                }),
+            showComments
+                ? Comments(
+                    key: Key(
+                        '${Keys.commentsWidgetExpansionTile}-${widget.story["id"]}'),
+                    story: widget.story,
+                    fontSize: 12,
+                  )
+                : Container(),
+          ],
+        ),
       ),
     );
   }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import 'package:voiceClient/constants/transparent_image.dart';
+import 'package:voiceClient/services/host.dart';
 
 class StaggeredGridTileFriend extends StatelessWidget {
   const StaggeredGridTileFriend({
@@ -25,36 +26,79 @@ class StaggeredGridTileFriend extends StatelessWidget {
       default:
         _fontSize = 16;
     }
+    int _width = 100;
+    int _height = 200;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 50;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 50;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 50;
+        break;
+      default:
+        _width = _height = 100;
+    }
+
     return Card(
-      child: Column(
-        children: <Widget>[
-          Center(
-            child: GestureDetector(
-              onTap: () {
-                onPush(<String, dynamic>{
-                  'id': friend['id'],
-                });
-              },
-              child: FadeInImage.memoryNetwork(
-                placeholder: kTransparentImage,
-                image: friend['image'],
+      shadowColor: Colors.white,
+      child: GestureDetector(
+        onTap: () {
+          if (onPush != null) {
+            onPush(<String, dynamic>{
+              'id': friend['id'],
+            });
+          }
+        },
+        child: Column(
+          children: <Widget>[
+            Center(
+              child: InkWell(
+                onTap: () {
+                  if (onPush != null) {
+                    onPush(<String, dynamic>{
+                      'id': friend['id'],
+                    });
+                  }
+                },
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(25.0),
+                  child: FadeInImage.memoryNetwork(
+                    height: _height.toDouble(),
+                    width: _width.toDouble(),
+                    placeholder: kTransparentImage,
+                    image: host(
+                      friend['image'],
+                      width: _width,
+                      height: _height,
+                      resizingType: 'fill',
+                      enlarge: 1,
+                    ),
+                  ),
+                ),
               ),
             ),
-          ),
-          Text(
-            friend['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-          ),
-          Text(
-            friend['home'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-          ),
-          Text(
-            friend['birth'].toString(),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-          ),
-          friendButton
-        ],
+            Text(
+              friend['name'],
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
+            ),
+            Text(
+              friend['home'],
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
+            ),
+            Text(
+              friend['birth'].toString(),
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
+            ),
+            friendButton
+          ],
+        ),
       ),
     );
   }

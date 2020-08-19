@@ -8,6 +8,7 @@ import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
@@ -21,6 +22,7 @@ import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
@@ -34,6 +36,7 @@ class StoryPage extends StatefulWidget {
 }
 
 class _StoryPageState extends State<StoryPage> {
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _image;
   io.File _audio;
   bool _uploadInProgress = false;
@@ -61,10 +64,7 @@ class _StoryPageState extends State<StoryPage> {
    * Not sure why GraphQLProvider wouldn't work here....
    */
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
-    const port = '4001';
-    const endPoint = 'graphql';
-    const url = 'http://192.168.1.39'; //HP
-    const uri = '$url:$port/$endPoint';
+    final uri = graphQLAuth.getHttpLinkUri(type);
     final httpLink = HttpLink(uri: uri);
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
@@ -191,156 +191,181 @@ class _StoryPageState extends State<StoryPage> {
   }
 
   Widget _buildPage(BuildContext context) {
-    return Center(
-      child: ListView(
-        shrinkWrap: true,
-        children: <Widget>[
-          Card(
-            margin: EdgeInsets.all(10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (widget.params != null &&
-                    widget.params['id'] != null &&
-                    widget.params['id'].isNotEmpty)
-                  FadeInImage.memoryNetwork(
-                    height: 300,
-                    width: 300,
-                    placeholder: kTransparentImage,
-                    image:
-                        'http://192.168.1.39:4002/storage/${widget.params['id']}.jpg',
-                  )
-                else if (_image != null)
-                  Flexible(
-                    flex: 2,
-                    child: Image.file(
-                      _image,
-                      width: 300,
-                      height: 300,
-                    ),
-                  )
-                else
-                  Flexible(
-                    flex: 2,
-                    child: Stack(
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _width = 100;
+    int _height = 200;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 550;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 200;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 300;
+        break;
+      default:
+        _width = _height = 100;
+    }
+
+    return SingleChildScrollView(
+      child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Card(
+              margin: EdgeInsets.all(0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  if (widget.params != null &&
+                      widget.params['id'] != null &&
+                      widget.params['id'].isNotEmpty)
+                    Container(
+                        margin: EdgeInsets.all(0),
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25.0),
+                            child: FadeInImage.memoryNetwork(
+                              height: _height.toDouble(),
+                              width: _width.toDouble(),
+                              placeholder: kTransparentImage,
+                              image:
+                                  host('/storage/${widget.params['id']}.jpg)'),
+                            )))
+                  else if (_image != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(75.0),
+                      child: Image.file(
+                        _image,
+                        width: _width.toDouble(),
+                        height: _height.toDouble(),
+                      ),
+                    )
+                  else
+                    Stack(
                       children: <Widget>[
                         Image(
                           image: AssetImage('assets/placeholder.png'),
-                          width: 300,
-                          height: 300,
+                          width: _width.toDouble(),
+                          height: _height.toDouble(),
                         ),
-                        Container(
-                          height: 300,
-                          width: 300,
-                          padding: EdgeInsets.all(5.0),
-                          alignment: Alignment.topCenter,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: <Color>[
-                                Colors.black.withAlpha(30),
-                                Colors.black12,
-                                Colors.black54
-                              ],
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(25.0),
+                          child: Container(
+                            height: _height.toDouble(),
+                            width: _width.toDouble(),
+                            padding: EdgeInsets.all(5.0),
+                            alignment: Alignment.topCenter,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: <Color>[
+                                  Colors.black.withAlpha(30),
+                                  Colors.black12,
+                                  Colors.black54
+                                ],
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            Strings.imagePlaceholder.i18n,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w700,
+                            child: Text(
+                              Strings.imagePlaceholder.i18n,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 20.0,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         )
                       ],
                     ),
+                  SizedBox(
+                    height: 8,
                   ),
-                SizedBox(
-                  height: 8,
-                ),
-                widget.params == null ||
-                        widget.params['id'] == null ||
-                        widget.params['id'].isEmpty
-                    ? Text(
-                        Strings.imageSelection.i18n,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )
-                    : SizedBox(
-                        height: 0,
-                      ),
-                SizedBox(
-                  height: 8,
-                ),
-                _buildImageControls(),
-                SizedBox(
-                  height: 8,
-                ),
-                widget.params == null ||
-                        widget.params['id'] == null ||
-                        widget.params['id'].isEmpty
-                    ? Text(
-                        Strings.audioControls.i18n,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      )
-                    : SizedBox(
-                        height: 0,
-                      ),
-                widget.params == null ||
-                        widget.params['id'] == null ||
-                        widget.params['id'].isEmpty
-                    ? SizedBox(
-                        height: 8,
-                      )
-                    : SizedBox(
-                        height: 0,
-                      ),
-                RecorderWidget(
-                  id: UniqueKey().toString(),
-                  setAudioFile: setAudioFile,
-                ),
-                TagsWidget(
-                  tags: _tags,
-                  height: 50,
-                ),
-                Container(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      children: <Widget>[
-                        Text(Strings.showAllTags.i18n,
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold)),
-                        Checkbox(
-                          value: _showAllTags,
-                          onChanged: (bool show) {
-                            if (show) {
-                              _allTags.forEach(_tags.add);
-                            } else {
-                              _allTags.forEach(_tags.remove);
-                            }
+                  widget.params == null ||
+                          widget.params['id'] == null ||
+                          widget.params['id'].isEmpty
+                      ? Text(
+                          Strings.imageSelection.i18n,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      : SizedBox(
+                          height: 0,
+                        ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  if (_image != null && _audio != null)
+                    _buildUploadButton(context),
+                  if (_image != null && _audio != null)
+                    SizedBox(
+                      height: 8,
+                    ),
+                  _buildImageControls(),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  widget.params == null ||
+                          widget.params['id'] == null ||
+                          widget.params['id'].isEmpty
+                      ? Text(
+                          Strings.audioControls.i18n,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        )
+                      : SizedBox(
+                          height: 0,
+                        ),
+                  widget.params == null ||
+                          widget.params['id'] == null ||
+                          widget.params['id'].isEmpty
+                      ? SizedBox(
+                          height: 8,
+                        )
+                      : SizedBox(
+                          height: 0,
+                        ),
+                  RecorderWidget(
+                    id: UniqueKey().toString(),
+                    setAudioFile: setAudioFile,
+                  ),
+                  TagsWidget(
+                    tags: _tags,
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Container(
+                      padding: EdgeInsets.all(20),
+                      child: Column(
+                        children: <Widget>[
+                          Text(Strings.showAllTags.i18n,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold)),
+                          Checkbox(
+                            value: _showAllTags,
+                            onChanged: (bool show) {
+                              if (show) {
+                                _allTags.forEach(_tags.add);
+                              } else {
+                                _allTags.forEach(_tags.remove);
+                              }
 
-                            setState(() {
-                              _showAllTags = show;
-                            });
-                          },
-                        ),
-                        Divider(
-                          color: Colors.blueGrey,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                          child: Text(''),
-                        ),
-                      ],
-                    )),
-                if (_image != null && _audio != null)
-                  _buildUploadButton(context)
-              ],
-            ),
-          ),
-        ],
-      ),
+                              setState(() {
+                                _showAllTags = show;
+                              });
+                            },
+                          ),
+                          Divider(
+                            color: Colors.blueGrey,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20),
+                            child: Text(''),
+                          ),
+                        ],
+                      )),
+                ],
+              ))),
     );
   }
 

@@ -20,6 +20,7 @@ import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
@@ -93,6 +94,24 @@ class _StoryPlayState extends State<StoryPlay> {
   }
 
   Widget buildFriend(Map<String, dynamic> story) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _width = 100;
+    int _height = 200;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 50;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 50;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 50;
+        break;
+      default:
+        _width = _height = 100;
+    }
     return Card(
       margin: EdgeInsets.all(10),
       child: Column(
@@ -101,15 +120,17 @@ class _StoryPlayState extends State<StoryPlay> {
             height: 5,
           ),
           Center(
-            child: GestureDetector(
-              onTap: () {},
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: FadeInImage.memoryNetwork(
-                  height: 75,
-                  placeholder: kTransparentImage,
-                  image: story['user']['image'],
-                ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(25.0),
+              child: FadeInImage.memoryNetwork(
+                height: _height.toDouble(),
+                width: _width.toDouble(),
+                placeholder: kTransparentImage,
+                image: host(story['user']['image'],
+                    width: _width,
+                    height: _height,
+                    resizingType: 'fill',
+                    enlarge: 1),
               ),
             ),
           ),
@@ -204,21 +225,6 @@ class _StoryPlayState extends State<StoryPlay> {
   }
 
   Widget _buildPage(BuildContext context) {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int imageHeight = 200;
-    int spacer = 8;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-        imageHeight = 400;
-        spacer = 20;
-        break;
-
-      default:
-        imageHeight = 200;
-        spacer = 8;
-    }
     final tags = <String>[];
     final List<dynamic> hashtags = story['hashtags'];
     for (var tag in hashtags) {
@@ -228,49 +234,96 @@ class _StoryPlayState extends State<StoryPlay> {
         child: ListView(
       shrinkWrap: true,
       children: <Widget>[
-        getCard(tags, imageHeight, spacer),
+        getCard(tags),
       ],
     ));
   }
 
-  Widget getCard(List<String> tags, int imageHeight, int spacer) {
+  Widget getCard(
+    List<String> tags,
+  ) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _width = 200;
+    int _height = 200;
+    const _spacer = 10;
+
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 750;
+
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 250;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 300;
+        break;
+      default:
+        _width = _height = 100;
+    }
     return Card(
         margin: EdgeInsets.all(10),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             buildFriend(story),
-            SizedBox(
-              height: spacer.toDouble(),
+            Container(
+              margin: EdgeInsets.all(10),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(25.0),
+                child: FadeInImage.memoryNetwork(
+                  placeholder: kTransparentImage,
+                  image: host(
+                    story['image'],
+                    width: _width,
+                    height: _height,
+                  ),
+                ),
+              ),
             ),
-            FadeInImage.memoryNetwork(
-              height: imageHeight.toDouble(),
-              placeholder: kTransparentImage,
-              image: story['image'],
-            ),
             SizedBox(
-              height: spacer.toDouble(),
+              height: _spacer.toDouble(),
             ),
             PlayerWidget(
-              url: story['audio'],
+              url: host(story['audio']),
+              width: _width,
             ),
             Divider(
-              height: spacer.toDouble(),
+              indent: 50,
+              endIndent: 50,
+              height: _spacer.toDouble(),
               thickness: 5,
             ),
-            Text('Tags',
+            SizedBox(
+              height: _spacer.toDouble(),
+            ),
+            Text(Strings.tagsLabel.i18n,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 )),
-            TagsWidget(tags: tags, height: 50, updatedAble: false),
+            TagsWidget(
+              tags: tags,
+              updatedAble: false,
+            ),
             SizedBox(
-              height: spacer.toDouble(),
+              height: 8,
+            ),
+            Divider(
+              indent: 50,
+              endIndent: 50,
+              height: _spacer.toDouble(),
+              thickness: 5,
+            ),
+            SizedBox(
+              height: _spacer.toDouble(),
             ),
             Text(Strings.recordAComment.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             SizedBox(
-              height: spacer.toDouble(),
+              height: _spacer.toDouble(),
             ),
             RecorderWidget(
               id: story['id'],
@@ -279,7 +332,9 @@ class _StoryPlayState extends State<StoryPlay> {
             ),
             if (_audio != null) _buildUploadButton(context),
             Divider(
-              height: spacer.toDouble(),
+              indent: 50,
+              endIndent: 50,
+              height: _spacer.toDouble(),
               thickness: 5,
             ),
             Text(Strings.commentsLabel.i18n,

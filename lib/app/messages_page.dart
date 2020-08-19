@@ -146,7 +146,8 @@ class _MessagesPageState extends State<MessagesPage> {
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
                 List<dynamic> messages = <dynamic>[];
-                if (result.data['User'][0]['messages']['from'].length != 0) {
+                if (result.data['User'].length > 0 &&
+                    result.data['User'][0]['messages']['from'].length > 0) {
                   messages = List<dynamic>.from(
                       result.data['User'][0]['messages']['from']);
                 }

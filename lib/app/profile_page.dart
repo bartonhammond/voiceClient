@@ -8,6 +8,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:responsive_builder/responsive_builder.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
@@ -16,12 +17,13 @@ import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 
-class ProfilePageOther extends StatefulWidget {
-  const ProfilePageOther({
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({
     Key key,
     this.id,
     this.onPush,
@@ -30,15 +32,16 @@ class ProfilePageOther extends StatefulWidget {
   final String id;
 
   @override
-  _FormWidgetsDemoState createState() => _FormWidgetsDemoState();
+  _ProfilePageState createState() => _ProfilePageState();
 }
 
-class _FormWidgetsDemoState extends State<ProfilePageOther> {
+class _ProfilePageState extends State<ProfilePage> {
   final _formKey = GlobalKey<FormState>();
   String userId = '';
   String name = '';
   String cityState = '';
   int birthYear = 2020;
+
   Map<String, dynamic> user;
   io.File _image;
   bool imageUpdated = false;
@@ -46,6 +49,10 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
   final picker = ImagePicker();
   bool _uploadInProgress = false;
   bool formReady = false;
+
+  TextEditingController nameFormFieldController;
+  TextEditingController homeFormFieldController;
+  TextEditingController birthFormFieldController;
   @override
   void initState() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -55,8 +62,18 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
       name = user['name'];
       cityState = user['home'];
       birthYear = user['birth'];
+      nameFormFieldController = TextEditingController(text: name);
+      homeFormFieldController = TextEditingController(text: cityState);
+      birthFormFieldController =
+          TextEditingController(text: birthYear.toString());
     });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameFormFieldController.dispose();
+    super.dispose();
   }
 
   Future selectImage(ImageSource source) async {
@@ -113,29 +130,51 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
   }
 
   Widget _buildImageControls() {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _fontSize = 16;
+    int _size = 15;
+    int _width = 8;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+      case DeviceScreenType.mobile:
+        break;
+      case DeviceScreenType.watch:
+        _size = 15;
+        _width = 8;
+        _fontSize = 12;
+        break;
+
+      default:
+    }
     return Flexible(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           CustomRaisedButton(
+            fontSize: _fontSize.toDouble(),
             key: Key(Keys.storyPageGalleryButton),
             text: Strings.galleryImageButton.i18n,
             icon: Icon(
               Icons.photo_library,
               color: Colors.white,
+              size: _size.toDouble(),
             ),
             onPressed: () => selectImage(ImageSource.gallery),
           ),
           SizedBox(
-            width: 8,
+            width: _width.toDouble(),
           ),
           CustomRaisedButton(
+            fontSize: _fontSize.toDouble(),
             key: Key(Keys.storyPageCameraButton),
             text: Strings.cameraImageButton.i18n,
             icon: Icon(
               Icons.camera,
               color: Colors.white,
+              size: _size.toDouble(),
             ),
             onPressed: () => selectImage(ImageSource.camera),
           ),
@@ -145,30 +184,82 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
   }
 
   Widget _buildUploadButton(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _fontSize = 16;
+    int _size = 20;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+      case DeviceScreenType.mobile:
+        break;
+      case DeviceScreenType.watch:
+        _size = 20;
+        _fontSize = 12;
+        break;
+
+      default:
+    }
     return _uploadInProgress
         ? CircularProgressIndicator()
-        : CustomRaisedButton(
-            key: Key(Keys.profilePageUploadButton),
-            icon: Icon(
-              Icons.file_upload,
-              color: Colors.white,
-            ),
-            text: Strings.upload.i18n,
-            onPressed: !formReady
-                ? null
-                : () async {
-                    if (_formKey.currentState.validate()) {
-                      _formKey.currentState.save();
-                      setState(() {
-                        _uploadInProgress = true;
-                      });
-                      await doUploads(context);
-                      setState(() {
-                        formReady = false;
-                        _uploadInProgress = false;
-                      });
-                    }
-                  },
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomRaisedButton(
+                fontSize: _fontSize.toDouble(),
+                key: Key(Keys.profilePageCancelButton),
+                icon: Icon(
+                  Icons.file_upload,
+                  color: Colors.white,
+                  size: _size.toDouble(),
+                ),
+                text: Strings.cancel.i18n,
+                onPressed: !formReady
+                    ? null
+                    : () async {
+                        setState(() {
+                          userId = user['id'];
+                          name = user['name'];
+                          cityState = user['home'];
+                          birthYear = user['birth'];
+                          nameFormFieldController.text = name;
+                          homeFormFieldController.text = cityState;
+                          birthFormFieldController.text = birthYear.toString();
+                          _image = null;
+                          formReady = false;
+                          _uploadInProgress = false;
+                        });
+                      },
+              ),
+              SizedBox(
+                width: 15,
+              ),
+              CustomRaisedButton(
+                fontSize: _fontSize.toDouble(),
+                key: Key(Keys.profilePageUploadButton),
+                icon: Icon(
+                  Icons.file_upload,
+                  color: Colors.white,
+                  size: _size.toDouble(),
+                ),
+                text: Strings.upload.i18n,
+                onPressed: !formReady
+                    ? null
+                    : () async {
+                        if (_formKey.currentState.validate()) {
+                          _formKey.currentState.save();
+                          setState(() {
+                            _uploadInProgress = true;
+                          });
+                          await doUploads(context);
+                          setState(() {
+                            formReady = false;
+                            _uploadInProgress = false;
+                          });
+                        }
+                      },
+              )
+            ],
           );
   }
 
@@ -214,6 +305,28 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
 
   @override
   Widget build(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _width = 100;
+    int _height = 200;
+    int _formFieldWidth = 100;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 50;
+        _formFieldWidth = 500;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 50;
+        _formFieldWidth = 300;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 80;
+        _formFieldWidth = 400;
+        break;
+      default:
+        _width = _height = 100;
+    }
     return Scaffold(
       drawer: getDrawer(context),
       appBar: AppBar(
@@ -223,22 +336,37 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
       body: Form(
         key: _formKey,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
+            SizedBox(
+              height: 7.0,
+            ),
             if (_image != null)
-              Container(
-                height: 150,
-                child: Image.file(_image),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(40.0),
+                child: Image.file(
+                  _image,
+                  width: _width.toDouble(),
+                  height: _height.toDouble(),
+                ),
               )
             else if (userId != null &&
                 userId.isNotEmpty &&
                 user != null &&
                 user['image'] != null)
-              Container(
-                height: 150,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(25.0),
                 child: FadeInImage.memoryNetwork(
-                  height: 300,
+                  height: _width.toDouble(),
+                  width: _width.toDouble(),
                   placeholder: kTransparentImage,
-                  image: user['image'],
+                  image: host(
+                    user['image'],
+                    width: _width,
+                    height: _height,
+                    resizingType: 'fill',
+                    enlarge: 1,
+                  ),
                 ),
               )
             else
@@ -291,23 +419,24 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
                 ),
               ),
             SizedBox(
-              height: 10,
+              height: 5,
             ),
             Text(
               Strings.yourPictureSelection.i18n,
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             SizedBox(
-              height: 10,
+              height: 5,
             ),
             _buildImageControls(),
             SizedBox(
-              height: 8,
+              height: 5,
             ),
             Container(
+              width: _formFieldWidth.toDouble(),
               margin: const EdgeInsets.only(right: 10, left: 10),
               child: TextFormField(
-                initialValue: name,
+                controller: nameFormFieldController,
                 decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
@@ -351,9 +480,10 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
               height: 15,
             ),
             Container(
+              width: _formFieldWidth.toDouble(),
               margin: const EdgeInsets.only(right: 10, left: 10),
               child: TextFormField(
-                initialValue: cityState,
+                controller: homeFormFieldController,
                 decoration: InputDecoration(
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(25.0),
@@ -394,9 +524,10 @@ class _FormWidgetsDemoState extends State<ProfilePageOther> {
               height: 15,
             ),
             Container(
+              width: _formFieldWidth.toDouble(),
               margin: const EdgeInsets.only(right: 10, left: 10),
               child: TextFormField(
-                initialValue: birthYear.toString(),
+                controller: birthFormFieldController,
                 keyboardType: TextInputType.number,
                 inputFormatters: <TextInputFormatter>[
                   WhitelistingTextInputFormatter.digitsOnly

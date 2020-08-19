@@ -1,6 +1,6 @@
 const String uploadFile = r'''
 mutation($file: Upload!) {
-  upload(file: $file)
+  uploadFile(file: $file)
 }
 ''';
 
