@@ -1,7 +1,15 @@
+enum Environment {
+  Test,
+  Production,
+}
+
 enum GraphQLClientType {
   FileServer,
+  Mp3Server,
   ApolloServer,
+  ImageServer,
 }
+
 enum TabItem {
   stories,
   friends,

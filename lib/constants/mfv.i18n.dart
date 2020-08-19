@@ -344,6 +344,16 @@ extension Localization on String {
         'es': 'Comentarios',
       } +
       {
+        'en': Strings.gridStoryShowCommentsText
+            .zero('No comments')
+            .one('One comment')
+            .many('%d comments'),
+        'es': 'Comentarios'
+            .zero('Sin comentarios')
+            .one('Uno comentarios')
+            .many('%d comentarios'),
+      } +
+      {
         'en': Strings.dateLabel,
         'es': 'Fecha',
       } +

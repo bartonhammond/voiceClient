@@ -12,12 +12,14 @@ class PlayerWidget extends StatefulWidget {
       {Key key,
       @required this.url,
       this.mode = PlayerMode.MEDIA_PLAYER,
-      this.showSlider = true})
+      this.showSlider = true,
+      this.width = 500})
       : super(key: key);
 
   final String url;
   final PlayerMode mode;
   final bool showSlider;
+  final int width;
 
   @override
   State<StatefulWidget> createState() {
@@ -25,15 +27,22 @@ class PlayerWidget extends StatefulWidget {
       url,
       mode,
       showSlider,
+      width,
     );
   }
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
-  _PlayerWidgetState(this.url, this.mode, this.showSlider);
+  _PlayerWidgetState(
+    this.url,
+    this.mode,
+    this.showSlider,
+    this.width,
+  );
   String url;
   PlayerMode mode;
   bool showSlider;
+  int width;
 
   AudioPlayer _audioPlayer;
 
@@ -73,27 +82,32 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         showSlider
-            ? SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  activeTrackColor: Colors.blue[700],
-                  inactiveTrackColor: Colors.blue[100],
-                  trackShape: RectangularSliderTrackShape(),
-                  trackHeight: 4.0,
-                  thumbColor: Colors.cyan,
-                  thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
-                  overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
-                ),
-                child: Slider(
-                  onChanged: (v) {
-                    final position = v * _duration.inMilliseconds;
-                    _audioPlayer.seek(Duration(milliseconds: position.round()));
-                  },
-                  value: (_position != null &&
-                          _duration != null &&
-                          _position.inMilliseconds > 0 &&
-                          _position.inMilliseconds < _duration.inMilliseconds)
-                      ? _position.inMilliseconds / _duration.inMilliseconds
-                      : 0.0,
+            ? Container(
+                margin: EdgeInsets.all(10),
+                width: width.toDouble(),
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: Colors.blue[700],
+                    inactiveTrackColor: Colors.blue[100],
+                    trackShape: RectangularSliderTrackShape(),
+                    trackHeight: 4.0,
+                    thumbColor: Colors.cyan,
+                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 8.0),
+                    overlayShape: RoundSliderOverlayShape(overlayRadius: 10.0),
+                  ),
+                  child: Slider(
+                    onChanged: (v) {
+                      final position = v * _duration.inMilliseconds;
+                      _audioPlayer
+                          .seek(Duration(milliseconds: position.round()));
+                    },
+                    value: (_position != null &&
+                            _duration != null &&
+                            _position.inMilliseconds > 0 &&
+                            _position.inMilliseconds < _duration.inMilliseconds)
+                        ? _position.inMilliseconds / _duration.inMilliseconds
+                        : 0.0,
+                  ),
                 ),
               )
             : Container(),

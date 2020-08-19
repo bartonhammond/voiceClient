@@ -108,6 +108,9 @@ class Strings {
   //Fab With Icons
   static const String incrementToolTip = 'Add Story';
 
+  //Staggered  Grid Tile Story
+  static const String gridStoryShowCommentsText = 'There are % comments';
+
   //Staggered Grid Tile Message
   static const String friendRequest = 'Friend Request';
 
@@ -119,7 +122,7 @@ class Strings {
 
   //Story play
   static const String recordAComment = 'Record a comment';
-  static const String commentsLabel = 'Comments';
+  static const String commentsLabel = 'CommentsLabel';
 
   //Stories Page
   static const String dateLabel = 'Date';

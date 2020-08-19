@@ -64,46 +64,37 @@ class _TagsWidgetState extends State<TagsWidget> {
   Widget build(BuildContext context) {
     const ItemTagsCombine combine = ItemTagsCombine.onlyText;
     return Container(
-      height: widget.height,
-      child: ListView(
-        shrinkWrap: true,
-        padding: const EdgeInsets.all(8.0),
-        children: <Widget>[
-          Container(
-            child: Tags(
-              key: Key('tags'),
-              symmetry: false,
-              columns: 4,
-              horizontalScroll: false,
-              verticalDirection: VerticalDirection.up,
-              textDirection: TextDirection.rtl,
-              heightHorizontalScroll: 60 * (widget.fontSize / 14),
-              textField: getTextField(),
-              itemCount: widget.tags.length,
-              itemBuilder: (index) {
-                final String item = widget.tags[index];
+      child: Tags(
+        key: Key('tags'),
+        symmetry: false,
+        columns: 4,
+        horizontalScroll: false,
+        verticalDirection: VerticalDirection.up,
+        textDirection: TextDirection.rtl,
+        heightHorizontalScroll: 60 * (widget.fontSize / 14),
+        textField: getTextField(),
+        itemCount: widget.tags.length,
+        itemBuilder: (index) {
+          final String item = widget.tags[index];
 
-                return GestureDetector(
-                    child: ItemTags(
-                  key: Key(index.toString()),
-                  index: index,
-                  title: item,
-                  pressEnabled: false,
-                  activeColor: Color(0xff00bcd4),
-                  combine: combine,
-                  image: null,
-                  icon: null,
-                  removeButton: getRemoveButton(index),
-                  textScaleFactor:
-                      utf8.encode(item.substring(0, 1)).length > 2 ? 0.8 : 1,
-                  textStyle: TextStyle(
-                    fontSize: widget.fontSize,
-                  ),
-                ));
-              },
+          return GestureDetector(
+              child: ItemTags(
+            key: Key(index.toString()),
+            index: index,
+            title: item,
+            pressEnabled: false,
+            activeColor: Color(0xff00bcd4),
+            combine: combine,
+            image: null,
+            icon: null,
+            removeButton: getRemoveButton(index),
+            textScaleFactor:
+                utf8.encode(item.substring(0, 1)).length > 2 ? 0.8 : 1,
+            textStyle: TextStyle(
+              fontSize: widget.fontSize,
             ),
-          ),
-        ],
+          ));
+        },
       ),
     );
   }

@@ -1,19 +1,14 @@
 import 'package:graphql/client.dart';
 import 'package:voiceClient/constants/enums.dart';
+import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/service_locator.dart';
+
+final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
 GraphQLClient getGraphQLClient(GraphQLClientType type) {
-  var port = '4003'; //this one is not secured
-  var endPoint = 'graphql';
+  final String uri = graphQLAuth.getHttpLinkUri(type);
 
-  const uri = 'http://192.168.1.39'; //HP
-
-  if (type == GraphQLClientType.FileServer) {
-    port = '4002';
-    endPoint = 'query';
-  }
-  final httpLink = HttpLink(
-    uri: '$uri:$port/$endPoint',
-  );
+  final httpLink = HttpLink(uri: uri);
 
   final GraphQLClient graphQLClient = GraphQLClient(
     cache: InMemoryCache(),

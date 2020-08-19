@@ -12,12 +12,44 @@ import 'auth_service.dart';
 class GraphQLAuth {
   GraphQLAuth(this.context);
   final BuildContext context;
-  var port = '4001';
-  var endPoint = 'graphql';
-  var url = 'http://192.168.1.39'; //HP
   User user;
   String token;
   String currentUserId;
+
+  Environment environment = Environment.Production;
+  String ngrok4002 = 'http://30a27584bb7e.ngrok.io';
+  String ngrok4001 = 'http://41fb5b70a8cd.ngrok.io';
+  String ngrok8080 = 'http://ce47444c0b2b.ngrok.io';
+  String hp = 'http://192.168.1.234';
+
+  String getHttpLinkUri(GraphQLClientType type) {
+    const String endPoint = 'graphql';
+    if (environment == Environment.Production) {
+      switch (type) {
+        case GraphQLClientType.FileServer:
+          return '$ngrok4002/$endPoint';
+        case GraphQLClientType.Mp3Server:
+          return '$ngrok4002';
+        case GraphQLClientType.ApolloServer:
+          return '$ngrok4001/$endPoint';
+        case GraphQLClientType.ImageServer:
+          return ngrok8080;
+      }
+    } else {
+      switch (type) {
+        case GraphQLClientType.FileServer:
+          return '$hp:4002/$endPoint';
+        case GraphQLClientType.Mp3Server:
+          return '$hp:4002';
+        case GraphQLClientType.ApolloServer:
+          return '$hp:4001/$endPoint';
+        case GraphQLClientType.ImageServer:
+          return '$hp:8080';
+      }
+    }
+    throw Exception('invalid parameter: $type');
+  }
+
   Map<String, dynamic> _userMap;
 
   Map<String, dynamic> getUserMap() {
@@ -41,12 +73,8 @@ class GraphQLAuth {
   }
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
-    if (type == GraphQLClientType.FileServer) {
-      //url = 'https://b93ca6524d05.ngrok.io';
-      port = '4002';
-      endPoint = 'query';
-    }
-    final uri = '$url:$port/$endPoint';
+    final String uri = getHttpLinkUri(type);
+
     final httpLink = HttpLink(uri: uri);
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
