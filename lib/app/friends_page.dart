@@ -33,6 +33,10 @@ class Debouncer {
     _timer = Timer(Duration(milliseconds: milliseconds), action);
     return;
   }
+
+  void stop() {
+    _timer.cancel();
+  }
 }
 
 class FriendsPage extends StatefulWidget {
@@ -77,6 +81,12 @@ class _FriendsPageState extends State<FriendsPage> {
     _searchString = '*';
     _typeUser = TypeUser.friends;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _debouncer.stop();
+    super.dispose();
   }
 
   Future<List<dynamic>> _getAllNewFriendRequestsToMe(

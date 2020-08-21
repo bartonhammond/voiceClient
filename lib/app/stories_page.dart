@@ -142,12 +142,12 @@ class _StoriesPageState extends State<StoriesPage> {
     if (getId() == null) {
       _resultTypes = ResultTypes(
         TypeStoriesView.allFriends,
-        TypeSearch.hashtag,
+        TypeSearch.date,
       );
     } else {
       _resultTypes = ResultTypes(
         TypeStoriesView.oneFriend,
-        TypeSearch.hashtag,
+        TypeSearch.date,
       );
     }
   }

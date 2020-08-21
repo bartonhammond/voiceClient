@@ -21,6 +21,7 @@ class Keys {
   static const String storyPagePlayButton = 'storyPagePlayButton';
   static const String profilePageUploadButton = 'profilePageUploadButton';
   static const String profilePageCancelButton = 'profilePageCancelButton';
+  static const String tagsWidet = 'tagsWidget';
   static const String commentsWidgetExpansionTile =
       'commentsWidgetExpansionTile';
   static const String commentsUploadButton = 'commentsUploadButton';
