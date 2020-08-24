@@ -12,8 +12,7 @@ import 'package:uuid/uuid.dart';
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/image_controls.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
-import 'package:voiceClient/common_widgets/tags.dart';
-import 'package:voiceClient/constants/constants.dart';
+
 import 'package:voiceClient/constants/enums.dart';
 
 import 'package:voiceClient/constants/keys.dart';
@@ -90,6 +89,7 @@ class _StoryPageState extends State<StoryPage> {
   }
 
   Widget _buildPage(BuildContext context) {
+    bool _showAllTags = false;
     final ImageControls _imageControls =
         ImageControls(onImageSelected: (File croppedFile) {
       setState(() {
@@ -232,10 +232,39 @@ class _StoryPageState extends State<StoryPage> {
                 id: UniqueKey().toString(),
                 setAudioFile: setAudioFile,
               ),
-              TagsWidget(
-                allTags: _allTags,
-                tags: _tags,
+              SizedBox(
+                height: 8,
               ),
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  children: <Widget>[
+                    Text(Strings.showAllTags.i18n,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    Checkbox(
+                      value: _showAllTags,
+                      onChanged: (bool show) {
+                        if (show) {
+                          _allTags.forEach(_tags.add);
+                        } else {
+                          _allTags.forEach(_tags.remove);
+                        }
+                        setState(() {
+                          _showAllTags = show;
+                        });
+                      },
+                    ),
+                    Divider(
+                      color: Colors.blueGrey,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Text(''),
+                    ),
+                  ],
+                ),
+              )
             ],
           ),
         ),

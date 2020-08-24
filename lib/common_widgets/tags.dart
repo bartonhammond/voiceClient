@@ -6,44 +6,28 @@ import 'package:flutter_tags/flutter_tags.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 
-class TagsWidget extends StatefulWidget {
-  const TagsWidget(
-      {Key key,
-      @required this.allTags,
-      @required this.tags,
-      this.fontSize = 16,
-      this.height = 200,
-      this.updatedAble = true})
-      : super(key: key);
-  final List<String> allTags;
-  final List<String> tags;
-  final double fontSize;
-  final double height;
-  final bool updatedAble;
-  static final tagsWidgetKey = GlobalKey<_TagsWidgetState>();
-  @override
-  _TagsWidgetState createState() => _TagsWidgetState();
-}
-
-class _TagsWidgetState extends State<TagsWidget> {
-  bool _showAllTags = false;
-
+Widget getTags({
+  @required List<String> allTags,
+  @required List<String> tags,
+  @required void Function(String) onTagAdd,
+  @required void Function(int) onTagRemove,
+  double fontSize = 16,
+  double height = 200,
+  bool updatedAble = true,
+  FocusNode focusNode,
+}) {
   TagsTextField getTextField() {
-    if (widget.updatedAble) {
+    if (updatedAble) {
       return TagsTextField(
         autofocus: false,
         hintText: Strings.addTagHere.i18n,
         textStyle: TextStyle(
-          fontSize: widget.fontSize,
+          fontSize: fontSize,
         ),
         enabled: true,
         constraintSuggestion: false,
         suggestions: null,
-        onSubmitted: (String str) {
-          setState(() {
-            widget.tags.add(str);
-          });
-        },
+        onSubmitted: onTagAdd,
       );
     } else {
       return null;
@@ -51,98 +35,46 @@ class _TagsWidgetState extends State<TagsWidget> {
   }
 
   ItemTagsRemoveButton getRemoveButton(int index) {
-    if (widget.updatedAble) {
+    if (updatedAble) {
       return ItemTagsRemoveButton(
-        backgroundColor: Colors.black,
-        onRemoved: () {
-          setState(() {
-            widget.tags.removeAt(index);
+          backgroundColor: Colors.black,
+          onRemoved: () {
+            onTagRemove(index);
+            return true;
           });
-          return true;
-        },
-      );
     }
     return null;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    const ItemTagsCombine combine = ItemTagsCombine.onlyText;
+  return Tags(
+    key: Key('tags'),
+    symmetry: false,
+    columns: 4,
+    horizontalScroll: false,
+    verticalDirection: VerticalDirection.up,
+    textDirection: TextDirection.rtl,
+    heightHorizontalScroll: 60 * (fontSize / 14),
+    textField: getTextField(),
+    itemCount: tags.length,
+    itemBuilder: (index) {
+      final String item = tags[index];
 
-    return Card(
-      margin: EdgeInsets.all(0),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            child: Tags(
-              symmetry: false,
-              columns: 4,
-              horizontalScroll: false,
-              verticalDirection: VerticalDirection.up,
-              textDirection: TextDirection.rtl,
-              heightHorizontalScroll: 60 * (widget.fontSize / 14),
-              textField: getTextField(),
-              itemCount: widget.tags.length,
-              itemBuilder: (index) {
-                final String item = widget.tags[index];
-
-                return GestureDetector(
-                    child: ItemTags(
-                  key: Key(index.toString()),
-                  index: index,
-                  title: item,
-                  pressEnabled: false,
-                  activeColor: Color(0xff00bcd4),
-                  combine: combine,
-                  image: null,
-                  icon: null,
-                  removeButton: getRemoveButton(index),
-                  textScaleFactor:
-                      utf8.encode(item.substring(0, 1)).length > 2 ? 0.8 : 1,
-                  textStyle: TextStyle(
-                    fontSize: widget.fontSize,
-                  ),
-                ));
-              },
-            ),
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: <Widget>[
-                Text(Strings.showAllTags.i18n,
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Checkbox(
-                  value: _showAllTags,
-                  onChanged: (bool show) {
-                    if (show) {
-                      widget.allTags.forEach(widget.tags.add);
-                    } else {
-                      widget.allTags.forEach(widget.tags.remove);
-                    }
-
-                    setState(() {
-                      _showAllTags = show;
-                    });
-                  },
-                ),
-                Divider(
-                  color: Colors.blueGrey,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Text(''),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+      return GestureDetector(
+          child: ItemTags(
+        key: Key(index.toString()),
+        index: index,
+        title: item,
+        pressEnabled: false,
+        activeColor: Color(0xff00bcd4),
+        combine: ItemTagsCombine.onlyText,
+        image: null,
+        icon: null,
+        removeButton: getRemoveButton(index),
+        textScaleFactor: utf8.encode(item.substring(0, 1)).length > 2 ? 0.8 : 1,
+        textStyle: TextStyle(
+          fontSize: fontSize,
+        ),
+      ));
+    },
+  );
 }

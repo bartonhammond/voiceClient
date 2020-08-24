@@ -53,7 +53,8 @@ dependencies:
   device_preview: ^0.4.7
   responsive_builder: ^0.2.0+2
   configurable_expansion_tile: ^1.0.0
-  flutter_tags: ^0.4.8+2
+  flutter_tags:
+    path: ../bwh_flutter_tags
   convert: ^2.1.1
   crypto: ^2.1.4
 
