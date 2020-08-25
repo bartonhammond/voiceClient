@@ -70,6 +70,9 @@ class Comments extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (story == null) {
+      return Container();
+    }
     final List<dynamic> comments = story['comments'];
     if (comments.isEmpty) {
       return Container();

@@ -280,8 +280,12 @@ extension Localization on String {
         'es': 'Selección de imagen',
       } +
       {
+        'en': Strings.currentAudio,
+        'es': 'Audio Actual',
+      } +
+      {
         'en': Strings.audioControls,
-        'es': 'Controles de audio',
+        'es': 'Historia Récord',
       } +
       {
         'en': Strings.pictureGallery,

@@ -23,26 +23,12 @@ class PlayerWidget extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _PlayerWidgetState(
-      url,
-      mode,
-      showSlider,
-      width,
-    );
+    return _PlayerWidgetState();
   }
 }
 
 class _PlayerWidgetState extends State<PlayerWidget> {
-  _PlayerWidgetState(
-    this.url,
-    this.mode,
-    this.showSlider,
-    this.width,
-  );
-  String url;
-  PlayerMode mode;
-  bool showSlider;
-  int width;
+  _PlayerWidgetState();
 
   AudioPlayer _audioPlayer;
 
@@ -81,10 +67,10 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        showSlider
+        widget.showSlider
             ? Container(
                 margin: EdgeInsets.all(10),
-                width: width.toDouble(),
+                width: widget.width.toDouble(),
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
                     activeTrackColor: Colors.blue[700],
@@ -145,7 +131,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   }
 
   void initAudioPlayer() {
-    _audioPlayer = AudioPlayer(mode: mode);
+    _audioPlayer = AudioPlayer(mode: widget.mode);
 
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
       setState(() => _duration = duration);
@@ -197,8 +183,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               _position.inMilliseconds < _duration.inMilliseconds)
           ? _position
           : null;
-      final result =
-          await _audioPlayer.play(url, isLocal: false, position: playPosition);
+      final result = await _audioPlayer.play(widget.url,
+          isLocal: false, position: playPosition);
       if (result == 1) {
         setState(() => _playerState = PlayerState.playing);
       }

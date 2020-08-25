@@ -12,10 +12,12 @@ import 'package:uuid/uuid.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/comments.dart';
+import 'package:voiceClient/common_widgets/friend_widget.dart';
 
 import 'package:voiceClient/common_widgets/image_controls.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
+import 'package:voiceClient/common_widgets/tags.dart';
 
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
@@ -24,7 +26,6 @@ import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/graphql_client.dart';
 import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
@@ -40,28 +41,56 @@ class StoryPlay extends StatefulWidget {
 
 class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
-  Map<String, dynamic> story;
-  List<String> tags = <String>[];
-  List<String> allTags;
+  Map<String, dynamic> _story;
+  List<String> _tags = <String>[];
+  List<String> _allTags;
 
   io.File _image;
   io.File _storyAudio;
   io.File _commentAudio;
 
-  String _imageFilePath;
-  String _audioFilePath;
-
   bool _uploadInProgress = false;
 
-  var uuid = Uuid();
+  final _uuid = Uuid();
   bool _isCurrentUserAuthor = false;
+  bool _showAllTags = false;
 
   final _formKey = GlobalKey<FormState>();
-  final className = TextEditingController();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  int _width = 200;
+  int _height = 200;
+  final _spacer = 10;
+  DeviceScreenType deviceType;
+  bool _showIcons = false;
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    deviceType = getDeviceType(MediaQuery.of(context).size);
+
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 750;
+        _showIcons = true;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 250;
+        _showIcons = false;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 300;
+        _showIcons = true;
+        break;
+      default:
+        _width = _height = 100;
+    }
+    super.didChangeDependencies();
   }
 
   @override
@@ -83,11 +112,10 @@ class _StoryPlayState extends State<StoryPlay>
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
     return FutureBuilder(
       future: Future.wait([
         getStory(),
-        getUserHashtagCounts(context),
+        getUserHashtagCounts(),
       ]),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -97,18 +125,28 @@ class _StoryPlayState extends State<StoryPlay>
             ),
           );
         } else {
-          story = snapshot.data[0];
-          allTags = snapshot.data[1];
-          if (story['user']['id'] == graphQLAuth.getUserMap()['id']) {
-            _isCurrentUserAuthor = true;
-          } else {
-            _isCurrentUserAuthor = false;
+          if (_story == null || _story['id'] != snapshot.data[0]['id']) {
+            _story = snapshot.data[0];
+            _allTags = snapshot.data[1];
+            if (_story != null &&
+                _story['user'] != null &&
+                _story['user']['id'] == graphQLAuth.getUserMap()['id']) {
+              _isCurrentUserAuthor = true;
+            } else {
+              _isCurrentUserAuthor = false;
+            }
+            if (_story != null && _story['hashtags'] != null) {
+              final List<dynamic> hashtags = _story['hashtags'];
+              for (var tag in hashtags) {
+                _tags.add(tag['tag']);
+              }
+            }
           }
+
           return WillPopScope(
             onWillPop: () async => false,
             child: Scaffold(
                 key: _scaffoldKey,
-                resizeToAvoidBottomInset: false,
                 appBar: AppBar(
                   title: Text(
                     Strings.MFV.i18n,
@@ -141,123 +179,82 @@ class _StoryPlayState extends State<StoryPlay>
     return story;
   }
 
-  Widget buildFriend(Map<String, dynamic> story) {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _width = 100;
-    int _height = 200;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.watch:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.mobile:
-        _width = _height = 50;
-        break;
-      default:
-        _width = _height = 100;
-    }
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 5,
-          ),
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(25.0),
-              child: FadeInImage.memoryNetwork(
-                height: _height.toDouble(),
-                width: _width.toDouble(),
-                placeholder: kTransparentImage,
-                image: host(story['user']['image'],
-                    width: _width,
-                    height: _height,
-                    resizingType: 'fill',
-                    enlarge: 1),
-              ),
-            ),
-          ),
-          Text(
-            story['user']['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          Text(
-            story['user']['home'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          Text(
-            story['user']['birth'].toString(),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          SizedBox(
-            height: 8,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> doStoryUploads(BuildContext context) async {
+  Future<void> doStoryUploads() async {
+    String _imageFilePath;
+    String _audioFilePath;
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     final GraphQLClient graphQLClientApolloServer =
-        getGraphQLClient(context, GraphQLClientType.ApolloServer);
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
 
-    final String _id = uuid.v1();
-    MultipartFile multipartFile = getMultipartFile(
-      _image,
-      '$_id.jpg',
-      'image',
-      'jpeg',
-    );
+    MultipartFile multipartFile;
+    final String _id = _uuid.v1();
 
-    _imageFilePath = await performMutation(
-      graphQLClientFileServer,
-      multipartFile,
-      'jpeg',
-    );
-
-    multipartFile = getMultipartFile(
-      _storyAudio,
-      '$_id.mp3',
-      'audio',
-      'mp3',
-    );
-
-    _audioFilePath = await performMutation(
-      graphQLClientFileServer,
-      multipartFile,
-      'mp3',
-    );
-
-    await addStory(
-      graphQLClientApolloServer,
-      graphQLAuth.getCurrentUserId(),
-      _id,
-      _imageFilePath,
-      _audioFilePath,
-      daysOffset: 0,
-    );
-
-    tags = tags.toSet().toList();
-
-    for (var tag in tags) {
-      await addHashTag(
-        graphQLClientApolloServer,
-        tag,
+    if (_image != null) {
+      multipartFile = getMultipartFile(
+        _image,
+        '$_id.jpg',
+        'image',
+        'jpeg',
       );
-      await addStoryHashtags(
+
+      _imageFilePath = await performMutation(
+        graphQLClientFileServer,
+        multipartFile,
+        'jpeg',
+      );
+    }
+
+    if (_storyAudio != null) {
+      multipartFile = getMultipartFile(
+        _storyAudio,
+        '$_id.mp3',
+        'audio',
+        'mp3',
+      );
+
+      _audioFilePath = await performMutation(
+        graphQLClientFileServer,
+        multipartFile,
+        'mp3',
+      );
+    }
+    if (_story == null) {
+      await addStory(
         graphQLClientApolloServer,
+        graphQLAuth.getCurrentUserId(),
         _id,
-        tag,
+        _imageFilePath,
+        _audioFilePath,
+      );
+
+      _tags = _tags.toSet().toList();
+
+      for (var tag in _tags) {
+        await addHashTag(
+          graphQLClientApolloServer,
+          tag,
+        );
+        await addStoryHashtags(
+          graphQLClientApolloServer,
+          _id,
+          tag,
+        );
+      }
+    } else {
+      _imageFilePath ??= _story['image'];
+      _audioFilePath ??= _story['audio'];
+      print('story_play storyId: ${_story["id"]}');
+      print('story_play audioFilePath: $_audioFilePath');
+      await updateStory(
+        graphQLClientApolloServer,
+        _story['id'],
+        _imageFilePath,
+        _audioFilePath,
+        _story['created']['formatted'],
       );
     }
     return;
@@ -272,7 +269,7 @@ class _StoryPlayState extends State<StoryPlay>
     final GraphQLClient graphQLClientApolloServer =
         GraphQLProvider.of(context).value;
 
-    final String _commentId = uuid.v1();
+    final String _commentId = _uuid.v1();
 
     final MultipartFile multipartFile = getMultipartFile(
       _commentAudio,
@@ -290,7 +287,7 @@ class _StoryPlayState extends State<StoryPlay>
     await createComment(
       graphQLClientApolloServer,
       _commentId,
-      story['id'],
+      _story['id'],
       _audioFilePath,
       'new',
     );
@@ -303,7 +300,7 @@ class _StoryPlayState extends State<StoryPlay>
 
     await addStoryComments(
       graphQLClientApolloServer,
-      story['id'],
+      _story['id'],
       _commentId,
     );
     return;
@@ -348,15 +345,10 @@ class _StoryPlayState extends State<StoryPlay>
               setState(() {
                 _uploadInProgress = true;
               });
-              await doStoryUploads(context);
+              await doStoryUploads();
               setState(() {
-                _image = null;
-                _storyAudio = null;
                 _uploadInProgress = false;
               });
-              //pop back to tab for stories
-
-              Navigator.pop(context);
             },
           );
   }
@@ -392,43 +384,68 @@ class _StoryPlayState extends State<StoryPlay>
     );
   }
 
-  Widget getPlayerControls(int width) {
-    if (!_isCurrentUserAuthor) {
-      return PlayerWidget(
-        url: host(story['audio']),
-        width: width,
-      );
-    } else {
-      return RecorderWidget(
-        id: UniqueKey().toString(),
-        setAudioFile: setStoryAudioFile,
-      );
+  Widget getPlayerControls(int width, bool showIcons) {
+    if (_story == null) {
+      return Container();
     }
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          Strings.currentAudio.i18n,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        PlayerWidget(
+          url: host(_story['audio']),
+          width: width,
+        ),
+        _isCurrentUserAuthor
+            ? SizedBox(
+                height: 8,
+              )
+            : Container(),
+        _isCurrentUserAuthor
+            ? Text(
+                Strings.audioControls.i18n,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )
+            : Container(),
+        _isCurrentUserAuthor
+            ? RecorderWidget(
+                setAudioFile: setStoryAudioFile,
+              )
+            : Container(),
+      ],
+    );
   }
 
   Widget getImageDisplay(int _width, int _height) {
     if (_image != null)
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(75.0),
-        child: Image.file(
-          _image,
-          width: _width.toDouble(),
-          height: _height.toDouble(),
+      return Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25.0),
+          child: Image.file(
+            _image,
+            width: _width.toDouble(),
+            height: _height.toDouble(),
+          ),
         ),
       );
-    else if (story != null)
-      return Container(
-        width: _width.toDouble(),
-        height: _height.toDouble(),
-        margin: EdgeInsets.all(10),
+    else if (_story != null)
+      return Center(
         child: ClipRRect(
           borderRadius: BorderRadius.circular(25.0),
           child: FadeInImage.memoryNetwork(
+            width: _width.toDouble(),
+            height: _height.toDouble(),
             placeholder: kTransparentImage,
             image: host(
-              story['image'],
+              _story['image'],
               width: _width,
               height: _height,
+              resizingType: 'fill',
+              enlarge: 1,
             ),
           ),
         ),
@@ -474,33 +491,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Widget getCard(BuildContext context) {
-    final List<dynamic> hashtags = story['hashtags'];
-    for (var tag in hashtags) {
-      tags.add(tag['tag']);
-    }
-    bool _showAllTags = false;
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _width = 200;
-    int _height = 200;
-    const _spacer = 10;
-    bool _showIcons = true;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-        _width = _height = 750;
-
-        break;
-      case DeviceScreenType.watch:
-        _width = _height = 250;
-        _showIcons = false;
-        break;
-      case DeviceScreenType.mobile:
-        _width = _height = 300;
-        break;
-      default:
-        _width = _height = 100;
-    }
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -511,39 +501,14 @@ class _StoryPlayState extends State<StoryPlay>
             if (widget.params != null &&
                 widget.params['id'] != null &&
                 widget.params['id'].isNotEmpty)
-              buildFriend(story),
+              buildFriend(
+                context,
+                _story['user'],
+              ),
             getImageDisplay(
               _width,
               _height,
             ),
-            SizedBox(
-              height: _spacer.toDouble(),
-            ),
-            Text(Strings.tagsLabel.i18n,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                )),
-            Container(
-              width: 350,
-              padding: EdgeInsets.all(10.0),
-              child: TextField(
-                controller: className,
-                autocorrect: true,
-                decoration: InputDecoration(hintText: 'Enter Your Class Here'),
-              ),
-            ),
-            /*getTags(
-            allTags: allTags,
-            tags: tags,
-            onTagAdd: (String tag) {
-              tags.add(tag);
-            },
-            onTagRemove: (index) {
-              tags.removeAt(index);
-            },
-            updatedAble: _isCurrentUserAuthor,
-          ),*/
             SizedBox(
               height: _spacer.toDouble(),
             ),
@@ -557,13 +522,36 @@ class _StoryPlayState extends State<StoryPlay>
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            getPlayerControls(_width),
+            getPlayerControls(_width, _showIcons),
             Divider(
               height: _spacer.toDouble(),
               thickness: 2,
             ),
             SizedBox(
               height: 8,
+            ),
+            Text(Strings.tagsLabel.i18n,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                )),
+            getTags(
+              allTags: _allTags,
+              tags: _tags,
+              onTagAdd: (String tag) {
+                setState(() {
+                  _tags.add(tag);
+                });
+              },
+              onTagRemove: (int index) {
+                setState(() {
+                  _tags.removeAt(index);
+                });
+              },
+              updatedAble: _isCurrentUserAuthor,
+            ),
+            SizedBox(
+              height: _spacer.toDouble(),
             ),
             Container(
               padding: EdgeInsets.all(20),
@@ -576,27 +564,17 @@ class _StoryPlayState extends State<StoryPlay>
                     value: _showAllTags,
                     onChanged: (bool show) {
                       if (show) {
-                        allTags.forEach(tags.add);
+                        _allTags.forEach(_tags.add);
                       } else {
-                        allTags.forEach(tags.remove);
+                        _allTags.forEach(_tags.remove);
                       }
                       setState(() {
                         _showAllTags = !_showAllTags;
                       });
                     },
                   ),
-                  Divider(
-                    color: Colors.blueGrey,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: Text(''),
-                  ),
                 ],
               ),
-            ),
-            SizedBox(
-              height: 8,
             ),
             Divider(
               indent: 50,
@@ -613,7 +591,6 @@ class _StoryPlayState extends State<StoryPlay>
               height: _spacer.toDouble(),
             ),
             RecorderWidget(
-              id: story['id'],
               setAudioFile: setCommentAudioFile,
               timerDuration: 90,
             ),
@@ -628,7 +605,7 @@ class _StoryPlayState extends State<StoryPlay>
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
             Comments(
               key: Key(Keys.commentsWidgetExpansionTile),
-              story: story,
+              story: _story,
               fontSize: 16,
               showExpand: true,
             ),

@@ -92,7 +92,8 @@ class Strings {
   //Story Page
   static const String imagePlaceholder = 'Image Placeholder';
   static const String imageSelection = 'Image Selection';
-  static const String audioControls = 'Audio Controls';
+  static const String currentAudio = 'Current Audio';
+  static const String audioControls = 'Record Story';
   static const String pictureGallery = 'Gallery';
   static const String pictureCamera = 'Camera';
   static const String audioStop = 'Stop';

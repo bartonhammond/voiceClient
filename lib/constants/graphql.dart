@@ -102,6 +102,23 @@ CreateStory(
 }
 ''';
 
+const String updateStoryQL = r'''
+mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!) {
+UpdateStory(
+  id: $id
+  image: $image
+  audio: $audio
+  created: {formatted: $created}
+  updated: {formatted: $updated}
+) {
+    __typename
+    id
+    image
+    audio
+  } 
+}
+''';
+
 const String mergeUserStories = r'''
 mutation mergeStoryUser($from: _UserInput!, $to: _StoryInput!) {
 MergeStoryUser(

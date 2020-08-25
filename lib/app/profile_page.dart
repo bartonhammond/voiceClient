@@ -19,8 +19,8 @@ import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
-import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/services/service_locator.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({

@@ -1,18 +1,15 @@
-import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/graphql_client.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
-Future<List<String>> getUserHashtagCounts(BuildContext context) async {
+Future<List<String>> getUserHashtagCounts() async {
   try {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final GraphQLClient graphQLClient = getGraphQLClient(
-      context,
-      GraphQLClientType.ApolloServer,
-    );
+
+    final GraphQLClient graphQLClient =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
 
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(userHashTagsCountQL),

@@ -136,7 +136,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       default:
         _width = _height = 100;
     }
-
     final DateTime dt = DateTime.parse(widget.story['created']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
     return Card(

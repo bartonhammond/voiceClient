@@ -62,7 +62,7 @@ class _StoryPageState extends State<StoryPage> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getUserHashtagCounts(context),
+      future: getUserHashtagCounts(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Scaffold(
@@ -229,7 +229,6 @@ class _StoryPageState extends State<StoryPage> {
                       height: 0,
                     ),
               RecorderWidget(
-                id: UniqueKey().toString(),
                 setAudioFile: setAudioFile,
               ),
               SizedBox(
