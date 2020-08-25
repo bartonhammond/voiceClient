@@ -30,7 +30,8 @@ class StaggeredGridTileStory extends StatefulWidget {
 }
 
 class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
-  bool showComments = false;
+  bool _showComments = false;
+
   Future<void> callBack() async {
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
@@ -136,6 +137,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       default:
         _width = _height = 100;
     }
+
     final DateTime dt = DateTime.parse(widget.story['created']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
     return Card(
@@ -204,10 +206,10 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                 ),
                 onTap: () {
                   setState(() {
-                    showComments = !showComments;
+                    _showComments = !_showComments;
                   });
                 }),
-            showComments
+            _showComments
                 ? Comments(
                     key: Key(
                         '${Keys.commentsWidgetExpansionTile}-${widget.story["id"]}'),

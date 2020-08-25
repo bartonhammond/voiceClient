@@ -111,6 +111,7 @@ class Strings {
 
   //Staggered  Grid Tile Story
   static const String gridStoryShowCommentsText = 'There are % comments';
+  static const String gridStoryShowTagsText = 'There are % tags';
 
   //Staggered Grid Tile Message
   static const String friendRequest = 'Friend Request';

@@ -36,6 +36,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFab(BuildContext context) {
+    final Map<String, dynamic> params = <String, dynamic>{};
     return FloatingActionButton(
       backgroundColor: Color(0xff00bcd4),
       onPressed: () {
@@ -44,6 +45,7 @@ class _HomePageState extends State<HomePage> {
           MaterialPageRoute<dynamic>(
               builder: (context) => StoryPlay(
                     key: Key('storyPlay'),
+                    params: params,
                   )),
         );
       },

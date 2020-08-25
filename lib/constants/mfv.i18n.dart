@@ -358,6 +358,16 @@ extension Localization on String {
             .many('%d comentarios'),
       } +
       {
+        'en': Strings.gridStoryShowTagsText
+            .zero('No tags')
+            .one('One tag')
+            .many('%d tags'),
+        'es': 'Comentarios'
+            .zero('No etiquetas')
+            .one('Uno etiquetas')
+            .many('%d etiquetas'),
+      } +
+      {
         'en': Strings.dateLabel,
         'es': 'Fecha',
       } +

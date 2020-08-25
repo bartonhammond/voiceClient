@@ -223,6 +223,9 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       birth
       image
     }
+    hashtags{
+        tag
+    }
     comments {
       id
       audio
@@ -513,6 +516,9 @@ userFriendsStories(
       birth
       image
     }
+    hashtags{
+        tag
+    }
     comments {
       id
       audio
@@ -707,6 +713,9 @@ query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $curs
       birth
       image
     }
+    hashtags{
+        tag
+    }
     comments {
       id
       audio
@@ -745,6 +754,9 @@ query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: Str
       home
       birth
       image
+    }
+    hashtags{
+        tag
     }
     comments {
       id

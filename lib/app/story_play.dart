@@ -112,15 +112,25 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   bool tagsHaveChanged() {
+    if (_tags.isEmpty && _story == null) {
+      return false;
+    }
+    if (_tags.isNotEmpty && _story == null) {
+      return true;
+    }
     if (_tags.isNotEmpty && _story['hashtags'].isEmpty) {
       return true;
     }
     OUTER1:
     for (var tag in _tags) {
+      bool tagFound = false;
       for (var hashtag in _story['hashtags']) {
         if (hashtag['tag'] == tag) {
+          tagFound = true;
           continue OUTER1;
         }
+      }
+      if (!tagFound) {
         return true;
       }
     }
@@ -148,21 +158,21 @@ class _StoryPlayState extends State<StoryPlay>
             ),
           );
         } else {
-          if (_story == null || _story['id'] != snapshot.data[0]['id']) {
-            _story = snapshot.data[0];
-            _allTags = snapshot.data[1];
-            if (_story != null &&
-                _story['user'] != null &&
-                _story['user']['id'] == graphQLAuth.getUserMap()['id']) {
-              _isCurrentUserAuthor = true;
-            } else {
-              _isCurrentUserAuthor = false;
-            }
-            if (_story != null && _story['hashtags'] != null) {
-              final List<dynamic> hashtags = _story['hashtags'];
-              for (var tag in hashtags) {
-                _tags.add(tag['tag']);
-              }
+          _story = snapshot.data[0];
+          _allTags = snapshot.data[1];
+
+          if (_story == null ||
+              (_story != null &&
+                  _story['user'] != null &&
+                  _story['user']['id'] == graphQLAuth.getUserMap()['id'])) {
+            _isCurrentUserAuthor = true;
+          } else {
+            _isCurrentUserAuthor = false;
+          }
+          if (_story != null && _story['hashtags'] != null) {
+            final List<dynamic> hashtags = _story['hashtags'];
+            for (var tag in hashtags) {
+              _tags.add(tag['tag']);
             }
           }
 
@@ -178,7 +188,9 @@ class _StoryPlayState extends State<StoryPlay>
                   leading: IconButton(
                       icon: Icon(MdiIcons.lessThan),
                       onPressed: () {
-                        widget.params['onFinish']();
+                        if (widget.params.isNotEmpty) {
+                          widget.params['onFinish']();
+                        }
                         Navigator.of(context).pop('upload');
                       }),
                 ),
@@ -190,6 +202,9 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<Map> getStory() async {
+    if (widget.params.isEmpty) {
+      return null;
+    }
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
       variables: <String, dynamic>{'id': widget.params['id']},
@@ -343,6 +358,7 @@ class _StoryPlayState extends State<StoryPlay>
 
     final String _commentId = _uuid.v1();
 
+    print('storyPlay storyId: ${_story["id"]}');
     final MultipartFile multipartFile = getMultipartFile(
       _commentAudio,
       '$_commentId.mp3',
@@ -457,39 +473,59 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Widget getPlayerControls(int width, bool showIcons) {
-    if (_story == null) {
-      return Container();
-    }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          Strings.currentAudio.i18n,
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        PlayerWidget(
-          url: host(_story['audio']),
-          width: width,
-        ),
-        _isCurrentUserAuthor
-            ? SizedBox(
-                height: 8,
-              )
-            : Container(),
-        _isCurrentUserAuthor
-            ? Text(
-                Strings.audioControls.i18n,
+    return _story != null
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                Strings.currentAudio.i18n,
                 style: TextStyle(fontWeight: FontWeight.bold),
-              )
-            : Container(),
-        _isCurrentUserAuthor
-            ? RecorderWidget(
-                setAudioFile: setStoryAudioFile,
-              )
-            : Container(),
-      ],
-    );
+              ),
+              PlayerWidget(
+                url: host(_story['audio']),
+                width: width,
+              ),
+              _isCurrentUserAuthor
+                  ? SizedBox(
+                      height: 8,
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? Text(
+                      Strings.audioControls.i18n,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? RecorderWidget(
+                      setAudioFile: setStoryAudioFile,
+                    )
+                  : Container(),
+            ],
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _isCurrentUserAuthor
+                  ? SizedBox(
+                      height: 8,
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? Text(
+                      Strings.audioControls.i18n,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? RecorderWidget(
+                      setAudioFile: setStoryAudioFile,
+                    )
+                  : Container(),
+            ],
+          );
   }
 
   Widget getImageDisplay(int _width, int _height) {
@@ -584,7 +620,11 @@ class _StoryPlayState extends State<StoryPlay>
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            if (_image != null || _storyAudio != null || tagsHaveChanged())
+            if (_story != null &&
+                    (_image != null ||
+                        _storyAudio != null ||
+                        tagsHaveChanged()) ||
+                (_story == null && _image != null && _storyAudio != null))
               _buildUploadStoryButton(context),
             if (_image != null || _storyAudio != null)
               SizedBox(
@@ -659,30 +699,40 @@ class _StoryPlayState extends State<StoryPlay>
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            Text(Strings.recordAComment.i18n,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            SizedBox(
-              height: _spacer.toDouble(),
-            ),
-            RecorderWidget(
-              setAudioFile: setCommentAudioFile,
-              timerDuration: 90,
-            ),
-            if (_commentAudio != null) _buildUploadButton(context),
-            Divider(
-              indent: 50,
-              endIndent: 50,
-              height: _spacer.toDouble(),
-              thickness: 5,
-            ),
-            Text(Strings.commentsLabel.i18n,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Comments(
-              key: Key(Keys.commentsWidgetExpansionTile),
-              story: _story,
-              fontSize: 16,
-              showExpand: true,
-            ),
+            _story != null
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(Strings.recordAComment.i18n,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(
+                        height: _spacer.toDouble(),
+                      ),
+                      RecorderWidget(
+                        setAudioFile: setCommentAudioFile,
+                        timerDuration: 90,
+                      ),
+                      if (_commentAudio != null) _buildUploadButton(context),
+                      Divider(
+                        indent: 50,
+                        endIndent: 50,
+                        height: _spacer.toDouble(),
+                        thickness: 5,
+                      ),
+                      Text(Strings.commentsLabel.i18n,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20)),
+                      Comments(
+                        key: Key(Keys.commentsWidgetExpansionTile),
+                        story: _story,
+                        fontSize: 16,
+                        showExpand: true,
+                      ),
+                    ],
+                  )
+                : Container(),
           ],
         ),
       ),

@@ -9,9 +9,12 @@ import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/host.dart';
 
 class Comments extends StatelessWidget {
-  const Comments(
-      {Key key, this.story, this.fontSize = 10, this.showExpand = false})
-      : super(key: key);
+  const Comments({
+    Key key,
+    this.story,
+    this.fontSize = 10,
+    this.showExpand = false,
+  }) : super(key: key);
   final Map<String, dynamic> story;
   final double fontSize;
   final bool showExpand;
