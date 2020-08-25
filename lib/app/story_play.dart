@@ -42,6 +42,7 @@ class StoryPlay extends StatefulWidget {
 class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
   Map<String, dynamic> _story;
+
   List<String> _tags = <String>[];
   List<String> _allTags;
 
@@ -108,6 +109,28 @@ class _StoryPlayState extends State<StoryPlay>
     setState(() {
       _storyAudio = audio;
     });
+  }
+
+  bool tagsHaveChanged() {
+    if (_tags.isNotEmpty && _story['hashtags'].isEmpty) {
+      return true;
+    }
+    OUTER1:
+    for (var tag in _tags) {
+      for (var hashtag in _story['hashtags']) {
+        if (hashtag['tag'] == tag) {
+          continue OUTER1;
+        }
+        return true;
+      }
+    }
+    for (var hashtag in _story['hashtags']) {
+      if (_tags.contains(hashtag['tag'])) {
+        continue;
+      }
+      return true;
+    }
+    return false;
   }
 
   @override
@@ -245,17 +268,66 @@ class _StoryPlayState extends State<StoryPlay>
         );
       }
     } else {
-      _imageFilePath ??= _story['image'];
-      _audioFilePath ??= _story['audio'];
-      print('story_play storyId: ${_story["id"]}');
-      print('story_play audioFilePath: $_audioFilePath');
-      await updateStory(
-        graphQLClientApolloServer,
-        _story['id'],
-        _imageFilePath,
-        _audioFilePath,
-        _story['created']['formatted'],
-      );
+      //don't update unnecessarily
+      if (_imageFilePath != null || _audioFilePath != null) {
+        _imageFilePath ??= _story['image'];
+        _audioFilePath ??= _story['audio'];
+        await updateStory(
+          graphQLClientApolloServer,
+          _story['id'],
+          _imageFilePath,
+          _audioFilePath,
+          _story['created']['formatted'],
+        );
+      }
+
+      _tags = _tags.toSet().toList();
+
+      if (_tags.isNotEmpty && _story['hashtags'].isEmpty) {
+        for (var tag in _tags) {
+          await addHashTag(
+            graphQLClientApolloServer,
+            tag,
+          );
+
+          await addStoryHashtags(
+            graphQLClientApolloServer,
+            _story['id'],
+            tag,
+          );
+        }
+      }
+      OUTER:
+      for (var tag in _tags) {
+        //does tag exist in the story
+        for (var hashtag in _story['hashtags']) {
+          if (hashtag['tag'] == tag) {
+            continue OUTER;
+          }
+          await addHashTag(
+            graphQLClientApolloServer,
+            tag,
+          );
+
+          await addStoryHashtags(
+            graphQLClientApolloServer,
+            _story['id'],
+            tag,
+          );
+        }
+      }
+
+      //does story have tags that were deleted?
+      for (var hashtag in _story['hashtags']) {
+        if (_tags.contains(hashtag['tag'])) {
+          continue;
+        }
+        await removeStoryHashtags(
+          graphQLClientApolloServer,
+          _story['id'],
+          hashtag['tag'],
+        );
+      }
     }
     return;
   }
@@ -512,7 +584,7 @@ class _StoryPlayState extends State<StoryPlay>
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            if (_image != null || _storyAudio != null)
+            if (_image != null || _storyAudio != null || tagsHaveChanged())
               _buildUploadStoryButton(context),
             if (_image != null || _storyAudio != null)
               SizedBox(
@@ -553,29 +625,31 @@ class _StoryPlayState extends State<StoryPlay>
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                children: <Widget>[
-                  Text(Strings.showAllTags.i18n,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Checkbox(
-                    value: _showAllTags,
-                    onChanged: (bool show) {
-                      if (show) {
-                        _allTags.forEach(_tags.add);
-                      } else {
-                        _allTags.forEach(_tags.remove);
-                      }
-                      setState(() {
-                        _showAllTags = !_showAllTags;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
+            _isCurrentUserAuthor
+                ? Container(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      children: <Widget>[
+                        Text(Strings.showAllTags.i18n,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        Checkbox(
+                          value: _showAllTags,
+                          onChanged: (bool show) {
+                            if (show) {
+                              _allTags.forEach(_tags.add);
+                            } else {
+                              _allTags.forEach(_tags.remove);
+                            }
+                            setState(() {
+                              _showAllTags = !_showAllTags;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
             Divider(
               indent: 50,
               endIndent: 50,

@@ -350,3 +350,24 @@ Future<void> addStoryHashtags(
 
   return;
 }
+
+Future<void> removeStoryHashtags(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String hashTag,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(removeStoryHashtagsQL),
+    variables: <String, dynamic>{
+      'id': storyId,
+      'tag': hashTag,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}

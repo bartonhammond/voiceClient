@@ -655,6 +655,25 @@ mutation addStoryHashtags($id: ID!, $tag: String!) {
   }
 }
 ''';
+const String removeStoryHashtagsQL = r'''
+mutation removeStoryHashtags($id: ID!, $tag: String!) {
+  RemoveStoryHashtags(
+    from:  {
+      id: $id
+      }
+    to: {
+      tag: $tag
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      tag
+    }
+  }
+}
+''';
 
 const String userHashTagsCountQL = r'''
 query userHashTagsCount($email: String!){
