@@ -14,7 +14,7 @@ Widget getTags({
   double fontSize = 16,
   double height = 200,
   bool updatedAble = true,
-  FocusNode focusNode,
+  bool showTagsOnly = false,
 }) {
   TagsTextField getTextField() {
     if (updatedAble) {
@@ -54,7 +54,7 @@ Widget getTags({
     verticalDirection: VerticalDirection.up,
     textDirection: TextDirection.rtl,
     heightHorizontalScroll: 60 * (fontSize / 14),
-    textField: getTextField(),
+    textField: showTagsOnly ? null : getTextField(),
     itemCount: tags.length,
     itemBuilder: (index) {
       final String item = tags[index];

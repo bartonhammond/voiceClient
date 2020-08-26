@@ -15,6 +15,7 @@ import 'package:voiceClient/common_widgets/comments.dart';
 import 'package:voiceClient/common_widgets/friend_widget.dart';
 
 import 'package:voiceClient/common_widgets/image_controls.dart';
+import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
 import 'package:voiceClient/common_widgets/tags.dart';
@@ -172,6 +173,9 @@ class _StoryPlayState extends State<StoryPlay>
           if (_story != null && _story['hashtags'] != null) {
             final List<dynamic> hashtags = _story['hashtags'];
             for (var tag in hashtags) {
+              if (_tags.contains(tag['tag'])) {
+                continue;
+              }
               _tags.add(tag['tag']);
             }
           }
@@ -358,7 +362,6 @@ class _StoryPlayState extends State<StoryPlay>
 
     final String _commentId = _uuid.v1();
 
-    print('storyPlay storyId: ${_story["id"]}');
     final MultipartFile multipartFile = getMultipartFile(
       _commentAudio,
       '$_commentId.mp3',
@@ -729,10 +732,29 @@ class _StoryPlayState extends State<StoryPlay>
                         story: _story,
                         fontSize: 16,
                         showExpand: true,
+                        onClickDelete: (Map<String, dynamic> _comment) async {
+                          final bool deleteComment = await PlatformAlertDialog(
+                            title: Strings.requestFriendship.i18n,
+                            content: Strings.areYouSure.i18n,
+                            cancelActionText: Strings.cancel.i18n,
+                            defaultActionText: Strings.yes.i18n,
+                          ).show(context);
+                          if (deleteComment == true) {
+                            await updateComment(
+                              GraphQLProvider.of(context).value,
+                              _comment['id'],
+                              'delete',
+                            );
+                            setState(() {});
+                          }
+                        },
                       ),
                     ],
                   )
                 : Container(),
+            SizedBox(
+              height: 75,
+            ),
           ],
         ),
       ),

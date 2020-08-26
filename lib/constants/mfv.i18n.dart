@@ -382,6 +382,10 @@ extension Localization on String {
       {
         'en': Strings.hideComment,
         'es': 'Esconder',
+      } +
+      {
+        'en': Strings.showComment,
+        'es': 'Mostrar',
       };
 
   String get i18n => localize(this, _t);

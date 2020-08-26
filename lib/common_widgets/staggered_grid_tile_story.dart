@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
 import 'package:voiceClient/common_widgets/player_widget.dart';
+import 'package:voiceClient/common_widgets/tags.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/strings.dart';
@@ -31,6 +33,7 @@ class StaggeredGridTileStory extends StatefulWidget {
 
 class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showComments = false;
+  bool _showTags = false;
 
   Future<void> callBack() async {
     final QueryOptions _queryOptions = QueryOptions(
@@ -140,6 +143,18 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
     final DateTime dt = DateTime.parse(widget.story['created']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
+
+    List<String> _tags = [];
+    if (widget.story != null && widget.story['hashtags'] != null) {
+      final List<dynamic> hashtags = widget.story['hashtags'];
+      for (var tag in hashtags) {
+        _tags.add(tag['tag']);
+      }
+    }
+    final int commentsLength = widget.story['comments']
+        .where((dynamic comment) => comment['status'] == 'new')
+        .toList()
+        .length;
     return Card(
       shadowColor: Colors.black,
       child: GestureDetector(
@@ -197,8 +212,31 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             ),
             InkWell(
                 child: Text(
-                  Strings.gridStoryShowCommentsText
-                      .plural(widget.story['comments'].length),
+                  Strings.gridStoryShowTagsText
+                      .plural(widget.story['hashtags'].length),
+                  style: TextStyle(
+                    color: Color(0xff00bcd4),
+                    fontSize: 16.0,
+                  ),
+                ),
+                onTap: () {
+                  setState(() {
+                    _showTags = !_showTags;
+                  });
+                }),
+            _showTags
+                ? getTags(
+                    allTags: [],
+                    tags: _tags,
+                    onTagAdd: (String _) {},
+                    onTagRemove: (int index) {},
+                    updatedAble: false,
+                    showTagsOnly: true,
+                  )
+                : Container(),
+            InkWell(
+                child: Text(
+                  Strings.gridStoryShowCommentsText.plural(commentsLength),
                   style: TextStyle(
                     color: Color(0xff00bcd4),
                     fontSize: 16.0,

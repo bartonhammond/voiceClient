@@ -585,6 +585,27 @@ mutation createComment($commentId: ID!, $storyId: ID!, $audio: String!, $status:
 }
 ''';
 
+const String updateCommentQL = r'''
+mutation updateComment($commentId: ID!, $status: String!, $updated: String!, ) {
+  UpdateComment(
+    id: $commentId
+    status: $status
+    updated: { 
+      formatted: $updated 
+      }
+  ) {
+    __typename
+    id
+    story
+    audio
+    status
+    created {
+      formatted
+    }
+  }
+}
+''';
+
 const String mergeCommentFromQL = r'''
 mutation mergeCommentFrom($userId: ID!, $commentId: ID!) {
   MergeCommentFrom(

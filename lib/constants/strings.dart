@@ -124,7 +124,7 @@ class Strings {
 
   //Story play
   static const String recordAComment = 'Record a comment';
-  static const String commentsLabel = 'CommentsLabel';
+  static const String commentsLabel = 'Comments';
 
   //Stories Page
   static const String dateLabel = 'Date';
@@ -133,4 +133,5 @@ class Strings {
   //Comments
   static const String deleteComment = 'Delete';
   static const String hideComment = 'Hide';
+  static const String showComment = 'Show';
 }

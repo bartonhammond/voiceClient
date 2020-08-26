@@ -269,6 +269,29 @@ Future<void> createComment(
   return;
 }
 
+Future<void> updateComment(
+  GraphQLClient graphQLClient,
+  String commentId,
+  String status,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(updateCommentQL),
+    variables: <String, dynamic>{
+      'commentId': commentId,
+      'status': status,
+      'updated': now.toIso8601String()
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
 Future<void> mergeCommentFrom(
   GraphQLClient graphQLClient,
   String userId,
