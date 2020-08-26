@@ -280,8 +280,12 @@ extension Localization on String {
         'es': 'Selección de imagen',
       } +
       {
+        'en': Strings.currentAudio,
+        'es': 'Audio Actual',
+      } +
+      {
         'en': Strings.audioControls,
-        'es': 'Controles de audio',
+        'es': 'Historia Récord',
       } +
       {
         'en': Strings.pictureGallery,
@@ -354,6 +358,16 @@ extension Localization on String {
             .many('%d comentarios'),
       } +
       {
+        'en': Strings.gridStoryShowTagsText
+            .zero('No tags')
+            .one('One tag')
+            .many('%d tags'),
+        'es': 'Comentarios'
+            .zero('No etiquetas')
+            .one('Uno etiquetas')
+            .many('%d etiquetas'),
+      } +
+      {
         'en': Strings.dateLabel,
         'es': 'Fecha',
       } +
@@ -368,6 +382,10 @@ extension Localization on String {
       {
         'en': Strings.hideComment,
         'es': 'Esconder',
+      } +
+      {
+        'en': Strings.showComment,
+        'es': 'Mostrar',
       };
 
   String get i18n => localize(this, _t);

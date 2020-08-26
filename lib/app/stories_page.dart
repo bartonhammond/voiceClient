@@ -1,22 +1,18 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
+import 'package:voiceClient/common_widgets/friend_widget.dart';
 import 'package:voiceClient/common_widgets/staggered_grid_tile_story.dart';
 import 'package:voiceClient/constants/enums.dart';
-
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/host.dart';
-import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/services/service_locator.dart';
 
 class Debouncer {
   Debouncer({this.milliseconds});
@@ -142,12 +138,12 @@ class _StoriesPageState extends State<StoriesPage> {
     if (getId() == null) {
       _resultTypes = ResultTypes(
         TypeStoriesView.allFriends,
-        TypeSearch.hashtag,
+        TypeSearch.date,
       );
     } else {
       _resultTypes = ResultTypes(
         TypeStoriesView.oneFriend,
-        TypeSearch.hashtag,
+        TypeSearch.date,
       );
     }
   }
@@ -229,63 +225,6 @@ class _StoriesPageState extends State<StoriesPage> {
             });
           });
         },
-      ),
-    );
-  }
-
-  Widget buildFriend(Map<String, dynamic> user) {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _width = 100;
-    int _height = 200;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.watch:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.mobile:
-        _width = _height = 50;
-        break;
-      default:
-        _width = _height = 100;
-    }
-    return Card(
-      child: Column(
-        children: <Widget>[
-          //new Center(child: new CircularProgressIndicator()),
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(25.0),
-              child: FadeInImage.memoryNetwork(
-                height: _height.toDouble(),
-                width: _width.toDouble(),
-                placeholder: kTransparentImage,
-                image: host(
-                  user['image'],
-                  width: _width,
-                  height: _height,
-                  resizingType: 'fill',
-                  enlarge: 1,
-                ),
-              ),
-            ),
-          ),
-          Text(
-            user['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          Text(
-            user['home'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          Text(
-            user['birth'].toString(),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          )
-        ],
       ),
     );
   }
@@ -423,7 +362,12 @@ class _StoriesPageState extends State<StoriesPage> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
                 children: <Widget>[
-                  getId() == null ? Container() : buildFriend(user),
+                  getId() == null
+                      ? Container()
+                      : buildFriend(
+                          context,
+                          user,
+                        ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[

@@ -3,7 +3,6 @@ import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/services/service_locator.dart';
-
 import 'graphql_auth.dart';
 
 final key = hex.decode(
@@ -25,7 +24,9 @@ String host(
     return path;
   }
   if (path.endsWith('mp3')) {
-    return '${graphQLAuth.getHttpLinkUri(GraphQLClientType.Mp3Server)}/$path';
+    final String url =
+        '${graphQLAuth.getHttpLinkUri(GraphQLClientType.Mp3Server)}/$path';
+    return url;
   }
   if (path.startsWith('storage/')) {
     path = path.substring('storage/'.length);

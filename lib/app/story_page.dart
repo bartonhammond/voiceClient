@@ -1,30 +1,31 @@
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
+
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
+import 'package:voiceClient/common_widgets/image_controls.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
-import 'package:voiceClient/common_widgets/tags.dart';
+
 import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
+
 import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
-import 'package:voiceClient/services/auth_service.dart';
+
 import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/graphql_client.dart';
 import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/services/user_tag_counts.dart';
 
 class StoryPage extends StatefulWidget {
   const StoryPage({Key key, this.params}) : super(key: key);
@@ -36,18 +37,16 @@ class StoryPage extends StatefulWidget {
 }
 
 class _StoryPageState extends State<StoryPage> {
-  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _image;
   io.File _audio;
   bool _uploadInProgress = false;
-  final picker = ImagePicker();
-  var uuid = Uuid();
 
-  List<String> _tags = <String>[];
+  var uuid = Uuid();
   List<String> _allTags = <String>[];
+  List<String> _tags = <String>[];
+
   String _imageFilePath;
   String _audioFilePath;
-  bool _showAllTags = false;
 
   @override
   void initState() {
@@ -60,137 +59,44 @@ class _StoryPageState extends State<StoryPage> {
     });
   }
 
-  /*
-   * Not sure why GraphQLProvider wouldn't work here....
-   */
-  GraphQLClient getGraphQLClient(GraphQLClientType type) {
-    final uri = graphQLAuth.getHttpLinkUri(type);
-    final httpLink = HttpLink(uri: uri);
-
-    final AuthService auth = Provider.of<AuthService>(context, listen: false);
-
-    final AuthLink authLink = AuthLink(getToken: () async {
-      final IdTokenResult tokenResult = await auth.currentUserIdToken();
-      return 'Bearer ${tokenResult.token}';
-    });
-
-    final link = authLink.concat(httpLink);
-
-    final GraphQLClient graphQLClient = GraphQLClient(
-      cache: InMemoryCache(),
-      link: link,
-    );
-
-    return graphQLClient;
-  }
-
-  Future<List<String>> getUserHashtagCounts(BuildContext context) async {
-    try {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-      final GraphQLClient graphQLClient =
-          getGraphQLClient(GraphQLClientType.ApolloServer);
-
-      final QueryOptions _queryOptions = QueryOptions(
-        documentNode: gql(userHashTagsCountQL),
-        variables: <String, dynamic>{
-          'email': graphQLAuth.getUserMap()['email'],
-        },
-      );
-
-      final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-      final List<dynamic> tagCounts = queryResult.data['userHashTagsCount'];
-      List<String> tags = [];
-      for (var i = 0; i < tagCounts.length; i++) {
-        tags.add(tagCounts[i]['hashtag']);
-      }
-      tags = tags.toSet().toList();
-      return tags;
-    } catch (e) {
-      print(e.toString());
-      rethrow;
-    }
-  }
-
-  Future selectImage(ImageSource source) async {
-    io.File image;
-    final PickedFile pickedFile = await picker.getImage(source: source);
-    if (pickedFile != null) {
-      image = io.File(pickedFile.path);
-    }
-
-    if (image != null && pickedFile != null) {
-      final io.File croppedFile = await ImageCropper.cropImage(
-        sourcePath: image.path,
-        compressQuality: 50,
-        maxWidth: 700,
-        maxHeight: 700,
-        compressFormat: ImageCompressFormat.jpg,
-        aspectRatioPresets: io.Platform.isAndroid
-            ? [
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
-              ]
-            : [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio5x3,
-                CropAspectRatioPreset.ratio5x4,
-                CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
-              ],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: 'Cropper',
-        ),
-      );
-
-      if (croppedFile != null) {
-        setState(() {
-          _image = croppedFile;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: getUserHashtagCounts(context),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
+      future: getUserHashtagCounts(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Text(snapshot.error.toString());
+        } else {
+          _allTags = snapshot.data;
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(0xff00bcd4),
+              title: Text(
+                Strings.MFV.i18n,
               ),
-            );
-          } else if (snapshot.hasError) {
-            return Text(snapshot.error.toString());
-          } else {
-            _allTags = snapshot.data;
-            return Scaffold(
-              appBar: AppBar(
-                backgroundColor: Color(0xff00bcd4),
-                title: Text(
-                  Strings.MFV.i18n,
-                ),
-              ),
-              body: _buildPage(context),
-            );
-          }
-        });
+            ),
+            body: _buildPage(context),
+          );
+        }
+      },
+    );
   }
 
   Widget _buildPage(BuildContext context) {
+    bool _showAllTags = false;
+    final ImageControls _imageControls =
+        ImageControls(onImageSelected: (File croppedFile) {
+      setState(() {
+        _image = croppedFile;
+      });
+    });
+
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;
@@ -212,191 +118,155 @@ class _StoryPageState extends State<StoryPage> {
 
     return SingleChildScrollView(
       child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Card(
-              margin: EdgeInsets.all(0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  if (widget.params != null &&
-                      widget.params['id'] != null &&
-                      widget.params['id'].isNotEmpty)
-                    Container(
-                        margin: EdgeInsets.all(0),
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(25.0),
-                            child: FadeInImage.memoryNetwork(
-                              height: _height.toDouble(),
-                              width: _width.toDouble(),
-                              placeholder: kTransparentImage,
-                              image:
-                                  host('/storage/${widget.params['id']}.jpg)'),
-                            )))
-                  else if (_image != null)
+        padding: EdgeInsets.all(16.0),
+        child: Card(
+          margin: EdgeInsets.all(0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (widget.params != null &&
+                  widget.params['id'] != null &&
+                  widget.params['id'].isNotEmpty)
+                Container(
+                    margin: EdgeInsets.all(0),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(25.0),
+                        child: FadeInImage.memoryNetwork(
+                          height: _height.toDouble(),
+                          width: _width.toDouble(),
+                          placeholder: kTransparentImage,
+                          image: host('/storage/${widget.params['id']}.jpg)'),
+                        )))
+              else if (_image != null)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(75.0),
+                  child: Image.file(
+                    _image,
+                    width: _width.toDouble(),
+                    height: _height.toDouble(),
+                  ),
+                )
+              else
+                Stack(
+                  children: <Widget>[
+                    Image(
+                      image: AssetImage('assets/placeholder.png'),
+                      width: _width.toDouble(),
+                      height: _height.toDouble(),
+                    ),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(75.0),
-                      child: Image.file(
-                        _image,
-                        width: _width.toDouble(),
+                      borderRadius: BorderRadius.circular(25.0),
+                      child: Container(
                         height: _height.toDouble(),
+                        width: _width.toDouble(),
+                        padding: EdgeInsets.all(5.0),
+                        alignment: Alignment.topCenter,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: <Color>[
+                              Colors.black.withAlpha(30),
+                              Colors.black12,
+                              Colors.black54
+                            ],
+                          ),
+                        ),
+                        child: Text(
+                          Strings.imagePlaceholder.i18n,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
                       ),
                     )
-                  else
-                    Stack(
-                      children: <Widget>[
-                        Image(
-                          image: AssetImage('assets/placeholder.png'),
-                          width: _width.toDouble(),
-                          height: _height.toDouble(),
-                        ),
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(25.0),
-                          child: Container(
-                            height: _height.toDouble(),
-                            width: _width.toDouble(),
-                            padding: EdgeInsets.all(5.0),
-                            alignment: Alignment.topCenter,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: <Color>[
-                                  Colors.black.withAlpha(30),
-                                  Colors.black12,
-                                  Colors.black54
-                                ],
-                              ),
-                            ),
-                            child: Text(
-                              Strings.imagePlaceholder.i18n,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+                  ],
+                ),
+              SizedBox(
+                height: 8,
+              ),
+              widget.params == null ||
+                      widget.params['id'] == null ||
+                      widget.params['id'].isEmpty
+                  ? Text(
+                      Strings.imageSelection.i18n,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : SizedBox(
+                      height: 0,
                     ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  widget.params == null ||
-                          widget.params['id'] == null ||
-                          widget.params['id'].isEmpty
-                      ? Text(
-                          Strings.imageSelection.i18n,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      : SizedBox(
-                          height: 0,
-                        ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  if (_image != null && _audio != null)
-                    _buildUploadButton(context),
-                  if (_image != null && _audio != null)
-                    SizedBox(
+              SizedBox(
+                height: 8,
+              ),
+              if (_image != null && _audio != null) _buildUploadButton(context),
+              if (_image != null && _audio != null)
+                SizedBox(
+                  height: 8,
+                ),
+              _imageControls.buildImageControls(),
+              SizedBox(
+                height: 8,
+              ),
+              widget.params == null ||
+                      widget.params['id'] == null ||
+                      widget.params['id'].isEmpty
+                  ? Text(
+                      Strings.audioControls.i18n,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : SizedBox(
+                      height: 0,
+                    ),
+              widget.params == null ||
+                      widget.params['id'] == null ||
+                      widget.params['id'].isEmpty
+                  ? SizedBox(
                       height: 8,
+                    )
+                  : SizedBox(
+                      height: 0,
                     ),
-                  _buildImageControls(),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  widget.params == null ||
-                          widget.params['id'] == null ||
-                          widget.params['id'].isEmpty
-                      ? Text(
-                          Strings.audioControls.i18n,
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        )
-                      : SizedBox(
-                          height: 0,
-                        ),
-                  widget.params == null ||
-                          widget.params['id'] == null ||
-                          widget.params['id'].isEmpty
-                      ? SizedBox(
-                          height: 8,
-                        )
-                      : SizedBox(
-                          height: 0,
-                        ),
-                  RecorderWidget(
-                    id: UniqueKey().toString(),
-                    setAudioFile: setAudioFile,
-                  ),
-                  TagsWidget(
-                    tags: _tags,
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Container(
-                      padding: EdgeInsets.all(20),
-                      child: Column(
-                        children: <Widget>[
-                          Text(Strings.showAllTags.i18n,
-                              style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold)),
-                          Checkbox(
-                            value: _showAllTags,
-                            onChanged: (bool show) {
-                              if (show) {
-                                _allTags.forEach(_tags.add);
-                              } else {
-                                _allTags.forEach(_tags.remove);
-                              }
-
-                              setState(() {
-                                _showAllTags = show;
-                              });
-                            },
-                          ),
-                          Divider(
-                            color: Colors.blueGrey,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 20),
-                            child: Text(''),
-                          ),
-                        ],
-                      )),
-                ],
-              ))),
-    );
-  }
-
-  Widget _buildImageControls() {
-    return Flexible(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          CustomRaisedButton(
-            key: Key(Keys.storyPageGalleryButton),
-            text: Strings.pictureGallery.i18n,
-            icon: Icon(
-              Icons.photo_library,
-              color: Colors.white,
-            ),
-            onPressed: () => selectImage(ImageSource.gallery),
+              RecorderWidget(
+                setAudioFile: setAudioFile,
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Container(
+                padding: EdgeInsets.all(20),
+                child: Column(
+                  children: <Widget>[
+                    Text(Strings.showAllTags.i18n,
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
+                    Checkbox(
+                      value: _showAllTags,
+                      onChanged: (bool show) {
+                        if (show) {
+                          _allTags.forEach(_tags.add);
+                        } else {
+                          _allTags.forEach(_tags.remove);
+                        }
+                        setState(() {
+                          _showAllTags = show;
+                        });
+                      },
+                    ),
+                    Divider(
+                      color: Colors.blueGrey,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Text(''),
+                    ),
+                  ],
+                ),
+              )
+            ],
           ),
-          SizedBox(
-            width: 8,
-          ),
-          CustomRaisedButton(
-            key: Key(Keys.storyPageCameraButton),
-            text: Strings.pictureCamera.i18n,
-            icon: Icon(
-              Icons.camera,
-              color: Colors.white,
-            ),
-            onPressed: () => selectImage(ImageSource.camera),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -435,7 +305,7 @@ class _StoryPageState extends State<StoryPage> {
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     final GraphQLClient graphQLClientApolloServer =
-        getGraphQLClient(GraphQLClientType.ApolloServer);
+        getGraphQLClient(context, GraphQLClientType.ApolloServer);
 
     final String _id = uuid.v1();
     MultipartFile multipartFile = getMultipartFile(

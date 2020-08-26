@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:responsive_builder/responsive_builder.dart';
 import 'package:simple_timer/simple_timer.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
@@ -18,14 +17,14 @@ import 'package:voiceClient/constants/strings.dart';
 class RecorderWidget extends StatefulWidget {
   RecorderWidget({
     Key key,
-    this.id,
     this.setAudioFile,
     this.timerDuration = 180,
+    this.showIcon = true,
   }) : super(key: key);
-  final String id;
   final ValueChanged<io.File> setAudioFile;
 
   final int timerDuration;
+  final bool showIcon;
 
   final LocalFileSystem localFileSystem = LocalFileSystem();
   @override
@@ -254,22 +253,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
 
   @override
   Widget build(BuildContext context) {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    bool _showIcon = true;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-      case DeviceScreenType.mobile:
-        _showIcon = true;
-        break;
-      case DeviceScreenType.watch:
-        _showIcon = false;
-        break;
-      default:
-        _showIcon = true;
-    }
-
     return Flexible(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -277,14 +260,14 @@ class _RecorderWidgetState extends State<RecorderWidget>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              getRecordButton(_showIcon),
+              getRecordButton(widget.showIcon),
               SizedBox(
                 width: 4,
               ),
               CustomRaisedButton(
                 key: Key(Keys.storyPageStopButton),
                 text: Strings.audioStop.i18n,
-                icon: _showIcon
+                icon: widget.showIcon
                     ? Icon(
                         Icons.stop,
                         color: Colors.white,
@@ -299,7 +282,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
               CustomRaisedButton(
                 key: Key(Keys.storyPagePlayButton),
                 text: Strings.audioPlay.i18n,
-                icon: _showIcon
+                icon: widget.showIcon
                     ? Icon(
                         Icons.play_circle_outline,
                         color: Colors.white,

@@ -17,8 +17,8 @@ import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
-import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/services/service_locator.dart';
 
 class Debouncer {
   Debouncer({this.milliseconds});
@@ -32,6 +32,10 @@ class Debouncer {
     }
     _timer = Timer(Duration(milliseconds: milliseconds), action);
     return;
+  }
+
+  void stop() {
+    _timer.cancel();
   }
 }
 
@@ -77,6 +81,12 @@ class _FriendsPageState extends State<FriendsPage> {
     _searchString = '*';
     _typeUser = TypeUser.friends;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _debouncer.stop();
+    super.dispose();
   }
 
   Future<List<dynamic>> _getAllNewFriendRequestsToMe(

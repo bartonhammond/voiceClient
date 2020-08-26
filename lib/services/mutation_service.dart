@@ -37,7 +37,7 @@ MultipartFile getMultipartFile(
   final byteData = _file.readAsBytesSync();
 
   final multipartFile = MultipartFile.fromBytes(
-    'photo',
+    _type,
     byteData,
     filename: _fileName,
     contentType: MediaType(_type, _subType),
@@ -86,6 +86,36 @@ Future<void> addStory(
   );
 
   queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return;
+}
+
+Future<void> updateStory(
+  GraphQLClient graphQLClientApolloServer,
+  String storyId,
+  String imageFilePath,
+  String audioFilePath,
+  String created,
+) async {
+  final DateTime now = DateTime.now();
+
+  //Create the Story
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(updateStoryQL),
+    variables: <String, dynamic>{
+      'id': storyId,
+      'image': imageFilePath,
+      'audio': audioFilePath,
+      'created': created,
+      'updated': now.toIso8601String()
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
@@ -239,6 +269,29 @@ Future<void> createComment(
   return;
 }
 
+Future<void> updateComment(
+  GraphQLClient graphQLClient,
+  String commentId,
+  String status,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(updateCommentQL),
+    variables: <String, dynamic>{
+      'commentId': commentId,
+      'status': status,
+      'updated': now.toIso8601String()
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
 Future<void> mergeCommentFrom(
   GraphQLClient graphQLClient,
   String userId,
@@ -307,6 +360,27 @@ Future<void> addStoryHashtags(
 ) async {
   final MutationOptions options = MutationOptions(
     documentNode: gql(addStoryHashtagsQL),
+    variables: <String, dynamic>{
+      'id': storyId,
+      'tag': hashTag,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> removeStoryHashtags(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String hashTag,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(removeStoryHashtagsQL),
     variables: <String, dynamic>{
       'id': storyId,
       'tag': hashTag,

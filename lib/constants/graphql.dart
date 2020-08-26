@@ -102,6 +102,23 @@ CreateStory(
 }
 ''';
 
+const String updateStoryQL = r'''
+mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!) {
+UpdateStory(
+  id: $id
+  image: $image
+  audio: $audio
+  created: {formatted: $created}
+  updated: {formatted: $updated}
+) {
+    __typename
+    id
+    image
+    audio
+  } 
+}
+''';
+
 const String mergeUserStories = r'''
 mutation mergeStoryUser($from: _UserInput!, $to: _StoryInput!) {
 MergeStoryUser(
@@ -205,6 +222,9 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       home
       birth
       image
+    }
+    hashtags{
+        tag
     }
     comments {
       id
@@ -496,6 +516,9 @@ userFriendsStories(
       birth
       image
     }
+    hashtags{
+        tag
+    }
     comments {
       id
       audio
@@ -548,6 +571,27 @@ mutation createComment($commentId: ID!, $storyId: ID!, $audio: String!, $status:
     status: $status
     created: { 
       formatted: $created 
+      }
+  ) {
+    __typename
+    id
+    story
+    audio
+    status
+    created {
+      formatted
+    }
+  }
+}
+''';
+
+const String updateCommentQL = r'''
+mutation updateComment($commentId: ID!, $status: String!, $updated: String!, ) {
+  UpdateComment(
+    id: $commentId
+    status: $status
+    updated: { 
+      formatted: $updated 
       }
   ) {
     __typename
@@ -638,6 +682,25 @@ mutation addStoryHashtags($id: ID!, $tag: String!) {
   }
 }
 ''';
+const String removeStoryHashtagsQL = r'''
+mutation removeStoryHashtags($id: ID!, $tag: String!) {
+  RemoveStoryHashtags(
+    from:  {
+      id: $id
+      }
+    to: {
+      tag: $tag
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      tag
+    }
+  }
+}
+''';
 
 const String userHashTagsCountQL = r'''
 query userHashTagsCount($email: String!){
@@ -670,6 +733,9 @@ query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $curs
       home
       birth
       image
+    }
+    hashtags{
+        tag
     }
     comments {
       id
@@ -709,6 +775,9 @@ query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: Str
       home
       birth
       image
+    }
+    hashtags{
+        tag
     }
     comments {
       id
