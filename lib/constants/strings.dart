@@ -92,7 +92,8 @@ class Strings {
   //Story Page
   static const String imagePlaceholder = 'Image Placeholder';
   static const String imageSelection = 'Image Selection';
-  static const String audioControls = 'Audio Controls';
+  static const String currentAudio = 'Current Audio';
+  static const String audioControls = 'Record Story';
   static const String pictureGallery = 'Gallery';
   static const String pictureCamera = 'Camera';
   static const String audioStop = 'Stop';
@@ -110,6 +111,7 @@ class Strings {
 
   //Staggered  Grid Tile Story
   static const String gridStoryShowCommentsText = 'There are % comments';
+  static const String gridStoryShowTagsText = 'There are % tags';
 
   //Staggered Grid Tile Message
   static const String friendRequest = 'Friend Request';
@@ -122,7 +124,7 @@ class Strings {
 
   //Story play
   static const String recordAComment = 'Record a comment';
-  static const String commentsLabel = 'CommentsLabel';
+  static const String commentsLabel = 'Comments';
 
   //Stories Page
   static const String dateLabel = 'Date';
@@ -131,4 +133,5 @@ class Strings {
   //Comments
   static const String deleteComment = 'Delete';
   static const String hideComment = 'Hide';
+  static const String showComment = 'Show';
 }

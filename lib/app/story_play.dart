@@ -1,18 +1,25 @@
 import 'dart:io' as io;
-import 'package:http/http.dart';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart';
+
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:uuid/uuid.dart';
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 
+import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/comments.dart';
+import 'package:voiceClient/common_widgets/friend_widget.dart';
+
+import 'package:voiceClient/common_widgets/image_controls.dart';
+import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
 import 'package:voiceClient/common_widgets/tags.dart';
+
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
@@ -23,6 +30,7 @@ import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/services/user_tag_counts.dart';
 
 class StoryPlay extends StatefulWidget {
   const StoryPlay({Key key, this.params}) : super(key: key);
@@ -32,22 +40,117 @@ class StoryPlay extends StatefulWidget {
   _StoryPlayState createState() => _StoryPlayState();
 }
 
-class _StoryPlayState extends State<StoryPlay> {
-  Map<String, dynamic> story;
-  io.File _audio;
-  bool _uploadInProgress = false;
-  var uuid = Uuid();
+class _StoryPlayState extends State<StoryPlay>
+    with SingleTickerProviderStateMixin {
+  Map<String, dynamic> _story;
 
-  void setAudioFile(io.File audio) {
+  List<String> _tags = <String>[];
+  List<String> _allTags;
+
+  io.File _image;
+  io.File _storyAudio;
+  io.File _commentAudio;
+
+  bool _uploadInProgress = false;
+
+  final _uuid = Uuid();
+  bool _isCurrentUserAuthor = false;
+  bool _showAllTags = false;
+
+  final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  int _width = 200;
+  int _height = 200;
+  final _spacer = 10;
+  DeviceScreenType deviceType;
+  bool _showIcons = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    deviceType = getDeviceType(MediaQuery.of(context).size);
+
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _width = _height = 750;
+        _showIcons = true;
+        break;
+      case DeviceScreenType.watch:
+        _width = _height = 250;
+        _showIcons = false;
+        break;
+      case DeviceScreenType.mobile:
+        _width = _height = 300;
+        _showIcons = true;
+        break;
+      default:
+        _width = _height = 100;
+    }
+    super.didChangeDependencies();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  void setCommentAudioFile(io.File audio) {
     setState(() {
-      _audio = audio;
+      _commentAudio = audio;
     });
+  }
+
+  void setStoryAudioFile(io.File audio) {
+    setState(() {
+      _storyAudio = audio;
+    });
+  }
+
+  bool tagsHaveChanged() {
+    if (_tags.isEmpty && _story == null) {
+      return false;
+    }
+    if (_tags.isNotEmpty && _story == null) {
+      return true;
+    }
+    if (_tags.isNotEmpty && _story['hashtags'].isEmpty) {
+      return true;
+    }
+    OUTER1:
+    for (var tag in _tags) {
+      bool tagFound = false;
+      for (var hashtag in _story['hashtags']) {
+        if (hashtag['tag'] == tag) {
+          tagFound = true;
+          continue OUTER1;
+        }
+      }
+      if (!tagFound) {
+        return true;
+      }
+    }
+    for (var hashtag in _story['hashtags']) {
+      if (_tags.contains(hashtag['tag'])) {
+        continue;
+      }
+      return true;
+    }
+    return false;
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: getStory(),
+      future: Future.wait([
+        getStory(),
+        getUserHashtagCounts(),
+      ]),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Scaffold(
@@ -56,25 +159,46 @@ class _StoryPlayState extends State<StoryPlay> {
             ),
           );
         } else {
-          story = snapshot.data;
+          _story = snapshot.data[0];
+          _allTags = snapshot.data[1];
+
+          if (_story == null ||
+              (_story != null &&
+                  _story['user'] != null &&
+                  _story['user']['id'] == graphQLAuth.getUserMap()['id'])) {
+            _isCurrentUserAuthor = true;
+          } else {
+            _isCurrentUserAuthor = false;
+          }
+          if (_story != null && _story['hashtags'] != null) {
+            final List<dynamic> hashtags = _story['hashtags'];
+            for (var tag in hashtags) {
+              if (_tags.contains(tag['tag'])) {
+                continue;
+              }
+              _tags.add(tag['tag']);
+            }
+          }
+
           return WillPopScope(
             onWillPop: () async => false,
             child: Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  Strings.MFV.i18n,
+                key: _scaffoldKey,
+                appBar: AppBar(
+                  title: Text(
+                    Strings.MFV.i18n,
+                  ),
+                  backgroundColor: Color(0xff00bcd4),
+                  leading: IconButton(
+                      icon: Icon(MdiIcons.lessThan),
+                      onPressed: () {
+                        if (widget.params.isNotEmpty) {
+                          widget.params['onFinish']();
+                        }
+                        Navigator.of(context).pop('upload');
+                      }),
                 ),
-                backgroundColor: Color(0xff00bcd4),
-                leading: IconButton(
-                    icon: Icon(MdiIcons.lessThan),
-                    onPressed: () {
-                      widget.params['onFinish']();
-                      Navigator.of(context).pop('upload');
-                    }),
-              ),
-              //drawer: getDrawer(context),
-              body: _buildPage(context),
-            ),
+                body: Center(child: getCard(context))),
           );
         }
       },
@@ -82,79 +206,152 @@ class _StoryPlayState extends State<StoryPlay> {
   }
 
   Future<Map> getStory() async {
+    if (widget.params.isEmpty) {
+      return null;
+    }
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
       variables: <String, dynamic>{'id': widget.params['id']},
     );
-
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    return queryResult.data['Story'][0];
+    final Map<String, dynamic> story = queryResult.data['Story'][0];
+
+    return story;
   }
 
-  Widget buildFriend(Map<String, dynamic> story) {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _width = 100;
-    int _height = 200;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.watch:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.mobile:
-        _width = _height = 50;
-        break;
-      default:
-        _width = _height = 100;
+  Future<void> doStoryUploads() async {
+    String _imageFilePath;
+    String _audioFilePath;
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClientApolloServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
+    MultipartFile multipartFile;
+    final String _id = _uuid.v1();
+
+    if (_image != null) {
+      multipartFile = getMultipartFile(
+        _image,
+        '$_id.jpg',
+        'image',
+        'jpeg',
+      );
+
+      _imageFilePath = await performMutation(
+        graphQLClientFileServer,
+        multipartFile,
+        'jpeg',
+      );
     }
-    return Card(
-      margin: EdgeInsets.all(10),
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 5,
-          ),
-          Center(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(25.0),
-              child: FadeInImage.memoryNetwork(
-                height: _height.toDouble(),
-                width: _width.toDouble(),
-                placeholder: kTransparentImage,
-                image: host(story['user']['image'],
-                    width: _width,
-                    height: _height,
-                    resizingType: 'fill',
-                    enlarge: 1),
-              ),
-            ),
-          ),
-          Text(
-            story['user']['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          Text(
-            story['user']['home'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          Text(
-            story['user']['birth'].toString(),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-          ),
-          SizedBox(
-            height: 8,
-          ),
-        ],
-      ),
-    );
+
+    if (_storyAudio != null) {
+      multipartFile = getMultipartFile(
+        _storyAudio,
+        '$_id.mp3',
+        'audio',
+        'mp3',
+      );
+
+      _audioFilePath = await performMutation(
+        graphQLClientFileServer,
+        multipartFile,
+        'mp3',
+      );
+    }
+    if (_story == null) {
+      await addStory(
+        graphQLClientApolloServer,
+        graphQLAuth.getCurrentUserId(),
+        _id,
+        _imageFilePath,
+        _audioFilePath,
+      );
+
+      _tags = _tags.toSet().toList();
+
+      for (var tag in _tags) {
+        await addHashTag(
+          graphQLClientApolloServer,
+          tag,
+        );
+        await addStoryHashtags(
+          graphQLClientApolloServer,
+          _id,
+          tag,
+        );
+      }
+    } else {
+      //don't update unnecessarily
+      if (_imageFilePath != null || _audioFilePath != null) {
+        _imageFilePath ??= _story['image'];
+        _audioFilePath ??= _story['audio'];
+        await updateStory(
+          graphQLClientApolloServer,
+          _story['id'],
+          _imageFilePath,
+          _audioFilePath,
+          _story['created']['formatted'],
+        );
+      }
+
+      _tags = _tags.toSet().toList();
+
+      if (_tags.isNotEmpty && _story['hashtags'].isEmpty) {
+        for (var tag in _tags) {
+          await addHashTag(
+            graphQLClientApolloServer,
+            tag,
+          );
+
+          await addStoryHashtags(
+            graphQLClientApolloServer,
+            _story['id'],
+            tag,
+          );
+        }
+      }
+      OUTER:
+      for (var tag in _tags) {
+        //does tag exist in the story
+        for (var hashtag in _story['hashtags']) {
+          if (hashtag['tag'] == tag) {
+            continue OUTER;
+          }
+          await addHashTag(
+            graphQLClientApolloServer,
+            tag,
+          );
+
+          await addStoryHashtags(
+            graphQLClientApolloServer,
+            _story['id'],
+            tag,
+          );
+        }
+      }
+
+      //does story have tags that were deleted?
+      for (var hashtag in _story['hashtags']) {
+        if (_tags.contains(hashtag['tag'])) {
+          continue;
+        }
+        await removeStoryHashtags(
+          graphQLClientApolloServer,
+          _story['id'],
+          hashtag['tag'],
+        );
+      }
+    }
+    return;
   }
 
-  Future<void> doUploads(BuildContext context) async {
+  Future<void> doCommentUploads(BuildContext context) async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
@@ -163,9 +360,10 @@ class _StoryPlayState extends State<StoryPlay> {
     final GraphQLClient graphQLClientApolloServer =
         GraphQLProvider.of(context).value;
 
-    final String _commentId = uuid.v1();
+    final String _commentId = _uuid.v1();
+
     final MultipartFile multipartFile = getMultipartFile(
-      _audio,
+      _commentAudio,
       '$_commentId.mp3',
       'audio',
       'mp3',
@@ -180,7 +378,7 @@ class _StoryPlayState extends State<StoryPlay> {
     await createComment(
       graphQLClientApolloServer,
       _commentId,
-      story['id'],
+      _story['id'],
       _audioFilePath,
       'new',
     );
@@ -193,7 +391,7 @@ class _StoryPlayState extends State<StoryPlay> {
 
     await addStoryComments(
       graphQLClientApolloServer,
-      story['id'],
+      _story['id'],
       _commentId,
     );
     return;
@@ -213,9 +411,9 @@ class _StoryPlayState extends State<StoryPlay> {
               setState(() {
                 _uploadInProgress = true;
               });
-              await doUploads(context);
+              await doCommentUploads(context);
               setState(() {
-                _audio = null;
+                _commentAudio = null;
                 _uploadInProgress = false;
               });
 
@@ -224,93 +422,277 @@ class _StoryPlayState extends State<StoryPlay> {
           );
   }
 
-  Widget _buildPage(BuildContext context) {
-    final tags = <String>[];
-    final List<dynamic> hashtags = story['hashtags'];
-    for (var tag in hashtags) {
-      tags.add(tag['tag']);
-    }
-    return Center(
-        child: ListView(
-      shrinkWrap: true,
-      children: <Widget>[
-        getCard(tags),
-      ],
-    ));
+  Widget _buildUploadStoryButton(BuildContext context) {
+    return _uploadInProgress
+        ? CircularProgressIndicator()
+        : CustomRaisedButton(
+            key: Key(Keys.storyPageUploadButton),
+            icon: Icon(
+              Icons.file_upload,
+              color: Colors.white,
+            ),
+            text: Strings.upload.i18n,
+            onPressed: () async {
+              setState(() {
+                _uploadInProgress = true;
+              });
+              await doStoryUploads();
+              setState(() {
+                _uploadInProgress = false;
+              });
+            },
+          );
   }
 
-  Widget getCard(
-    List<String> tags,
-  ) {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _width = 200;
-    int _height = 200;
-    const _spacer = 10;
-
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-        _width = _height = 750;
-
-        break;
-      case DeviceScreenType.watch:
-        _width = _height = 250;
-        break;
-      case DeviceScreenType.mobile:
-        _width = _height = 300;
-        break;
-      default:
-        _width = _height = 100;
+  Widget getImageControls(bool _showIcons) {
+    if (!_isCurrentUserAuthor) {
+      return Container();
     }
+    final ImageControls _imageControls =
+        ImageControls(onImageSelected: (File croppedFile) {
+      setState(() {
+        _image = croppedFile;
+      });
+    });
     return Card(
-        margin: EdgeInsets.all(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            buildFriend(story),
-            Container(
-              margin: EdgeInsets.all(10),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: FadeInImage.memoryNetwork(
-                  placeholder: kTransparentImage,
-                  image: host(
-                    story['image'],
-                    width: _width,
-                    height: _height,
-                  ),
+      margin: EdgeInsets.all(0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            Strings.imageSelection.i18n,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          _imageControls.buildImageControls(showIcons: _showIcons),
+          SizedBox(
+            height: 8,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget getPlayerControls(int width, bool showIcons) {
+    return _story != null
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                Strings.currentAudio.i18n,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              PlayerWidget(
+                url: host(_story['audio']),
+                width: width,
+              ),
+              _isCurrentUserAuthor
+                  ? SizedBox(
+                      height: 8,
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? Text(
+                      Strings.audioControls.i18n,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? RecorderWidget(
+                      setAudioFile: setStoryAudioFile,
+                    )
+                  : Container(),
+            ],
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _isCurrentUserAuthor
+                  ? SizedBox(
+                      height: 8,
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? Text(
+                      Strings.audioControls.i18n,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    )
+                  : Container(),
+              _isCurrentUserAuthor
+                  ? RecorderWidget(
+                      setAudioFile: setStoryAudioFile,
+                    )
+                  : Container(),
+            ],
+          );
+  }
+
+  Widget getImageDisplay(int _width, int _height) {
+    if (_image != null)
+      return Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25.0),
+          child: Image.file(
+            _image,
+            width: _width.toDouble(),
+            height: _height.toDouble(),
+          ),
+        ),
+      );
+    else if (_story != null)
+      return Center(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(25.0),
+          child: FadeInImage.memoryNetwork(
+            width: _width.toDouble(),
+            height: _height.toDouble(),
+            placeholder: kTransparentImage,
+            image: host(
+              _story['image'],
+              width: _width,
+              height: _height,
+              resizingType: 'fill',
+              enlarge: 1,
+            ),
+          ),
+        ),
+      );
+    else
+      return Stack(
+        children: <Widget>[
+          Image(
+            image: AssetImage('assets/placeholder.png'),
+            width: _width.toDouble(),
+            height: _height.toDouble(),
+          ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(25.0),
+            child: Container(
+              height: _height.toDouble(),
+              width: _width.toDouble(),
+              padding: EdgeInsets.all(5.0),
+              alignment: Alignment.topCenter,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[
+                    Colors.black.withAlpha(30),
+                    Colors.black12,
+                    Colors.black54
+                  ],
+                ),
+              ),
+              child: Text(
+                Strings.imagePlaceholder.i18n,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20.0,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
+          )
+        ],
+      );
+  }
+
+  Widget getCard(BuildContext context) {
+    return SingleChildScrollView(
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            if (widget.params != null &&
+                widget.params['id'] != null &&
+                widget.params['id'].isNotEmpty)
+              buildFriend(
+                context,
+                _story['user'],
+              ),
+            getImageDisplay(
+              _width,
+              _height,
+            ),
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            PlayerWidget(
-              url: host(story['audio']),
-              width: _width,
+            if (_story != null &&
+                    (_image != null ||
+                        _storyAudio != null ||
+                        tagsHaveChanged()) ||
+                (_story == null && _image != null && _storyAudio != null))
+              _buildUploadStoryButton(context),
+            if (_image != null || _storyAudio != null)
+              SizedBox(
+                height: _spacer.toDouble(),
+              ),
+            getImageControls(_showIcons),
+            SizedBox(
+              height: _spacer.toDouble(),
             ),
+            getPlayerControls(_width, _showIcons),
             Divider(
-              indent: 50,
-              endIndent: 50,
               height: _spacer.toDouble(),
-              thickness: 5,
+              thickness: 2,
             ),
             SizedBox(
-              height: _spacer.toDouble(),
+              height: 8,
             ),
             Text(Strings.tagsLabel.i18n,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                 )),
-            TagsWidget(
-              tags: tags,
-              updatedAble: false,
+            getTags(
+              allTags: _allTags,
+              tags: _tags,
+              onTagAdd: (String tag) {
+                setState(() {
+                  _tags.add(tag);
+                });
+              },
+              onTagRemove: (int index) {
+                setState(() {
+                  _tags.removeAt(index);
+                });
+              },
+              updatedAble: _isCurrentUserAuthor,
             ),
             SizedBox(
-              height: 8,
+              height: _spacer.toDouble(),
             ),
+            _isCurrentUserAuthor
+                ? Container(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      children: <Widget>[
+                        Text(Strings.showAllTags.i18n,
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        Checkbox(
+                          value: _showAllTags,
+                          onChanged: (bool show) {
+                            if (show) {
+                              _allTags.forEach(_tags.add);
+                            } else {
+                              _allTags.forEach(_tags.remove);
+                            }
+                            setState(() {
+                              _showAllTags = !_showAllTags;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
             Divider(
               indent: 50,
               endIndent: 50,
@@ -320,32 +702,62 @@ class _StoryPlayState extends State<StoryPlay> {
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            Text(Strings.recordAComment.i18n,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            _story != null
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(Strings.recordAComment.i18n,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(
+                        height: _spacer.toDouble(),
+                      ),
+                      RecorderWidget(
+                        setAudioFile: setCommentAudioFile,
+                        timerDuration: 90,
+                      ),
+                      if (_commentAudio != null) _buildUploadButton(context),
+                      Divider(
+                        indent: 50,
+                        endIndent: 50,
+                        height: _spacer.toDouble(),
+                        thickness: 5,
+                      ),
+                      Text(Strings.commentsLabel.i18n,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20)),
+                      Comments(
+                        key: Key(Keys.commentsWidgetExpansionTile),
+                        story: _story,
+                        fontSize: 16,
+                        showExpand: true,
+                        onClickDelete: (Map<String, dynamic> _comment) async {
+                          final bool deleteComment = await PlatformAlertDialog(
+                            title: Strings.requestFriendship.i18n,
+                            content: Strings.areYouSure.i18n,
+                            cancelActionText: Strings.cancel.i18n,
+                            defaultActionText: Strings.yes.i18n,
+                          ).show(context);
+                          if (deleteComment == true) {
+                            await updateComment(
+                              GraphQLProvider.of(context).value,
+                              _comment['id'],
+                              'delete',
+                            );
+                            setState(() {});
+                          }
+                        },
+                      ),
+                    ],
+                  )
+                : Container(),
             SizedBox(
-              height: _spacer.toDouble(),
-            ),
-            RecorderWidget(
-              id: story['id'],
-              setAudioFile: setAudioFile,
-              timerDuration: 90,
-            ),
-            if (_audio != null) _buildUploadButton(context),
-            Divider(
-              indent: 50,
-              endIndent: 50,
-              height: _spacer.toDouble(),
-              thickness: 5,
-            ),
-            Text(Strings.commentsLabel.i18n,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-            Comments(
-              key: Key(Keys.commentsWidgetExpansionTile),
-              story: story,
-              fontSize: 16,
-              showExpand: true,
+              height: 75,
             ),
           ],
-        ));
+        ),
+      ),
+    );
   }
 }

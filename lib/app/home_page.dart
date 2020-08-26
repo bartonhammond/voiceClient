@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:voiceClient/app/story_page.dart';
+import 'package:voiceClient/app/story_play.dart';
 import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
 
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
@@ -7,7 +7,6 @@ import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_profile.dart';
 import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
 import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 
@@ -37,14 +36,16 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildFab(BuildContext context) {
+    final Map<String, dynamic> params = <String, dynamic>{};
     return FloatingActionButton(
       backgroundColor: Color(0xff00bcd4),
       onPressed: () {
         Navigator.push<dynamic>(
           context,
           MaterialPageRoute<dynamic>(
-              builder: (context) => StoryPage(
-                    key: Key(Keys.storyPage),
+              builder: (context) => StoryPlay(
+                    key: Key('storyPlay'),
+                    params: params,
                   )),
         );
       },

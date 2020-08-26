@@ -13,8 +13,8 @@ import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
-import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/services/service_locator.dart';
 
 class MessagesPage extends StatefulWidget {
   const MessagesPage({

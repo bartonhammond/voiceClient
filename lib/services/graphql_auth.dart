@@ -17,9 +17,9 @@ class GraphQLAuth {
   String currentUserId;
 
   Environment environment = Environment.Production;
-  String ngrok4002 = 'http://30a27584bb7e.ngrok.io';
-  String ngrok4001 = 'http://41fb5b70a8cd.ngrok.io';
-  String ngrok8080 = 'http://ce47444c0b2b.ngrok.io';
+  String ngrok4002 = 'http://4f3efa05057d.ngrok.io';
+  String ngrok4001 = 'http://176585b05d84.ngrok.io';
+  String ngrok8080 = 'http://a4787844ba0e.ngrok.io';
   String hp = 'http://192.168.1.234';
 
   String getHttpLinkUri(GraphQLClientType type) {
