@@ -62,7 +62,8 @@ Future<void> addStory(
       'id': storyId,
       'image': imageFilePath,
       'audio': audioFilePath,
-      'created': now.toIso8601String()
+      'created': now.toIso8601String(),
+      'updated': now.toIso8601String()
     },
   );
 
@@ -70,6 +71,7 @@ Future<void> addStory(
       await graphQLClientApolloServer.mutate(_mutationOptions);
 
   if (queryResult.hasException) {
+    print('mutation_service createStory failed');
     throw queryResult.exception;
   }
 
@@ -87,6 +89,7 @@ Future<void> addStory(
 
   queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
   if (queryResult.hasException) {
+    print('mutation_service createStory failed');
     throw queryResult.exception;
   }
   return;

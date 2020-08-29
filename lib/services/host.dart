@@ -42,7 +42,9 @@ String host(
 
   final signature = sign(salt, utf8.encode(pathPart), key);
 
-  return '${graphQLAuth.getHttpLinkUri(GraphQLClientType.ImageServer)}/$signature$pathPart';
+  final _location =
+      '${graphQLAuth.getHttpLinkUri(GraphQLClientType.ImageServer)}/image/$signature$pathPart';
+  return _location;
 }
 
 String urlSafeBase64(dynamic buffer) {

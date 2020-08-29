@@ -87,12 +87,13 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $bi
 ''';
 
 const String createStory = r'''
-mutation createStory($id: ID!, $image: String!, $audio: String!, $created: String!) {
+mutation createStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!) {
 CreateStory(
     id: $id
     image: $image
     audio: $audio
     created: { formatted: $created }
+    updated: { formatted: $updated }
   ) {
     __typename
     id
@@ -214,6 +215,9 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
     image
     audio
     created {
+      formatted
+    }
+    updated {
       formatted
     }
     user {
@@ -509,6 +513,9 @@ userFriendsStories(
     created {
       formatted
     }
+    updated {
+      formatted
+    }
     user {
       email
       name
@@ -727,6 +734,9 @@ query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $curs
     created {
       formatted
     }
+    updated {
+      formatted
+    }
     user {
       email
       name
@@ -767,6 +777,9 @@ query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: Str
     image
     audio
     created {
+      formatted
+    }
+    updated {
       formatted
     }
     user {

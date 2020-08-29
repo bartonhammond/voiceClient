@@ -394,6 +394,16 @@ class _StoryPlayState extends State<StoryPlay>
       _story['id'],
       _commentId,
     );
+
+    //make sure the updated field gets updated
+    await updateStory(
+      graphQLClientApolloServer,
+      _story['id'],
+      _story['image'],
+      _story['audio'],
+      _story['created']['formatted'],
+    );
+
     return;
   }
 
