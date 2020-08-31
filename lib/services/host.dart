@@ -25,7 +25,7 @@ String host(
   }
   if (path.endsWith('mp3')) {
     final String url =
-        '${graphQLAuth.getHttpLinkUri(GraphQLClientType.Mp3Server)}/$path';
+        '${graphQLAuth.getHttpLinkUri(GraphQLClientType.Mp3Server)}$path';
     return url;
   }
   if (path.startsWith('storage/')) {

@@ -171,7 +171,6 @@ Future<void> main() async {
         userIds[userIndex],
         userIds[friendIndex],
       );
-      print('added User Friend');
     }
   }
   //Create the system wide tags

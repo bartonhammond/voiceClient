@@ -93,6 +93,7 @@ CreateStory(
     image: $image
     audio: $audio
     created: { formatted: $created }
+    updated: { formatted: $created }
   ) {
     __typename
     id
@@ -275,8 +276,8 @@ query userSearch($searchString: String!) {
 ''';
 
 const String userSearchFriends = r'''
-query userSearchFriends($searchString: String!, $email: String!) {
-  userSearchFriends(searchString: $searchString, email: $email) {
+query userSearchFriends($searchString: String!, $email: String!, $cursor: String!, $limit: String! ) {
+  userSearchFriends(searchString: $searchString, email: $email, cursor: $cursor, limit: $limit) {
     __typename
     id
     name
@@ -289,8 +290,8 @@ query userSearchFriends($searchString: String!, $email: String!) {
 ''';
 
 const String userSearchNotFriends = r'''
-query userSearchNotFriends($searchString: String!, $email: String!) {
-  userSearchNotFriends(searchString: $searchString, email: $email) {
+query userSearchNotFriends($searchString: String!, $email: String!, $cursor: String!, $limit: String!) {
+  userSearchNotFriends(searchString: $searchString, email: $email, cursor: $cursor, limit: $limit) {
     __typename
     id
     name

@@ -239,7 +239,7 @@ class _StoriesPageState extends State<StoriesPage> {
     return datetime;
   }
 
-  Widget getButton(
+  Widget getLoadMoreButton(
     FetchMore fetchMore,
     List<dynamic> activities,
   ) {
@@ -421,7 +421,8 @@ class _StoriesPageState extends State<StoriesPage> {
                                                 stories[index]),
                                           )
                                         : _resultTypes.getHasMore()
-                                            ? getButton(fetchMore, stories)
+                                            ? getLoadMoreButton(
+                                                fetchMore, stories)
                                             : Container();
                                   },
                                   staggeredTileBuilder: (index) =>

@@ -20,20 +20,21 @@ class GraphQLAuth {
   String ngrok4002 = 'http://4f3efa05057d.ngrok.io';
   String ngrok4001 = 'http://176585b05d84.ngrok.io';
   String ngrok8080 = 'http://a4787844ba0e.ngrok.io';
-  String hp = 'http://192.168.1.234';
+  String server = 'http://192.168.1.44';
+  String hp = 'http://192.168.1.38';
 
   String getHttpLinkUri(GraphQLClientType type) {
     const String endPoint = 'graphql';
     if (environment == Environment.Production) {
       switch (type) {
         case GraphQLClientType.FileServer:
-          return '$ngrok4002/$endPoint';
+          return '$server/file/';
         case GraphQLClientType.Mp3Server:
-          return '$ngrok4002';
+          return '$server/mp3';
         case GraphQLClientType.ApolloServer:
-          return '$ngrok4001/$endPoint';
+          return '$server/apollo/';
         case GraphQLClientType.ImageServer:
-          return ngrok8080;
+          return '$server/image';
       }
     } else {
       switch (type) {
