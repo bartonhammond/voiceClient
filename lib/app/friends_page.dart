@@ -6,6 +6,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 
 import 'package:voiceClient/app/sign_in/friend_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
@@ -51,7 +52,9 @@ class FriendsPage extends StatefulWidget {
 
 class _FriendsPageState extends State<FriendsPage> {
   final String title = Strings.MFV.i18n;
-  final nFriends = 20;
+  final _nFriends = 20;
+  int _skip = 0;
+
   final ScrollController _scrollController = ScrollController();
   String _searchString;
   final _debouncer = Debouncer(milliseconds: 500);
@@ -254,11 +257,12 @@ class _FriendsPageState extends State<FriendsPage> {
 
   QueryOptions getQueryOptions() {
     String gqlString;
+    _skip = 0;
     var _variables = <String, dynamic>{
       'searchString': _searchString,
       'email': graphQLAuth.getUser().email,
-      'first': nFriends,
-      'offset': 0
+      'limit': _nFriends.toString(),
+      'skip': _skip.toString(),
     };
     switch (_typeUser) {
       case TypeUser.friends:
@@ -267,7 +271,6 @@ class _FriendsPageState extends State<FriendsPage> {
       case TypeUser.users:
         gqlString = userSearchNotFriends;
         break;
-
       case TypeUser.me:
         gqlString = userSearchMeQL;
         _variables = <String, dynamic>{
@@ -283,7 +286,8 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  Widget _build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
 
@@ -296,6 +300,24 @@ class _FriendsPageState extends State<FriendsPage> {
       default:
         staggeredViewSize = 2;
     }
+    return FutureBuilder(
+      future: Future.wait([
+        _getAllMyFriendRequests(context),
+        _getAllNewFriendRequestsToMe(context),
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          allMyFriendRequests = snapshot.data[0];
+          allNewFriendRequestsToMe = snapshot.data[1];
+          return _build();
+        } else {
+          return _progressIndicator();
+        }
+      },
+    );
+  }
+
+  Widget _build() {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
@@ -325,7 +347,6 @@ class _FriendsPageState extends State<FriendsPage> {
                 VoidCallback refetch,
                 FetchMore fetchMore,
               }) {
-                _refetchQuery = refetch;
                 if (result.loading && result.data == null) {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -335,44 +356,48 @@ class _FriendsPageState extends State<FriendsPage> {
                 if (result.hasException) {
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
+                _refetchQuery = refetch;
+                final List<dynamic> friends = List<dynamic>.from(
+                    result.data[searchResultsName[_typeUser.index]]);
 
-                final List<dynamic> friends =
-                    result.data[searchResultsName[_typeUser.index]];
-
-                //don't want to paginate the search results
-                moreSearchResults[_typeUser.index] = false;
-
-                final FetchMoreOptions opts = FetchMoreOptions(
-                  variables: <String, dynamic>{'offset': friends.length},
-                  updateQuery: (dynamic previousResultData,
-                      dynamic fetchMoreResultData) {
-                    // this is where you combine your previous data and response
-                    // in this case, we want to display previous repos plus next repos
-                    // so, we combine data in both into a single list of repos
-                    final List<dynamic> repos = <dynamic>[
-                      ...previousResultData[searchResultsName[_typeUser.index]],
-                      ...fetchMoreResultData[
-                          searchResultsName[_typeUser.index]],
-                    ];
-
-                    fetchMoreResultData[searchResultsName[_typeUser.index]] =
-                        repos;
-
-                    return fetchMoreResultData;
-                  },
+                if (friends.isEmpty || friends.length % _nFriends != 0) {
+                  moreSearchResults[_typeUser.index] = false;
+                } else {
+                  moreSearchResults[_typeUser.index] = true;
+                }
+                return Expanded(
+                  child: friends == null || friends.isEmpty
+                      ? Text(Strings.noResults.i18n)
+                      : StaggeredGridView.countBuilder(
+                          controller: _scrollController,
+                          itemCount: friends.length + 1,
+                          primary: false,
+                          crossAxisCount: 4,
+                          mainAxisSpacing: 4.0,
+                          crossAxisSpacing: 4.0,
+                          itemBuilder: (context, index) {
+                            return index < friends.length
+                                ? StaggeredGridTileFriend(
+                                    onPush: _typeUser == TypeUser.friends ||
+                                            _typeUser == TypeUser.me
+                                        ? widget.onPush
+                                        : null,
+                                    friend: friends[index],
+                                    friendButton: getFriendButton(
+                                      allNewFriendRequestsToMe,
+                                      allMyFriendRequests,
+                                      friends,
+                                      index,
+                                    ),
+                                  )
+                                : moreSearchResults[_typeUser.index]
+                                    ? getLoadMoreButton(fetchMore, friends)
+                                    : Container();
+                          },
+                          staggeredTileBuilder: (index) =>
+                              StaggeredTile.fit(staggeredViewSize),
+                        ),
                 );
-
-                _scrollController
-                  ..addListener(() {
-                    if (_scrollController.position.pixels ==
-                        _scrollController.position.maxScrollExtent) {
-                      if (!result.loading &&
-                          moreSearchResults[_typeUser.index]) {
-                        fetchMore(opts);
-                      }
-                    }
-                  });
-                return _futures(context, friends);
               },
             )
           ],
@@ -381,58 +406,34 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  Expanded _expanded(List<dynamic> friends) {
-    return Expanded(
-      child: friends == null || friends.isEmpty
-          ? Text(Strings.noResults.i18n)
-          : StaggeredGridView.countBuilder(
-              controller: _scrollController,
-              itemCount: friends.length,
-              primary: false,
-              crossAxisCount: 4,
-              mainAxisSpacing: 4.0,
-              crossAxisSpacing: 4.0,
-              itemBuilder: (context, index) => StaggeredGridTileFriend(
-                onPush:
-                    _typeUser == TypeUser.friends || _typeUser == TypeUser.me
-                        ? widget.onPush
-                        : null,
-                friend: friends[index],
-                friendButton: getFriendButton(
-                  allNewFriendRequestsToMe,
-                  allMyFriendRequests,
-                  friends,
-                  index,
-                ),
-              ),
-              staggeredTileBuilder: (index) =>
-                  StaggeredTile.fit(staggeredViewSize),
-            ),
-    );
-  }
-
-  Widget _futures(BuildContext context, List<dynamic> friends) {
-    return FutureBuilder(
-      future: _getAllMyFriendRequests(context),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          allMyFriendRequests = snapshot.data;
-          return FutureBuilder(
-            future: _getAllNewFriendRequestsToMe(context),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                allNewFriendRequestsToMe = snapshot.data;
-                return _expanded(friends);
-              } else {
-                return _progressIndicator();
-              }
+  Widget getLoadMoreButton(
+    FetchMore fetchMore,
+    List<dynamic> friends,
+  ) {
+    return CustomRaisedButton(
+        text: Strings.loadMore.i18n,
+        icon: Icon(
+          Icons.arrow_downward,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          _skip += _nFriends;
+          final FetchMoreOptions opts = FetchMoreOptions(
+            variables: <String, dynamic>{
+              'skip': _skip.toString(),
+            },
+            updateQuery:
+                (dynamic previousResultData, dynamic fetchMoreResultData) {
+              final List<dynamic> data = <dynamic>[
+                ...previousResultData[searchResultsName[_typeUser.index]],
+                ...fetchMoreResultData[searchResultsName[_typeUser.index]],
+              ];
+              fetchMoreResultData[searchResultsName[_typeUser.index]] = data;
+              return fetchMoreResultData;
             },
           );
-        } else {
-          return _progressIndicator();
-        }
-      },
-    );
+          fetchMore(opts);
+        });
   }
 
   Widget getFriendButton(
@@ -542,10 +543,5 @@ class _FriendsPageState extends State<FriendsPage> {
         ),
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _build(context);
   }
 }

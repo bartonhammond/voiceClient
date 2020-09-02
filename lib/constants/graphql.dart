@@ -279,8 +279,8 @@ query userSearch($searchString: String!) {
 ''';
 
 const String userSearchFriends = r'''
-query userSearchFriends($searchString: String!, $email: String!) {
-  userSearchFriends(searchString: $searchString, email: $email) {
+query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+  userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
     id
     name
@@ -288,13 +288,16 @@ query userSearchFriends($searchString: String!, $email: String!) {
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
 
 const String userSearchNotFriends = r'''
-query userSearchNotFriends($searchString: String!, $email: String!) {
-  userSearchNotFriends(searchString: $searchString, email: $email) {
+query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
+  userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
     id
     name
@@ -302,6 +305,9 @@ query userSearchNotFriends($searchString: String!, $email: String!) {
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
@@ -316,6 +322,9 @@ query userSearchMe($email: String!) {
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';

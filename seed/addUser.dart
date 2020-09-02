@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:graphql/client.dart';
-import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart';
 import 'package:voiceClient/constants/graphql.dart';
@@ -13,8 +12,7 @@ Future<String> addUser(
 ) async {
   final uuid = Uuid();
   final DateTime now = DateTime.now();
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
+
   final String id = uuid.v1();
   String jpegPathUrl;
   if (!user.containsKey('image')) {
@@ -40,7 +38,7 @@ Future<String> addUser(
       'home': user['home'],
       'birth': user['birth'],
       'image': user.containsKey('image') ? user['image'] : jpegPathUrl,
-      'created': formattedDate
+      'created': now.toIso8601String(),
     },
   );
   final QueryResult result = await graphQLClient.mutate(_mutationOptions);

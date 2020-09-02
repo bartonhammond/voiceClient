@@ -144,7 +144,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     final DateTime dt = DateTime.parse(widget.story['updated']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
 
-    List<String> _tags = [];
+    final List<String> _tags = [];
     if (widget.story != null && widget.story['hashtags'] != null) {
       final List<dynamic> hashtags = widget.story['hashtags'];
       for (var tag in hashtags) {

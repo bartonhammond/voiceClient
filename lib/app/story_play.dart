@@ -744,7 +744,7 @@ class _StoryPlayState extends State<StoryPlay>
                         showExpand: true,
                         onClickDelete: (Map<String, dynamic> _comment) async {
                           final bool deleteComment = await PlatformAlertDialog(
-                            title: Strings.requestFriendship.i18n,
+                            title: Strings.deleteComment.i18n,
                             content: Strings.areYouSure.i18n,
                             cancelActionText: Strings.cancel.i18n,
                             defaultActionText: Strings.yes.i18n,

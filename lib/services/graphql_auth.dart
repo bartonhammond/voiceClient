@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' as Foundation;
 
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
@@ -16,35 +17,35 @@ class GraphQLAuth {
   String token;
   String currentUserId;
 
-  Environment environment = Environment.Production;
-  String ngrok4002 = 'http://192.168.1.44'; //http://28418aa5317c.ngrok.io';
-  String ngrok4001 = 'http://192.168.1.44'; //'http://690240bfa428.ngrok.io';
-  String ngrok8080 = 'http://192.168.1.44'; //'http://fd1c83b7a743.ngrok.io';
-  String hp = 'http://192.168.1.48';
+  String ngrok4002 = 'http://2ed3ff49cf01.ngrok.io';
+  String ngrok4001 = 'http://d187a687bf0c.ngrok.io';
+  String ngrok8080 = 'http://9e69f281e36e.ngrok.io';
+
+  String server = 'http://myfamilyvoice.com';
 
   String getHttpLinkUri(GraphQLClientType type) {
     const String endPoint = 'graphql';
-    if (environment == Environment.Production) {
+    if (Foundation.kReleaseMode) {
       switch (type) {
         case GraphQLClientType.FileServer:
-          return '$ngrok4002/file/';
+          return '$server/file/';
         case GraphQLClientType.Mp3Server:
-          return '$ngrok4002/mp3';
+          return '$server/mp3';
         case GraphQLClientType.ApolloServer:
-          return '$ngrok4001/apollo/';
+          return '$server/apollo/';
         case GraphQLClientType.ImageServer:
-          return ngrok8080;
+          return '$server/image';
       }
     } else {
       switch (type) {
         case GraphQLClientType.FileServer:
-          return '$hp:4002/$endPoint';
+          return '$ngrok4002/$endPoint';
         case GraphQLClientType.Mp3Server:
-          return '$hp:4002';
+          return '$ngrok4002/';
         case GraphQLClientType.ApolloServer:
-          return '$hp:4001/$endPoint';
+          return '$ngrok4001/$endPoint';
         case GraphQLClientType.ImageServer:
-          return '$hp:8080';
+          return 'ngrok8080';
       }
     }
     throw Exception('invalid parameter: $type');
