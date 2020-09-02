@@ -52,7 +52,9 @@ class FriendsPage extends StatefulWidget {
 
 class _FriendsPageState extends State<FriendsPage> {
   final String title = Strings.MFV.i18n;
-  final nFriends = 20;
+  final _nFriends = 20;
+  int _skip = 0;
+
   final ScrollController _scrollController = ScrollController();
   String _searchString;
   final _debouncer = Debouncer(milliseconds: 500);
@@ -255,11 +257,12 @@ class _FriendsPageState extends State<FriendsPage> {
 
   QueryOptions getQueryOptions() {
     String gqlString;
+    _skip = 0;
     var _variables = <String, dynamic>{
       'searchString': _searchString,
       'email': graphQLAuth.getUser().email,
-      'limit': nFriends.toString(),
-      'cursor': DateTime.now().toIso8601String(),
+      'limit': _nFriends.toString(),
+      'skip': _skip.toString(),
     };
     switch (_typeUser) {
       case TypeUser.friends:
@@ -353,11 +356,11 @@ class _FriendsPageState extends State<FriendsPage> {
                 if (result.hasException) {
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
-
+                _refetchQuery = refetch;
                 final List<dynamic> friends = List<dynamic>.from(
                     result.data[searchResultsName[_typeUser.index]]);
 
-                if (friends.isEmpty || friends.length % nFriends != 0) {
+                if (friends.isEmpty || friends.length % _nFriends != 0) {
                   moreSearchResults[_typeUser.index] = false;
                 } else {
                   moreSearchResults[_typeUser.index] = true;
@@ -403,16 +406,6 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  String getCursor(List<dynamic> _list) {
-    String datetime;
-    if (_list == null || _list.isEmpty) {
-      datetime = DateTime.now().toIso8601String();
-    } else {
-      datetime = _list[_list.length - 1]['created']['formatted'];
-    }
-    return datetime;
-  }
-
   Widget getLoadMoreButton(
     FetchMore fetchMore,
     List<dynamic> friends,
@@ -424,9 +417,10 @@ class _FriendsPageState extends State<FriendsPage> {
           color: Colors.white,
         ),
         onPressed: () {
+          _skip += _nFriends;
           final FetchMoreOptions opts = FetchMoreOptions(
             variables: <String, dynamic>{
-              'cursor': getCursor(friends),
+              'skip': _skip.toString(),
             },
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {

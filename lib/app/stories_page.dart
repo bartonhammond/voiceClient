@@ -212,7 +212,7 @@ class _StoriesPageState extends State<StoriesPage> {
             border: UnderlineInputBorder(
                 borderSide: BorderSide(color: Color(0xff00bcd4))),
             contentPadding: EdgeInsets.all(15.0),
-            hintText: Strings.filterText.i18n,
+            hintText: Strings.searchByTagsHint.i18n,
             hintStyle: TextStyle(color: Color(0xff00bcd4))),
         onChanged: (string) {
           _debouncer.run(() {
@@ -372,7 +372,9 @@ class _StoriesPageState extends State<StoriesPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       getDropDownTypeSearchButtons(),
-                      buildSearchField(),
+                      _resultTypes.getTypeSearch() == TypeSearch.date
+                          ? Container()
+                          : buildSearchField()
                     ],
                   ),
                   Query(

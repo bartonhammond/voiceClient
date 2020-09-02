@@ -217,6 +217,9 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
     created {
       formatted
     }
+    updated {
+      formatted
+    }
     user {
       email
       name
@@ -276,8 +279,8 @@ query userSearch($searchString: String!) {
 ''';
 
 const String userSearchFriends = r'''
-query userSearchFriends($searchString: String!, $email: String!, $cursor: String!, $limit: String! ) {
-  userSearchFriends(searchString: $searchString, email: $email, cursor: $cursor, limit: $limit) {
+query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+  userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
     id
     name
@@ -293,8 +296,8 @@ query userSearchFriends($searchString: String!, $email: String!, $cursor: String
 ''';
 
 const String userSearchNotFriends = r'''
-query userSearchNotFriends($searchString: String!, $email: String!, $cursor: String!, $limit: String!) {
-  userSearchNotFriends(searchString: $searchString, email: $email, cursor: $cursor, limit: $limit) {
+query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
+  userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
     id
     name
@@ -319,6 +322,9 @@ query userSearchMe($email: String!) {
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
@@ -514,6 +520,9 @@ userFriendsStories(
     image
     audio
     created {
+      formatted
+    }
+    updated {
       formatted
     }
     user {
@@ -734,6 +743,9 @@ query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $curs
     created {
       formatted
     }
+    updated {
+      formatted
+    }
     user {
       email
       name
@@ -774,6 +786,9 @@ query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: Str
     image
     audio
     created {
+      formatted
+    }
+    updated {
       formatted
     }
     user {

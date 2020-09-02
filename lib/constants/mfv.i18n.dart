@@ -149,7 +149,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.friendsTabName,
-        'es': 'Amigos',
+        'es': 'Usuarios',
       } +
       {
         'en': Strings.noticesTabName,
@@ -169,7 +169,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.typeUserButtonUsers,
-        'es': 'Los usuarios',
+        'es': 'Otros',
       } +
       {
         'en': Strings.typeUserButtonMe,
@@ -374,6 +374,10 @@ extension Localization on String {
       {
         'en': Strings.tagsLabel,
         'es': 'Etiquetas',
+      } +
+      {
+        'en': Strings.searchByTagsHint,
+        'es': 'Buscar Por Etiquetas',
       } +
       {
         'en': Strings.deleteComment,

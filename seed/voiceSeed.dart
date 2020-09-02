@@ -1,7 +1,8 @@
+import 'dart:io';
 import 'dart:math';
 
+import 'package:args/args.dart';
 import 'package:graphql/client.dart';
-
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 
@@ -12,7 +13,19 @@ import 'constants.dart';
 import 'getPhotoFiles.dart';
 import 'graphQLClient.dart';
 
-Future<void> main() async {
+Future<void> main(List<String> arguments) async {
+  final parser = ArgParser();
+  parser.addOption('mode',
+      help: 'which enviroment to run with', allowed: ['dev', 'prod']);
+
+  if (arguments == null || arguments.isEmpty) {
+    print('missing arguments');
+    print(parser.getUsage());
+    exit(1);
+  }
+
+  ArgResults argResults = parser.parse(arguments);
+
   final userIds = <String>[];
   final users = [
     {
@@ -132,10 +145,10 @@ Future<void> main() async {
   final List<dynamic> files = getFiles();
 
   final GraphQLClient graphQLClientApolloServer =
-      getGraphQLClient(GraphQLClientType.ApolloServer);
+      getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
 
   final GraphQLClient graphQLClientFileServer =
-      getGraphQLClient(GraphQLClientType.FileServer);
+      getGraphQLClient(argResults, GraphQLClientType.FileServer);
 
   //Create User
   final Random randomVoiceGen = Random();

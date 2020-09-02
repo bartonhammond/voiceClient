@@ -17,7 +17,6 @@ class GraphQLAuth {
   String token;
   String currentUserId;
 
-  Environment environment = Environment.Production;
   String ngrok4002 = 'http://2ed3ff49cf01.ngrok.io';
   String ngrok4001 = 'http://d187a687bf0c.ngrok.io';
   String ngrok8080 = 'http://9e69f281e36e.ngrok.io';
@@ -27,7 +26,6 @@ class GraphQLAuth {
   String getHttpLinkUri(GraphQLClientType type) {
     const String endPoint = 'graphql';
     if (Foundation.kReleaseMode) {
-      print('kReleaseMode');
       switch (type) {
         case GraphQLClientType.FileServer:
           return '$server/file/';
@@ -39,7 +37,6 @@ class GraphQLAuth {
           return '$server/image';
       }
     } else {
-      print('not kReleaseMode');
       switch (type) {
         case GraphQLClientType.FileServer:
           return '$hp:4002/$endPoint';

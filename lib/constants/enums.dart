@@ -1,8 +1,3 @@
-enum Environment {
-  Test,
-  Production,
-}
-
 enum GraphQLClientType {
   FileServer,
   Mp3Server,

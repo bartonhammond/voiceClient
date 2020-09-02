@@ -51,14 +51,14 @@ class Strings {
   // Home page
   static const String toolTipFAB = 'Add Story';
   static const String storiesTabName = 'Stories';
-  static const String friendsTabName = 'Friends';
+  static const String friendsTabName = 'Users';
   static const String noticesTabName = 'Notices';
   static const String profileTabName = 'Profile';
 
   //Friends page
   static const String filterText = 'Filter by name or home';
   static const String typeUserButtonFriends = 'Friends';
-  static const String typeUserButtonUsers = 'Users';
+  static const String typeUserButtonUsers = 'Others';
   static const String typeUserButtonMe = 'Me';
   static const String requestFriendship = 'Request Friendship?';
   static const String cancelFriendship = 'End Friendship?';
@@ -129,6 +129,7 @@ class Strings {
   //Stories Page
   static const String dateLabel = 'Date';
   static const String tagsLabel = 'Tags';
+  static const String searchByTagsHint = 'Search by tag';
 
   //Comments
   static const String deleteComment = 'Delete';
