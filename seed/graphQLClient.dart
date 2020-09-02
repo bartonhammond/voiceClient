@@ -1,14 +1,36 @@
 import 'package:graphql/client.dart';
+import 'package:args/args.dart';
 import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/service_locator.dart';
 
-final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+GraphQLClient getGraphQLClient(ArgResults argResults, GraphQLClientType type) {
+  if (argResults['mode'] == 'prod') {
+    const String uri = 'http://192.168.1.44';
+    String endPoint = 'apollo/';
 
-GraphQLClient getGraphQLClient(GraphQLClientType type) {
-  final String uri = graphQLAuth.getHttpLinkUri(type);
+    if (type == GraphQLClientType.FileServer) {
+      endPoint = 'file/';
+    }
+    final httpLink = HttpLink(
+      uri: '$uri/$endPoint',
+    );
 
-  final httpLink = HttpLink(uri: uri);
+    final GraphQLClient graphQLClient = GraphQLClient(
+      cache: InMemoryCache(),
+      link: httpLink,
+    );
+
+    return graphQLClient;
+  }
+  const String uri = 'http://192.168.1.13';
+  String port = '4003'; //this is not secured (export foo=barton)
+  const String endPoint = 'graphql';
+
+  if (type == GraphQLClientType.FileServer) {
+    port = '4002'; //make sure to start w/ export foo=barton
+  }
+  final httpLink = HttpLink(
+    uri: '$uri:$port/$endPoint',
+  );
 
   final GraphQLClient graphQLClient = GraphQLClient(
     cache: InMemoryCache(),

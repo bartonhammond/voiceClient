@@ -93,6 +93,7 @@ CreateStory(
     image: $image
     audio: $audio
     created: { formatted: $created }
+    updated: { formatted: $created }
   ) {
     __typename
     id
@@ -216,6 +217,9 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
     created {
       formatted
     }
+    updated {
+      formatted
+    }
     user {
       email
       name
@@ -275,8 +279,8 @@ query userSearch($searchString: String!) {
 ''';
 
 const String userSearchFriends = r'''
-query userSearchFriends($searchString: String!, $email: String!) {
-  userSearchFriends(searchString: $searchString, email: $email) {
+query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+  userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
     id
     name
@@ -284,13 +288,16 @@ query userSearchFriends($searchString: String!, $email: String!) {
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
 
 const String userSearchNotFriends = r'''
-query userSearchNotFriends($searchString: String!, $email: String!) {
-  userSearchNotFriends(searchString: $searchString, email: $email) {
+query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
+  userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
     id
     name
@@ -298,6 +305,9 @@ query userSearchNotFriends($searchString: String!, $email: String!) {
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
@@ -312,6 +322,9 @@ query userSearchMe($email: String!) {
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
@@ -507,6 +520,9 @@ userFriendsStories(
     image
     audio
     created {
+      formatted
+    }
+    updated {
       formatted
     }
     user {
@@ -727,6 +743,9 @@ query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $curs
     created {
       formatted
     }
+    updated {
+      formatted
+    }
     user {
       email
       name
@@ -767,6 +786,9 @@ query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: Str
     image
     audio
     created {
+      formatted
+    }
+    updated {
       formatted
     }
     user {
