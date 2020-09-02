@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' as Foundation;
 
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
@@ -17,15 +18,16 @@ class GraphQLAuth {
   String currentUserId;
 
   Environment environment = Environment.Production;
-  String ngrok4002 = 'http://4f3efa05057d.ngrok.io';
-  String ngrok4001 = 'http://176585b05d84.ngrok.io';
-  String ngrok8080 = 'http://a4787844ba0e.ngrok.io';
-  String server = 'http://192.168.1.44';
-  String hp = 'http://192.168.1.38';
+  String ngrok4002 = 'http://2ed3ff49cf01.ngrok.io';
+  String ngrok4001 = 'http://d187a687bf0c.ngrok.io';
+  String ngrok8080 = 'http://9e69f281e36e.ngrok.io';
+  String server = 'http://myfamilyvoice.com'; //'http://192.168.1.44';
+  String hp = 'http://192.168.1.13';
 
   String getHttpLinkUri(GraphQLClientType type) {
     const String endPoint = 'graphql';
-    if (environment == Environment.Production) {
+    if (Foundation.kReleaseMode) {
+      print('kReleaseMode');
       switch (type) {
         case GraphQLClientType.FileServer:
           return '$server/file/';
@@ -37,11 +39,12 @@ class GraphQLAuth {
           return '$server/image';
       }
     } else {
+      print('not kReleaseMode');
       switch (type) {
         case GraphQLClientType.FileServer:
           return '$hp:4002/$endPoint';
         case GraphQLClientType.Mp3Server:
-          return '$hp:4002';
+          return '$hp:4002/';
         case GraphQLClientType.ApolloServer:
           return '$hp:4001/$endPoint';
         case GraphQLClientType.ImageServer:

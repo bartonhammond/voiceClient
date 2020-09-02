@@ -285,6 +285,9 @@ query userSearchFriends($searchString: String!, $email: String!, $cursor: String
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
@@ -299,6 +302,9 @@ query userSearchNotFriends($searchString: String!, $email: String!, $cursor: Str
     home
     birth
     image
+    created {
+      formatted
+    }
   }
 }
 ''';
