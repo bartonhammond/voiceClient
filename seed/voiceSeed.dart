@@ -20,11 +20,11 @@ Future<void> main(List<String> arguments) async {
 
   if (arguments == null || arguments.isEmpty) {
     print('missing arguments');
-    print(parser.getUsage());
+    print(parser.usage);
     exit(1);
   }
 
-  ArgResults argResults = parser.parse(arguments);
+  final ArgResults argResults = parser.parse(arguments);
 
   final userIds = <String>[];
   final users = [

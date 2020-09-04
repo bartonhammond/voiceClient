@@ -1,12 +1,13 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' as Foundation;
-
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/io_client.dart';
 import 'package:provider/provider.dart';
-
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/constants/myfamilyvoice-cert.dart' as cert;
 
 import 'auth_service.dart';
 
@@ -17,38 +18,21 @@ class GraphQLAuth {
   String token;
   String currentUserId;
 
-  String ngrok4002 = 'http://2ed3ff49cf01.ngrok.io';
-  String ngrok4001 = 'http://d187a687bf0c.ngrok.io';
-  String ngrok8080 = 'http://9e69f281e36e.ngrok.io';
-
-  String server = 'http://myfamilyvoice.com';
+  String server = 'https://myfamilyvoice.com';
 
   String getHttpLinkUri(GraphQLClientType type) {
-    const String endPoint = 'graphql';
-    if (Foundation.kReleaseMode) {
-      switch (type) {
-        case GraphQLClientType.FileServer:
-          return '$server/file/';
-        case GraphQLClientType.Mp3Server:
-          return '$server/mp3';
-        case GraphQLClientType.ApolloServer:
-          return '$server/apollo/';
-        case GraphQLClientType.ImageServer:
-          return '$server/image';
-      }
-    } else {
-      switch (type) {
-        case GraphQLClientType.FileServer:
-          return '$ngrok4002/$endPoint';
-        case GraphQLClientType.Mp3Server:
-          return '$ngrok4002/';
-        case GraphQLClientType.ApolloServer:
-          return '$ngrok4001/$endPoint';
-        case GraphQLClientType.ImageServer:
-          return 'ngrok8080';
-      }
+    switch (type) {
+      case GraphQLClientType.FileServer:
+        return '$server/file/';
+      case GraphQLClientType.Mp3Server:
+        return '$server/mp3';
+      case GraphQLClientType.ApolloServer:
+        return '$server/apollo/';
+      case GraphQLClientType.ImageServer:
+        return '$server/image';
+      default:
+        throw Exception('invalid parameter: $type');
     }
-    throw Exception('invalid parameter: $type');
   }
 
   Map<String, dynamic> _userMap;
@@ -74,9 +58,20 @@ class GraphQLAuth {
   }
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
+    final SecurityContext securityContext = SecurityContext();
+    securityContext.setTrustedCertificatesBytes(cert.myfamilyvoice);
+
+    final HttpClient http = HttpClient(context: securityContext);
+    http.badCertificateCallback =
+        (X509Certificate cert, String host, int port) {
+      print('!!!!Bad certificate');
+      return false;
+    };
+
+    final IOClient httpClient = IOClient(http);
     final String uri = getHttpLinkUri(type);
 
-    final httpLink = HttpLink(uri: uri);
+    final HttpLink httpLink = HttpLink(uri: uri, httpClient: httpClient);
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
 
