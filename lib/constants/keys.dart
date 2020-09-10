@@ -25,4 +25,5 @@ class Keys {
   static const String commentsWidgetExpansionTile =
       'commentsWidgetExpansionTile';
   static const String commentsUploadButton = 'commentsUploadButton';
+  static const String deleteStoryButton = 'deleteStoryButton';
 }

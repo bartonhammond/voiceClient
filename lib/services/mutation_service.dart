@@ -125,6 +125,27 @@ Future<void> updateStory(
   return;
 }
 
+Future<void> deleteStory(
+  GraphQLClient graphQLClientApolloServer,
+  String storyId,
+) async {
+  //Create the Story
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(deleteStoryQL),
+    variables: <String, dynamic>{
+      'id': storyId,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return;
+}
+
 Future<void> addUserFriend(
   GraphQLClient graphQLClientApolloServer,
   String fromUserId,
@@ -284,6 +305,46 @@ Future<void> updateComment(
       'commentId': commentId,
       'status': status,
       'updated': now.toIso8601String()
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> removeStoryComment(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String commentId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(removeStoryCommentQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
+      'commentId': commentId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> deleteComment(
+  GraphQLClient graphQLClient,
+  String commentId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(deleteCommentQL),
+    variables: <String, dynamic>{
+      'commentId': commentId,
     },
   );
 

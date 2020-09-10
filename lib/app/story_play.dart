@@ -611,6 +611,65 @@ class _StoryPlayState extends State<StoryPlay>
       );
   }
 
+  Widget buildDeleteStory(bool _showIcons) {
+    return Flexible(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: <Widget>[
+          CustomRaisedButton(
+            key: Key(Keys.deleteStoryButton),
+            text: Strings.deleteStoryButton.i18n,
+            icon: _showIcons
+                ? Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  )
+                : null,
+            onPressed: () async {
+              final bool _deleteStory = await PlatformAlertDialog(
+                title: Strings.deleteStoryQuestion.i18n,
+                content: Strings.areYouSure.i18n,
+                cancelActionText: Strings.cancel.i18n,
+                defaultActionText: Strings.yes.i18n,
+              ).show(context);
+              if (_deleteStory == true) {
+                for (var _comment in _story['comments']) {
+                  await removeStoryComment(
+                    GraphQLProvider.of(context).value,
+                    _story['id'],
+                    _comment['id'],
+                  );
+
+                  await deleteComment(
+                    GraphQLProvider.of(context).value,
+                    _comment['id'],
+                  );
+                }
+
+                for (var hashtag in _story['hashtags']) {
+                  await removeStoryHashtags(
+                    GraphQLProvider.of(context).value,
+                    _story['id'],
+                    hashtag['tag'],
+                  );
+                }
+
+                await deleteStory(
+                  GraphQLProvider.of(context).value,
+                  _story['id'],
+                );
+
+                widget.params['onDelete']();
+                Navigator.of(context).pop();
+              }
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   Widget getCard(BuildContext context) {
     return SingleChildScrollView(
       child: Form(
@@ -626,6 +685,12 @@ class _StoryPlayState extends State<StoryPlay>
                 context,
                 _story['user'],
               ),
+            if (widget.params != null &&
+                widget.params['id'] != null &&
+                widget.params['id'].isNotEmpty &&
+                _isCurrentUserAuthor)
+              buildDeleteStory(_showIcons),
+            SizedBox(height: _spacer.toDouble()),
             getImageDisplay(
               _width,
               _height,
@@ -743,17 +808,16 @@ class _StoryPlayState extends State<StoryPlay>
                         fontSize: 16,
                         showExpand: true,
                         onClickDelete: (Map<String, dynamic> _comment) async {
-                          final bool deleteComment = await PlatformAlertDialog(
+                          final bool _deleteComment = await PlatformAlertDialog(
                             title: Strings.deleteComment.i18n,
                             content: Strings.areYouSure.i18n,
                             cancelActionText: Strings.cancel.i18n,
                             defaultActionText: Strings.yes.i18n,
                           ).show(context);
-                          if (deleteComment == true) {
-                            await updateComment(
+                          if (_deleteComment == true) {
+                            await deleteComment(
                               GraphQLProvider.of(context).value,
                               _comment['id'],
-                              'delete',
                             );
                             setState(() {});
                           }

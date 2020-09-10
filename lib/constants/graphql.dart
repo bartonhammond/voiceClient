@@ -141,6 +141,17 @@ UpdateStory(
 }
 ''';
 
+const String deleteStoryQL = r'''
+mutation deleteStory($id: ID!) {
+DeleteStory(
+  id: $id
+) {
+   __typename
+    id
+  } 
+}
+''';
+
 const String mergeUserStories = r'''
 mutation mergeStoryUser($from: _UserInput!, $to: _StoryInput!) {
 MergeStoryUser(
@@ -649,6 +660,39 @@ mutation updateComment($commentId: ID!, $status: String!, $updated: String!, ) {
 }
 ''';
 
+const String removeStoryCommentQL = r'''
+mutation removeStoryComments($storyId: ID!, $commentId: ID!, ) {
+  RemoveStoryComments(
+    from: {
+      id: $storyId
+    }
+    to: {
+      id: $commentId
+    }
+  ) {
+    __typename
+    from {
+      id
+    }
+    to {
+      id
+    }
+  }
+ 
+}
+''';
+
+const String deleteCommentQL = r'''
+mutation deleteComment($commentId: ID!, ) {
+  DeleteComment(
+    id: $commentId
+  ) {
+    __typename
+    id
+  }
+}
+''';
+
 const String mergeCommentFromQL = r'''
 mutation mergeCommentFrom($userId: ID!, $commentId: ID!) {
   MergeCommentFrom(
@@ -725,6 +769,7 @@ mutation addStoryHashtags($id: ID!, $tag: String!) {
   }
 }
 ''';
+
 const String removeStoryHashtagsQL = r'''
 mutation removeStoryHashtags($id: ID!, $tag: String!) {
   RemoveStoryHashtags(

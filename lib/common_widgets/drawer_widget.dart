@@ -42,7 +42,7 @@ Future<String> getVersionAndBuild(AppConfig config) async {
   final String version = packageInfo.version;
   final String buildNumber = packageInfo.buildNumber;
 
-  return '${config.flavorName} $version-$buildNumber';
+  return '${config.flavorName} $version+$buildNumber';
 }
 
 Widget drawer(BuildContext context, String versionBuild) {

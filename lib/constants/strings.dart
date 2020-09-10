@@ -105,6 +105,7 @@ class Strings {
   static const String mustAcceptPermissions = 'You must accept permissions';
   static const String addTagHere = 'Add tag here';
   static const String showAllTags = 'Show all tags';
+  static const String deleteStoryButton = 'Delete story?';
 
   //Fab With Icons
   static const String incrementToolTip = 'Add Story';
@@ -125,6 +126,7 @@ class Strings {
   //Story play
   static const String recordAComment = 'Record a comment';
   static const String commentsLabel = 'Comments';
+  static const String deleteStoryQuestion = 'Delete Story?';
 
   //Stories Page
   static const String dateLabel = 'Date';

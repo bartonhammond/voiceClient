@@ -419,6 +419,9 @@ class _StoriesPageState extends State<StoriesPage> {
                                         ? StaggeredGridTileStory(
                                             onPush: widget.onPush,
                                             showFriend: getId() == null,
+                                            onDelete: () {
+                                              setState(() {});
+                                            },
                                             story: Map<String, dynamic>.from(
                                                 stories[index]),
                                           )

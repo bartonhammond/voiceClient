@@ -22,10 +22,12 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.onPush,
     @required this.story,
     @required this.showFriend,
+    @required this.onDelete,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
+  final VoidCallback onDelete;
 
   @override
   State<StatefulWidget> createState() => _StaggeredGridTileStoryState();
@@ -80,10 +82,12 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
           Center(
             child: GestureDetector(
               onTap: () {
+                print('onTap');
                 widget.onPush(
                   <String, dynamic>{
                     'id': widget.story['id'],
-                    'onFinish': callBack
+                    'onFinish': callBack,
+                    'onDelete': widget.onDelete,
                   },
                 );
               },
@@ -162,7 +166,8 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         onTap: () {
           widget.onPush(<String, dynamic>{
             'id': widget.story['id'],
-            'onFinish': callBack
+            'onFinish': callBack,
+            'onDelete': widget.onDelete,
           });
         },
         child: Column(
@@ -171,7 +176,8 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               onTap: () {
                 widget.onPush(<String, dynamic>{
                   'id': widget.story['id'],
-                  'onFinish': callBack
+                  'onFinish': callBack,
+                  'onDelete': widget.onDelete,
                 });
               },
               child: ClipRRect(

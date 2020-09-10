@@ -332,6 +332,10 @@ extension Localization on String {
         'es': 'Mostrar todas las etiquetas',
       } +
       {
+        'en': Strings.deleteStoryButton,
+        'es': '¿Eliminar historia?',
+      } +
+      {
         'en': Strings.incrementToolTip,
         'es': 'Añadir historia',
       } +
@@ -346,6 +350,10 @@ extension Localization on String {
       {
         'en': Strings.commentsLabel,
         'es': 'Comentarios',
+      } +
+      {
+        'en': Strings.deleteStoryQuestion,
+        'es': '¿Eliminar historia?',
       } +
       {
         'en': Strings.gridStoryShowCommentsText
