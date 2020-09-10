@@ -1,14 +1,10 @@
-import 'dart:io';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:http/io_client.dart';
 import 'package:provider/provider.dart';
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/constants/myfamilyvoice-cert.dart' as cert;
-
+import '../app_config.dart';
 import 'auth_service.dart';
 
 class GraphQLAuth {
@@ -18,18 +14,18 @@ class GraphQLAuth {
   String token;
   String currentUserId;
 
-  String server = 'https://myfamilyvoice.com';
-
   String getHttpLinkUri(GraphQLClientType type) {
+    final config = AppConfig.of(context);
+    final String apiBaseUrl = config.apiBaseUrl;
     switch (type) {
       case GraphQLClientType.FileServer:
-        return '$server/file/';
+        return '$apiBaseUrl/file/';
       case GraphQLClientType.Mp3Server:
-        return '$server/mp3';
+        return '$apiBaseUrl/mp3';
       case GraphQLClientType.ApolloServer:
-        return '$server/apollo/';
+        return '$apiBaseUrl/apollo/';
       case GraphQLClientType.ImageServer:
-        return '$server/image';
+        return '$apiBaseUrl/image';
       default:
         throw Exception('invalid parameter: $type');
     }
@@ -58,20 +54,8 @@ class GraphQLAuth {
   }
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
-    final SecurityContext securityContext = SecurityContext();
-    securityContext.setTrustedCertificatesBytes(cert.myfamilyvoice);
-
-    final HttpClient http = HttpClient(context: securityContext);
-    http.badCertificateCallback =
-        (X509Certificate cert, String host, int port) {
-      print('!!!!Bad certificate');
-      return false;
-    };
-
-    final IOClient httpClient = IOClient(http);
-    final String uri = getHttpLinkUri(type);
-
-    final HttpLink httpLink = HttpLink(uri: uri, httpClient: httpClient);
+    final config = AppConfig.of(context);
+    final HttpLink httpLink = config.getHttpLink(getHttpLinkUri(type));
 
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
 

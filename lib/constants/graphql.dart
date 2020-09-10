@@ -40,6 +40,9 @@ query getStoryById($id: ID!) {
     created {
       formatted
     }
+    updated {
+      formatted
+    }
     user {
       email
       name
@@ -77,7 +80,9 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $bi
     home: $home
     image: $image
     birth: $birth
-    created: { formatted: $created }
+    created: { 
+      formatted: $created 
+    }
   ) {
     __typename
     id
@@ -92,13 +97,23 @@ CreateStory(
     id: $id
     image: $image
     audio: $audio
-    created: { formatted: $created }
-    updated: { formatted: $updated }
+    created: {
+      formatted: $created
+    } 
+    updated: {
+      formatted: $updated  
+    }
   ) {
     __typename
     id
     image 
     audio
+    created { 
+      formatted
+    }
+    updated { 
+      formatted
+    }
   }
 }
 ''';
@@ -112,10 +127,16 @@ UpdateStory(
   created: {formatted: $created}
   updated: {formatted: $updated}
 ) {
-    __typename
+   __typename
     id
-    image
+    image 
     audio
+    created { 
+      formatted
+    }
+    updated { 
+      formatted
+    }
   } 
 }
 ''';
@@ -191,6 +212,9 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
       created {
         formatted
       }
+      updated { 
+        formatted 
+      }
       user {
         email
         name
@@ -258,6 +282,9 @@ query getFriendsOfMine ($email: String!) {
     home
     image
     created{
+      formatted
+    }
+    updated { 
       formatted
     }
   }

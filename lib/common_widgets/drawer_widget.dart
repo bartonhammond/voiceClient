@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:i18n_extension/i18n_widget.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
+import 'package:voiceClient/app_config.dart';
 
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
@@ -35,7 +37,15 @@ Future<void> _confirmSignOut(BuildContext context) async {
   }
 }
 
-Widget getDrawer(BuildContext context) {
+Future<String> getVersionAndBuild(AppConfig config) async {
+  final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+  final String version = packageInfo.version;
+  final String buildNumber = packageInfo.buildNumber;
+
+  return '${config.flavorName} $version-$buildNumber';
+}
+
+Widget drawer(BuildContext context, String versionBuild) {
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -44,6 +54,12 @@ Widget getDrawer(BuildContext context) {
           child: Text(Strings.MFV.i18n),
           decoration: BoxDecoration(
             color: Color(0xff00bcd4),
+          ),
+        ),
+        Card(
+          child: ListTile(
+            title: Text(versionBuild),
+            onTap: () {},
           ),
         ),
         Card(
@@ -82,5 +98,24 @@ Widget getDrawer(BuildContext context) {
         ),
       ],
     ),
+  );
+}
+
+Widget getDrawer(BuildContext context) {
+  final config = AppConfig.of(context);
+  return FutureBuilder(
+    future: getVersionAndBuild(config),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      } else {
+        final String versionBuild = snapshot.data;
+        return drawer(context, versionBuild);
+      }
+    },
   );
 }

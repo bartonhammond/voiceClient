@@ -22,7 +22,6 @@ dependencies:
   configurable_expansion_tile: ^1.0.0
   convert: ^2.1.1
   crypto: ^2.1.4
-  device_preview: ^0.4.7
   file: ^5.0.4
   flag: ^3.0.4
   flutter:
