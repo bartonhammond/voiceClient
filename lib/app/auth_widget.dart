@@ -16,32 +16,49 @@ class AuthWidget extends StatelessWidget {
   const AuthWidget({
     Key key,
     @required this.userSnapshot,
+    this.userEmail,
   }) : super(key: key);
   final AsyncSnapshot<User> userSnapshot;
+  final String userEmail;
+
+  FutureBuilder setupHomePage(User user) {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    graphQLAuth.setUser(user);
+    return FutureBuilder<dynamic>(
+        future: graphQLAuth.setupEnvironment(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return GraphQLProvider(
+              client: ValueNotifier(snapshot.data),
+              child: HomePage(key: Key(Keys.homePage)),
+            );
+          } else {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (userSnapshot.connectionState == ConnectionState.active) {
+    if (userSnapshot != null &&
+        userSnapshot.connectionState == ConnectionState.active) {
       if (userSnapshot.hasData) {
-        final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-        graphQLAuth.setUser(userSnapshot.data);
-        return FutureBuilder(
-            future: graphQLAuth.setupEnvironment(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return GraphQLProvider(
-                  client: ValueNotifier(snapshot.data),
-                  child: HomePage(key: Key(Keys.homePage)),
-                );
-              } else {
-                return Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              }
-            });
+        return setupHomePage(userSnapshot.data);
       }
       return SignInPageBuilder();
+    } else {
+      if (userEmail != null && userEmail.isNotEmpty) {
+        return setupHomePage(User(
+          uid: 'does not matter',
+          email: userEmail,
+          photoUrl: 'does not matter',
+          displayName: 'does not matter',
+        ));
+      }
     }
     return Scaffold(
       body: Center(

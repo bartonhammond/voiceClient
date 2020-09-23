@@ -7,12 +7,14 @@ class AppConfig extends InheritedWidget {
     @required this.flavorName,
     @required this.apiBaseUrl,
     @required this.getHttpLink,
+    @required this.isSecured,
     @required Widget child,
   }) : super(child: child);
 
   final String flavorName;
   final String apiBaseUrl;
   final HttpLink Function(String) getHttpLink;
+  final bool isSecured;
 
   static AppConfig of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AppConfig>();
