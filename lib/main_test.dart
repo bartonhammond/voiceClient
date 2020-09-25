@@ -15,11 +15,14 @@ void main() {
   }
 
   final configuredApp = AppConfig(
-    flavorName: 'Dev',
+    flavorName: 'Test',
     apiBaseUrl: 'http://dev-myfamilyvoice.com',
     getHttpLink: getHttpLink,
-    isSecured: true,
-    child: MyApp(),
+    isSecured: false,
+    child: MyApp(
+      isTesting: true,
+      userEmail: 'brucefreeman@gmail.com',
+    ),
   );
 
   /*start app

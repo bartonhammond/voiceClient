@@ -25,7 +25,7 @@ String host(
   }
   if (path.endsWith('mp3')) {
     final String url =
-        '${graphQLAuth.getHttpLinkUri(GraphQLClientType.Mp3Server)}$path';
+        '${graphQLAuth.getHttpLinkUri(GraphQLClientType.Mp3Server, false)}$path';
     return url;
   }
   if (path.startsWith('storage/')) {
@@ -43,7 +43,7 @@ String host(
   final signature = sign(salt, utf8.encode(pathPart), key);
 
   final _location =
-      '${graphQLAuth.getHttpLinkUri(GraphQLClientType.ImageServer)}/$signature$pathPart';
+      '${graphQLAuth.getHttpLinkUri(GraphQLClientType.ImageServer, false)}/$signature$pathPart';
   return _location;
 }
 

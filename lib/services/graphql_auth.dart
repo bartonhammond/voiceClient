@@ -14,7 +14,10 @@ class GraphQLAuth {
   String token;
   String currentUserId;
 
-  String getHttpLinkUri(GraphQLClientType type) {
+  String getHttpLinkUri(
+    GraphQLClientType type,
+    bool isSecured,
+  ) {
     final config = AppConfig.of(context);
     final String apiBaseUrl = config.apiBaseUrl;
     switch (type) {
@@ -23,7 +26,9 @@ class GraphQLAuth {
       case GraphQLClientType.Mp3Server:
         return '$apiBaseUrl/mp3';
       case GraphQLClientType.ApolloServer:
-        return '$apiBaseUrl/apollo/';
+        return isSecured
+            ? '$apiBaseUrl/apollo/'
+            : '$apiBaseUrl/apollo_unsecured/';
       case GraphQLClientType.ImageServer:
         return '$apiBaseUrl/image';
       default:
@@ -55,17 +60,23 @@ class GraphQLAuth {
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
     final config = AppConfig.of(context);
-    final HttpLink httpLink = config.getHttpLink(getHttpLinkUri(type));
+    final HttpLink httpLink = config.getHttpLink(getHttpLinkUri(
+      type,
+      config.isSecured,
+    ));
+    Link link;
 
-    final AuthService auth = Provider.of<AuthService>(context, listen: false);
-
-    final AuthLink authLink = AuthLink(getToken: () async {
-      final IdTokenResult tokenResult = await auth.currentUserIdToken();
-      token = tokenResult.token;
-      return 'Bearer $token';
-    });
-
-    final link = authLink.concat(httpLink);
+    if (config.isSecured) {
+      final AuthService auth = Provider.of<AuthService>(context, listen: false);
+      final AuthLink authLink = AuthLink(getToken: () async {
+        final IdTokenResult tokenResult = await auth.currentUserIdToken();
+        token = tokenResult.token;
+        return 'Bearer $token';
+      });
+      link = authLink.concat(httpLink);
+    } else {
+      link = httpLink;
+    }
 
     //Trying to get rid of cacheing
     //https://github.com/zino-app/graphql-flutter/issues/692

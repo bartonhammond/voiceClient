@@ -8,11 +8,11 @@ import 'package:http/http.dart';
 
 import 'package:voiceClient/constants/enums.dart';
 
-import 'Person.dart';
-import 'addSingleStory.dart';
-import 'addUser.dart';
-import 'getPhotoFiles.dart';
-import 'graphQLClient.dart';
+import '../seed/Person.dart';
+import '../seed/addSingleStory.dart';
+import '../seed/addUser.dart';
+import '../seed/getPhotoFiles.dart';
+import '../seed/graphQLClient.dart';
 
 Future<void> main(List<String> arguments) async {
   final List<dynamic> files = getFiles();
@@ -52,17 +52,18 @@ Future<void> main(List<String> arguments) async {
         graphQLClientApolloServer,
         p.toMap(),
       );
-
+      await Future<dynamic>.delayed(Duration(seconds: 1));
       userIds.add(userId);
-      print('addUser: $userId');
+      print('addUser: ${p.email} $userId');
 
       //For 10 Stories
-      for (var storyIndex = 25; storyIndex > -1; storyIndex--) {
+      for (var storyIndex = 15; storyIndex > -1; storyIndex--) {
         final Map<String, dynamic> map = p.toMap();
         final String text =
             '${map['name']} from ${map['home']} story number $storyIndex';
 
         //Create Story
+        await Future<dynamic>.delayed(Duration(seconds: 1));
         final storyId = await addSingleStory(
             userId,
             files,
