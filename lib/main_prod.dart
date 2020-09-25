@@ -33,6 +33,7 @@ void main() {
     flavorName: 'Prod',
     apiBaseUrl: 'https://myfamilyvoice.com/',
     getHttpLink: getHttpLink,
+    isSecured: true,
     child: MyApp(),
   );
 /*start app

@@ -234,7 +234,7 @@ class _StoriesPageState extends State<StoriesPage> {
     if (_list == null || _list.isEmpty) {
       datetime = DateTime.now().toIso8601String();
     } else {
-      datetime = _list[_list.length - 1]['created']['formatted'];
+      datetime = _list[_list.length - 1]['updated']['formatted'];
     }
     return datetime;
   }
