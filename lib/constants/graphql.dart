@@ -295,9 +295,6 @@ query getFriendsOfMine ($email: String!) {
     created{
       formatted
     }
-    updated { 
-      formatted
-    }
   }
 }
 ''';
