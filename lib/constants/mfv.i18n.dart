@@ -352,6 +352,10 @@ extension Localization on String {
         'es': 'Comentarios',
       } +
       {
+        'en': Strings.storyLabel,
+        'es': 'Historia',
+      } +
+      {
         'en': Strings.deleteStoryQuestion,
         'es': '¿Eliminar historia?',
       } +

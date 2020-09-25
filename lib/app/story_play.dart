@@ -42,6 +42,7 @@ class StoryPlay extends StatefulWidget {
 
 class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
+  bool _showComments = false;
   Map<String, dynamic> _story;
 
   List<String> _tags = <String>[];
@@ -670,6 +671,88 @@ class _StoryPlayState extends State<StoryPlay>
     );
   }
 
+  Widget getStoryControls() {
+    return Column(children: [
+      if (_story != null &&
+              (_image != null || _storyAudio != null || tagsHaveChanged()) ||
+          (_story == null && _image != null && _storyAudio != null))
+        _buildUploadStoryButton(context),
+      if (_image != null || _storyAudio != null)
+        SizedBox(
+          height: _spacer.toDouble(),
+        ),
+      getImageControls(_showIcons),
+      SizedBox(
+        height: _spacer.toDouble(),
+      ),
+      getPlayerControls(_width, _showIcons),
+      Divider(
+        height: _spacer.toDouble(),
+        thickness: 2,
+      ),
+      SizedBox(
+        height: 8,
+      ),
+      Text(Strings.tagsLabel.i18n,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          )),
+      getTags(
+        allTags: _allTags,
+        tags: _tags,
+        onTagAdd: (String tag) {
+          setState(() {
+            _tags.add(tag);
+          });
+        },
+        onTagRemove: (int index) {
+          setState(() {
+            _tags.removeAt(index);
+          });
+        },
+        updatedAble: _isCurrentUserAuthor,
+      ),
+      SizedBox(
+        height: _spacer.toDouble(),
+      ),
+      _isCurrentUserAuthor
+          ? Container(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                children: <Widget>[
+                  Text(Strings.showAllTags.i18n,
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  Checkbox(
+                    value: _showAllTags,
+                    onChanged: (bool show) {
+                      if (show) {
+                        _allTags.forEach(_tags.add);
+                      } else {
+                        _allTags.forEach(_tags.remove);
+                      }
+                      setState(() {
+                        _showAllTags = !_showAllTags;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            )
+          : Container(),
+      Divider(
+        indent: 50,
+        endIndent: 50,
+        height: _spacer.toDouble(),
+        thickness: 5,
+      ),
+      SizedBox(
+        height: _spacer.toDouble(),
+      )
+    ]);
+  }
+
   Widget getCard(BuildContext context) {
     return SingleChildScrollView(
       child: Form(
@@ -688,7 +771,8 @@ class _StoryPlayState extends State<StoryPlay>
             if (widget.params != null &&
                 widget.params['id'] != null &&
                 widget.params['id'].isNotEmpty &&
-                _isCurrentUserAuthor)
+                _isCurrentUserAuthor &&
+                _showComments == false)
               buildDeleteStory(_showIcons),
             SizedBox(height: _spacer.toDouble()),
             getImageDisplay(
@@ -698,133 +782,80 @@ class _StoryPlayState extends State<StoryPlay>
             SizedBox(
               height: _spacer.toDouble(),
             ),
-            if (_story != null &&
-                    (_image != null ||
-                        _storyAudio != null ||
-                        tagsHaveChanged()) ||
-                (_story == null && _image != null && _storyAudio != null))
-              _buildUploadStoryButton(context),
-            if (_image != null || _storyAudio != null)
-              SizedBox(
-                height: _spacer.toDouble(),
-              ),
-            getImageControls(_showIcons),
-            SizedBox(
-              height: _spacer.toDouble(),
-            ),
-            getPlayerControls(_width, _showIcons),
-            Divider(
-              height: _spacer.toDouble(),
-              thickness: 2,
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            Text(Strings.tagsLabel.i18n,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                )),
-            getTags(
-              allTags: _allTags,
-              tags: _tags,
-              onTagAdd: (String tag) {
-                setState(() {
-                  _tags.add(tag);
-                });
-              },
-              onTagRemove: (int index) {
-                setState(() {
-                  _tags.removeAt(index);
-                });
-              },
-              updatedAble: _isCurrentUserAuthor,
-            ),
-            SizedBox(
-              height: _spacer.toDouble(),
-            ),
-            _isCurrentUserAuthor
-                ? Container(
-                    padding: EdgeInsets.all(20),
-                    child: Column(
-                      children: <Widget>[
-                        Text(Strings.showAllTags.i18n,
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold)),
-                        Checkbox(
-                          value: _showAllTags,
-                          onChanged: (bool show) {
-                            if (show) {
-                              _allTags.forEach(_tags.add);
-                            } else {
-                              _allTags.forEach(_tags.remove);
-                            }
-                            setState(() {
-                              _showAllTags = !_showAllTags;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  )
-                : Container(),
-            Divider(
-              indent: 50,
-              endIndent: 50,
-              height: _spacer.toDouble(),
-              thickness: 5,
-            ),
-            SizedBox(
-              height: _spacer.toDouble(),
-            ),
+            _showComments == false ? getStoryControls() : Container(),
             _story != null
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(Strings.recordAComment.i18n,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(
-                        height: _spacer.toDouble(),
-                      ),
-                      RecorderWidget(
-                        setAudioFile: setCommentAudioFile,
-                        timerDuration: 90,
-                      ),
-                      if (_commentAudio != null) _buildUploadButton(context),
-                      Divider(
-                        indent: 50,
-                        endIndent: 50,
-                        height: _spacer.toDouble(),
-                        thickness: 5,
-                      ),
-                      Text(Strings.commentsLabel.i18n,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 20)),
-                      Comments(
-                        key: Key(Keys.commentsWidgetExpansionTile),
-                        story: _story,
-                        fontSize: 16,
-                        showExpand: true,
-                        onClickDelete: (Map<String, dynamic> _comment) async {
-                          final bool _deleteComment = await PlatformAlertDialog(
-                            title: Strings.deleteComment.i18n,
-                            content: Strings.areYouSure.i18n,
-                            cancelActionText: Strings.cancel.i18n,
-                            defaultActionText: Strings.yes.i18n,
-                          ).show(context);
-                          if (_deleteComment == true) {
-                            await deleteComment(
-                              GraphQLProvider.of(context).value,
-                              _comment['id'],
-                            );
-                            setState(() {});
-                          }
-                        },
-                      ),
-                    ],
-                  )
+                ? Column(children: <Widget>[
+                    InkWell(
+                        child: _showComments
+                            ? Text(
+                                Strings.storyLabel.i18n,
+                                style: TextStyle(
+                                  color: Color(0xff00bcd4),
+                                  fontSize: 16.0,
+                                ),
+                              )
+                            : Text(
+                                Strings.commentsLabel.i18n,
+                                style: TextStyle(
+                                  color: Color(0xff00bcd4),
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                        onTap: () {
+                          setState(() {
+                            _showComments = !_showComments;
+                          });
+                        }),
+                    _showComments
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                                Text(Strings.recordAComment.i18n,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)),
+                                SizedBox(
+                                  height: _spacer.toDouble(),
+                                ),
+                                RecorderWidget(
+                                  setAudioFile: setCommentAudioFile,
+                                  timerDuration: 90,
+                                ),
+                                if (_commentAudio != null)
+                                  _buildUploadButton(context),
+                                Divider(
+                                  indent: 50,
+                                  endIndent: 50,
+                                  height: _spacer.toDouble(),
+                                  thickness: 5,
+                                ),
+                                Comments(
+                                  key: Key(Keys.commentsWidgetExpansionTile),
+                                  story: _story,
+                                  fontSize: 16,
+                                  showExpand: true,
+                                  onClickDelete:
+                                      (Map<String, dynamic> _comment) async {
+                                    final bool _deleteComment =
+                                        await PlatformAlertDialog(
+                                      title: Strings.deleteComment.i18n,
+                                      content: Strings.areYouSure.i18n,
+                                      cancelActionText: Strings.cancel.i18n,
+                                      defaultActionText: Strings.yes.i18n,
+                                    ).show(context);
+                                    if (_deleteComment == true) {
+                                      await deleteComment(
+                                        GraphQLProvider.of(context).value,
+                                        _comment['id'],
+                                      );
+                                      setState(() {});
+                                    }
+                                  },
+                                )
+                              ])
+                        : Container()
+                  ])
                 : Container(),
             SizedBox(
               height: 75,
