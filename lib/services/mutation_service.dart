@@ -178,7 +178,7 @@ Future<void> addUserFriend(
   return;
 }
 
-Future<void> updateFriendRequest(
+Future<void> updateMessage(
   GraphQLClient graphQLClient,
   String fromId,
   String toId,
@@ -188,10 +188,6 @@ Future<void> updateFriendRequest(
   String text,
   String type,
 ) async {
-  final DateTime now = DateTime.now();
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
-
   final MutationOptions options = MutationOptions(
     documentNode: gql(updateUserMessage),
     variables: <String, dynamic>{
@@ -199,7 +195,7 @@ Future<void> updateFriendRequest(
       'to': toId,
       'id': messageId,
       'created': created,
-      'resolved': formattedDate,
+      'resolved': DateTime.now().toIso8601String(),
       'status': status,
       'text': text,
       'type': type,
@@ -217,7 +213,10 @@ Future<void> updateFriendRequest(
 Future<QueryResult> createUserMessage(
   GraphQLClient graphQLClient,
   String currentUserId,
-  String friendId,
+  String toUserId,
+  String text,
+  String type,
+  String key1,
 ) async {
   final uuid = Uuid();
 
@@ -225,12 +224,13 @@ Future<QueryResult> createUserMessage(
     documentNode: gql(addUserMessage),
     variables: <String, dynamic>{
       'from': currentUserId,
-      'to': friendId,
+      'to': toUserId,
       'id': uuid.v1(),
       'created': DateTime.now().toIso8601String(),
       'status': 'new',
-      'text': 'friend request',
-      'type': 'friend-request',
+      'text': text,
+      'type': type,
+      'key1': key1,
     },
     update: (Cache cache, QueryResult result) {
       if (result.hasException) {

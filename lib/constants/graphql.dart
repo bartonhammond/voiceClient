@@ -365,7 +365,7 @@ query userSearchMe($email: String!) {
 ''';
 
 const String addUserMessage = r'''
-mutation addUserMessage($from: ID!, $to: ID!, $id: ID!, $created: String!, $type: String!, $text: String!, $status: String!){
+mutation addUserMessage($from: ID!, $to: ID!, $id: ID!, $created: String!, $type: String!, $text: String!, $status: String!, $key1: String!){
   AddUserMessages(
 	from: {
     id: $from
@@ -381,6 +381,7 @@ mutation addUserMessage($from: ID!, $to: ID!, $id: ID!, $created: String!, $type
     status: $status
     type: $type
     text: $text
+    key1: $key1
   }
   ){
     __typename
@@ -437,7 +438,7 @@ mutation updateUserMessage($from: ID!, $to: ID!, $resolved: String!, $status: St
 }
 ''';
 
-const String getUserMessages = r'''
+const String getUserMessagesQL = r'''
 query getUserMessages($email: String!, $status: String!) {
   User(email: $email)  {
     __typename
@@ -464,6 +465,7 @@ query getUserMessages($email: String!, $status: String!) {
         created {
           formatted
         }
+        key1
       }
     }
   } 

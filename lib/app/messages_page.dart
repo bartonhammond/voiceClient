@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
-import 'package:voiceClient/app/sign_in/friend_button.dart';
+import 'package:voiceClient/app/sign_in/message_button.dart';
 
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
@@ -20,10 +20,10 @@ class MessagesPage extends StatefulWidget {
   const MessagesPage({
     Key key,
     this.onPush,
-    this.onMessagesCount,
+    this.params,
   }) : super(key: key);
-  final ValueChanged<String> onPush;
-  final void Function(int) onMessagesCount;
+  final ValueChanged<Map<String, dynamic>> onPush;
+  final Map<String, dynamic> params;
 
   @override
   _MessagesPageState createState() => _MessagesPageState();
@@ -53,7 +53,7 @@ class _MessagesPageState extends State<MessagesPage> {
       final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final GraphQLClient graphQLClient =
           graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
-      updateFriendRequest(
+      updateMessage(
         graphQLClient,
         message['User']['id'],
         graphQLAuth.getCurrentUserId(),
@@ -89,7 +89,7 @@ class _MessagesPageState extends State<MessagesPage> {
         message['User']['id'],
       );
 
-      await updateFriendRequest(
+      await updateMessage(
         graphQLClient,
         message['User']['id'],
         graphQLAuth.getCurrentUserId(),
@@ -104,6 +104,22 @@ class _MessagesPageState extends State<MessagesPage> {
     }
 
     return;
+  }
+
+  Future<void> callBack(Map<String, dynamic> message) async {
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    await updateMessage(
+      graphQLClient,
+      message['User']['id'],
+      graphQLAuth.getCurrentUserId(),
+      message['id'],
+      message['created']['formatted'],
+      'done', //status
+      message['text'],
+      message['type'],
+    );
+
+    setState(() {});
   }
 
   Widget _build(BuildContext context) {
@@ -123,12 +139,11 @@ class _MessagesPageState extends State<MessagesPage> {
           children: <Widget>[
             Query(
               options: QueryOptions(
-                documentNode: gql(getUserMessages),
+                documentNode: gql(getUserMessagesQL),
                 variables: <String, dynamic>{
                   'email': graphQLAuth.getUser().email,
                   'status': 'new',
                 },
-                pollInterval: 10,
               ),
               builder: (
                 QueryResult result, {
@@ -173,35 +188,79 @@ class _MessagesPageState extends State<MessagesPage> {
                           itemCount: messages.length,
                           primary: false,
                           itemBuilder: (context, index) {
-                            return StaggeredGridTileMessage(
-                              key: Key('${Keys.messageGridTile}_$index'),
-                              onPush: widget.onPush,
-                              message: messages[index],
-                              approveFriendButton: FriendButton(
-                                key: Key(
-                                    '${Keys.approveFriendRequestButton}-$index'),
-                                text: Strings.approveFriendButton.i18n,
-                                fontSize: 16,
-                                onPressed: () =>
-                                    _approveFriendRequest(messages[index]),
-                                icon: Icon(
-                                  MdiIcons.accountPlus,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              rejectFriendButton: FriendButton(
-                                key: Key(
-                                    '${Keys.rejectFriendRequestButton}-$index'),
-                                text: Strings.rejectFriendButton.i18n,
-                                fontSize: 16,
-                                onPressed: () =>
-                                    _rejectFriendRequest(messages[index]),
-                                icon: Icon(
-                                  MdiIcons.accountRemove,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            );
+                            switch (messages[index]['type']) {
+                              case 'friend-request':
+                                return StaggeredGridTileMessage(
+                                  title: Strings.friendRequest.i18n,
+                                  key: Key('${Keys.messageGridTile}_$index'),
+                                  message: messages[index],
+                                  approveButton: MessageButton(
+                                    key: Key(
+                                        '${Keys.approveFriendRequestButton}-$index'),
+                                    text: Strings.approveFriendButton.i18n,
+                                    fontSize: 16,
+                                    onPressed: () =>
+                                        _approveFriendRequest(messages[index]),
+                                    icon: Icon(
+                                      MdiIcons.accountPlus,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  rejectButton: MessageButton(
+                                    key: Key(
+                                        '${Keys.rejectFriendRequestButton}-$index'),
+                                    text: Strings.rejectFriendButton.i18n,
+                                    fontSize: 16,
+                                    onPressed: () =>
+                                        _rejectFriendRequest(messages[index]),
+                                    icon: Icon(
+                                      MdiIcons.accountRemove,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                                break;
+                              case 'comment':
+                                return StaggeredGridTileMessage(
+                                  title: Strings.commentRequest.i18n,
+                                  key: Key('${Keys.messageGridTile}_$index'),
+                                  message: messages[index],
+                                  approveButton: MessageButton(
+                                    key:
+                                        Key('${Keys.viewCommentButton}-$index'),
+                                    text: Strings.viewCommentButton.i18n,
+                                    fontSize: 16,
+                                    onPressed: () {
+                                      widget.onPush(
+                                        <String, dynamic>{
+                                          'id': messages[index]['key1'],
+                                          'onFinish': () {
+                                            callBack(messages[index]);
+                                          },
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(
+                                      MdiIcons.accountPlus,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  rejectButton: MessageButton(
+                                    key: Key(
+                                        '${Keys.clearCommentButton}-$index'),
+                                    text: Strings.clearCommentButton.i18n,
+                                    fontSize: 16,
+                                    onPressed: () => callBack(messages[index]),
+                                    icon: Icon(
+                                      MdiIcons.accountRemove,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                                break;
+                              default:
+                                return Container();
+                            }
                           },
                         ),
                 );

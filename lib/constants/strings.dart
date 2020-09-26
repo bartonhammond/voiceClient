@@ -71,6 +71,8 @@ class Strings {
   static const String approveFriendshipRequest = 'Approve Friendship Request?';
   static const String approveFriendButton = 'Approve';
   static const String rejectFriendButton = 'Reject';
+  static const String viewCommentButton = 'View';
+  static const String clearCommentButton = 'Clear';
 
   //Profile page
   static const String profilePageName = 'Profile';
@@ -116,6 +118,7 @@ class Strings {
 
   //Staggered Grid Tile Message
   static const String friendRequest = 'Friend Request';
+  static const String commentRequest = 'New Comment';
 
   // Developer menu
   static const String developerMenu = 'Developer menu';

@@ -8,7 +8,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 
-import 'package:voiceClient/app/sign_in/friend_button.dart';
+import 'package:voiceClient/app/sign_in/message_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/staggered_grid_tile_friend.dart';
@@ -202,6 +202,9 @@ class _FriendsPageState extends State<FriendsPage> {
         GraphQLProvider.of(context).value,
         locator<GraphQLAuth>().getCurrentUserId(),
         _friendId,
+        'Friend Request',
+        'friend-request',
+        null,
       );
 
       if (result.hasException) {
@@ -383,7 +386,7 @@ class _FriendsPageState extends State<FriendsPage> {
                                         ? widget.onPush
                                         : null,
                                     friend: friends[index],
-                                    friendButton: getFriendButton(
+                                    friendButton: getMessageButton(
                                       allNewFriendRequestsToMe,
                                       allMyFriendRequests,
                                       friends,
@@ -436,13 +439,13 @@ class _FriendsPageState extends State<FriendsPage> {
         });
   }
 
-  Widget getFriendButton(
+  Widget getMessageButton(
     dynamic allFriendRequestsToMe,
     dynamic allMyFriendRequests,
     dynamic friends,
     int index,
   ) {
-    FriendButton button;
+    MessageButton button;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     double _fontSize = 20;
@@ -457,7 +460,7 @@ class _FriendsPageState extends State<FriendsPage> {
       return Container();
     }
     if (_typeUser == TypeUser.friends) {
-      button = FriendButton(
+      button = MessageButton(
         key: Key('${Keys.newFriendsButton}-$index'),
         text: Strings.quitFriend.i18n,
         onPressed: () => _quitFriendRequest(friends[index]['id']),
@@ -473,7 +476,7 @@ class _FriendsPageState extends State<FriendsPage> {
           if (friend['User']['id'] == friends[index]['id']) {
             switch (friend['status']) {
               case 'reject':
-                button = FriendButton(
+                button = MessageButton(
                   key: Key('${Keys.newFriendsButton}-$index'),
                   text: Strings.pending.i18n,
                   onPressed: null,
@@ -485,7 +488,7 @@ class _FriendsPageState extends State<FriendsPage> {
                 );
                 break;
               case 'new':
-                button = FriendButton(
+                button = MessageButton(
                   key: Key('${Keys.newFriendsButton}-$index'),
                   text: Strings.pending.i18n,
                   onPressed: null,
@@ -505,7 +508,7 @@ class _FriendsPageState extends State<FriendsPage> {
         if (allFriendRequestsToMe != null) {
           for (var friendRequestToMe in allFriendRequestsToMe) {
             if (friendRequestToMe['User']['id'] == friends[index]['id']) {
-              button = FriendButton(
+              button = MessageButton(
                 key: Key('${Keys.newFriendsButton}-$index'),
                 text: Strings.pending.i18n,
                 onPressed: null,
@@ -519,7 +522,7 @@ class _FriendsPageState extends State<FriendsPage> {
           }
         }
       }
-      button ??= FriendButton(
+      button ??= MessageButton(
         key: Key('${Keys.newFriendsButton}-$index'),
         text: Strings.newFriend.i18n,
         onPressed: () => _newFriendRequest(friends[index]['id']),

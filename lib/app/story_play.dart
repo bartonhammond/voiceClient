@@ -405,6 +405,14 @@ class _StoryPlayState extends State<StoryPlay>
       _story['created']['formatted'],
     );
 
+    await createUserMessage(
+      graphQLClientApolloServer,
+      graphQLAuth.getCurrentUserId(),
+      _story['user']['id'],
+      'Comment',
+      'comment',
+      _story['id'],
+    );
     return;
   }
 
