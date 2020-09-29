@@ -11,7 +11,10 @@ class TabNavigatorRoutes {
 }
 
 class TabNavigatorStories extends StatelessWidget {
-  const TabNavigatorStories({this.navigatorKey, this.tabItem});
+  const TabNavigatorStories({
+    this.navigatorKey,
+    this.tabItem,
+  });
   final GlobalKey<NavigatorState> navigatorKey;
   final TabItem tabItem;
 
@@ -38,12 +41,12 @@ class TabNavigatorStories extends StatelessWidget {
   }) {
     return {
       TabNavigatorRoutes.root: (context) => StoriesPage(
+            key: Key(Keys.storiesPage),
             onPush: (params) => _push(
               context,
               params,
             ),
             params: params,
-            key: Key(Keys.storiesPage),
           ),
       TabNavigatorRoutes.detail: (context) => StoryPlay(
             key: UniqueKey(),
@@ -60,7 +63,9 @@ class TabNavigatorStories extends StatelessWidget {
       initialRoute: TabNavigatorRoutes.root,
       onGenerateRoute: (routeSettings) {
         return MaterialPageRoute<dynamic>(
-          builder: (context) => routeBuilders[routeSettings.name](context),
+          builder: (context) => routeBuilders[routeSettings.name](
+            context,
+          ),
         );
       },
     );

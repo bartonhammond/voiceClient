@@ -82,7 +82,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
           Center(
             child: GestureDetector(
               onTap: () {
-                print('onTap');
                 widget.onPush(
                   <String, dynamic>{
                     'id': widget.story['id'],

@@ -256,6 +256,9 @@ class _StoriesPageState extends State<StoriesPage> {
             },
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
+              _resultTypes.setHasMore(
+                  fetchMoreResultData[_resultTypes.getResultType()].length > 0);
+
               final List<dynamic> data = <dynamic>[
                 ...previousResultData[_resultTypes.getResultType()],
                 ...fetchMoreResultData[_resultTypes.getResultType()],
@@ -398,15 +401,17 @@ class _StoriesPageState extends State<StoriesPage> {
                         final List<dynamic> stories = List<dynamic>.from(
                             result.data[_resultTypes.getResultType()]);
 
-                        if (stories.isEmpty || stories.length % nStories != 0) {
-                          _resultTypes.setHasMore(false);
-                        } else {
-                          _resultTypes.setHasMore(true);
-                        }
-
                         return Expanded(
                           child: stories == null || stories.isEmpty
-                              ? Text(Strings.noResults.i18n)
+                              ? Center(
+                                  child: Container(
+                                    child: Column(
+                                      children: <Widget>[
+                                        Text(Strings.noResults.i18n),
+                                      ],
+                                    ),
+                                  ),
+                                )
                               : StaggeredGridView.countBuilder(
                                   controller: _scrollController,
                                   itemCount: stories.length + 1,

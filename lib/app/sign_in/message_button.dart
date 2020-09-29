@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 
 @immutable
-class FriendButton extends StatelessWidget {
-  const FriendButton({
+class MessageButton extends StatelessWidget {
+  const MessageButton({
     Key key,
     @required this.text,
     @required this.fontSize,

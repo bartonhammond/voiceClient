@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:voiceClient/app/sign_in/friend_button.dart';
-import 'package:voiceClient/constants/strings.dart';
+import 'package:voiceClient/app/sign_in/message_button.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/services/host.dart';
 
 class StaggeredGridTileMessage extends StatelessWidget {
   const StaggeredGridTileMessage({
     Key key,
-    @required this.onPush,
+    @required this.title,
     @required this.message,
-    @required this.approveFriendButton,
-    @required this.rejectFriendButton,
+    @required this.approveButton,
+    @required this.rejectButton,
   }) : super(key: key);
-  final ValueChanged<String> onPush;
+
+  final String title;
   final Map<String, dynamic> message;
-  final FriendButton approveFriendButton;
-  final FriendButton rejectFriendButton;
+  final MessageButton approveButton;
+  final MessageButton rejectButton;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -27,7 +26,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
           children: <Widget>[
             Center(
               child: Text(
-                Strings.friendRequest.i18n,
+                title,
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
             ),
@@ -57,8 +56,8 @@ class StaggeredGridTileMessage extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
             ),
             ButtonBar(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              approveFriendButton,
-              rejectFriendButton,
+              approveButton,
+              rejectButton,
             ])
           ],
         ),
