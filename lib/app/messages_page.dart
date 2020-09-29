@@ -14,6 +14,7 @@ import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/strings.dart';
+import 'package:voiceClient/services/eventBus.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
@@ -230,6 +231,20 @@ class _MessagesPageState extends State<MessagesPage> {
         });
   }
 
+  Widget handleEmptyMessages() {
+    //The listener is in FABBottomAppBar
+    eventBus.fire(MessagesEvent(true));
+    return Center(
+      child: Container(
+        child: Column(
+          children: <Widget>[
+            Text(Strings.noResults.i18n),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final DeviceScreenType deviceType =
@@ -311,6 +326,7 @@ class _MessagesPageState extends State<MessagesPage> {
                     message['User']['birth'] = tmp['userBirth'];
                     messages.add(message);
                   }
+                  eventBus.fire(MessagesEvent(false));
                 }
 
                 if (messages.isEmpty || messages.length < nMessages) {
@@ -319,15 +335,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
                 return Expanded(
                   child: messages == null || messages.isEmpty
-                      ? Center(
-                          child: Container(
-                            child: Column(
-                              children: <Widget>[
-                                Text(Strings.noResults.i18n),
-                              ],
-                            ),
-                          ),
-                        )
+                      ? handleEmptyMessages()
                       : StaggeredGridView.countBuilder(
                           controller: _scrollController,
                           itemCount: messages.length + 1,
