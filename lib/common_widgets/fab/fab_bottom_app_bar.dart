@@ -55,8 +55,11 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
   @override
   void initState() {
     super.initState();
+    Future.delayed(const Duration(milliseconds: 500), () {
+      _getUserMessages();
+    });
     timer =
-        Timer.periodic(Duration(seconds: 15), (Timer t) => _getUserMessages());
+        Timer.periodic(Duration(seconds: 60), (Timer t) => _getUserMessages());
   }
 
   @override
@@ -73,27 +76,19 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
       variables: <String, dynamic>{
         'email': graphQLAuth.getUser().email,
         'status': 'new',
+        'limit': '1',
+        'cursor': DateTime.now().toIso8601String(),
       },
     );
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
-      return 0;
+      throw queryResult.exception;
     }
-    int messageCount = 0;
-    if (queryResult.data['User'][0]['messages'] != null &&
-        queryResult.data['User'][0]['messages']['from'] != null) {
-      for (var message in queryResult.data['User'][0]['messages']['from']) {
-        if (message['status'] == 'new') {
-          messageCount++;
-        }
-      }
-    }
-    if (_messageCount != messageCount) {
-      setState(() {
-        _messageCount = messageCount;
-      });
-    }
+
+    setState(() {
+      _messageCount = queryResult.data['userMessages'].length;
+    });
   }
 
   @override

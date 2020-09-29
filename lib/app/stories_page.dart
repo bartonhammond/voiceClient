@@ -401,6 +401,10 @@ class _StoriesPageState extends State<StoriesPage> {
                         final List<dynamic> stories = List<dynamic>.from(
                             result.data[_resultTypes.getResultType()]);
 
+                        if (stories.isEmpty || stories.length < nStories) {
+                          _resultTypes.setHasMore(false);
+                        }
+
                         return Expanded(
                           child: stories == null || stories.isEmpty
                               ? Center(

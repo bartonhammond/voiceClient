@@ -37,7 +37,14 @@ Future<void> main(List<String> arguments) async {
   final String _fromId =
       await _getUserIdByEmail(graphQLClient, 'brucefreeman@gmail.com');
 
-  const String storyId = 'e44ab8d0-ed45-11ea-8678-7da3b3f67897';
+  String storyId;
+
+  if (argResults['mode'] == 'prod') {
+    storyId = 'e44ab8d0-ed45-11ea-8678-7da3b3f67897';
+  }
+  if (argResults['mode'] == 'dev') {
+    storyId = 'e44ab8d0-ed45-11ea-8678-7da3b3f67897';
+  }
 
   final uuid = Uuid();
   int limit = 0;

@@ -38,7 +38,7 @@ class _MessagesPageState extends State<MessagesPage> {
   int lastResultSetSize = 0;
 
   final ScrollController _scrollController = ScrollController();
-  bool _shouldBeMore = true;
+  bool _shouldBeMore = false;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   @override
@@ -312,20 +312,11 @@ class _MessagesPageState extends State<MessagesPage> {
                     messages.add(message);
                   }
                 }
-                /*
-                print(
-                    'before: $lastResultSetSize ${result.data['userMessages'].length}');
-                if (messages.isEmpty ||
-                    messages.length % nMessages != 0 ||
-                    lastResultSetSize == result.data['userMessages'].length) {
+
+                if (messages.isEmpty || messages.length < nMessages) {
                   _shouldBeMore = false;
-                } else {
-                  _shouldBeMore = true;
                 }
-                lastResultSetSize = result.data['userMessages'].length;
-                print(
-                    'after: $lastResultSetSize ${result.data['userMessages'].length}');
-*/
+
                 return Expanded(
                   child: messages == null || messages.isEmpty
                       ? Center(

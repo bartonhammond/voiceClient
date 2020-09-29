@@ -363,6 +363,10 @@ class _FriendsPageState extends State<FriendsPage> {
                 final List<dynamic> friends = List<dynamic>.from(
                     result.data[searchResultsName[_typeUser.index]]);
 
+                if (friends.isEmpty || friends.length < _nFriends) {
+                  moreSearchResults[_typeUser.index] = false;
+                }
+
                 return Expanded(
                   child: friends == null || friends.isEmpty
                       ? Text(Strings.noResults.i18n)
