@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:voiceClient/constants/graphql.dart';
+import 'package:voiceClient/services/eventBus.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
@@ -55,6 +56,12 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
   @override
   void initState() {
     super.initState();
+    eventBus.on<MessagesEvent>().listen((event) {
+      setState(() {
+        _messageCount = event.empty ? 0 : 1;
+      });
+    });
+
     Future.delayed(const Duration(milliseconds: 500), () {
       _getUserMessages();
     });
