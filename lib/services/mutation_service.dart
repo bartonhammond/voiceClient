@@ -178,27 +178,19 @@ Future<void> addUserFriend(
   return;
 }
 
-Future<void> updateMessage(
+Future<void> updateUserMessageStatusById(
   GraphQLClient graphQLClient,
-  String fromId,
-  String toId,
+  String email,
   String messageId,
-  String created,
   String status,
-  String text,
-  String type,
 ) async {
   final MutationOptions options = MutationOptions(
-    documentNode: gql(updateUserMessage),
+    documentNode: gql(updateUserMessageStatusByIdQL),
     variables: <String, dynamic>{
-      'from': fromId,
-      'to': toId,
+      'email': email,
       'id': messageId,
-      'created': created,
-      'resolved': DateTime.now().toIso8601String(),
       'status': status,
-      'text': text,
-      'type': type,
+      'resolved': DateTime.now().toIso8601String(),
     },
   );
 
@@ -210,35 +202,37 @@ Future<void> updateMessage(
   return;
 }
 
-Future<QueryResult> createUserMessage(
+Future<void> addUserMessages(
   GraphQLClient graphQLClient,
-  String currentUserId,
+  String fromUserId,
   String toUserId,
+  String messageId,
+  String status,
   String text,
   String type,
   String key1,
 ) async {
-  final uuid = Uuid();
-
+  final DateTime now = DateTime.now();
   final MutationOptions options = MutationOptions(
-    documentNode: gql(addUserMessage),
+    documentNode: gql(addUserMessagesQL),
     variables: <String, dynamic>{
-      'from': currentUserId,
+      'from': fromUserId,
       'to': toUserId,
-      'id': uuid.v1(),
-      'created': DateTime.now().toIso8601String(),
-      'status': 'new',
+      'id': messageId,
+      'created': now.toIso8601String(),
+      'status': status,
       'text': text,
       'type': type,
-      'key1': key1,
-    },
-    update: (Cache cache, QueryResult result) {
-      if (result.hasException) {
-        throw result.exception;
-      }
+      'key1': key1
     },
   );
-  return await graphQLClient.mutate(options);
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
 }
 
 Future<QueryResult> updateUserInfo(

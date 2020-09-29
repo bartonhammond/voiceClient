@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:responsive_builder/responsive_builder.dart';
+import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 
 import 'package:voiceClient/app/sign_in/message_button.dart';
 
@@ -32,10 +35,11 @@ class MessagesPage extends StatefulWidget {
 class _MessagesPageState extends State<MessagesPage> {
   final String title = Strings.MFV.i18n;
   final nMessages = 20;
+  int lastResultSetSize = 0;
+
   final ScrollController _scrollController = ScrollController();
-  bool shouldBeMore = true;
+  bool _shouldBeMore = true;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-  VoidCallback _refetchQuery;
 
   @override
   void initState() {
@@ -53,17 +57,14 @@ class _MessagesPageState extends State<MessagesPage> {
       final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final GraphQLClient graphQLClient =
           graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
-      updateMessage(
+
+      await updateUserMessageStatusById(
         graphQLClient,
-        message['User']['id'],
-        graphQLAuth.getCurrentUserId(),
+        graphQLAuth.getUser().email,
         message['id'],
-        message['created']['formatted'],
         'reject', //status
-        message['text'],
-        message['type'],
       );
-      _refetchQuery();
+      setState(() {});
     }
   }
 
@@ -89,40 +90,165 @@ class _MessagesPageState extends State<MessagesPage> {
         message['User']['id'],
       );
 
-      await updateMessage(
+      await updateUserMessageStatusById(
         graphQLClient,
-        message['User']['id'],
-        graphQLAuth.getCurrentUserId(),
+        graphQLAuth.getUser().email,
         message['id'],
-        message['created']['formatted'],
         'approve', //status
-        message['text'],
-        message['type'],
       );
-
-      _refetchQuery();
     }
-
+    setState(() {});
     return;
   }
 
+  ///
+  ///Update the message to status of 'done' so that query
+  ///won't pick it up
+  ///
   Future<void> callBack(Map<String, dynamic> message) async {
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-    await updateMessage(
+    await updateUserMessageStatusById(
       graphQLClient,
-      message['User']['id'],
-      graphQLAuth.getCurrentUserId(),
+      graphQLAuth.getUser().email,
       message['id'],
-      message['created']['formatted'],
-      'done', //status
-      message['text'],
-      message['type'],
+      'cleared', //status
     );
 
     setState(() {});
   }
 
-  Widget _build(BuildContext context) {
+  Widget getDetailWidget(List<dynamic> messages, int index) {
+    switch (messages[index]['type']) {
+      case 'friend-request':
+        return StaggeredGridTileMessage(
+          title: Strings.friendRequest.i18n,
+          key: Key('${Keys.messageGridTile}_$index'),
+          message: messages[index],
+          approveButton: MessageButton(
+            key: Key('${Keys.approveFriendRequestButton}-$index'),
+            text: Strings.approveFriendButton.i18n,
+            fontSize: 16,
+            onPressed: () => _approveFriendRequest(messages[index]),
+            icon: Icon(
+              MdiIcons.accountPlus,
+              color: Colors.white,
+            ),
+          ),
+          rejectButton: MessageButton(
+            key: Key('${Keys.rejectFriendRequestButton}-$index'),
+            text: Strings.rejectFriendButton.i18n,
+            fontSize: 16,
+            onPressed: () => _rejectFriendRequest(messages[index]),
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+        );
+        break;
+      case 'comment':
+        return StaggeredGridTileMessage(
+          title: Strings.commentRequest.i18n,
+          key: Key('${Keys.messageGridTile}_$index'),
+          message: messages[index],
+          approveButton: MessageButton(
+            key: Key('${Keys.viewCommentButton}-$index'),
+            text: Strings.viewCommentButton.i18n,
+            fontSize: 16,
+            onPressed: () {
+              widget.onPush(
+                <String, dynamic>{
+                  'id': messages[index]['key1'],
+                  'onFinish': () {
+                    callBack(messages[index]);
+                  },
+                },
+              );
+            },
+            icon: Icon(
+              MdiIcons.accountPlus,
+              color: Colors.white,
+            ),
+          ),
+          rejectButton: MessageButton(
+            key: Key('${Keys.clearCommentButton}-$index'),
+            text: Strings.clearCommentButton.i18n,
+            fontSize: 16,
+            onPressed: () => callBack(messages[index]),
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+        );
+        break;
+      default:
+        return Container();
+    }
+  }
+
+  String getCursor(List<dynamic> _list) {
+    String datetime;
+    if (_list == null || _list.isEmpty) {
+      datetime = DateTime.now().toIso8601String();
+    } else {
+      datetime = _list[_list.length - 1]['created']['formatted'];
+    }
+    return datetime;
+  }
+
+  Widget getLoadMoreButton(
+    FetchMore fetchMore,
+    List<dynamic> messages,
+  ) {
+    return CustomRaisedButton(
+        text: Strings.loadMore.i18n,
+        icon: Icon(
+          Icons.arrow_downward,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          final FetchMoreOptions opts = FetchMoreOptions(
+            variables: <String, dynamic>{
+              'cursor': getCursor(messages),
+            },
+            updateQuery:
+                (dynamic previousResultData, dynamic fetchMoreResultData) {
+              _shouldBeMore = fetchMoreResultData['userMessages'].length > 0;
+
+              final List<dynamic> data = <dynamic>[
+                ...previousResultData['userMessages'],
+                ...fetchMoreResultData['userMessages'],
+              ];
+
+              fetchMoreResultData['userMessages'] = data;
+
+              return fetchMoreResultData;
+            },
+          );
+          fetchMore(opts);
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    int _staggeredViewSize = 2;
+    int _crossAxisCount = 4;
+    switch (deviceType) {
+      case DeviceScreenType.desktop:
+      case DeviceScreenType.tablet:
+        _staggeredViewSize = 1;
+        _crossAxisCount = 3;
+        break;
+      case DeviceScreenType.watch:
+        _crossAxisCount = 1;
+        break;
+      default:
+        _staggeredViewSize = 1;
+        _crossAxisCount = 1;
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
@@ -143,6 +269,8 @@ class _MessagesPageState extends State<MessagesPage> {
                 variables: <String, dynamic>{
                   'email': graphQLAuth.getUser().email,
                   'status': 'new',
+                  'limit': '20',
+                  'cursor': DateTime.now().toIso8601String(),
                 },
               ),
               builder: (
@@ -150,7 +278,6 @@ class _MessagesPageState extends State<MessagesPage> {
                 VoidCallback refetch,
                 FetchMore fetchMore,
               }) {
-                _refetchQuery = refetch;
                 if (result.loading && result.data == null) {
                   return const Center(
                     child: CircularProgressIndicator(),
@@ -160,18 +287,45 @@ class _MessagesPageState extends State<MessagesPage> {
                 if (result.hasException) {
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
-                List<dynamic> messages = <dynamic>[];
-                if (result.data['User'].length > 0 &&
-                    result.data['User'][0]['messages']['from'].length > 0) {
-                  messages = List<dynamic>.from(
-                      result.data['User'][0]['messages']['from']);
-                }
-                if (messages.isEmpty || messages.length % nMessages != 0) {
-                  shouldBeMore = false;
-                } else {
-                  shouldBeMore = true;
-                }
 
+                final List<dynamic> messages = <dynamic>[];
+
+                ///barton
+                ///convert
+                if (result.data['userMessages'].length > 0) {
+                  for (final tmp in result.data['userMessages']) {
+                    final Map<String, dynamic> message = <String, dynamic>{};
+                    message['id'] = tmp['messageId'];
+                    message['type'] = tmp['messageType'];
+                    message['created'] = tmp['messageCreated'];
+                    message['text'] = tmp['messageText'];
+                    message['status'] = tmp['messageStatus'];
+
+                    message['key1'] = tmp['messageKey1'];
+                    message['User'] = <String, dynamic>{};
+                    message['User']['id'] = tmp['userId'];
+                    message['User']['email'] = tmp['userEmail'];
+                    message['User']['name'] = tmp['userName'];
+                    message['User']['home'] = tmp['userHome'];
+                    message['User']['image'] = tmp['userImage'];
+                    message['User']['birth'] = tmp['userBirth'];
+                    messages.add(message);
+                  }
+                }
+                /*
+                print(
+                    'before: $lastResultSetSize ${result.data['userMessages'].length}');
+                if (messages.isEmpty ||
+                    messages.length % nMessages != 0 ||
+                    lastResultSetSize == result.data['userMessages'].length) {
+                  _shouldBeMore = false;
+                } else {
+                  _shouldBeMore = true;
+                }
+                lastResultSetSize = result.data['userMessages'].length;
+                print(
+                    'after: $lastResultSetSize ${result.data['userMessages'].length}');
+*/
                 return Expanded(
                   child: messages == null || messages.isEmpty
                       ? Center(
@@ -183,85 +337,22 @@ class _MessagesPageState extends State<MessagesPage> {
                             ),
                           ),
                         )
-                      : ListView.builder(
+                      : StaggeredGridView.countBuilder(
                           controller: _scrollController,
-                          itemCount: messages.length,
+                          itemCount: messages.length + 1,
                           primary: false,
+                          crossAxisCount: _crossAxisCount,
+                          mainAxisSpacing: 4.0,
+                          crossAxisSpacing: 4.0,
                           itemBuilder: (context, index) {
-                            switch (messages[index]['type']) {
-                              case 'friend-request':
-                                return StaggeredGridTileMessage(
-                                  title: Strings.friendRequest.i18n,
-                                  key: Key('${Keys.messageGridTile}_$index'),
-                                  message: messages[index],
-                                  approveButton: MessageButton(
-                                    key: Key(
-                                        '${Keys.approveFriendRequestButton}-$index'),
-                                    text: Strings.approveFriendButton.i18n,
-                                    fontSize: 16,
-                                    onPressed: () =>
-                                        _approveFriendRequest(messages[index]),
-                                    icon: Icon(
-                                      MdiIcons.accountPlus,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  rejectButton: MessageButton(
-                                    key: Key(
-                                        '${Keys.rejectFriendRequestButton}-$index'),
-                                    text: Strings.rejectFriendButton.i18n,
-                                    fontSize: 16,
-                                    onPressed: () =>
-                                        _rejectFriendRequest(messages[index]),
-                                    icon: Icon(
-                                      MdiIcons.accountRemove,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                );
-                                break;
-                              case 'comment':
-                                return StaggeredGridTileMessage(
-                                  title: Strings.commentRequest.i18n,
-                                  key: Key('${Keys.messageGridTile}_$index'),
-                                  message: messages[index],
-                                  approveButton: MessageButton(
-                                    key:
-                                        Key('${Keys.viewCommentButton}-$index'),
-                                    text: Strings.viewCommentButton.i18n,
-                                    fontSize: 16,
-                                    onPressed: () {
-                                      widget.onPush(
-                                        <String, dynamic>{
-                                          'id': messages[index]['key1'],
-                                          'onFinish': () {
-                                            callBack(messages[index]);
-                                          },
-                                        },
-                                      );
-                                    },
-                                    icon: Icon(
-                                      MdiIcons.accountPlus,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  rejectButton: MessageButton(
-                                    key: Key(
-                                        '${Keys.clearCommentButton}-$index'),
-                                    text: Strings.clearCommentButton.i18n,
-                                    fontSize: 16,
-                                    onPressed: () => callBack(messages[index]),
-                                    icon: Icon(
-                                      MdiIcons.accountRemove,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                );
-                                break;
-                              default:
-                                return Container();
-                            }
+                            return index < messages.length
+                                ? getDetailWidget(messages, index)
+                                : _shouldBeMore
+                                    ? getLoadMoreButton(fetchMore, messages)
+                                    : Container();
                           },
+                          staggeredTileBuilder: (index) =>
+                              StaggeredTile.fit(_staggeredViewSize),
                         ),
                 );
               },
@@ -270,10 +361,5 @@ class _MessagesPageState extends State<MessagesPage> {
         ),
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _build(context);
   }
 }

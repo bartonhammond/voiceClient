@@ -6,6 +6,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:uuid/uuid.dart';
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 
 import 'package:voiceClient/app/sign_in/message_button.dart';
@@ -198,18 +199,17 @@ class _FriendsPageState extends State<FriendsPage> {
       defaultActionText: Strings.yes.i18n,
     ).show(context);
     if (addNewFriend == true) {
-      final QueryResult result = await createUserMessage(
+      final _uuid = Uuid();
+      await addUserMessages(
         GraphQLProvider.of(context).value,
         locator<GraphQLAuth>().getCurrentUserId(),
         _friendId,
+        _uuid.v1(),
+        'new',
         'Friend Request',
         'friend-request',
         null,
       );
-
-      if (result.hasException) {
-        throw result.exception;
-      }
 
       allMyFriendRequests = await _getAllMyFriendRequests(context);
       allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
@@ -363,11 +363,6 @@ class _FriendsPageState extends State<FriendsPage> {
                 final List<dynamic> friends = List<dynamic>.from(
                     result.data[searchResultsName[_typeUser.index]]);
 
-                if (friends.isEmpty || friends.length % _nFriends != 0) {
-                  moreSearchResults[_typeUser.index] = false;
-                } else {
-                  moreSearchResults[_typeUser.index] = true;
-                }
                 return Expanded(
                   child: friends == null || friends.isEmpty
                       ? Text(Strings.noResults.i18n)
@@ -409,6 +404,11 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
+  void isThereMoreSearchResults(dynamic fetchMoreResultData) {
+    moreSearchResults[_typeUser.index] =
+        fetchMoreResultData[searchResultsName[_typeUser.index]].length > 0;
+  }
+
   Widget getLoadMoreButton(
     FetchMore fetchMore,
     List<dynamic> friends,
@@ -431,6 +431,7 @@ class _FriendsPageState extends State<FriendsPage> {
                 ...previousResultData[searchResultsName[_typeUser.index]],
                 ...fetchMoreResultData[searchResultsName[_typeUser.index]],
               ];
+              isThereMoreSearchResults(fetchMoreResultData);
               fetchMoreResultData[searchResultsName[_typeUser.index]] = data;
               return fetchMoreResultData;
             },
