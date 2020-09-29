@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:voiceClient/app/messages_page.dart' show MessagesPage;
+import 'package:voiceClient/app/story_play.dart';
 
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/keys.dart';
 
 class TabNavigatorRoutes {
   static const String root = '/';
-  static const String message = '/message';
+  static const String detail = '/detail';
 }
 
 class TabNavigatorMessages extends StatelessWidget {
@@ -18,13 +19,19 @@ class TabNavigatorMessages extends StatelessWidget {
   final GlobalKey<NavigatorState> navigatorKey;
   final TabItem tabItem;
 
-  void _push(BuildContext context, String id) {
-    final routeBuilders = _routeBuilders(context, id: id);
+  void _push(
+    BuildContext context,
+    Map<String, dynamic> params,
+  ) {
+    final routeBuilders = _routeBuilders(
+      context,
+      params: params,
+    );
 
     Navigator.push<dynamic>(
       context,
       MaterialPageRoute<dynamic>(
-        builder: (context) => routeBuilders[TabNavigatorRoutes.message](
+        builder: (context) => routeBuilders[TabNavigatorRoutes.detail](
           context,
         ),
       ),
@@ -33,16 +40,21 @@ class TabNavigatorMessages extends StatelessWidget {
 
   Map<String, WidgetBuilder> _routeBuilders(
     BuildContext context, {
-    String id,
+    Map<String, dynamic> params,
   }) {
     return {
       TabNavigatorRoutes.root: (context) => MessagesPage(
             key: Key(Keys.messagesPage),
-            onPush: (id) => _push(
+            onPush: (params) => _push(
               context,
-              id,
+              params,
             ),
+            params: params,
           ),
+      TabNavigatorRoutes.detail: (context) => StoryPlay(
+            key: UniqueKey(),
+            params: params,
+          )
     };
   }
 

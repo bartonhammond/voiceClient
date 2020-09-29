@@ -212,6 +212,14 @@ extension Localization on String {
         'es': 'Rechazar',
       } +
       {
+        'en': Strings.viewCommentButton,
+        'es': 'Ver',
+      } +
+      {
+        'en': Strings.clearCommentButton,
+        'es': 'Claro',
+      } +
+      {
         'en': Strings.galleryImageButton,
         'es': 'Galería',
       } +
@@ -344,12 +352,20 @@ extension Localization on String {
         'es': 'Solicitud de amistad',
       } +
       {
+        'en': Strings.commentRequest,
+        'es': 'Ver Comentario',
+      } +
+      {
         'en': Strings.recordAComment,
         'es': 'Grabar un comentario',
       } +
       {
         'en': Strings.commentsLabel,
         'es': 'Comentarios',
+      } +
+      {
+        'en': Strings.storyLabel,
+        'es': 'Historia',
       } +
       {
         'en': Strings.deleteStoryQuestion,

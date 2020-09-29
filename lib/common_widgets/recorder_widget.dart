@@ -128,6 +128,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
           _timerController.reset();
           _current = current;
           _currentStatus = current.status;
+          widget.setAudioFile(null);
         });
       } else {
         Scaffold.of(context).showSnackBar(

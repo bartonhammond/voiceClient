@@ -178,31 +178,19 @@ Future<void> addUserFriend(
   return;
 }
 
-Future<void> updateFriendRequest(
+Future<void> updateUserMessageStatusById(
   GraphQLClient graphQLClient,
-  String fromId,
-  String toId,
+  String email,
   String messageId,
-  String created,
   String status,
-  String text,
-  String type,
 ) async {
-  final DateTime now = DateTime.now();
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
-
   final MutationOptions options = MutationOptions(
-    documentNode: gql(updateUserMessage),
+    documentNode: gql(updateUserMessageStatusByIdQL),
     variables: <String, dynamic>{
-      'from': fromId,
-      'to': toId,
+      'email': email,
       'id': messageId,
-      'created': created,
-      'resolved': formattedDate,
       'status': status,
-      'text': text,
-      'type': type,
+      'resolved': DateTime.now().toIso8601String(),
     },
   );
 
@@ -214,31 +202,37 @@ Future<void> updateFriendRequest(
   return;
 }
 
-Future<QueryResult> createUserMessage(
+Future<void> addUserMessages(
   GraphQLClient graphQLClient,
-  String currentUserId,
-  String friendId,
+  String fromUserId,
+  String toUserId,
+  String messageId,
+  String status,
+  String text,
+  String type,
+  String key1,
 ) async {
-  final uuid = Uuid();
-
+  final DateTime now = DateTime.now();
   final MutationOptions options = MutationOptions(
-    documentNode: gql(addUserMessage),
+    documentNode: gql(addUserMessagesQL),
     variables: <String, dynamic>{
-      'from': currentUserId,
-      'to': friendId,
-      'id': uuid.v1(),
-      'created': DateTime.now().toIso8601String(),
-      'status': 'new',
-      'text': 'friend request',
-      'type': 'friend-request',
-    },
-    update: (Cache cache, QueryResult result) {
-      if (result.hasException) {
-        throw result.exception;
-      }
+      'from': fromUserId,
+      'to': toUserId,
+      'id': messageId,
+      'created': now.toIso8601String(),
+      'status': status,
+      'text': text,
+      'type': type,
+      'key1': key1
     },
   );
-  return await graphQLClient.mutate(options);
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
 }
 
 Future<QueryResult> updateUserInfo(
