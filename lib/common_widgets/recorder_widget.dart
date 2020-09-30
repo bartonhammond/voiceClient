@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io' as io;
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -10,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:simple_timer/simple_timer.dart';
 
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
+import 'package:voiceClient/common_widgets/player_widget.dart';
 import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
@@ -17,14 +17,19 @@ import 'package:voiceClient/constants/strings.dart';
 class RecorderWidget extends StatefulWidget {
   RecorderWidget({
     Key key,
+    this.isCurrentUserAuthor = false,
     this.setAudioFile,
     this.timerDuration = 180,
     this.showIcon = true,
+    this.width = 200,
+    this.url = '',
   }) : super(key: key);
   final ValueChanged<io.File> setAudioFile;
-
+  final bool isCurrentUserAuthor;
   final int timerDuration;
   final bool showIcon;
+  final int width;
+  final String url;
 
   final LocalFileSystem localFileSystem = LocalFileSystem();
   @override
@@ -44,17 +49,18 @@ class _RecorderWidgetState extends State<RecorderWidget>
   final TimerProgressTextCountDirection _progressTextCountDirection =
       TimerProgressTextCountDirection.count_down;
 
+  bool _recordButtonEnabled = true;
+  bool _stopButtonEnabled = true;
+  String _localAudioPath;
+
   @override
   void initState() {
     super.initState();
     _timerController = TimerController(this);
+    _recordButtonEnabled = true;
+    _stopButtonEnabled = false;
+    _localAudioPath = '';
     _init();
-  }
-
-  Future<void> onPlayAudio() async {
-    final AudioPlayer audioPlayer = AudioPlayer();
-    await audioPlayer.play(_current.path, isLocal: true);
-    return;
   }
 
   Widget getRecordButton(bool _showIcon) {
@@ -129,6 +135,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
           _current = current;
           _currentStatus = current.status;
           widget.setAudioFile(null);
+          _recordButtonEnabled = true;
+          _stopButtonEnabled = false;
+          _localAudioPath = '';
         });
       } else {
         Scaffold.of(context).showSnackBar(
@@ -147,20 +156,8 @@ class _RecorderWidgetState extends State<RecorderWidget>
       setState(() {
         _timerController.start();
         _current = recording;
-      });
-
-      const tick = Duration(milliseconds: 50);
-      Timer.periodic(tick, (Timer t) async {
-        if (_currentStatus == RecordingStatus.Stopped) {
-          t.cancel();
-        }
-
-        final current = await _recorder.current(channel: 0);
-        // print(current.status);
-        setState(() {
-          _current = current;
-          _currentStatus = _current.status;
-        });
+        _recordButtonEnabled = true;
+        _stopButtonEnabled = true;
       });
     } catch (e) {
       print(e);
@@ -172,6 +169,8 @@ class _RecorderWidgetState extends State<RecorderWidget>
     await _recorder.resume();
     setState(() {
       _timerController.start();
+      _recordButtonEnabled = true;
+      _stopButtonEnabled = true;
     });
     return;
   }
@@ -180,6 +179,8 @@ class _RecorderWidgetState extends State<RecorderWidget>
     await _recorder.pause();
     setState(() {
       _timerController.pause();
+      _recordButtonEnabled = true;
+      _stopButtonEnabled = false;
     });
     return;
   }
@@ -190,9 +191,11 @@ class _RecorderWidgetState extends State<RecorderWidget>
     setState(() {
       _current = result;
       _currentStatus = _current.status;
+      _localAudioPath = _current.path;
       _timerController.pause();
+      _recordButtonEnabled = true;
+      _stopButtonEnabled = false;
     });
-    return;
   }
 
   dynamic _buildText(RecordingStatus status) {
@@ -252,6 +255,53 @@ class _RecorderWidgetState extends State<RecorderWidget>
     );
   }
 
+  Widget getRecordWidget() {
+    if (widget.isCurrentUserAuthor) {
+      return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            getRecordButton(widget.showIcon),
+            SizedBox(
+              width: 4,
+            ),
+            CustomRaisedButton(
+              key: Key(Keys.storyPageStopButton),
+              text: Strings.audioStop.i18n,
+              icon: widget.showIcon
+                  ? Icon(
+                      Icons.stop,
+                      color: Colors.white,
+                    )
+                  : null,
+              onPressed: _stopButtonEnabled ? _stop : null,
+            ),
+          ]);
+    }
+    return Container();
+  }
+
+  Widget getPlayerWidget() {
+    if (_localAudioPath != null && _localAudioPath.isNotEmpty) {
+      return PlayerWidget(
+        width: widget.width,
+        path: _localAudioPath,
+        isLocal: true,
+        url: '',
+        resetPosition: true,
+      );
+    }
+    if (widget.url != null) {
+      return PlayerWidget(
+        width: widget.width,
+        path: '',
+        isLocal: false,
+        url: widget.url,
+        resetPosition: true,
+      );
+    }
+    return Container();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Flexible(
@@ -261,38 +311,19 @@ class _RecorderWidgetState extends State<RecorderWidget>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              getRecordButton(widget.showIcon),
-              SizedBox(
-                width: 4,
-              ),
-              CustomRaisedButton(
-                key: Key(Keys.storyPageStopButton),
-                text: Strings.audioStop.i18n,
-                icon: widget.showIcon
-                    ? Icon(
-                        Icons.stop,
-                        color: Colors.white,
-                      )
-                    : null,
-                onPressed:
-                    _currentStatus != RecordingStatus.Unset ? _stop : null,
-              ),
-              SizedBox(
-                width: 4,
-              ),
-              CustomRaisedButton(
-                key: Key(Keys.storyPagePlayButton),
-                text: Strings.audioPlay.i18n,
-                icon: widget.showIcon
-                    ? Icon(
-                        Icons.play_circle_outline,
-                        color: Colors.white,
-                      )
-                    : null,
-                onPressed: onPlayAudio,
+              Text(
+                Strings.currentAudio.i18n,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              getPlayerWidget(),
+            ],
+          ),
+          getRecordWidget(),
           Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,

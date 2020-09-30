@@ -289,7 +289,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.currentAudio,
-        'es': 'Audio Actual',
+        'es': 'Audio',
       } +
       {
         'en': Strings.audioControls,

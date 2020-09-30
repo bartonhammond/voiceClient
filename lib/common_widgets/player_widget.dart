@@ -8,18 +8,29 @@ enum PlayerState { stopped, playing, paused }
 enum PlayingRouteState { speakers, earpiece }
 
 class PlayerWidget extends StatefulWidget {
-  const PlayerWidget(
+  PlayerWidget(
       {Key key,
-      @required this.url,
       this.mode = PlayerMode.MEDIA_PLAYER,
       this.showSlider = true,
-      this.width = 500})
+      this.width = 500,
+      this.path = '',
+      this.isLocal = false,
+      this.resetPosition = false,
+      this.url = '',
+      this.duration,
+      this.position})
       : super(key: key);
 
-  final String url;
   final PlayerMode mode;
   final bool showSlider;
   final int width;
+  final String path;
+  final bool isLocal;
+  final String url;
+  final bool resetPosition;
+
+  Duration duration;
+  Duration position;
 
   @override
   State<StatefulWidget> createState() {
@@ -31,9 +42,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
   _PlayerWidgetState();
 
   AudioPlayer _audioPlayer;
-
-  Duration _duration;
-  Duration _position;
 
   PlayerState _playerState = PlayerState.stopped;
   StreamSubscription _durationSubscription;
@@ -83,15 +91,17 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                   ),
                   child: Slider(
                     onChanged: (v) {
-                      final position = v * _duration.inMilliseconds;
+                      final position = v * widget.duration.inMilliseconds;
                       _audioPlayer
                           .seek(Duration(milliseconds: position.round()));
                     },
-                    value: (_position != null &&
-                            _duration != null &&
-                            _position.inMilliseconds > 0 &&
-                            _position.inMilliseconds < _duration.inMilliseconds)
-                        ? _position.inMilliseconds / _duration.inMilliseconds
+                    value: (widget.position != null &&
+                            widget.duration != null &&
+                            widget.position.inMilliseconds > 0 &&
+                            widget.position.inMilliseconds <
+                                widget.duration.inMilliseconds)
+                        ? widget.position.inMilliseconds /
+                            widget.duration.inMilliseconds
                         : 0.0,
                   ),
                 ),
@@ -103,7 +113,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
             IconButton(
               padding: EdgeInsets.all(0),
               key: Key('play_button'),
-              onPressed: _isPlaying ? null : () => _play(),
+              onPressed: _isPlaying ? null : () => play(),
               iconSize: 25.0,
               icon: Icon(Icons.play_arrow),
               color: Colors.cyan,
@@ -134,7 +144,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _audioPlayer = AudioPlayer(mode: widget.mode);
 
     _durationSubscription = _audioPlayer.onDurationChanged.listen((duration) {
-      setState(() => _duration = duration);
+      setState(() => widget.duration = duration);
 
       if (Theme.of(context).platform == TargetPlatform.iOS) {
         // (Optional) listen for notification updates in the background
@@ -151,22 +161,22 @@ class _PlayerWidgetState extends State<PlayerWidget> {
 
     _positionSubscription =
         _audioPlayer.onAudioPositionChanged.listen((p) => setState(() {
-              _position = p;
+              widget.position = p;
             }));
 
     _playerCompleteSubscription =
         _audioPlayer.onPlayerCompletion.listen((event) {
       _onComplete();
       setState(() {
-        _position = _duration;
+        widget.position = widget.duration;
       });
     });
 
     _playerErrorSubscription = _audioPlayer.onPlayerError.listen((msg) {
       setState(() {
         _playerState = PlayerState.stopped;
-        _duration = Duration(seconds: 0);
-        _position = Duration(seconds: 0);
+        widget.duration = Duration(seconds: 0);
+        widget.position = Duration(seconds: 0);
       });
     });
 
@@ -175,16 +185,28 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     _audioPlayer.onNotificationPlayerStateChanged.listen((state) {});
   }
 
-  Future<int> _play() async {
+  Future<int> play() async {
     try {
-      final playPosition = (_position != null &&
-              _duration != null &&
-              _position.inMilliseconds > 0 &&
-              _position.inMilliseconds < _duration.inMilliseconds)
-          ? _position
+      final playPosition = (widget.position != null &&
+              widget.duration != null &&
+              widget.position.inMilliseconds > 0 &&
+              widget.position.inMilliseconds < widget.duration.inMilliseconds)
+          ? widget.position
           : null;
-      final result = await _audioPlayer.play(widget.url,
-          isLocal: false, position: playPosition);
+      int result;
+      if (widget.isLocal == true) {
+        result = await _audioPlayer.play(
+          widget.path,
+          isLocal: widget.isLocal,
+          position: playPosition,
+        );
+      } else {
+        result = await _audioPlayer.play(
+          widget.url,
+          isLocal: widget.isLocal,
+          position: playPosition,
+        );
+      }
       if (result == 1) {
         setState(() => _playerState = PlayerState.playing);
       }
@@ -213,7 +235,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       if (result == 1) {
         setState(() {
           _playerState = PlayerState.stopped;
-          _position = Duration();
+          widget.position = Duration();
         });
       }
       return result;

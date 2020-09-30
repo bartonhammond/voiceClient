@@ -42,9 +42,7 @@ String getHttpLinkUri(
 }
 
 GraphQLClient getGraphQLClient(ArgResults argResults, GraphQLClientType type) {
-  print('getGraphQLClient ${argResults["mode"]}');
   if (argResults['mode'] == 'prod') {
-    print('running prod');
     const String uri = 'https://myfamilyvoice.com';
     const bool isSecured = false;
     final link = getHttpLink(getHttpLinkUri(uri, type, isSecured));
@@ -56,7 +54,6 @@ GraphQLClient getGraphQLClient(ArgResults argResults, GraphQLClientType type) {
 
     return graphQLClient;
   }
-  print('running dev');
   const String uri = 'http://192.168.1.13';
   String port = '4003'; //this is not secured (export foo=barton)
   const String endPoint = 'graphql';

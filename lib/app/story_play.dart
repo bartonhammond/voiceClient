@@ -16,7 +16,7 @@ import 'package:voiceClient/common_widgets/friend_widget.dart';
 
 import 'package:voiceClient/common_widgets/image_controls.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
-import 'package:voiceClient/common_widgets/player_widget.dart';
+
 import 'package:voiceClient/common_widgets/recorder_widget.dart';
 import 'package:voiceClient/common_widgets/tags.dart';
 
@@ -497,35 +497,16 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Widget getPlayerControls(int width, bool showIcons) {
-    return _story != null
+    return _story == null
         ? Column(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                Strings.currentAudio.i18n,
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              PlayerWidget(
-                url: host(_story['audio']),
+              RecorderWidget(
+                isCurrentUserAuthor: _isCurrentUserAuthor,
+                setAudioFile: setStoryAudioFile,
                 width: width,
-              ),
-              _isCurrentUserAuthor
-                  ? SizedBox(
-                      height: 8,
-                    )
-                  : Container(),
-              _isCurrentUserAuthor
-                  ? Text(
-                      Strings.audioControls.i18n,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  : Container(),
-              _isCurrentUserAuthor
-                  ? RecorderWidget(
-                      setAudioFile: setStoryAudioFile,
-                    )
-                  : Container(),
+              )
             ],
           )
         : Column(
@@ -538,14 +519,11 @@ class _StoryPlayState extends State<StoryPlay>
                     )
                   : Container(),
               _isCurrentUserAuthor
-                  ? Text(
-                      Strings.audioControls.i18n,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    )
-                  : Container(),
-              _isCurrentUserAuthor
                   ? RecorderWidget(
+                      isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioFile: setStoryAudioFile,
+                      width: width,
+                      url: host(_story['audio']),
                     )
                   : Container(),
             ],
@@ -829,6 +807,7 @@ class _StoryPlayState extends State<StoryPlay>
                                   height: _spacer.toDouble(),
                                 ),
                                 RecorderWidget(
+                                  isCurrentUserAuthor: true,
                                   setAudioFile: setCommentAudioFile,
                                   timerDuration: 90,
                                 ),
