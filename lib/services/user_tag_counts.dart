@@ -31,7 +31,6 @@ Future<List<String>> getUserHashtagCounts() async {
     tags = tags.toSet().toList();
     return tags;
   } catch (e) {
-    print(e.toString());
     rethrow;
   }
 }

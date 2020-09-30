@@ -40,8 +40,6 @@ Future<String> addSingleStory(
   //Create mp3 (userName, text, file)
   final int randomVoice = randomVoiceGen.nextInt(encodings.length);
   final String mp3Path = './seed/mp3/${text.replaceAll(RegExp(' +'), '_')}';
-  print('Text: $text');
-  print('mp3Path: $mp3Path');
 
   await textToSpeech(
     text,
@@ -62,7 +60,6 @@ Future<String> addSingleStory(
     multipartFile,
     'mp3',
   );
-  print('mp3PathUrl: $mp3PathUrl');
 
   await addStory(
     graphQLClientApolloServer,

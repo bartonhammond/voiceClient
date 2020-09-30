@@ -71,7 +71,6 @@ Future<void> addStory(
       await graphQLClientApolloServer.mutate(_mutationOptions);
 
   if (queryResult.hasException) {
-    print('mutation_service createStory failed');
     throw queryResult.exception;
   }
 
@@ -89,7 +88,6 @@ Future<void> addStory(
 
   queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
   if (queryResult.hasException) {
-    print('mutation_service createStory failed');
     throw queryResult.exception;
   }
   return;
