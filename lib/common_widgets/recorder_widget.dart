@@ -49,7 +49,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
   final TimerProgressTextCountDirection _progressTextCountDirection =
       TimerProgressTextCountDirection.count_down;
 
-  bool _recordButtonEnabled = true;
   bool _stopButtonEnabled = true;
   String _localAudioPath;
 
@@ -57,7 +56,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
   void initState() {
     super.initState();
     _timerController = TimerController(this);
-    _recordButtonEnabled = true;
     _stopButtonEnabled = false;
     _localAudioPath = '';
     _init();
@@ -135,7 +133,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
           _current = current;
           _currentStatus = current.status;
           widget.setAudioFile(null);
-          _recordButtonEnabled = true;
           _stopButtonEnabled = false;
           _localAudioPath = '';
         });
@@ -156,7 +153,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
       setState(() {
         _timerController.start();
         _current = recording;
-        _recordButtonEnabled = true;
         _stopButtonEnabled = true;
       });
     } catch (e) {
@@ -169,7 +165,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
     await _recorder.resume();
     setState(() {
       _timerController.start();
-      _recordButtonEnabled = true;
       _stopButtonEnabled = true;
     });
     return;
@@ -179,7 +174,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
     await _recorder.pause();
     setState(() {
       _timerController.pause();
-      _recordButtonEnabled = true;
       _stopButtonEnabled = false;
     });
     return;
@@ -193,7 +187,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
       _currentStatus = _current.status;
       _localAudioPath = _current.path;
       _timerController.pause();
-      _recordButtonEnabled = true;
       _stopButtonEnabled = false;
     });
   }

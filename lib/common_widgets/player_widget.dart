@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 enum PlayerState { stopped, playing, paused }
 enum PlayingRouteState { speakers, earpiece }
 
+// ignore: must_be_immutable
 class PlayerWidget extends StatefulWidget {
   PlayerWidget(
       {Key key,

@@ -39,7 +39,7 @@ class _MessagesPageState extends State<MessagesPage> {
   int lastResultSetSize = 0;
 
   final ScrollController _scrollController = ScrollController();
-  bool _shouldBeMore = false;
+  bool _shouldBeMore = true;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   @override

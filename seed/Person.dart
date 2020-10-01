@@ -19,7 +19,7 @@ class Person {
     );
   }
   final String name;
-  final String email;
+  String email;
   final String home;
   final String image;
   final int birth;

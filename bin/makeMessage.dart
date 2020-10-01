@@ -3,9 +3,10 @@ import 'package:args/args.dart';
 import 'package:graphql/client.dart';
 import 'package:uuid/uuid.dart';
 import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
+
 import 'package:voiceClient/services/mutation_service.dart';
 import '../seed/graphQLClient.dart';
+import '../seed/queries.dart' as q;
 
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser();
@@ -32,10 +33,10 @@ Future<void> main(List<String> arguments) async {
   //Make everyone friends
 
   final String _toId =
-      await _getUserIdByEmail(graphQLClient, 'bartonhammond@gmail.com');
+      await q.getUserIdByEmail(graphQLClient, 'bartonhammond@gmail.com');
 
   final String _fromId =
-      await _getUserIdByEmail(graphQLClient, 'brucefreeman@gmail.com');
+      await q.getUserIdByEmail(graphQLClient, 'brucefreeman@gmail.com');
 
   String storyId;
 
@@ -83,18 +84,4 @@ Future<void> main(List<String> arguments) async {
       );
     }
   }
-}
-
-Future<String> _getUserIdByEmail(
-  GraphQLClient graphQLClient,
-  String email,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmail),
-    variables: <String, dynamic>{
-      'email': email,
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  return queryResult.data['User'][0]['id'];
 }

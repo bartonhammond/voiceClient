@@ -147,7 +147,7 @@ class FirebaseEmailLinkHandler {
 
         final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
         final QueryOptions _queryOptions = QueryOptions(
-          documentNode: gql(getUserByEmail),
+          documentNode: gql(getUserByEmailQL),
           variables: <String, dynamic>{
             'email': email,
           },

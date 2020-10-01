@@ -193,7 +193,8 @@ class _StoryPlayState extends State<StoryPlay>
                   leading: IconButton(
                       icon: Icon(MdiIcons.lessThan),
                       onPressed: () {
-                        if (widget.params.isNotEmpty) {
+                        if (widget.params.isNotEmpty &&
+                            widget.params.containsKey('onFinish')) {
                           widget.params['onFinish']();
                         }
                         Navigator.of(context).pop('upload');
@@ -217,6 +218,9 @@ class _StoryPlayState extends State<StoryPlay>
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    if (queryResult.hasException) {
+      return null;
+    }
     final Map<String, dynamic> story = queryResult.data['Story'][0];
 
     return story;

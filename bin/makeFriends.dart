@@ -1,10 +1,13 @@
 import 'dart:io';
+
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
+
 import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/mutation_service.dart';
+
 import '../seed/graphQLClient.dart';
+import '../seed/queries.dart' as q;
 import '../seed/voiceUsers.dart';
 
 Future<void> main(List<String> arguments) async {
@@ -26,10 +29,10 @@ Future<void> main(List<String> arguments) async {
   //Make everyone friends
   for (var userIndex = 0; userIndex < users.length; userIndex++) {
     final String userId =
-        await _getUserByEmail(graphQLClient, users[userIndex]['email']);
+        await q.getUserByEmail(graphQLClient, users[userIndex]['email']);
 
-    final List friends =
-        await _getFriendsOfMine(graphQLClient, users[userIndex]['email']);
+    final List friends = await q.getFriendsOfMineByEmail(
+        graphQLClient, users[userIndex]['email']);
 
     for (var friendIndex = 0; friendIndex < friends.length; friendIndex++) {
       if (!friends[friendIndex]['isFriend']) {
@@ -48,35 +51,4 @@ Future<void> main(List<String> arguments) async {
   }
 
   return;
-}
-
-Future<String> _getUserByEmail(
-  GraphQLClient graphQLClient,
-  String email,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmail),
-    variables: <String, dynamic>{
-      'email': email,
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  return queryResult.data['User'][0]['id'];
-}
-
-Future<List> _getFriendsOfMine(
-  GraphQLClient graphQLClient,
-  String email,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getFriendsOfMine),
-    variables: <String, dynamic>{
-      'email': email,
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['friends'];
 }
