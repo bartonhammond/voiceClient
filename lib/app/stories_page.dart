@@ -13,6 +13,7 @@ import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/services/logger.dart' as logger;
 
 class Debouncer {
   Debouncer({this.milliseconds});
@@ -159,11 +160,9 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   Future<Map> getUserFromUserId() async {
-    print('stories_page getUserFromUserId');
     final Map<String, dynamic> user = <String, dynamic>{'empty': true};
 
     if (widget.params == null || getId() == null) {
-      print('stories_page getUserFromUserId return user(empty)');
       return user;
     }
     final QueryOptions _queryOptions = QueryOptions(
@@ -177,7 +176,6 @@ class _StoriesPageState extends State<StoriesPage> {
     if (queryResult.hasException) {
       throw queryResult.exception;
     }
-    print('stories_page getUserFromUserId returning User {map}');
     return queryResult.data['User'][0];
   }
 
@@ -280,7 +278,6 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
-    print('stories_page getQueryOptions');
     if (_resultTypes.getTypeStoriesView() == TypeStoriesView.allFriends) {
       if (_resultTypes.getTypeSearch() == TypeSearch.hashtag) {
         return QueryOptions(
@@ -328,7 +325,6 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('stories_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -352,17 +348,19 @@ class _StoriesPageState extends State<StoriesPage> {
       future: getUserFromUserId(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          print('stories_page snapshot !hasData');
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
             ),
           );
         } else if (snapshot.hasError) {
-          print('stories_page snapshot has error');
-          throw snapshot.error;
+          logger.createMessage(
+              userEmail: graphQLAuth.getUser().email,
+              source: 'stories_page',
+              shortMessage: snapshot.error.toString(),
+              stackTrace: StackTrace.current.toString());
+          return Text('\nErrors: \n  ' + snapshot.error.toString());
         }
-        print('stories_page snapshot has data');
         user = snapshot.data;
         return Scaffold(
           appBar: AppBar(
@@ -407,7 +405,12 @@ class _StoriesPageState extends State<StoriesPage> {
                       }
 
                       if (result.hasException) {
-                        print(StackTrace.current);
+                        logger.createMessage(
+                            userEmail: graphQLAuth.getUser().email,
+                            source: 'stories_page',
+                            shortMessage: result.exception.toString(),
+                            stackTrace: StackTrace.current.toString());
+
                         return Text(
                             '\nErrors: \n  ' + result.exception.toString());
                       }

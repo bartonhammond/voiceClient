@@ -21,6 +21,7 @@ import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/services/logger.dart' as logger;
 
 class Debouncer {
   Debouncer({this.milliseconds});
@@ -109,7 +110,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
-      return null;
+      throw queryResult.exception;
     }
     return queryResult.data['User'][0]['messages']['from'];
   }
@@ -126,7 +127,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
-      return null;
+      throw queryResult.exception;
     }
     return queryResult.data['User'][0]['messages']['to'];
   }
@@ -201,21 +202,30 @@ class _FriendsPageState extends State<FriendsPage> {
     ).show(context);
     if (addNewFriend == true) {
       final _uuid = Uuid();
-      await addUserMessages(
-        GraphQLProvider.of(context).value,
-        locator<GraphQLAuth>().getCurrentUserId(),
-        _friendId,
-        _uuid.v1(),
-        'new',
-        'Friend Request',
-        'friend-request',
-        null,
-      );
+      try {
+        await addUserMessages(
+          GraphQLProvider.of(context).value,
+          locator<GraphQLAuth>().getCurrentUserId(),
+          _friendId,
+          _uuid.v1(),
+          'new',
+          'Friend Request',
+          'friend-request',
+          null,
+        );
 
-      allMyFriendRequests = await _getAllMyFriendRequests(context);
-      allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
+        allMyFriendRequests = await _getAllMyFriendRequests(context);
+        allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
 
-      _refetchQuery();
+        _refetchQuery();
+      } catch (e) {
+        logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'friends_page',
+            shortMessage: e.toString(),
+            stackTrace: StackTrace.current.toString());
+        rethrow;
+      }
     }
     return;
   }
@@ -238,9 +248,14 @@ class _FriendsPageState extends State<FriendsPage> {
         },
       );
 
-      QueryResult result = await graphQLClient.mutate(options);
+      final QueryResult result = await graphQLClient.mutate(options);
 
       if (result.hasException) {
+        logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'friends_page',
+            shortMessage: result.exception.toString(),
+            stackTrace: StackTrace.current.toString());
         throw result.exception;
       }
       options = MutationOptions(
@@ -251,7 +266,7 @@ class _FriendsPageState extends State<FriendsPage> {
         },
       );
 
-      result = await graphQLClient.mutate(options);
+      await graphQLClient.mutate(options);
 
       allMyFriendRequests = await _getAllMyFriendRequests(context);
       allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
@@ -292,7 +307,6 @@ class _FriendsPageState extends State<FriendsPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('friends_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
 
@@ -311,22 +325,25 @@ class _FriendsPageState extends State<FriendsPage> {
         _getAllNewFriendRequestsToMe(context),
       ]),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          print('friends_page build snapshot.hastData');
-          allMyFriendRequests = snapshot.data[0];
-          allNewFriendRequestsToMe = snapshot.data[1];
-          return _build();
-        } else if (snapshot.hasError) {
-          throw snapshot.error;
+        if (snapshot.hasError) {
+          logger.createMessage(
+              userEmail: graphQLAuth.getUser().email,
+              source: 'friends_page',
+              shortMessage: snapshot.error.toString(),
+              stackTrace: StackTrace.current.toString());
+
+          return Text('\nErrors: \n  ' + snapshot.error.toString());
         } else if (!snapshot.hasData) {
           return _progressIndicator();
         }
+        allMyFriendRequests = snapshot.data[0];
+        allNewFriendRequestsToMe = snapshot.data[1];
+        return _build();
       },
     );
   }
 
   Widget _build() {
-    print('friends_page _build');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
@@ -361,6 +378,11 @@ class _FriendsPageState extends State<FriendsPage> {
                 }
 
                 if (result.hasException) {
+                  logger.createMessage(
+                      userEmail: graphQLAuth.getUser().email,
+                      source: 'friends_page',
+                      shortMessage: result.exception.toString(),
+                      stackTrace: StackTrace.current.toString());
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
                 _refetchQuery = refetch;
