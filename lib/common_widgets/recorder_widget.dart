@@ -155,6 +155,19 @@ class _RecorderWidgetState extends State<RecorderWidget>
         _current = recording;
         _stopButtonEnabled = true;
       });
+      const tick = Duration(milliseconds: 50);
+      Timer.periodic(tick, (Timer t) async {
+        if (_currentStatus == RecordingStatus.Stopped) {
+          t.cancel();
+        }
+
+        final current = await _recorder.current(channel: 0);
+        // print(current.status);
+        setState(() {
+          _current = current;
+          _currentStatus = _current.status;
+        });
+      });
     } catch (e) {
       print(e);
     }

@@ -305,6 +305,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    print('profile_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;

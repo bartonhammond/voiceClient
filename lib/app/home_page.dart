@@ -119,40 +119,48 @@ class _HomePageState extends State<HomePage> {
   Widget buildOffStageNavigatorStories(TabItem item) {
     return Offstage(
       offstage: _currentTab != item,
-      child: TabNavigatorStories(
-        navigatorKey: _navigatorKeys[item],
-        tabItem: item,
-      ),
+      child: _currentTab != item
+          ? Container()
+          : TabNavigatorStories(
+              navigatorKey: _navigatorKeys[item],
+              tabItem: item,
+            ),
     );
   }
 
   Widget buildOffStageNavigatorFriends(TabItem item) {
     return Offstage(
       offstage: _currentTab != item,
-      child: TabNavigatorFriends(
-        navigatorKey: _navigatorKeys[item],
-        tabItem: item,
-      ),
+      child: _currentTab != item
+          ? Container()
+          : TabNavigatorFriends(
+              navigatorKey: _navigatorKeys[item],
+              tabItem: item,
+            ),
     );
   }
 
   Widget buildOffStageNavigatorMessages(TabItem item) {
     return Offstage(
       offstage: _currentTab != item,
-      child: TabNavigatorMessages(
-        navigatorKey: _navigatorKeys[item],
-        tabItem: item,
-      ),
+      child: _currentTab != item
+          ? Container()
+          : TabNavigatorMessages(
+              navigatorKey: _navigatorKeys[item],
+              tabItem: item,
+            ),
     );
   }
 
   Widget buildOffStageNavigatorProfile(TabItem item) {
     return Offstage(
       offstage: _currentTab != item,
-      child: TabNavigatorProfile(
-        navigatorKey: _navigatorKeys[item],
-        tabItem: item,
-      ),
+      child: _currentTab != item
+          ? Container()
+          : TabNavigatorProfile(
+              navigatorKey: _navigatorKeys[item],
+              tabItem: item,
+            ),
     );
   }
 }
