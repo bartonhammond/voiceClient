@@ -34,12 +34,11 @@ class MessagesPage extends StatefulWidget {
 }
 
 class _MessagesPageState extends State<MessagesPage> {
-  final String title = Strings.MFV.i18n;
   final nMessages = 20;
   int lastResultSetSize = 0;
 
   final ScrollController _scrollController = ScrollController();
-  bool _shouldBeMore = false;
+  bool _shouldBeMore = true;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   @override
@@ -247,6 +246,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('messages_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -267,9 +267,7 @@ class _MessagesPageState extends State<MessagesPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
-        title: Text(
-          title,
-        ),
+        title: Text(Strings.MFV.i18n),
       ),
       drawer: getDrawer(context),
       body: Container(

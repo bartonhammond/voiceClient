@@ -185,7 +185,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.quitFriend,
-        'es': '¿Salir amigo?',
+        'es': '¿Salir?',
       } +
       {
         'en': Strings.pending,

@@ -159,9 +159,11 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   Future<Map> getUserFromUserId() async {
+    print('stories_page getUserFromUserId');
     final Map<String, dynamic> user = <String, dynamic>{'empty': true};
 
     if (widget.params == null || getId() == null) {
+      print('stories_page getUserFromUserId return user(empty)');
       return user;
     }
     final QueryOptions _queryOptions = QueryOptions(
@@ -172,6 +174,10 @@ class _StoriesPageState extends State<StoriesPage> {
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    if (queryResult.hasException) {
+      throw queryResult.exception;
+    }
+    print('stories_page getUserFromUserId returning User {map}');
     return queryResult.data['User'][0];
   }
 
@@ -274,6 +280,7 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
+    print('stories_page getQueryOptions');
     if (_resultTypes.getTypeStoriesView() == TypeStoriesView.allFriends) {
       if (_resultTypes.getTypeSearch() == TypeSearch.hashtag) {
         return QueryOptions(
@@ -321,6 +328,7 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('stories_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -344,111 +352,116 @@ class _StoriesPageState extends State<StoriesPage> {
       future: getUserFromUserId(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
+          print('stories_page snapshot !hasData');
           return Scaffold(
             body: Center(
               child: CircularProgressIndicator(),
             ),
           );
-        } else {
-          user = snapshot.data;
-          return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Color(0xff00bcd4),
-              title: Text(
-                Strings.MFV.i18n,
-              ),
-            ),
-            drawer: getId() == null ? getDrawer(context) : null,
-            body: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
-                children: <Widget>[
-                  getId() == null
-                      ? Container()
-                      : buildFriend(
-                          context,
-                          user,
-                        ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      getDropDownTypeSearchButtons(),
-                      _resultTypes.getTypeSearch() == TypeSearch.date
-                          ? Container()
-                          : buildSearchField()
-                    ],
-                  ),
-                  Query(
-                      options: getQueryOptions(graphQLAuth),
-                      builder: (
-                        QueryResult result, {
-                        VoidCallback refetch,
-                        FetchMore fetchMore,
-                      }) {
-                        if (result.loading && result.data == null) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-
-                        if (result.hasException) {
-                          return Text(
-                              '\nErrors: \n  ' + result.exception.toString());
-                        }
-
-                        final List<dynamic> stories = List<dynamic>.from(
-                            result.data[_resultTypes.getResultType()]);
-
-                        if (stories.isEmpty || stories.length < nStories) {
-                          _resultTypes.setHasMore(false);
-                        }
-
-                        return Expanded(
-                          child: stories == null || stories.isEmpty
-                              ? Center(
-                                  child: Container(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text(Strings.noResults.i18n),
-                                      ],
-                                    ),
-                                  ),
-                                )
-                              : StaggeredGridView.countBuilder(
-                                  controller: _scrollController,
-                                  itemCount: stories.length + 1,
-                                  primary: false,
-                                  crossAxisCount: _crossAxisCount,
-                                  mainAxisSpacing: 4.0,
-                                  crossAxisSpacing: 4.0,
-                                  itemBuilder: (context, index) {
-                                    return index < stories.length
-                                        ? StaggeredGridTileStory(
-                                            onPush: widget.onPush,
-                                            showFriend: getId() == null,
-                                            onDelete: () {
-                                              setState(() {});
-                                            },
-                                            story: Map<String, dynamic>.from(
-                                                stories[index]),
-                                          )
-                                        : _resultTypes.getHasMore()
-                                            ? getLoadMoreButton(
-                                                fetchMore, stories)
-                                            : Container();
-                                  },
-                                  staggeredTileBuilder: (index) =>
-                                      StaggeredTile.fit(_staggeredViewSize),
-                                ),
-                        );
-                      })
-                ],
-              ),
-            ),
-          );
+        } else if (snapshot.hasError) {
+          print('stories_page snapshot has error');
+          throw snapshot.error;
         }
+        print('stories_page snapshot has data');
+        user = snapshot.data;
+        return Scaffold(
+          appBar: AppBar(
+            backgroundColor: Color(0xff00bcd4),
+            title: Text(
+              Strings.MFV.i18n,
+            ),
+          ),
+          drawer: getId() == null ? getDrawer(context) : null,
+          body: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.max,
+              children: <Widget>[
+                getId() == null
+                    ? Container()
+                    : buildFriend(
+                        context,
+                        user,
+                      ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    getDropDownTypeSearchButtons(),
+                    _resultTypes.getTypeSearch() == TypeSearch.date
+                        ? Container()
+                        : buildSearchField()
+                  ],
+                ),
+                Query(
+                    options: getQueryOptions(graphQLAuth),
+                    builder: (
+                      QueryResult result, {
+                      VoidCallback refetch,
+                      FetchMore fetchMore,
+                    }) {
+                      if (result.loading && result.data == null) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (result.hasException) {
+                        print(StackTrace.current);
+                        return Text(
+                            '\nErrors: \n  ' + result.exception.toString());
+                      }
+
+                      final List<dynamic> stories = List<dynamic>.from(
+                          result.data[_resultTypes.getResultType()]);
+
+                      if (stories.isEmpty || stories.length < nStories) {
+                        _resultTypes.setHasMore(false);
+                      }
+
+                      return Expanded(
+                        child: stories == null || stories.isEmpty
+                            ? Center(
+                                child: Container(
+                                  child: Column(
+                                    children: <Widget>[
+                                      Text(Strings.noResults.i18n),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            : StaggeredGridView.countBuilder(
+                                controller: _scrollController,
+                                itemCount: stories.length + 1,
+                                primary: false,
+                                crossAxisCount: _crossAxisCount,
+                                mainAxisSpacing: 4.0,
+                                crossAxisSpacing: 4.0,
+                                itemBuilder: (context, index) {
+                                  return index < stories.length
+                                      ? StaggeredGridTileStory(
+                                          onPush: widget.onPush,
+                                          showFriend: getId() == null,
+                                          onDelete: () {
+                                            setState(() {});
+                                          },
+                                          story: Map<String, dynamic>.from(
+                                              stories[index]),
+                                        )
+                                      : _resultTypes.getHasMore()
+                                          ? getLoadMoreButton(
+                                              fetchMore, stories)
+                                          : Container();
+                                },
+                                staggeredTileBuilder: (index) =>
+                                    StaggeredTile.fit(_staggeredViewSize),
+                              ),
+                      );
+                    })
+              ],
+            ),
+          ),
+        );
       },
     );
   }

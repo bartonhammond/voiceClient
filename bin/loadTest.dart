@@ -1,11 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
+
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
+
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
+
 import '../seed/graphQLClient.dart';
+import '../seed/queries.dart' as q;
 import '../seed/voiceUsers.dart';
 
 class CustomObject {
@@ -59,7 +63,43 @@ Future<void> runQuery(CustomObject customObject) async {
   }
 }
 
-Future<void> _getStories(
+Future<void> runQueries(CustomObject customObject) async {
+  final GraphQLClient graphQLClient =
+      getGraphQLClient(customObject.argResults, GraphQLClientType.ApolloServer);
+  final String email = customObject.email;
+  print('runQueries $email');
+  while (true) {
+    await getStories(graphQLClient, email, getUserStories, 'userStories');
+    await Future<dynamic>.delayed(Duration(seconds: 1));
+
+    await getStories(
+        graphQLClient, email, getUserFriendsStories, 'userFriendsStories');
+    await Future<dynamic>.delayed(Duration(seconds: 1));
+
+    await getSearchFriends(
+      graphQLClient,
+      email,
+      userSearchFriends,
+      'userSearchFriends',
+    );
+    await getSearchFriends(
+      graphQLClient,
+      email,
+      userSearchNotFriends,
+      'userSearchNotFriends',
+    );
+    await getSearchFriends(
+      graphQLClient,
+      email,
+      userSearchMeQL,
+      'User',
+    );
+    await getMessages(graphQLClient, email);
+    {}
+  }
+}
+
+Future<void> getStories(
   GraphQLClient graphQLClient,
   String email,
   String storyQL,
@@ -67,105 +107,88 @@ Future<void> _getStories(
 ) async {
   String cursor = DateTime.now().toIso8601String();
   await Future<dynamic>.delayed(Duration(seconds: 1));
-  List results = await _getStoriesQuery(
-      graphQLClient, email, 20, cursor, storyQL, resultsName);
+  List results = await q.getStoriesQuery(
+    graphQLClient,
+    email,
+    20,
+    cursor,
+    storyQL,
+    resultsName,
+  );
   int page = 0;
-  while (results.length == 20) {
+  while (results.length % 20 == 0 && page < 6) {
     print('$resultsName (page: $page) $email');
     page++;
-    cursor = getCursor(results, 'updated');
+    cursor = q.getCursor(results);
     await Future<dynamic>.delayed(Duration(seconds: 1));
-    results = await _getStoriesQuery(
+    results = await q.getStoriesQuery(
         graphQLClient, email, 20, cursor, storyQL, resultsName);
     print('$resultsName size: ${results.length}');
   }
   return;
 }
 
-Future<void> runQueries(CustomObject customObject) async {
-  final GraphQLClient graphQLClient =
-      getGraphQLClient(customObject.argResults, GraphQLClientType.ApolloServer);
-  final String email = customObject.email;
-  print('runQueries $email');
-  while (true) {
-    await _getStories(graphQLClient, email, getUserStories, 'userStories');
-    await Future<dynamic>.delayed(Duration(seconds: 1));
-
-    await _getStories(
-        graphQLClient, email, getUserFriendsStories, 'userFriendsStories');
-    await Future<dynamic>.delayed(Duration(seconds: 1));
-
-    int skip = 0;
-    const int limit = 20;
-    const String searchString = '*';
-    int page = 0;
-    List results = await _userSearchNotFriendsQuery(graphQLClient, searchString,
-        email, skip, limit, userSearchNotFriends, 'userSearchNotFriends');
-    while (results.length == 20) {
-      await Future<dynamic>.delayed(Duration(seconds: 1));
-      print('userSearchNotFriends $email page($page)');
-      page++;
-      skip += limit;
-      results = await _userSearchNotFriendsQuery(graphQLClient, searchString,
-          email, skip, limit, userSearchNotFriends, 'userSearchNotFriends');
-    }
-  }
-}
-
-String getCursor(List<dynamic> _list, String fieldName) {
-  String datetime;
-  if (_list == null || _list.isEmpty) {
-    datetime = DateTime.now().toIso8601String();
-  } else {
-    datetime = _list[_list.length - 1]['updated']['formatted'];
-  }
-  return datetime;
-}
-
-Future<List> _getStoriesQuery(
+Future<void> getSearchFriends(
   GraphQLClient graphQLClient,
   String email,
-  int count,
-  String cursor,
-  String gqlString,
+  String ql,
   String resultsName,
 ) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(gqlString),
-    variables: <String, dynamic>{
-      'email': email,
-      'limit': count.toString(),
-      'cursor': cursor
-    },
+  int skip = 0;
+  const int limit = 20;
+  const String searchString = '*';
+  int page = 0;
+  List results = await q.userSearchQuery(
+    graphQLClient,
+    searchString,
+    email,
+    skip,
+    limit,
+    ql,
+    resultsName,
   );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
+  print('$resultsName $email page($page) size(${results.length})');
+  while (results.length % 20 == 0 && skip < 200) {
+    await Future<dynamic>.delayed(Duration(seconds: 1));
+    print('$resultsName $email page($page)');
+    page++;
+    skip += limit;
+    results = await q.userSearchQuery(
+      graphQLClient,
+      searchString,
+      email,
+      skip,
+      limit,
+      ql,
+      resultsName,
+    );
   }
-  return queryResult.data[resultsName];
 }
 
-Future<List> _userSearchNotFriendsQuery(
+Future<void> getMessages(
   GraphQLClient graphQLClient,
-  String searchString,
   String email,
-  int skip,
-  int limit,
-  String gqlString,
-  String resultsName,
 ) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(gqlString),
-    variables: <String, dynamic>{
-      'searchString': searchString,
-      'email': email,
-      'limit': limit.toString(),
-      'skip': skip.toString()
-    },
+  const int count = 20;
+  int page = 0;
+  String cursor = DateTime.now().toIso8601String();
+  List results = await q.getMessagesQuery(
+    graphQLClient,
+    email,
+    count,
+    cursor,
   );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
+  print('getMessages $email page($page) size(${results.length})');
+  while (results.length % 20 == 0 && page < 5) {
+    await Future<dynamic>.delayed(Duration(seconds: 1));
+    print('getMessages $email page($page)');
+    page++;
+    cursor = q.getCursor(results, fieldName: 'messageCreated');
+    results = await q.getMessagesQuery(
+      graphQLClient,
+      email,
+      count,
+      cursor,
+    );
   }
-  return queryResult.data[resultsName];
 }

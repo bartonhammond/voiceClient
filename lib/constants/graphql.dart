@@ -4,7 +4,7 @@ mutation($file: Upload!) {
 }
 ''';
 
-const String getUserByEmail = r'''
+const String getUserByEmailQL = r'''
 query getUserByEmail($email: String!) {
   User(email: $email) {
     __typename
@@ -282,7 +282,7 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
 }
 ''';
 
-const String getFriendsOfMine = r'''
+const String getFriendsOfMineQL = r'''
 query getFriendsOfMine ($email: String!) {
   friends(email: $email){
     __typename

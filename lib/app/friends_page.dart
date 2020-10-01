@@ -37,7 +37,9 @@ class Debouncer {
   }
 
   void stop() {
-    _timer.cancel();
+    if (null != _timer) {
+      _timer.cancel();
+    }
   }
 }
 
@@ -52,7 +54,6 @@ class FriendsPage extends StatefulWidget {
 }
 
 class _FriendsPageState extends State<FriendsPage> {
-  final String title = Strings.MFV.i18n;
   final _nFriends = 20;
   int _skip = 0;
 
@@ -291,6 +292,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('friends_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
 
@@ -310,10 +312,13 @@ class _FriendsPageState extends State<FriendsPage> {
       ]),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          print('friends_page build snapshot.hastData');
           allMyFriendRequests = snapshot.data[0];
           allNewFriendRequestsToMe = snapshot.data[1];
           return _build();
-        } else {
+        } else if (snapshot.hasError) {
+          throw snapshot.error;
+        } else if (!snapshot.hasData) {
           return _progressIndicator();
         }
       },
@@ -321,12 +326,11 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Widget _build() {
+    print('friends_page _build');
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
-        title: Text(
-          title.i18n,
-        ),
+        title: Text(Strings.MFV.i18n),
       ),
       drawer: getDrawer(context),
       body: Container(
