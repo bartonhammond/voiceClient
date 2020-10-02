@@ -1,5 +1,8 @@
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:flutter/services.dart';
+import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/logger.dart' as logger;
+import 'package:voiceClient/services/service_locator.dart';
 
 class PlatformExceptionAlertDialog extends PlatformAlertDialog {
   PlatformExceptionAlertDialog({String title, PlatformException exception})
@@ -10,13 +13,30 @@ class PlatformExceptionAlertDialog extends PlatformAlertDialog {
         );
 
   static String message(PlatformException exception) {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     if (exception.message == 'FIRFirestoreErrorDomain') {
       if (exception.code == 'Code 7') {
         // This happens when we get a "Missing or insufficient permissions" error
+        logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'platform_exception_alert_dialog',
+            shortMessage:
+                'This operation could not be completed due to a server error',
+            stackTrace: StackTrace.current.toString());
         return 'This operation could not be completed due to a server error';
       }
+      logger.createMessage(
+          userEmail: graphQLAuth.getUser().email,
+          source: 'platform_exception_alert_dialog',
+          shortMessage: exception.message,
+          stackTrace: StackTrace.current.toString());
       return exception.details;
     }
+    logger.createMessage(
+        userEmail: graphQLAuth.getUser().email,
+        source: 'platform_exception_alert_dialog',
+        shortMessage: errors[exception.code] ?? exception.message,
+        stackTrace: StackTrace.current.toString());
     return errors[exception.code] ?? exception.message;
   }
 

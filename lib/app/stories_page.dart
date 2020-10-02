@@ -347,19 +347,19 @@ class _StoriesPageState extends State<StoriesPage> {
     return FutureBuilder(
       future: getUserFromUserId(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else if (snapshot.hasError) {
+        if (snapshot.hasError) {
           logger.createMessage(
               userEmail: graphQLAuth.getUser().email,
               source: 'stories_page',
               shortMessage: snapshot.error.toString(),
               stackTrace: StackTrace.current.toString());
           return Text('\nErrors: \n  ' + snapshot.error.toString());
+        } else if (!snapshot.hasData) {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
         }
         user = snapshot.data;
         return Scaffold(
