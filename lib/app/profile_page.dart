@@ -21,6 +21,7 @@ import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/services/logger.dart' as logger;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -73,6 +74,8 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     nameFormFieldController.dispose();
+    homeFormFieldController.dispose();
+    birthFormFieldController.dispose();
     super.dispose();
   }
 
@@ -272,40 +275,53 @@ class _ProfilePageState extends State<ProfilePage> {
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     String jpegPathUrl;
+    try {
+      if (imageUpdated) {
+        final MultipartFile multipartFile = getMultipartFile(
+          _image,
+          '$userId.jpg',
+          'image',
+          'jpeg',
+        );
 
-    if (imageUpdated) {
-      final MultipartFile multipartFile = getMultipartFile(
-        _image,
-        '$userId.jpg',
-        'image',
-        'jpeg',
-      );
-
-      jpegPathUrl = await performMutation(
+        jpegPathUrl = await performMutation(
+          graphQLClientFileServer,
+          multipartFile,
+          'jpeg',
+        );
+      }
+      final QueryResult queryResult = await updateUserInfo(
         graphQLClientFileServer,
-        multipartFile,
-        'jpeg',
+        graphQLClient,
+        jpegPathUrl: jpegPathUrl == null ? user['image'] : jpegPathUrl,
+        id: user['id'],
+        name: name,
+        home: cityState,
+        birth: birthYear,
       );
+      if (queryResult.hasException) {
+        logger.createMessage(
+          userEmail: graphQLAuth.getUser().email,
+          source: 'profile_page',
+          shortMessage: queryResult.exception.toString(),
+          stackTrace: StackTrace.current.toString(),
+        );
+        throw queryResult.exception;
+      }
+      await graphQLAuth.setupEnvironment();
+    } catch (e) {
+      logger.createMessage(
+          userEmail: graphQLAuth.getUser().email,
+          source: 'profile_page',
+          shortMessage: e.exception.toString(),
+          stackTrace: StackTrace.current.toString());
+      rethrow;
     }
-    final QueryResult queryResult = await updateUserInfo(
-      graphQLClientFileServer,
-      graphQLClient,
-      jpegPathUrl: jpegPathUrl == null ? user['image'] : jpegPathUrl,
-      id: user['id'],
-      name: name,
-      home: cityState,
-      birth: birthYear,
-    );
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    await graphQLAuth.setupEnvironment();
     return;
   }
 
   @override
   Widget build(BuildContext context) {
-    print('profile_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;

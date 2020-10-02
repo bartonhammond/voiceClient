@@ -6,6 +6,7 @@ import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/services/eventBus.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/services/logger.dart' as logger;
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.iconData, this.text});
@@ -90,6 +91,11 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
+      logger.createMessage(
+          userEmail: graphQLAuth.getUser().email,
+          source: 'fab_bottom_app_bar',
+          shortMessage: queryResult.exception.toString(),
+          stackTrace: StackTrace.current.toString());
       throw queryResult.exception;
     }
 
