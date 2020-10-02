@@ -31,6 +31,7 @@ import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/services/user_tag_counts.dart';
+import 'package:voiceClient/services/logger.dart' as logger;
 
 class StoryPlay extends StatefulWidget {
   const StoryPlay({Key key, this.params}) : super(key: key);
@@ -148,18 +149,25 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Future.wait([
-        getStory(),
-        getUserHashtagCounts(),
-      ]),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else {
+        future: Future.wait([
+          getStory(),
+          getUserHashtagCounts(),
+        ]),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            logger.createMessage(
+                userEmail: graphQLAuth.getUser().email,
+                source: 'story_play',
+                shortMessage: snapshot.error.toString(),
+                stackTrace: StackTrace.current.toString());
+            return Text('\nErrors: \n  ' + snapshot.error.toString());
+          } else if (!snapshot.hasData) {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+          }
           _story = snapshot.data[0];
           _allTags = snapshot.data[1];
 
@@ -202,9 +210,7 @@ class _StoryPlayState extends State<StoryPlay>
                 ),
                 body: Center(child: getCard(context))),
           );
-        }
-      },
-    );
+        });
   }
 
   Future<Map> getStory() async {
@@ -219,7 +225,7 @@ class _StoryPlayState extends State<StoryPlay>
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
-      return null;
+      throw queryResult.exception;
     }
     final Map<String, dynamic> story = queryResult.data['Story'][0];
 

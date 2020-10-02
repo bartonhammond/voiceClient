@@ -19,6 +19,7 @@ import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/services/service_locator.dart';
+import 'package:voiceClient/services/logger.dart' as logger;
 
 class MessagesPage extends StatefulWidget {
   const MessagesPage({
@@ -54,17 +55,26 @@ class _MessagesPageState extends State<MessagesPage> {
       defaultActionText: Strings.yes.i18n,
     ).show(context);
     if (rejectFriendRequest == true) {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-      final GraphQLClient graphQLClient =
-          graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+      try {
+        final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+        final GraphQLClient graphQLClient =
+            graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
 
-      await updateUserMessageStatusById(
-        graphQLClient,
-        graphQLAuth.getUser().email,
-        message['id'],
-        'reject', //status
-      );
-      setState(() {});
+        await updateUserMessageStatusById(
+          graphQLClient,
+          graphQLAuth.getUser().email,
+          message['id'],
+          'reject', //status
+        );
+        setState(() {});
+      } catch (e) {
+        logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'messages_page',
+            shortMessage: e.exception.toString(),
+            stackTrace: StackTrace.current.toString());
+        rethrow;
+      }
     }
   }
 
@@ -77,25 +87,33 @@ class _MessagesPageState extends State<MessagesPage> {
     ).show(context);
     if (approveFriendRequest) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+      try {
+        await addUserFriend(
+          graphQLClient,
+          message['User']['id'],
+          graphQLAuth.getCurrentUserId(),
+        );
 
-      await addUserFriend(
-        graphQLClient,
-        message['User']['id'],
-        graphQLAuth.getCurrentUserId(),
-      );
+        await addUserFriend(
+          graphQLClient,
+          graphQLAuth.getCurrentUserId(),
+          message['User']['id'],
+        );
 
-      await addUserFriend(
-        graphQLClient,
-        graphQLAuth.getCurrentUserId(),
-        message['User']['id'],
-      );
-
-      await updateUserMessageStatusById(
-        graphQLClient,
-        graphQLAuth.getUser().email,
-        message['id'],
-        'approve', //status
-      );
+        await updateUserMessageStatusById(
+          graphQLClient,
+          graphQLAuth.getUser().email,
+          message['id'],
+          'approve', //status
+        );
+      } catch (e) {
+        logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'messages_page',
+            shortMessage: e.exception.toString(),
+            stackTrace: StackTrace.current.toString());
+        rethrow;
+      }
     }
     setState(() {});
     return;
@@ -107,14 +125,23 @@ class _MessagesPageState extends State<MessagesPage> {
   ///
   Future<void> callBack(Map<String, dynamic> message) async {
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-    await updateUserMessageStatusById(
-      graphQLClient,
-      graphQLAuth.getUser().email,
-      message['id'],
-      'cleared', //status
-    );
+    try {
+      await updateUserMessageStatusById(
+        graphQLClient,
+        graphQLAuth.getUser().email,
+        message['id'],
+        'cleared', //status
+      );
 
-    setState(() {});
+      setState(() {});
+    } catch (e) {
+      logger.createMessage(
+          userEmail: graphQLAuth.getUser().email,
+          source: 'messages_page',
+          shortMessage: e.exception.toString(),
+          stackTrace: StackTrace.current.toString());
+      rethrow;
+    }
   }
 
   Widget getDetailWidget(List<dynamic> messages, int index) {
@@ -246,7 +273,6 @@ class _MessagesPageState extends State<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('messages_page build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -298,6 +324,11 @@ class _MessagesPageState extends State<MessagesPage> {
                 }
 
                 if (result.hasException) {
+                  logger.createMessage(
+                      userEmail: graphQLAuth.getUser().email,
+                      source: 'messages_page',
+                      shortMessage: result.exception.toString(),
+                      stackTrace: StackTrace.current.toString());
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
 

@@ -19,6 +19,9 @@ Future<List<String>> getUserHashtagCounts() async {
     );
     List<String> tags = [];
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    if (queryResult.hasException) {
+      throw queryResult.exception;
+    }
     if (!queryResult.hasException) {
       List<dynamic> tagCounts = <dynamic>[];
       if (queryResult.data != null)
