@@ -22,10 +22,10 @@ Future<void> createMessage({
   };
   final dynamic body = jsonEncode(data);
 
-  final http.Response response = await http.post(
+  await http.post(
     'http://192.168.1.48:12201/gelf',
     body: body,
   );
-  print(response.statusCode);
+
   return;
 }

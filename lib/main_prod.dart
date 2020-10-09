@@ -31,7 +31,7 @@ void main() {
 
   final configuredApp = AppConfig(
     flavorName: 'Prod',
-    apiBaseUrl: 'https://myfamilyvoice.com/',
+    apiBaseUrl: 'https://myfamilyvoice.com',
     getHttpLink: getHttpLink,
     isSecured: true,
     child: MyApp(),
