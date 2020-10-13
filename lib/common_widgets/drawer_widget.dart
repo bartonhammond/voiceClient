@@ -70,31 +70,36 @@ Widget drawer(BuildContext context, String versionBuild) {
             },
           ),
         ),
-        Card(
-          child: ListTile(
-            trailing: Flag(
-              'US',
-              height: 30,
-              width: 30,
+        ExpansionTile(
+          title: Text('Languages'),
+          children: <Widget>[
+            Card(
+              child: ListTile(
+                trailing: Flag(
+                  'US',
+                  height: 30,
+                  width: 30,
+                ),
+                title: Text(Strings.usLocale.i18n),
+                onTap: () {
+                  I18n.of(context).locale = null;
+                },
+              ),
             ),
-            title: Text(Strings.usLocale.i18n),
-            onTap: () {
-              I18n.of(context).locale = null;
-            },
-          ),
-        ),
-        Card(
-          child: ListTile(
-            trailing: Flag(
-              'ES',
-              height: 30,
-              width: 30,
+            Card(
+              child: ListTile(
+                trailing: Flag(
+                  'ES',
+                  height: 30,
+                  width: 30,
+                ),
+                title: Text(Strings.esLocale.i18n),
+                onTap: () {
+                  I18n.of(context).locale = Locale('es');
+                },
+              ),
             ),
-            title: Text(Strings.esLocale.i18n),
-            onTap: () {
-              I18n.of(context).locale = Locale('es');
-            },
-          ),
+          ],
         ),
       ],
     ),

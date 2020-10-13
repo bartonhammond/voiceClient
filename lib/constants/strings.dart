@@ -16,8 +16,16 @@ class Strings {
   static const String logoutAreYouSure =
       'Are you sure that you want to logout?';
   static const String logoutFailed = 'Logout failed';
-  static const String usLocale = 'Change to English';
-  static const String esLocale = 'Change to Spanish';
+  static const String zhLocale = 'Chinese';
+  static const String usLocale = 'English';
+  static const String deLocale = 'German';
+  static const String hiLocale = 'Hindi';
+  static const String idLocale = 'Indonesian';
+  static const String jaLocale = 'Japanese';
+  static const String koLocale = 'Korean';
+  static const String ptLocale = 'Portuguese';
+  static const String ruLocale = 'Russian';
+  static const String esLocale = 'Spanish';
 
   // Sign In Page
   static const String signIn = 'Sign in';
@@ -37,7 +45,7 @@ class Strings {
   static const String submitEmailAddressLink =
       'Submit your email address to receive an activation link.';
   static const String checkYourEmail = 'Check your email';
-  static String activationLinkSent = 'We have sent an activation link';
+  static const String activationLinkSent = 'We have sent an activation link';
   static const String errorSendingEmail = 'Error sending email';
   static const String sendActivationLink = 'Send activation link';
   static const String activationLinkError = 'Email activation error';

@@ -1,0 +1,109 @@
+My Family Voice
+OK
+Cancel
+Are you sure?
+Yes
+No results
+Upload
+Load More
+Logout
+Are you sure that you want to logout?
+Logout failed
+Chinese
+English
+German
+Hindi
+Indonesian
+Japanese
+Korean
+Portuguese
+Russian
+Spanish
+Sign in
+Email
+test@test.com
+Sign In
+Email is invalid
+was inspired by the way your family shares
+from their youth, high school, adventures, marriage, military, children, etc.
+memories of photos
+so that you can now share with others in your family.
+Submit your email address to receive an activation link.
+Check your email
+We have sent an activation link
+Error sending email
+Send activation link
+Email activation error
+Please submit your email address again to receive a new activation link.
+Received an activation link but you are already signed in.
+Invalid activation link
+Add Story
+Stories
+Users
+Notices
+Profile
+Filter by name or home
+Friends
+Others
+Me
+Request Friendship?
+End Friendship?
+Quit friend?
+Pending
+Friend?
+Reject Friendship Request?
+Approve Friendship Request?
+Approve
+Reject
+View
+Clear
+Profile
+Gallery
+Camera
+Your Image Placeholder
+Your picture selection
+Enter your full name
+Name
+Enter your city, state
+Home
+Birth year
+Year of your birth
+Please enter your name
+Please enter your home
+Please enter a year
+Please enter a valid year
+Image Placeholder
+Image Selection
+Audio
+Record Story
+Gallery
+Camera
+Stop
+Play
+Record
+Pause
+Resume
+Clear
+You must accept permissions
+Add tag here
+Show all tags
+Delete story?
+Add Story
+There are % comments
+There are % tags
+Friend Request
+New Comment
+Developer menu
+Authentication type
+Firebase
+Mock
+Record a comment
+Comments
+Story
+Delete Story?
+Date
+Tags
+Search by tag
+Delete
+Hide
+Show

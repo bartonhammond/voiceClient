@@ -1,0 +1,109 @@
+My Family Voice
+De acuerdo
+Cancelar
+¿Estás seguro?
+Sí
+Sin resultados
+Subir
+Cargar más
+Cerrar sesión
+¿Está seguro de que desea cerrar la sesión?
+Error al cerrar la sesión
+Chino
+Inglés
+Alemán
+Hindi
+Indonesio
+Japonés
+Coreano
+Portugués
+Ruso
+Español
+Inicia sesión
+Correo electrónico
+test@test.com
+Inicia sesión
+El correo electrónico no es válido
+se inspiró en la forma en que su familia comparte
+de su juventud, escuela secundaria, aventuras, matrimonio, militares, hijos, etc.
+recuerdos de fotos
+para que ahora puedas compartir con otras personas de tu familia.
+Envíe su dirección de correo electrónico para recibir un enlace de activación.
+Revisa tu correo electrónico
+Hemos enviado un enlace de activación
+Error al enviar correo electrónico
+Enviar enlace de activación
+Error de activación por correo electrónico
+Por favor, envíe su dirección de correo electrónico de nuevo para recibir un nuevo enlace de activación.
+Recibió un enlace de activación, pero ya ha iniciado sesión.
+Enlace de activación no válido
+Añadir historia
+Historias
+Usuarios
+Avisos
+Perfil
+Filtrar por nombre o hogar
+Amigos
+Otros
+Yo
+¿Pedir amistad?
+¿Acabar con la amistad?
+¿Dejar de amigo?
+Pendiente
+¿Amigo?
+¿Rechazar la solicitud de amistad?
+¿Aprobar la solicitud de amistad?
+Aprobar
+Rechazar
+Vista
+Claro
+Perfil
+Galería
+Cámara
+Su marcador de posición de imagen
+Su selección de imagen
+Introduzca su nombre completo
+Nombre
+Ingrese su ciudad, estado
+Casa
+Año de nacimiento
+Año de su nacimiento
+Por favor, introduzca su nombre
+Por favor, ingrese a su casa
+Por favor, introduzca un año
+Por favor, introduzca un año válido
+Marcador de posición de imagen
+Selección de imagen
+Audio
+Record Story
+Galería
+Cámara
+Parada
+Jugar
+grabar
+Pausa
+Reanudar
+Claro
+Debe aceptar permisos
+Añadir etiqueta aquí
+Mostrar todas las etiquetas
+¿Eliminar historia?
+Añadir historia
+Hay % de comentarios
+Hay % de etiquetas
+Solicitud de amigo
+Nuevo comentario
+Menú Desarrollador
+Tipo de autenticación
+Firebase
+Simulacro
+Grabar un comentario
+Comentarios
+Historia
+¿Eliminar historia?
+Fecha
+Etiquetas
+Buscar por etiqueta
+Eliminar
+Ocultar
+Mostrar
