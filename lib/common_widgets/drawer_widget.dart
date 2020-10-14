@@ -12,6 +12,7 @@ import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:flag/flag.dart';
+import 'package:voiceClient/services/locale_secure_store.dart';
 
 Future<void> _signOut(BuildContext context) async {
   try {
@@ -45,7 +46,7 @@ Future<String> getVersionAndBuild(AppConfig config) async {
   return '${config.flavorName} $version+$buildNumber';
 }
 
-Widget drawer(BuildContext context, String versionBuild) {
+Widget drawer(BuildContext context, String versionBuild, bool showLogout) {
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -62,46 +63,59 @@ Widget drawer(BuildContext context, String versionBuild) {
             onTap: () {},
           ),
         ),
-        Card(
-          child: ListTile(
-            title: Text(Strings.logout.i18n),
-            onTap: () {
-              _confirmSignOut(context);
-            },
-          ),
-        ),
-        Card(
-          child: ListTile(
-            trailing: Flag(
-              'US',
-              height: 30,
-              width: 30,
+        showLogout
+            ? Card(
+                child: ListTile(
+                  title: Text(Strings.logout.i18n),
+                  onTap: () {
+                    _confirmSignOut(context);
+                  },
+                ),
+              )
+            : Container(),
+        ExpansionTile(
+          title: Text(Strings.languages.i18n),
+          children: <Widget>[
+            Card(
+              child: ListTile(
+                trailing: Flag(
+                  'US',
+                  height: 30,
+                  width: 30,
+                ),
+                title: Text(Strings.usLocale.i18n),
+                onTap: () async {
+                  I18n.of(context).locale = Locale('en');
+                  final LocaleSecureStore localeSecureStore =
+                      Provider.of<LocaleSecureStore>(context, listen: false);
+                  await localeSecureStore.setLocale('en');
+                },
+              ),
             ),
-            title: Text(Strings.usLocale.i18n),
-            onTap: () {
-              I18n.of(context).locale = null;
-            },
-          ),
-        ),
-        Card(
-          child: ListTile(
-            trailing: Flag(
-              'ES',
-              height: 30,
-              width: 30,
+            Card(
+              child: ListTile(
+                trailing: Flag(
+                  'ES',
+                  height: 30,
+                  width: 30,
+                ),
+                title: Text(Strings.esLocale.i18n),
+                onTap: () async {
+                  I18n.of(context).locale = Locale('es');
+                  final LocaleSecureStore localeSecureStore =
+                      Provider.of<LocaleSecureStore>(context, listen: false);
+                  await localeSecureStore.setLocale('es');
+                },
+              ),
             ),
-            title: Text(Strings.esLocale.i18n),
-            onTap: () {
-              I18n.of(context).locale = Locale('es');
-            },
-          ),
+          ],
         ),
       ],
     ),
   );
 }
 
-Widget getDrawer(BuildContext context) {
+Widget getDrawer(BuildContext context, {bool showLogout = true}) {
   final config = AppConfig.of(context);
   return FutureBuilder(
     future: getVersionAndBuild(config),
@@ -114,7 +128,7 @@ Widget getDrawer(BuildContext context) {
         );
       } else {
         final String versionBuild = snapshot.data;
-        return drawer(context, versionBuild);
+        return drawer(context, versionBuild, showLogout);
       }
     },
   );

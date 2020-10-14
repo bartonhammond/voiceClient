@@ -1,20 +1,21 @@
 import 'dart:async';
-
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:i18n_extension/i18n_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:package_info/package_info.dart';
 import 'package:voiceClient/app/sign_in/validator.dart';
+import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/common_widgets/form_submit_button.dart';
 import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
 import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:voiceClient/constants/constants.dart';
+import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/firebase_email_link_handler.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:package_info/package_info.dart';
-import 'package:provider/provider.dart';
-
-import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/services/locale_secure_store.dart';
 
 class EmailLinkSignInPage extends StatefulWidget {
   const EmailLinkSignInPage({
@@ -26,24 +27,6 @@ class EmailLinkSignInPage extends StatefulWidget {
   final FirebaseEmailLinkHandler linkHandler;
   final AuthService authService;
   final VoidCallback onSignedIn;
-
-  static Future<void> show(BuildContext context,
-      {VoidCallback onSignedIn}) async {
-    final AuthService authService =
-        Provider.of<AuthService>(context, listen: false);
-    final FirebaseEmailLinkHandler linkHandler =
-        Provider.of<FirebaseEmailLinkHandler>(context, listen: false);
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        fullscreenDialog: false,
-        builder: (_) => EmailLinkSignInPage(
-          authService: authService,
-          linkHandler: linkHandler,
-          onSignedIn: onSignedIn,
-        ),
-      ),
-    );
-  }
 
   @override
   _EmailLinkSignInPageState createState() => _EmailLinkSignInPageState();
@@ -116,27 +99,46 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
     }
   }
 
+  Future<Locale> getDeviceLocal(BuildContext context) async {
+    final LocaleSecureStore localeSecureStore =
+        LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
+    final Locale locale = await localeSecureStore.getLocale();
+    I18n.of(context).locale = locale;
+    return locale;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xff00bcd4),
-        title: Text(Strings.MFV.i18n),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Card(
-              child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: ValueListenableBuilder<bool>(
-              valueListenable: widget.linkHandler.isLoading,
-              builder: (_, isLoading, __) => _buildForm(isLoading),
+    return FutureBuilder(
+      future: getDeviceLocal(context),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Color(0xff00bcd4),
+              title: Text(Strings.MFV.i18n),
             ),
-          )),
-        ),
-      ),
-      backgroundColor: Colors.grey[200],
+            drawer: getDrawer(context, showLogout: false),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Card(
+                    child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: widget.linkHandler.isLoading,
+                    builder: (_, isLoading, __) => _buildForm(isLoading),
+                  ),
+                )),
+              ),
+            ),
+            backgroundColor: Colors.grey[200],
+          );
+        }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
     );
   }
 

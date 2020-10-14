@@ -1,11 +1,7 @@
 import 'package:i18n_extension/i18n_extension.dart';
 import 'package:voiceClient/constants/strings.dart';
 
-// Developed by Marcelo Glasberg (Aug 2019).
-// For more info, see: https://pub.dartlang.org/packages/i18n_extension
-
 extension Localization on String {
-  //
   static final _t = Translations('en') +
       {
         'en': Strings.MFV,
@@ -13,23 +9,23 @@ extension Localization on String {
       } +
       {
         'en': Strings.ok,
-        'es': 'Okay',
-      } +
-      {
-        'en': Strings.yes,
-        'es': 'Si',
-      } +
-      {
-        'en': Strings.areYouSure,
-        'es': '¿Estas segura?',
+        'es': 'De acuerdo',
       } +
       {
         'en': Strings.cancel,
         'es': 'Cancelar',
       } +
       {
+        'en': Strings.areYouSure,
+        'es': '¿Estás seguro?',
+      } +
+      {
+        'en': Strings.yes,
+        'es': 'Sí',
+      } +
+      {
         'en': Strings.noResults,
-        'es': 'No hay resultados',
+        'es': 'Sin resultados',
       } +
       {
         'en': Strings.upload,
@@ -37,7 +33,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.loadMore,
-        'es': 'Carga más',
+        'es': 'Cargar más',
       } +
       {
         'en': Strings.logout,
@@ -45,27 +41,59 @@ extension Localization on String {
       } +
       {
         'en': Strings.logoutAreYouSure,
-        'es': '¿Estás seguro de que quieres cerrar sesión?',
-      } +
-      {
-        'en': Strings.usLocale,
-        'es': '¿Cambiar a Inglés?',
-      } +
-      {
-        'en': Strings.esLocale,
-        'es': '¿Cambiar al español?',
+        'es': '¿Está seguro de que desea cerrar la sesión?',
       } +
       {
         'en': Strings.logoutFailed,
-        'es': 'Cierre de sesión fallido',
+        'es': 'Error al cerrar la sesión',
+      } +
+      {
+        'en': Strings.zhLocale,
+        'es': 'Chino',
+      } +
+      {
+        'en': Strings.usLocale,
+        'es': 'Inglés',
+      } +
+      {
+        'en': Strings.deLocale,
+        'es': 'Alemán',
+      } +
+      {
+        'en': Strings.hiLocale,
+        'es': 'Hindi',
+      } +
+      {
+        'en': Strings.idLocale,
+        'es': 'Indonesio',
+      } +
+      {
+        'en': Strings.jaLocale,
+        'es': 'Japonés',
+      } +
+      {
+        'en': Strings.koLocale,
+        'es': 'Coreano',
+      } +
+      {
+        'en': Strings.ptLocale,
+        'es': 'Portugués',
+      } +
+      {
+        'en': Strings.ruLocale,
+        'es': 'Ruso',
+      } +
+      {
+        'en': Strings.esLocale,
+        'es': 'Español',
       } +
       {
         'en': Strings.signIn,
-        'es': 'Registrarse',
+        'es': 'Inicia sesión',
       } +
       {
         'en': Strings.emailLabel,
-        'es': 'Email',
+        'es': 'Correo electrónico',
       } +
       {
         'en': Strings.emailHint,
@@ -73,33 +101,29 @@ extension Localization on String {
       } +
       {
         'en': Strings.signInWithEmailLink,
-        'es': 'Iniciar sesión',
+        'es': 'Inicia sesión',
       } +
       {
         'en': Strings.invalidEmailErrorText,
-        'es': 'El correo electrónico es invalido',
+        'es': 'El correo electrónico no es válido',
       } +
       {
         'en': Strings.inspiredText,
-        'es': ' se inspiró en la forma en que comparte tu familia ',
+        'es': 'se inspiró en la forma en que su familia comparte',
       } +
       {
         'en': Strings.fromYouthAndOtherThings,
         'es':
-            ' desde su juventud, escuela secundaria, aventuras, matrimonio, militares, niños, etc.',
+            'de su juventud, escuela secundaria, aventuras, matrimonio, militares, hijos, etc.',
       } +
       {
         'en': Strings.memoriesText,
         'es': 'recuerdos de fotos',
       } +
       {
-        'en': Strings.firebase,
-        'es': 'Firebase',
-      } +
-      {
         'en': Strings.youCanShare,
         'es':
-            'para que ahora pueda compartir con otros miembros de su familia.',
+            'para que ahora puedas compartir con otras personas de tu familia.',
       } +
       {
         'en': Strings.submitEmailAddressLink,
@@ -108,11 +132,11 @@ extension Localization on String {
       } +
       {
         'en': Strings.checkYourEmail,
-        'es': 'Consultar su correo electrónico',
+        'es': 'Revisa tu correo electrónico',
       } +
       {
         'en': Strings.activationLinkSent,
-        'es': 'Nosotros hemos enviado un enlace de activación',
+        'es': 'Hemos enviado un enlace de activación',
       } +
       {
         'en': Strings.errorSendingEmail,
@@ -120,24 +144,24 @@ extension Localization on String {
       } +
       {
         'en': Strings.sendActivationLink,
-        'es': 'Enviar enlace de activación',
+        'es': 'Enviar enlace',
       } +
       {
         'en': Strings.activationLinkError,
-        'es': 'Error de activación de correo electrónico',
+        'es': 'Error de activación por correo electrónico',
       } +
       {
         'en': Strings.submitEmailAgain,
         'es':
-            'Por favor envíe su dirección de correo electrónico nuevamente para recibir un nuevo enlace de activación',
+            'Por favor, envíe su dirección de correo electrónico de nuevo para recibir un nuevo enlace de activación.',
       } +
       {
         'en': Strings.userAlreadySignedIn,
-        'es': 'Recibió un enlace de activación pero ya inició sesión',
+        'es': 'Recibió un enlace de activación, pero ya ha iniciado sesión.',
       } +
       {
         'en': Strings.isNotSignInWithEmailLinkMessage,
-        'es': 'Enlace de activación inválido',
+        'es': 'Enlace de activación no válido',
       } +
       {
         'en': Strings.toolTipFAB,
@@ -145,7 +169,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.storiesTabName,
-        'es': 'Cuentos',
+        'es': 'Historias',
       } +
       {
         'en': Strings.friendsTabName,
@@ -153,15 +177,15 @@ extension Localization on String {
       } +
       {
         'en': Strings.noticesTabName,
-        'es': 'Aviso',
+        'es': 'Avisos',
       } +
       {
         'en': Strings.profileTabName,
-        'es': 'Retrato',
+        'es': 'Perfil',
       } +
       {
         'en': Strings.filterText,
-        'es': 'Filtrar por nombre o casa',
+        'es': 'Filtrar por nombre o hogar',
       } +
       {
         'en': Strings.typeUserButtonFriends,
@@ -177,11 +201,11 @@ extension Localization on String {
       } +
       {
         'en': Strings.requestFriendship,
-        'es': 'Amistad?',
+        'es': '¿Pedir amistad?',
       } +
       {
         'en': Strings.cancelFriendship,
-        'es': '¿Fin?',
+        'es': '¿Acabar con la amistad?',
       } +
       {
         'en': Strings.quitFriend,
@@ -193,15 +217,15 @@ extension Localization on String {
       } +
       {
         'en': Strings.newFriend,
-        'es': '¿Nuevo amigo?',
+        'es': '¿Amigo?',
       } +
       {
         'en': Strings.rejectFriendshipRequest,
-        'es': '¿Rechazar solicitud de amistad?',
+        'es': '¿Rechazar la solicitud de amistad?',
       } +
       {
         'en': Strings.approveFriendshipRequest,
-        'es': '¿Aprobar solicitud de amistad?',
+        'es': '¿Aprobar la solicitud de amistad?',
       } +
       {
         'en': Strings.approveFriendButton,
@@ -213,19 +237,19 @@ extension Localization on String {
       } +
       {
         'en': Strings.viewCommentButton,
-        'es': 'Ver',
+        'es': 'Vista',
       } +
       {
         'en': Strings.clearCommentButton,
         'es': 'Claro',
       } +
       {
-        'en': Strings.galleryImageButton,
-        'es': 'Galería',
-      } +
-      {
         'en': Strings.profilePageName,
         'es': 'Perfil',
+      } +
+      {
+        'en': Strings.galleryImageButton,
+        'es': 'Galería',
       } +
       {
         'en': Strings.cameraImageButton,
@@ -237,11 +261,11 @@ extension Localization on String {
       } +
       {
         'en': Strings.yourPictureSelection,
-        'es': 'Su selección de imágenes',
+        'es': 'Su selección de imagen',
       } +
       {
         'en': Strings.yourFullNameText,
-        'es': 'Ingrese su nombre completo',
+        'es': 'Introduzca su nombre completo',
       } +
       {
         'en': Strings.yourFullNameLabel,
@@ -253,7 +277,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.yourHomeLabel,
-        'es': 'Hogar',
+        'es': 'Casa',
       } +
       {
         'en': Strings.yourBirthText,
@@ -265,15 +289,15 @@ extension Localization on String {
       } +
       {
         'en': Strings.nameEmptyMessage,
-        'es': 'Por favor, escriba su nombre',
+        'es': 'Por favor, introduzca su nombre',
       } +
       {
         'en': Strings.homeEmptyMessage,
-        'es': 'Por favor ingrese su casa',
+        'es': 'Por favor, ingrese a su casa',
       } +
       {
         'en': Strings.birthEmptyMessage,
-        'es': 'Por favor ingrese un año',
+        'es': 'Por favor, introduzca un año',
       } +
       {
         'en': Strings.birthValidationMessage,
@@ -293,7 +317,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.audioControls,
-        'es': 'Historia Récord',
+        'es': 'Record Story',
       } +
       {
         'en': Strings.pictureGallery,
@@ -305,7 +329,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.audioStop,
-        'es': 'Detener',
+        'es': 'Parada',
       } +
       {
         'en': Strings.audioPlay,
@@ -313,7 +337,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.audioRecord,
-        'es': 'Grabar',
+        'es': 'grabar',
       } +
       {
         'en': Strings.audioPause,
@@ -321,19 +345,19 @@ extension Localization on String {
       } +
       {
         'en': Strings.audioResume,
-        'es': 'Continuar',
+        'es': 'Reanudar',
       } +
       {
         'en': Strings.audioClear,
-        'es': 'Reiniciar',
+        'es': 'Claro',
       } +
       {
         'en': Strings.mustAcceptPermissions,
-        'es': 'Debes aceptar permisos',
+        'es': 'Debe aceptar permisos',
       } +
       {
         'en': Strings.addTagHere,
-        'es': 'Agregar etiqueta aquí',
+        'es': 'Añadir etiqueta aquí',
       } +
       {
         'en': Strings.showAllTags,
@@ -346,30 +370,6 @@ extension Localization on String {
       {
         'en': Strings.incrementToolTip,
         'es': 'Añadir historia',
-      } +
-      {
-        'en': Strings.friendRequest,
-        'es': 'Solicitud de amistad',
-      } +
-      {
-        'en': Strings.commentRequest,
-        'es': 'Ver Comentario',
-      } +
-      {
-        'en': Strings.recordAComment,
-        'es': 'Grabar un comentario',
-      } +
-      {
-        'en': Strings.commentsLabel,
-        'es': 'Comentarios',
-      } +
-      {
-        'en': Strings.storyLabel,
-        'es': 'Historia',
-      } +
-      {
-        'en': Strings.deleteStoryQuestion,
-        'es': '¿Eliminar historia?',
       } +
       {
         'en': Strings.gridStoryShowCommentsText
@@ -392,6 +392,46 @@ extension Localization on String {
             .many('%d etiquetas'),
       } +
       {
+        'en': Strings.friendRequest,
+        'es': 'Solicitud de amigo',
+      } +
+      {
+        'en': Strings.commentRequest,
+        'es': 'Nuevo comentario',
+      } +
+      {
+        'en': Strings.developerMenu,
+        'es': 'Menú Desarrollador',
+      } +
+      {
+        'en': Strings.authenticationType,
+        'es': 'Tipo de autenticación',
+      } +
+      {
+        'en': Strings.firebase,
+        'es': 'Firebase',
+      } +
+      {
+        'en': Strings.mock,
+        'es': 'Simulacro',
+      } +
+      {
+        'en': Strings.recordAComment,
+        'es': 'Grabar un comentario',
+      } +
+      {
+        'en': Strings.commentsLabel,
+        'es': 'Comentarios',
+      } +
+      {
+        'en': Strings.storyLabel,
+        'es': 'Historia',
+      } +
+      {
+        'en': Strings.deleteStoryQuestion,
+        'es': '¿Eliminar historia?',
+      } +
+      {
         'en': Strings.dateLabel,
         'es': 'Fecha',
       } +
@@ -401,7 +441,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.searchByTagsHint,
-        'es': 'Buscar Por Etiquetas',
+        'es': 'Buscar por etiqueta',
       } +
       {
         'en': Strings.deleteComment,
@@ -409,20 +449,19 @@ extension Localization on String {
       } +
       {
         'en': Strings.hideComment,
-        'es': 'Esconder',
+        'es': 'Ocultar',
       } +
       {
         'en': Strings.showComment,
         'es': 'Mostrar',
+      } +
+      {
+        'en': Strings.languages,
+        'es': 'Idiomas',
       };
-
   String get i18n => localize(this, _t);
-
   String fill(List<Object> params) => localizeFill(this, params);
-
   String plural(int value) => localizePlural(value, this, _t);
-
   String version(Object modifier) => localizeVersion(modifier, this, _t);
-
   Map<String, String> allVersions() => localizeAllVersions(this, _t);
 }
