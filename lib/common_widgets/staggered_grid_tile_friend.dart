@@ -64,38 +64,62 @@ class StaggeredGridTileFriend extends StatelessWidget {
                     });
                   }
                 },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(25.0),
-                  child: FadeInImage.memoryNetwork(
-                    height: _height.toDouble(),
-                    width: _width.toDouble(),
-                    placeholder: kTransparentImage,
-                    image: host(
-                      friend['image'],
-                      width: _width,
-                      height: _height,
-                      resizingType: 'fill',
-                      enlarge: 1,
-                    ),
-                  ),
-                ),
+                child: friend['image'] == null
+                    ? Image(
+                        image: AssetImage('assets/placeholder.png'),
+                        width: 100,
+                        height: 100,
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(25.0),
+                        child: FadeInImage.memoryNetwork(
+                          height: _height.toDouble(),
+                          width: _width.toDouble(),
+                          placeholder: kTransparentImage,
+                          image: host(
+                            friend['image'],
+                            width: _width,
+                            height: _height,
+                            resizingType: 'fill',
+                            enlarge: 1,
+                          ),
+                        ),
+                      ),
               ),
             ),
-            Text(
-              friend['name'],
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-            ),
-            Text(
-              friend['home'],
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-            ),
-            Text(
-              friend['birth'].toString(),
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-            ),
+            friend['name'] == null
+                ? Text(
+                    'Name...',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: _fontSize),
+                  )
+                : Text(
+                    friend['name'],
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: _fontSize),
+                  ),
+            friend['home'] == null
+                ? Text(
+                    'Home...',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: _fontSize),
+                  )
+                : Text(
+                    friend['home'],
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: _fontSize),
+                  ),
+            friend['birth'] == null
+                ? Text(
+                    'Birth...',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: _fontSize),
+                  )
+                : Text(
+                    friend['birth'].toString(),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: _fontSize),
+                  ),
             friendButton
           ],
         ),
