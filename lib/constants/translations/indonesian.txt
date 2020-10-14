@@ -1,0 +1,109 @@
+Suara Keluarga Saya
+baik
+Membatalkan
+Apakah kamu yakin
+Iya
+Tidak ada hasil
+Unggah
+Muat lebih banyak
+Keluar
+Anda yakin ingin keluar?
+Keluar gagal
+Cina
+Inggris
+Jerman
+Hindi
+bahasa Indonesia
+Jepang
+Korea
+Portugis
+Rusia
+Orang Spanyol
+Masuk
+Surel
+test@test.com
+Masuk
+email tidak valid
+terinspirasi oleh cara keluarga Anda berbagi
+dari masa muda, sekolah menengah, petualangan, pernikahan, militer, anak-anak, dll.
+kenangan foto
+sehingga Anda sekarang dapat berbagi dengan orang lain di keluarga Anda.
+Kirimkan alamat email Anda untuk menerima link aktivasi.
+Periksa email Anda
+Kami telah mengirimkan tautan aktivasi
+Terjadi kesalahan saat mengirim email
+Kirim tautan aktivasi
+Kesalahan aktivasi email
+Harap kirimkan alamat email Anda lagi untuk menerima tautan aktivasi baru.
+Menerima tautan aktivasi tetapi Anda sudah masuk.
+Tautan aktivasi tidak valid
+Tambahkan Cerita
+Cerita
+Pengguna
+Pemberitahuan
+Profil
+Filter menurut nama atau rumah
+Teman
+Lainnya
+Saya
+Minta Persahabatan?
+Akhiri Persahabatan?
+Keluar dari teman?
+Menunggu keputusan
+Teman?
+Tolak Permintaan Pertemanan?
+Setujui Permintaan Pertemanan?
+Menyetujui
+Menolak
+Melihat
+Bersih
+Profil
+Galeri
+Kamera
+Placeholder Gambar Anda
+Pilihan gambar Anda
+Masukkan nama lengkapmu
+Nama
+Masukkan kota Anda, negara bagian
+Rumah
+Tahun lahir
+Tahun kelahiranmu
+Silahkan masukan nama anda
+Silakan masuk rumah Anda
+Harap masukkan satu tahun
+Harap masukkan tahun yang valid
+Placeholder Gambar
+Pemilihan Gambar
+Audio
+Rekam Cerita
+Galeri
+Kamera
+Berhenti
+Bermain
+Merekam
+Berhenti sebentar
+Lanjut
+Bersih
+Anda harus menerima izin
+Tambahkan tag di sini
+Tampilkan semua tag
+Hapus cerita?
+Tambahkan Cerita
+Ada% komentar
+Ada% tag
+Permintaan pertemanan
+Komentar Baru
+Menu pengembang
+Jenis Autentikasi
+Firebase
+Mengejek
+Rekam komentar
+Komentar
+Cerita
+Hapus Cerita?
+Tanggal
+Tag
+Cari berdasarkan tag
+Menghapus
+Menyembunyikan
+Menunjukkan

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_device_locale/flutter_device_locale.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -14,6 +13,7 @@ import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/auth_service_adapter.dart';
 import 'package:voiceClient/services/email_secure_store.dart';
 import 'package:voiceClient/services/firebase_email_link_handler.dart';
+import 'package:voiceClient/services/locale_secure_store.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 class MyApp extends StatelessWidget {
@@ -40,11 +40,13 @@ class MyApp extends StatelessWidget {
     900: Color.fromRGBO(4, 131, 184, 1),
   });
 
-  Future<Locale> getDeviceLocal() async {
-    return await DeviceLocale.getCurrentLocale();
+  Future<Locale> getDeviceLocal(BuildContext context) async {
+    final LocaleSecureStore localeSecureStore =
+        LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
+    return localeSecureStore.getLocale();
   }
 
-  MultiProvider getMultiProvider(Locale locale) {
+  MultiProvider getMultiProvider(BuildContext context, Locale locale) {
     return MultiProvider(
       providers: [
         Provider<AuthService>(
@@ -55,6 +57,11 @@ class MyApp extends StatelessWidget {
         ),
         Provider<EmailSecureStore>(
           create: (_) => EmailSecureStore(
+            flutterSecureStorage: FlutterSecureStorage(),
+          ),
+        ),
+        Provider<LocaleSecureStore>(
+          create: (_) => LocaleSecureStore(
             flutterSecureStorage: FlutterSecureStorage(),
           ),
         ),
@@ -90,7 +97,7 @@ class MyApp extends StatelessWidget {
           themeMode: ThemeMode.light,
           color: Color(0xFFF9EBE8),
           home: I18n(
-              initialLocale: locale?.languageCode == 'es' ? Locale('es') : null,
+              initialLocale: locale,
               child: EmailLinkErrorPresenter.create(
                 context,
                 child: AuthWidget(
@@ -140,12 +147,12 @@ class MyApp extends StatelessWidget {
 
     Locale locale;
     return FutureBuilder(
-      future: getDeviceLocal(),
+      future: getDeviceLocal(context),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           locale = snapshot.data;
           if (!isTesting) {
-            return getMultiProvider(locale);
+            return getMultiProvider(context, locale);
           }
           return testing(context, locale);
         } else {

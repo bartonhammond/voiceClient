@@ -1,0 +1,109 @@
+Minha Voz de Família
+Okey
+Cancelar
+Tem certeza?
+Sim
+Sem resultados
+Carregar
+Carregar mais
+Logout
+Tem certeza que quer se dizer?
+Logout falhou
+Chinês
+Inglês
+Alemão
+Hindi
+Indonésio
+Japonês
+Coreano
+Português
+Russo
+Espanhol
+Entrar
+Email
+test@test.com
+Entrar
+O e-mail é inválido
+foi inspirado pela forma como sua família compartilha
+de sua juventude, ensino médio, aventuras, casamento, militar, filhos, etc.
+memórias de fotos
+para que agora você possa compartilhar com outros de sua família.
+Envie seu endereço de e-mail para receber um link de ativação.
+Verifique seu e-mail
+Enviamos um link de ativação
+Erro de envio de e-mail
+Enviar link de ativação
+Erro de ativação de e-mail
+Envie seu endereço de e-mail novamente para receber um novo link de ativação.
+Recebeu um link de ativação, mas você já está lodo.
+Link de ativação inválido
+Adicionar história
+Histórias
+Usuários
+Avisos
+Perfil
+Filtrar pelo nome ou casa
+Amigos
+Outros
+Me
+Pedir amizade?
+Acabar com a amizade?
+Largar amigo?
+Pendente
+Amigo?
+Rejeitar o pedido de amizade?
+Aprovar o pedido de amizade?
+Aprovar
+Rejeitar
+Ver
+Claro
+Perfil
+Galeria
+Câmera
+Seu espaço reservado de imagem
+Sua seleção de fotos
+Digite seu nome completo
+Nome
+Entre em sua cidade, estado
+Casa
+Ano de nascimento
+Ano de seu nascimento
+Por favor, digite seu nome
+Por favor, entre em sua casa.
+Por favor, entre em um ano
+Por favor, entre em um ano válido
+Espaço reservado para imagem
+Seleção de imagens
+Áudio
+História de Registro
+Galeria
+Câmera
+Parar
+Jogar
+Registro
+Pausa
+Currículo
+Claro
+Você deve aceitar permissões
+Adicionar tag aqui
+Mostre todas as tags
+Apagar a história?
+Adicionar história
+Há % comentários
+Existem % tags
+Solicitação de Amigo
+Novo Comentário
+Menu do desenvolvedor
+Tipo de autenticação
+Base de fogo
+Mock
+Registo um comentário
+Comentários
+História
+Apagar história?
+Data
+Tags
+Pesquisar por tag
+Excluir
+Esconder
+programa
