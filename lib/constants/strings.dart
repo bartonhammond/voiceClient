@@ -47,7 +47,7 @@ class Strings {
   static const String checkYourEmail = 'Check your email';
   static const String activationLinkSent = 'We have sent an activation link';
   static const String errorSendingEmail = 'Error sending email';
-  static const String sendActivationLink = 'Send activation link';
+  static const String sendActivationLink = 'Send link';
   static const String activationLinkError = 'Email activation error';
   static const String submitEmailAgain =
       'Please submit your email address again to receive a new activation link.';
@@ -149,4 +149,7 @@ class Strings {
   static const String deleteComment = 'Delete';
   static const String hideComment = 'Hide';
   static const String showComment = 'Show';
+
+  //New strings on bottom
+  static const String languages = 'Languages';
 }

@@ -1,4 +1,4 @@
-My Family Voice
+Mi Voz Familiar
 De acuerdo
 Cancelar
 ¿Estás seguro?
@@ -32,7 +32,7 @@ Envíe su dirección de correo electrónico para recibir un enlace de activació
 Revisa tu correo electrónico
 Hemos enviado un enlace de activación
 Error al enviar correo electrónico
-Enviar enlace de activación
+Enviar enlace
 Error de activación por correo electrónico
 Por favor, envíe su dirección de correo electrónico de nuevo para recibir un nuevo enlace de activación.
 Recibió un enlace de activación, pero ya ha iniciado sesión.
@@ -48,7 +48,7 @@ Otros
 Yo
 ¿Pedir amistad?
 ¿Acabar con la amistad?
-¿Dejar de amigo?
+¿Salir?
 Pendiente
 ¿Amigo?
 ¿Rechazar la solicitud de amistad?

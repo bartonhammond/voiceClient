@@ -72,32 +72,33 @@ Future<void> main() async {
 
   for (var i = 0; i < strings.length; i++) {
     if (strings[i].contains('static const String')) {
-      var parts = strings[i].trim().split(' ');
+      final parts = strings[i].trim().split(' ');
       cleanStrings.add(parts[3]);
     }
   }
   final File cleanFile = File('lib/constants/cleanFile.dart');
-  if (await cleanFile.exists()) {
-    await cleanFile.delete();
+  if (cleanFile.existsSync()) {
+    cleanFile.deleteSync();
   }
 
   writeHeaders(cleanFile);
+
   for (var line = 0; line < cleanStrings.length; line++) {
     writeLine(cleanFile, '{');
     writeLine(cleanFile, "'en': Strings.${cleanStrings[line]},");
     for (var lang = 0; lang < translations.length; lang++) {
-      writeLine(cleanFile, getLang(translations[lang], line));
+      if (translations[lang]['code'] == 'es') {
+        writeLine(cleanFile, getLang(translations[lang], line));
+      }
     }
-
-    writeLine(cleanFile, '} +');
+    if (line == cleanStrings.length - 1) {
+      writeLine(cleanFile, '};');
+    } else {
+      writeLine(cleanFile, '} +');
+    }
   }
+  writeFooters(cleanFile);
 
-/*
-  lines.forEach((String line) async {
-    var parts = line.split("=");
-    file.writeAsStringSync('${parts[1].trim()}\n', mode: FileMode.append);
-  });
-*/
   return;
 }
 
@@ -121,9 +122,9 @@ void writeHeaders(File cleanFile) {
 
   headers.add("static final _t = Translations('en') +");
 
-  headers.forEach((String line) async {
+  for (var line in headers) {
     cleanFile.writeAsStringSync('$line\n', mode: FileMode.append);
-  });
+  }
 }
 
 void writeFooters(File cleanFile) {
@@ -137,7 +138,7 @@ void writeFooters(File cleanFile) {
   footers.add(
       'Map<String, String> allVersions() => localizeAllVersions(this, _t);');
   footers.add('}');
-  footers.forEach((String line) async {
+  for (var line in footers) {
     cleanFile.writeAsStringSync('$line\n', mode: FileMode.append);
-  });
+  }
 }
