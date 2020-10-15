@@ -36,7 +36,6 @@ Future<String> addUser(
       'email': user['email'],
       'name': user['name'],
       'home': user['home'],
-      'birth': user['birth'],
       'image': user.containsKey('image') ? user['image'] : jpegPathUrl,
       'created': now.toIso8601String(),
     },

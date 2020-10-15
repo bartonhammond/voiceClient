@@ -12,7 +12,6 @@ query getUserByEmail($email: String!) {
     name
     email
     home
-    birth
     image
   }
 }
@@ -25,7 +24,6 @@ query getUserByEmail($id: ID!) {
     name
     email
     home
-    birth
     image
   }
 }
@@ -48,7 +46,6 @@ query getStoryById($id: ID!) {
       name
       home
       image
-      birth
       id
     }
     hashtags {
@@ -72,14 +69,13 @@ query getStoryById($id: ID!) {
 ''';
 
 const String createUser = r'''
-mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $birth: Int, $image: String, $created: String!, ) {
+mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, ) {
   CreateUser(
     id: $id
     name: $name
     email: $email
     home: $home
     image: $image
-    birth: $birth
     created: { 
       formatted: $created 
     }
@@ -210,7 +206,6 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   name
   home
   image
-  birth
   activities(
     email: $email
     first: $first
@@ -230,7 +225,6 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
         email
         name
         home
-        birth
         image
       }
     }
@@ -259,7 +253,6 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       email
       name
       home
-      birth
       image
     }
     hashtags{
@@ -307,7 +300,6 @@ query userSearch($searchString: String!) {
     name
     email
     home
-    birth
     image
   }
 }
@@ -321,7 +313,6 @@ query userSearchFriends($searchString: String!, $email: String!, $skip: String!,
     name
     email
     home
-    birth
     image
     created {
       formatted
@@ -338,7 +329,6 @@ query userSearchNotFriends($searchString: String!, $email: String!, $skip: Strin
     name
     email
     home
-    birth
     image
     created {
       formatted
@@ -355,7 +345,6 @@ query userSearchMe($email: String!) {
     name
     email
     home
-    birth
     image
     created {
       formatted
@@ -432,7 +421,6 @@ query getUserMessages($email: String!, $status: String!, $cursor: String, $limit
     userName
     userHome
     userImage
-    userBirth  
   }
 }
 ''';
@@ -531,7 +519,6 @@ userFriendsStories(
       email
       name
       home
-      birth
       image
     }
     hashtags{
@@ -555,14 +542,13 @@ userFriendsStories(
 ''';
 
 const String updateUser = r'''
-mutation updateUser($id: ID!, $name: String, $home: String, $updated: String, $image: String, $birth: Int ){
+mutation updateUser($id: ID!, $name: String, $home: String, $updated: String, $image: String, ){
 UpdateUser(
   id: $id
   name: $name
   home: $home
   updated: {formatted: $updated}
   image: $image
-  birth: $birth
 ) {
     id
     name
@@ -572,7 +558,6 @@ UpdateUser(
     }
     home
     image
-    birth
     updated {
       formatted
     }
@@ -786,7 +771,6 @@ query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $curs
       email
       name
       home
-      birth
       image
     }
     hashtags{
@@ -831,7 +815,6 @@ query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: Str
       email
       name
       home
-      birth
       image
     }
     hashtags{

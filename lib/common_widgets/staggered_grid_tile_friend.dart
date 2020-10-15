@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-
+import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/host.dart';
 
@@ -64,35 +65,40 @@ class StaggeredGridTileFriend extends StatelessWidget {
                     });
                   }
                 },
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(25.0),
-                  child: FadeInImage.memoryNetwork(
-                    height: _height.toDouble(),
-                    width: _width.toDouble(),
-                    placeholder: kTransparentImage,
-                    image: host(
-                      friend['image'],
-                      width: _width,
-                      height: _height,
-                      resizingType: 'fill',
-                      enlarge: 1,
-                    ),
-                  ),
-                ),
+                child: friend['image'] == null
+                    ? Image(
+                        image: AssetImage('assets/placeholder.png'),
+                        width: 100,
+                        height: 100,
+                      )
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(25.0),
+                        child: FadeInImage.memoryNetwork(
+                          height: _height.toDouble(),
+                          width: _width.toDouble(),
+                          placeholder: kTransparentImage,
+                          image: host(
+                            friend['image'],
+                            width: _width,
+                            height: _height,
+                            resizingType: 'fill',
+                            enlarge: 1,
+                          ),
+                        ),
+                      ),
               ),
             ),
             Text(
-              friend['name'],
+              friend['name'] == null
+                  ? Strings.yourFullNameLabel.i18n
+                  : friend['name'],
               style:
                   TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
             ),
             Text(
-              friend['home'],
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-            ),
-            Text(
-              friend['birth'].toString(),
+              friend['home'] == null
+                  ? Strings.yourHomeLabel.i18n
+                  : friend['home'],
               style:
                   TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
             ),
