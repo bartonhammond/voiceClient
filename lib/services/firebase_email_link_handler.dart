@@ -123,6 +123,9 @@ class FirebaseEmailLinkHandler {
   }
 
   Future<void> _signInWithEmail(String link) async {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    final GraphQLClient graphQLClient =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
     try {
       isLoading.value = true;
       // check that user is not signed in
@@ -141,20 +144,17 @@ class FirebaseEmailLinkHandler {
         ));
         return;
       }
+
       // sign in
       if (await auth.isSignInWithEmailLink(link)) {
         await auth.signInWithEmailAndLink(email: email, link: link);
 
-        final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
         final QueryOptions _queryOptions = QueryOptions(
           documentNode: gql(getUserByEmailQL),
           variables: <String, dynamic>{
             'email': email,
           },
         );
-
-        final GraphQLClient graphQLClient =
-            graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
 
         QueryResult queryResult = await graphQLClient.query(_queryOptions);
 
@@ -178,10 +178,23 @@ class FirebaseEmailLinkHandler {
               'created': formattedDate
             },
           );
+
           queryResult = await graphQLClient.mutate(_mutationOptions);
           if (queryResult.data != null) {
             graphQLAuth.setCurrentUserId(queryResult.data['CreateUser']['id']);
           }
+
+          /* BARTON
+          await addUserMessages(
+            GraphQLProvider.of(context).value,
+            _friendId,
+            _uuid.v1(),
+            'new',
+            'Friend Request',
+            'friend-request',
+            null,
+          );
+          */
         }
       } else {
         _errorController.add(EmailLinkError(

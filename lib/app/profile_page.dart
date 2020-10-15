@@ -1,15 +1,11 @@
 import 'dart:io' as io;
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-
 import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
 import 'package:voiceClient/common_widgets/drawer_widget.dart';
 import 'package:voiceClient/constants/enums.dart';
@@ -41,7 +37,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String userId = '';
   String name = '';
   String cityState = '';
-  int birthYear = 2020;
 
   Map<String, dynamic> user;
   io.File _image;
@@ -53,7 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   TextEditingController nameFormFieldController;
   TextEditingController homeFormFieldController;
-  TextEditingController birthFormFieldController;
+
   @override
   void initState() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -62,11 +57,8 @@ class _ProfilePageState extends State<ProfilePage> {
       userId = user['id'];
       name = user['name'];
       cityState = user['home'];
-      birthYear = user['birth'];
       nameFormFieldController = TextEditingController(text: name);
       homeFormFieldController = TextEditingController(text: cityState);
-      birthFormFieldController =
-          TextEditingController(text: birthYear.toString());
     });
     super.initState();
   }
@@ -75,7 +67,7 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     nameFormFieldController.dispose();
     homeFormFieldController.dispose();
-    birthFormFieldController.dispose();
+
     super.dispose();
   }
 
@@ -224,10 +216,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           userId = user['id'];
                           name = user['name'];
                           cityState = user['home'];
-                          birthYear = user['birth'];
                           nameFormFieldController.text = name;
                           homeFormFieldController.text = cityState;
-                          birthFormFieldController.text = birthYear.toString();
                           _image = null;
                           formReady = false;
                           _uploadInProgress = false;
@@ -297,7 +287,6 @@ class _ProfilePageState extends State<ProfilePage> {
         id: user['id'],
         name: name,
         home: cityState,
-        birth: birthYear,
       );
       if (queryResult.hasException) {
         logger.createMessage(
@@ -532,60 +521,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 validator: (value) {
                   if (value.isEmpty) {
                     return Strings.homeEmptyMessage.i18n;
-                  }
-                  return null;
-                },
-              ),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Container(
-              width: _formFieldWidth.toDouble(),
-              margin: const EdgeInsets.only(right: 10, left: 10),
-              child: TextFormField(
-                controller: birthFormFieldController,
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  WhitelistingTextInputFormatter.digitsOnly
-                ],
-                decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                        width: 2.0,
-                      ),
-                    ),
-                    border: const OutlineInputBorder(),
-                    filled: true,
-                    hintText: Strings.yourBirthText.i18n,
-                    hintStyle: TextStyle(color: Color(0xff00bcd4)),
-                    labelText: Strings.yourBirthLabel.i18n,
-                    labelStyle: TextStyle(color: Color(0xff00bcd4))),
-                onSaved: (dynamic value) {
-                  setState(() {
-                    birthYear = int.parse(value);
-                  });
-                },
-                onChanged: (value) {
-                  setState(() {
-                    formReady = true;
-                  });
-                },
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return Strings.birthEmptyMessage.i18n;
-                  }
-                  final int _birthYear = int.parse(value);
-                  if (_birthYear < 1900 || _birthYear > DateTime.now().year) {
-                    return Strings.birthValidationMessage.i18n;
                   }
                   return null;
                 },

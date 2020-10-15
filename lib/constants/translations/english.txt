@@ -66,8 +66,6 @@ Enter your full name
 Name
 Enter your city, state
 Home
-Birth year
-Year of your birth
 Please enter your name
 Please enter your home
 Please enter a year
