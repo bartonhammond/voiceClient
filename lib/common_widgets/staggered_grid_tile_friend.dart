@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-
+import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
 import 'package:voiceClient/services/host.dart';
 
@@ -87,39 +88,20 @@ class StaggeredGridTileFriend extends StatelessWidget {
                       ),
               ),
             ),
-            friend['name'] == null
-                ? Text(
-                    'Name...',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: _fontSize),
-                  )
-                : Text(
-                    friend['name'],
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: _fontSize),
-                  ),
-            friend['home'] == null
-                ? Text(
-                    'Home...',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: _fontSize),
-                  )
-                : Text(
-                    friend['home'],
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: _fontSize),
-                  ),
-            friend['birth'] == null
-                ? Text(
-                    'Birth...',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: _fontSize),
-                  )
-                : Text(
-                    friend['birth'].toString(),
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: _fontSize),
-                  ),
+            Text(
+              friend['name'] == null
+                  ? Strings.yourFullNameLabel.i18n
+                  : friend['name'],
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
+            ),
+            Text(
+              friend['home'] == null
+                  ? Strings.yourHomeLabel.i18n
+                  : friend['home'],
+              style:
+                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
+            ),
             friendButton
           ],
         ),

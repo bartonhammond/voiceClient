@@ -90,25 +90,33 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                   },
                 );
               },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: FadeInImage.memoryNetwork(
-                  height: _height.toDouble(),
-                  width: _width.toDouble(),
-                  placeholder: kTransparentImage,
-                  image: host(
-                    widget.story['user']['image'],
-                    width: _width,
-                    height: _height,
-                    resizingType: 'fill',
-                    enlarge: 1,
-                  ),
-                ),
-              ),
+              child: widget.story['user']['image'] == null
+                  ? Image(
+                      image: AssetImage('assets/placeholder.png'),
+                      width: 100,
+                      height: 100,
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(25.0),
+                      child: FadeInImage.memoryNetwork(
+                        height: _height.toDouble(),
+                        width: _width.toDouble(),
+                        placeholder: kTransparentImage,
+                        image: host(
+                          widget.story['user']['image'],
+                          width: _width,
+                          height: _height,
+                          resizingType: 'fill',
+                          enlarge: 1,
+                        ),
+                      ),
+                    ),
             ),
           ),
           Text(
-            widget.story['user']['name'],
+            widget.story['user']['name'] == null
+                ? 'Name...'
+                : widget.story['user']['name'],
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
           ),
           Text(

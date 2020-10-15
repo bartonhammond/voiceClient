@@ -92,12 +92,8 @@ class Strings {
   static const String yourFullNameLabel = 'Name';
   static const String yourHomeText = 'Enter your city, state';
   static const String yourHomeLabel = 'Home';
-  static const String yourBirthText = 'Birth year';
-  static const String yourBirthLabel = 'Year of your birth';
   static const String nameEmptyMessage = 'Please enter your name';
   static const String homeEmptyMessage = 'Please enter your home';
-  static const String birthEmptyMessage = 'Please enter a year';
-  static const String birthValidationMessage = 'Please enter a valid year';
 
   //Story Page
   static const String imagePlaceholder = 'Image Placeholder';

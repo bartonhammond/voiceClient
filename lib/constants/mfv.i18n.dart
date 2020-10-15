@@ -280,28 +280,12 @@ extension Localization on String {
         'es': 'Casa',
       } +
       {
-        'en': Strings.yourBirthText,
-        'es': 'Año de nacimiento',
-      } +
-      {
-        'en': Strings.yourBirthLabel,
-        'es': 'Año de su nacimiento',
-      } +
-      {
         'en': Strings.nameEmptyMessage,
         'es': 'Por favor, introduzca su nombre',
       } +
       {
         'en': Strings.homeEmptyMessage,
         'es': 'Por favor, ingrese a su casa',
-      } +
-      {
-        'en': Strings.birthEmptyMessage,
-        'es': 'Por favor, introduzca un año',
-      } +
-      {
-        'en': Strings.birthValidationMessage,
-        'es': 'Por favor, introduzca un año válido',
       } +
       {
         'en': Strings.imagePlaceholder,

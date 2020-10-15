@@ -352,7 +352,6 @@ class _MessagesPageState extends State<MessagesPage> {
                     message['User']['name'] = tmp['userName'];
                     message['User']['home'] = tmp['userHome'];
                     message['User']['image'] = tmp['userImage'];
-                    message['User']['birth'] = tmp['userBirth'];
                     messages.add(message);
                   }
                   eventBus.fire(MessagesEvent(false));

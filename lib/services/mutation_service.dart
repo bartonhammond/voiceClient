@@ -234,12 +234,13 @@ Future<void> addUserMessages(
 }
 
 Future<QueryResult> updateUserInfo(
-    GraphQLClient graphQLClientFileServer, GraphQLClient graphQLClient,
-    {String jpegPathUrl,
-    String id,
-    String name,
-    String home,
-    int birth}) async {
+  GraphQLClient graphQLClientFileServer,
+  GraphQLClient graphQLClient, {
+  String jpegPathUrl,
+  String id,
+  String name,
+  String home,
+}) async {
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   final String formattedDate = formatter.format(now);
@@ -250,7 +251,6 @@ Future<QueryResult> updateUserInfo(
       'id': id,
       'name': name,
       'home': home,
-      'birth': birth,
       'image': jpegPathUrl,
       'updated': formattedDate
     },
