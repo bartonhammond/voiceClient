@@ -37,7 +37,7 @@ class TabNavigatorProfile extends StatelessWidget {
   }) {
     return {
       TabNavigatorRoutes.root: (context) => ProfilePage(
-            key: Key(Keys.friendsPage),
+            key: Key(Keys.profilePage),
             onPush: (id) => _push(
               context,
               id,

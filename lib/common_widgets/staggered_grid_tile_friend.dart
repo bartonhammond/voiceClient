@@ -57,36 +57,27 @@ class StaggeredGridTileFriend extends StatelessWidget {
         child: Column(
           children: <Widget>[
             Center(
-              child: InkWell(
-                onTap: () {
-                  if (onPush != null) {
-                    onPush(<String, dynamic>{
-                      'id': friend['id'],
-                    });
-                  }
-                },
-                child: friend['image'] == null
-                    ? Image(
-                        image: AssetImage('assets/placeholder.png'),
-                        width: 100,
-                        height: 100,
-                      )
-                    : ClipRRect(
-                        borderRadius: BorderRadius.circular(25.0),
-                        child: FadeInImage.memoryNetwork(
-                          height: _height.toDouble(),
-                          width: _width.toDouble(),
-                          placeholder: kTransparentImage,
-                          image: host(
-                            friend['image'],
-                            width: _width,
-                            height: _height,
-                            resizingType: 'fill',
-                            enlarge: 1,
-                          ),
+              child: friend['image'] == null
+                  ? Image(
+                      image: AssetImage('assets/placeholder.png'),
+                      width: 100,
+                      height: 100,
+                    )
+                  : ClipRRect(
+                      borderRadius: BorderRadius.circular(25.0),
+                      child: FadeInImage.memoryNetwork(
+                        height: _height.toDouble(),
+                        width: _width.toDouble(),
+                        placeholder: kTransparentImage,
+                        image: host(
+                          friend['image'],
+                          width: _width,
+                          height: _height,
+                          resizingType: 'fill',
+                          enlarge: 1,
                         ),
                       ),
-              ),
+                    ),
             ),
             Text(
               friend['name'] == null
@@ -95,13 +86,13 @@ class StaggeredGridTileFriend extends StatelessWidget {
               style:
                   TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
             ),
-            Text(
-              friend['home'] == null
-                  ? Strings.yourHomeLabel.i18n
-                  : friend['home'],
-              style:
-                  TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-            ),
+            friend['home'] == null
+                ? Container()
+                : Text(
+                    friend['home'],
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: _fontSize),
+                  ),
             friendButton
           ],
         ),

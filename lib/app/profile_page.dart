@@ -12,6 +12,7 @@ import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/keys.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/constants/transparent_image.dart';
+import 'package:voiceClient/services/eventBus.dart';
 import 'package:voiceClient/services/graphql_auth.dart';
 import 'package:voiceClient/services/host.dart';
 import 'package:voiceClient/services/mutation_service.dart';
@@ -47,19 +48,34 @@ class _ProfilePageState extends State<ProfilePage> {
   bool formReady = false;
 
   TextEditingController nameFormFieldController;
+
   TextEditingController homeFormFieldController;
 
   @override
   void initState() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     user = graphQLAuth.getUserMap();
+    nameFormFieldController = TextEditingController(text: name);
+    homeFormFieldController = TextEditingController(text: cityState);
+
     setState(() {
       userId = user['id'];
       name = user['name'];
       cityState = user['home'];
-      nameFormFieldController = TextEditingController(text: name);
-      homeFormFieldController = TextEditingController(text: cityState);
     });
+    nameFormFieldController.addListener(() {
+      setState(() {
+        name = nameFormFieldController.text;
+      });
+      _formReady();
+    });
+    homeFormFieldController.addListener(() {
+      setState(() {
+        cityState = homeFormFieldController.text;
+      });
+      _formReady();
+    });
+
     super.initState();
   }
 
@@ -116,11 +132,27 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (croppedFile != null) {
         setState(() {
-          formReady = true;
           imageUpdated = true;
           _image = croppedFile;
         });
+        _formReady();
       }
+    }
+  }
+
+  void _formReady() {
+    if (_image != null &&
+        name != null &&
+        name.length > 5 &&
+        cityState != null &&
+        cityState.length > 5) {
+      setState(() {
+        formReady = true;
+      });
+    } else {
+      setState(() {
+        formReady = false;
+      });
     }
   }
 
@@ -298,6 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
         throw queryResult.exception;
       }
       await graphQLAuth.setupEnvironment();
+      eventBus.fire(ProfileEvent(true));
     } catch (e) {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
@@ -464,16 +497,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   labelText: Strings.yourFullNameLabel.i18n,
                   labelStyle: TextStyle(color: Color(0xff00bcd4)),
                 ),
-                onSaved: (value) {
-                  setState(() {
-                    name = value;
-                  });
-                },
-                onChanged: (value) {
-                  setState(() {
-                    formReady = true;
-                  });
-                },
                 validator: (value) {
                   if (value.isEmpty) {
                     return Strings.nameEmptyMessage.i18n;
@@ -510,14 +533,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     hintStyle: TextStyle(color: Color(0xff00bcd4)),
                     labelText: Strings.yourHomeLabel.i18n,
                     labelStyle: TextStyle(color: Color(0xff00bcd4))),
-                onSaved: (value) {
-                  cityState = value;
-                },
-                onChanged: (value) {
-                  setState(() {
-                    formReady = true;
-                  });
-                },
                 validator: (value) {
                   if (value.isEmpty) {
                     return Strings.homeEmptyMessage.i18n;
