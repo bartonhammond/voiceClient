@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,13 +7,11 @@ import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
-
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/email_secure_store.dart';
-import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 import 'graphql_auth.dart';
@@ -184,18 +181,6 @@ class FirebaseEmailLinkHandler {
           if (queryResult.data != null) {
             graphQLAuth.setCurrentUserId(queryResult.data['CreateUser']['id']);
           }
-
-          //Create a profile notification
-          await addUserMessages(
-            graphQLClient,
-            id,
-            id,
-            uuid.v1(),
-            'new',
-            'Update Profile',
-            'update-profile',
-            null,
-          );
         }
       } else {
         _errorController.add(EmailLinkError(
