@@ -55,14 +55,15 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     user = graphQLAuth.getUserMap();
-    nameFormFieldController = TextEditingController(text: name);
-    homeFormFieldController = TextEditingController(text: cityState);
-
     setState(() {
       userId = user['id'];
       name = user['name'];
       cityState = user['home'];
     });
+
+    nameFormFieldController = TextEditingController(text: name);
+    homeFormFieldController = TextEditingController(text: cityState);
+
     nameFormFieldController.addListener(() {
       setState(() {
         name = nameFormFieldController.text;
