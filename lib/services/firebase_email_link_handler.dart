@@ -14,6 +14,7 @@ import 'package:voiceClient/constants/graphql.dart';
 import 'package:voiceClient/constants/strings.dart';
 import 'package:voiceClient/services/auth_service.dart';
 import 'package:voiceClient/services/email_secure_store.dart';
+import 'package:voiceClient/services/mutation_service.dart';
 import 'package:voiceClient/services/service_locator.dart';
 
 import 'graphql_auth.dart';
@@ -184,17 +185,17 @@ class FirebaseEmailLinkHandler {
             graphQLAuth.setCurrentUserId(queryResult.data['CreateUser']['id']);
           }
 
-          /* BARTON
+          //Create a profile notification
           await addUserMessages(
-            GraphQLProvider.of(context).value,
-            _friendId,
-            _uuid.v1(),
+            graphQLClient,
+            id,
+            id,
+            uuid.v1(),
             'new',
-            'Friend Request',
-            'friend-request',
+            'Update Profile',
+            'update-profile',
             null,
           );
-          */
         }
       } else {
         _errorController.add(EmailLinkError(

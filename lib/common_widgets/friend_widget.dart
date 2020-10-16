@@ -27,14 +27,9 @@ Widget buildFriend(BuildContext context, Map<String, dynamic> user) {
   return Card(
     child: Column(
       children: <Widget>[
-        //new Center(child: new CircularProgressIndicator()),
         Center(
           child: user['image'] == null
-              ? Image(
-                  image: AssetImage('assets/placeholder.png'),
-                  width: 100,
-                  height: 100,
-                )
+              ? Container()
               : ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
                   child: FadeInImage.memoryNetwork(
@@ -52,13 +47,15 @@ Widget buildFriend(BuildContext context, Map<String, dynamic> user) {
                 ),
         ),
         Text(
-          user['name'] == null ? Strings.yourFullNameLabel.i18n : user['name'],
+          user['name'] == null ? Strings.typeUserButtonMe.i18n : user['name'],
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
         ),
-        Text(
-          user['home'] == null ? Strings.yourHomeLabel.i18n : user['home'],
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
-        ),
+        user['home'] == null
+            ? Container()
+            : Text(
+                user['home'],
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+              ),
       ],
     ),
   );

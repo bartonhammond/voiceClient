@@ -9,6 +9,9 @@ import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart'
 import 'package:voiceClient/constants/enums.dart';
 import 'package:voiceClient/constants/mfv.i18n.dart';
 import 'package:voiceClient/constants/strings.dart';
+import 'package:voiceClient/services/eventBus.dart';
+import 'package:voiceClient/services/graphql_auth.dart';
+import 'package:voiceClient/services/service_locator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -18,8 +21,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  //String _lastSelected = 'TAB: 0';
-  TabItem _currentTab = TabItem.stories;
+  TabItem _currentTab;
+  bool _areTabsEnabled = true;
+
+  @override
+  void initState() {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    if (graphQLAuth.getUserMap()['image'] == null &&
+        graphQLAuth.getUserMap()['name'] == null &&
+        graphQLAuth.getUserMap()['home'] == null) {
+      _currentTab = TabItem.profile;
+      _areTabsEnabled = false;
+    } else {
+      _currentTab = TabItem.stories;
+      _areTabsEnabled = true;
+    }
+    eventBus.on<ProfileEvent>().listen((event) {
+      setState(() {
+        _areTabsEnabled = event.isComplete;
+      });
+    });
+    super.initState();
+  }
 
   final Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
     TabItem.stories: GlobalKey<NavigatorState>(),
@@ -39,18 +63,23 @@ class _HomePageState extends State<HomePage> {
     final Map<String, dynamic> params = <String, dynamic>{};
     return FloatingActionButton(
       backgroundColor: Color(0xff00bcd4),
-      onPressed: () {
-        Navigator.push<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-              builder: (context) => StoryPlay(
-                    key: Key('storyPlay'),
-                    params: params,
-                  )),
-        );
-      },
+      onPressed: _areTabsEnabled
+          ? () {
+              Navigator.push<dynamic>(
+                context,
+                MaterialPageRoute<dynamic>(
+                    builder: (context) => StoryPlay(
+                          key: Key('storyPlay'),
+                          params: params,
+                        )),
+              );
+            }
+          : null,
       tooltip: Strings.toolTipFAB.i18n,
-      child: Icon(Icons.add),
+      child: Icon(
+        Icons.add,
+        color: _areTabsEnabled ? Colors.white : Colors.grey,
+      ),
       elevation: 2.0,
     );
   }
@@ -81,25 +110,30 @@ class _HomePageState extends State<HomePage> {
         ]),
         bottomNavigationBar: FABBottomAppBar(
           backgroundColor: Color(0xff00bcd4),
-          color: Colors.white,
+          color: _areTabsEnabled ? Colors.white : Colors.grey,
           selectedColor: Colors.black,
           notchedShape: CircularNotchedRectangle(),
           onTabSelected: _selectedTab,
+          selectedIndex: _currentTab.index,
           items: [
             FABBottomAppBarItem(
+              enabled: _areTabsEnabled,
               iconData: Icons.menu,
               text: Strings.storiesTabName.i18n,
             ),
             FABBottomAppBarItem(
+              enabled: _areTabsEnabled,
               iconData: Icons.layers,
               text: Strings.friendsTabName.i18n,
             ),
             FABBottomAppBarItem(
+              enabled: _areTabsEnabled,
               iconData: Icons.dashboard,
               text: Strings.noticesTabName.i18n,
               // badge: '0',
             ),
             FABBottomAppBarItem(
+              enabled: true,
               iconData: Icons.info,
               text: Strings.profileTabName.i18n,
             ),

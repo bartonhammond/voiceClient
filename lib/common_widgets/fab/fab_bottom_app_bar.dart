@@ -9,7 +9,8 @@ import 'package:voiceClient/services/service_locator.dart';
 import 'package:voiceClient/services/logger.dart' as logger;
 
 class FABBottomAppBarItem {
-  FABBottomAppBarItem({this.iconData, this.text});
+  FABBottomAppBarItem({this.enabled, this.iconData, this.text});
+  bool enabled;
   IconData iconData;
   String text;
 }
@@ -25,6 +26,7 @@ class FABBottomAppBar extends StatefulWidget {
     this.selectedColor,
     this.notchedShape,
     this.onTabSelected,
+    this.selectedIndex,
   }) : assert(items.length == 2 || items.length == 4);
 
   final List<FABBottomAppBarItem> items;
@@ -36,6 +38,7 @@ class FABBottomAppBar extends StatefulWidget {
   final Color selectedColor;
   final NotchedShape notchedShape;
   final ValueChanged<int> onTabSelected;
+  final int selectedIndex;
 
   @override
   State<StatefulWidget> createState() => FABBottomAppBarState();
@@ -57,6 +60,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
   @override
   void initState() {
     super.initState();
+    _selectedIndex = widget.selectedIndex;
     eventBus.on<MessagesEvent>().listen((event) {
       setState(() {
         _messageCount = event.empty ? 0 : 1;
@@ -114,8 +118,8 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
       return _buildTabItem(
         item: widget.items[index],
         index: index,
-        onPressed: _updateIndex,
-        iconColor: iconColor,
+        onPressed: widget.items[index].enabled ? _updateIndex : null,
+        iconColor: widget.items[index].enabled ? iconColor : Colors.grey,
       );
     });
     items.insert(items.length >> 1, _buildMiddleTabItem());
@@ -156,15 +160,14 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     ValueChanged<int> onPressed,
     Color iconColor,
   }) {
-    final Color color =
-        _selectedIndex == index ? widget.selectedColor : widget.color;
+    Color color = _selectedIndex == index ? widget.selectedColor : widget.color;
     return Expanded(
       child: SizedBox(
         height: widget.height,
         child: Material(
           type: MaterialType.transparency,
           child: InkWell(
-            onTap: () => onPressed(index),
+            onTap: () => item.enabled ? onPressed(index) : null,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
