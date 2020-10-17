@@ -46,6 +46,8 @@
 	<string>321653788549507</string>
 	<key>FacebookDisplayName</key>
 	<string>Time Tracker Flutter Test</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>fbapi</string>
@@ -61,13 +63,13 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Access to the Camera is required to take photos for a Story</string>
+	<string>Use camera for images to build Stories</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Use location to build stories</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Access to the microphone is required to record a Story</string>
+	<string>Use microphone for building Stories</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Access to the photo library is required to create a Story</string>
-	<key>LSApplicationCategoryType</key>
-	<string></string>
+	<string>Use photos to build stories</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
