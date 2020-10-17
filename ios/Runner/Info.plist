@@ -61,11 +61,11 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string></string>
+	<string>Access to the Camera is required to take photos for a Story</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string></string>
+	<string>Access to the microphone is required to record a Story</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string></string>
+	<string>Access to the photo library is required to create a Story</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>UIBackgroundModes</key>
