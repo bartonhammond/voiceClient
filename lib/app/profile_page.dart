@@ -6,19 +6,19 @@ import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
-import 'package:voiceClient/common_widgets/drawer_widget.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/constants/transparent_image.dart';
-import 'package:voiceClient/services/eventBus.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/host.dart';
-import 'package:voiceClient/services/mutation_service.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/services/service_locator.dart';
-import 'package:voiceClient/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({

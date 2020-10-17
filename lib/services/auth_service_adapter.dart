@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:voiceClient/services/auth_service.dart';
-import 'package:voiceClient/services/firebase_auth_service.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/firebase_auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/foundation.dart';

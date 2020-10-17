@@ -1,5 +1,5 @@
-import 'package:voiceClient/app/sign_in/auth_service_type_selector.dart';
-import 'package:voiceClient/constants/strings.dart';
+import 'package:MyFamilyVoice/app/sign_in/auth_service_type_selector.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

@@ -5,17 +5,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:package_info/package_info.dart';
-import 'package:voiceClient/app/sign_in/validator.dart';
-import 'package:voiceClient/common_widgets/drawer_widget.dart';
-import 'package:voiceClient/common_widgets/form_submit_button.dart';
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
-import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:voiceClient/constants/constants.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/auth_service.dart';
-import 'package:voiceClient/services/firebase_email_link_handler.dart';
-import 'package:voiceClient/services/locale_secure_store.dart';
+import 'package:MyFamilyVoice/app/sign_in/validator.dart';
+import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/form_submit_button.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:MyFamilyVoice/constants/constants.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
+import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 
 class EmailLinkSignInPage extends StatefulWidget {
   const EmailLinkSignInPage({

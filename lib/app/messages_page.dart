@@ -3,23 +3,23 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 
-import 'package:voiceClient/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
 
-import 'package:voiceClient/common_widgets/drawer_widget.dart';
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
-import 'package:voiceClient/common_widgets/staggered_grid_tile_message.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/eventBus.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/mutation_service.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/services/service_locator.dart';
-import 'package:voiceClient/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_message.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 class MessagesPage extends StatefulWidget {
   const MessagesPage({

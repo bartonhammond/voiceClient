@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:voiceClient/app/sign_in/message_button.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/constants/transparent_image.dart';
-import 'package:voiceClient/services/host.dart';
+import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/services/host.dart';
 
 class StaggeredGridTileMessage extends StatelessWidget {
   const StaggeredGridTileMessage({

@@ -5,14 +5,14 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
-import 'package:voiceClient/common_widgets/player_widget.dart';
-import 'package:voiceClient/common_widgets/tags.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/constants/transparent_image.dart';
-import 'package:voiceClient/services/host.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/tags.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 import 'comments.dart';
 

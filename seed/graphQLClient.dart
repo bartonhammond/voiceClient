@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:graphql/client.dart';
 import 'package:args/args.dart';
 import 'package:http/io_client.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/myfamilyvoice-cert.dart' as cert;
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/myfamilyvoice-cert.dart' as cert;
 
 HttpLink getHttpLink(String uri) {
   final SecurityContext securityContext = SecurityContext();

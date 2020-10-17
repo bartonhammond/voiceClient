@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
 import '../app_config.dart';
 import 'auth_service.dart';
 

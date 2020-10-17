@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:graphql/client.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/services/mutation_service.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 
 Future<String> addUser(
   GraphQLClient graphQLClientFileServer,

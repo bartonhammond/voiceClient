@@ -1,5 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:voiceClient/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FirebaseAuthService implements AuthService {

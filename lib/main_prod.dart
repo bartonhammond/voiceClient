@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/io_client.dart';
 
-import 'package:voiceClient/common_main.dart';
-import 'package:voiceClient/constants/myfamilyvoice-cert.dart' as cert;
+import 'package:MyFamilyVoice/common_main.dart';
+import 'package:MyFamilyVoice/constants/myfamilyvoice-cert.dart' as cert;
 
 import 'app_config.dart';
 import 'my_app.dart';

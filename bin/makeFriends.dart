@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
 
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/services/mutation_service.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 
 import '../seed/graphQLClient.dart';
 import '../seed/queries.dart' as q;

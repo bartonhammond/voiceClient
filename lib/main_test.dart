@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:voiceClient/common_main.dart';
+import 'package:MyFamilyVoice/common_main.dart';
 
 import 'app_config.dart';
 import 'my_app.dart';

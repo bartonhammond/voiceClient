@@ -6,15 +6,15 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:flutter/services.dart' as services;
-import 'package:voiceClient/app/auth_widget.dart';
-import 'package:voiceClient/app/auth_widget_builder.dart';
-import 'package:voiceClient/app/email_link_error_presenter.dart';
-import 'package:voiceClient/services/auth_service.dart';
-import 'package:voiceClient/services/auth_service_adapter.dart';
-import 'package:voiceClient/services/email_secure_store.dart';
-import 'package:voiceClient/services/firebase_email_link_handler.dart';
-import 'package:voiceClient/services/locale_secure_store.dart';
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/app/auth_widget.dart';
+import 'package:MyFamilyVoice/app/auth_widget_builder.dart';
+import 'package:MyFamilyVoice/app/email_link_error_presenter.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
+import 'package:MyFamilyVoice/services/email_secure_store.dart';
+import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
+import 'package:MyFamilyVoice/services/locale_secure_store.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 
 class MyApp extends StatelessWidget {
   // [initialAuthServiceType] is made configurable for testing

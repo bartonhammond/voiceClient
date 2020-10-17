@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/firebase_email_link_handler.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 /// Listens to [errorStream] and shows an alert dialog each time an error is received.
 /// This widget should live for the entire lifecycle of the app, so that all errors are reported.

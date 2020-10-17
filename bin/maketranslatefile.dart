@@ -117,7 +117,7 @@ Future<List<String>> readFileAsLines(String path) async {
 void writeHeaders(File cleanFile) {
   final List<String> headers = <String>[];
   headers.add("import 'package:i18n_extension/i18n_extension.dart';");
-  headers.add("import 'package:voiceClient/constants/strings.dart';");
+  headers.add("import 'package:MyFamilyVoice/constants/strings.dart';");
   headers.add('extension Localization on String {');
 
   headers.add("static final _t = Translations('en') +");

@@ -1,5 +1,5 @@
 import 'package:graphql/client.dart';
-import 'package:voiceClient/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
 
 Future<String> getUserByEmail(
   GraphQLClient graphQLClient,

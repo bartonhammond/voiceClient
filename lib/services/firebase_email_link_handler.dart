@@ -7,12 +7,12 @@ import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/auth_service.dart';
-import 'package:voiceClient/services/email_secure_store.dart';
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/email_secure_store.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 
 import 'graphql_auth.dart';
 

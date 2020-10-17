@@ -7,8 +7,8 @@ import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/services/mutation_service.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 
 import '../seed/Person.dart';
 import '../seed/addSingleStory.dart';

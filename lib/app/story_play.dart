@@ -10,28 +10,28 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
-import 'package:voiceClient/common_widgets/comments.dart';
-import 'package:voiceClient/common_widgets/friend_widget.dart';
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/common_widgets/comments.dart';
+import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 
-import 'package:voiceClient/common_widgets/image_controls.dart';
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 
-import 'package:voiceClient/common_widgets/recorder_widget.dart';
-import 'package:voiceClient/common_widgets/tags.dart';
+import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/tags.dart';
 
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/constants/transparent_image.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/host.dart';
-import 'package:voiceClient/services/mutation_service.dart';
-import 'package:voiceClient/services/service_locator.dart';
-import 'package:voiceClient/services/user_tag_counts.dart';
-import 'package:voiceClient/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/user_tag_counts.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 class StoryPlay extends StatefulWidget {
   const StoryPlay({Key key, this.params}) : super(key: key);

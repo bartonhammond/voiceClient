@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:voiceClient/app/profile_page.dart';
+import 'package:MyFamilyVoice/app/profile_page.dart';
 
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
 
 class TabNavigatorRoutes {
   static const String root = '/';

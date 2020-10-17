@@ -1,7 +1,7 @@
-import 'package:voiceClient/common_widgets/segmented_control.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/auth_service.dart';
-import 'package:voiceClient/services/auth_service_adapter.dart';
+import 'package:MyFamilyVoice/common_widgets/segmented_control.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

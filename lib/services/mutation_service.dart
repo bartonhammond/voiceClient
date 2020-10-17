@@ -5,7 +5,7 @@ import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
-import 'package:voiceClient/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
 
 Future<dynamic> performMutation(
   GraphQLClient graphQLClient,

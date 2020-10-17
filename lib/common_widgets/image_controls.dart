@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/constants/strings.dart';
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 
 class ImageControls {
   ImageControls({@required this.onImageSelected});

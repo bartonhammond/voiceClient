@@ -1,4 +1,4 @@
-import 'package:voiceClient/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/constants/transparent_image.dart';
-import 'package:voiceClient/services/host.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 Widget buildFriend(BuildContext context, Map<String, dynamic> user) {
   final DeviceScreenType deviceType =

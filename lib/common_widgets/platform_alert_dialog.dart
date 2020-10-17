@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:voiceClient/common_widgets/platform_widget.dart';
-import 'package:voiceClient/constants/keys.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_widget.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 

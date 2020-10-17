@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'graphql_auth.dart';
 
 final key = hex.decode(

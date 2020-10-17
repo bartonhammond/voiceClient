@@ -5,7 +5,7 @@ import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:voiceClient/services/mutation_service.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 
 import 'constants.dart';
 import 'text_to_speech.dart';

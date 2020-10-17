@@ -1,4 +1,4 @@
-import 'package:voiceClient/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 Future<void> main(List<String> arguments) async {
   try {

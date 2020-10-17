@@ -3,8 +3,8 @@ import 'dart:math';
 
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/services/mutation_service.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 
 import '../seed/addComments.dart';
 import '../seed/addSingleStory.dart';

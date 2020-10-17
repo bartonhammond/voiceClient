@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 
 @immutable
 class MessageButton extends StatelessWidget {

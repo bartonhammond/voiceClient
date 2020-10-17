@@ -3,12 +3,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import 'package:voiceClient/common_widgets/player_widget.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/host.dart';
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 
 class Comments extends StatelessWidget {
   Comments({

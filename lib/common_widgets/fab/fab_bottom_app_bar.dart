@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/services/eventBus.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/service_locator.dart';
-import 'package:voiceClient/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.enabled, this.iconData, this.text});

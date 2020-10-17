@@ -8,11 +8,11 @@ import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_timer/simple_timer.dart';
 
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
-import 'package:voiceClient/common_widgets/player_widget.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/constants/strings.dart';
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 
 class RecorderWidget extends StatefulWidget {
   RecorderWidget({

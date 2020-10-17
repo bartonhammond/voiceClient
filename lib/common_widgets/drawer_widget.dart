@@ -4,15 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
-import 'package:voiceClient/app_config.dart';
+import 'package:MyFamilyVoice/app_config.dart';
 
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
-import 'package:voiceClient/common_widgets/platform_exception_alert_dialog.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/auth_service.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_exception_alert_dialog.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:flag/flag.dart';
-import 'package:voiceClient/services/locale_secure_store.dart';
+import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 
 Future<void> _signOut(BuildContext context) async {
   try {

@@ -1,8 +1,8 @@
-import 'package:voiceClient/common_widgets/platform_alert_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:flutter/services.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/logger.dart' as logger;
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/services/service_locator.dart';
 
 class PlatformExceptionAlertDialog extends PlatformAlertDialog {
   PlatformExceptionAlertDialog({String title, PlatformException exception})

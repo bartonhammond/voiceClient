@@ -1,8 +1,8 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 
 Future<List<String>> getUserHashtagCounts() async {
   try {

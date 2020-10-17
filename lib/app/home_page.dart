@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:voiceClient/app/story_play.dart';
-import 'package:voiceClient/common_widgets/fab/fab_bottom_app_bar.dart';
+import 'package:MyFamilyVoice/app/story_play.dart';
+import 'package:MyFamilyVoice/common_widgets/fab/fab_bottom_app_bar.dart';
 
-import 'package:voiceClient/common_widgets/navigator/tab_navigator_friends.dart';
-import 'package:voiceClient/common_widgets/navigator/tab_navigator_messages.dart';
-import 'package:voiceClient/common_widgets/navigator/tab_navigator_profile.dart';
-import 'package:voiceClient/common_widgets/navigator/tab_navigator_stories.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/eventBus.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/common_widgets/navigator/tab_navigator_friends.dart';
+import 'package:MyFamilyVoice/common_widgets/navigator/tab_navigator_messages.dart';
+import 'package:MyFamilyVoice/common_widgets/navigator/tab_navigator_profile.dart';
+import 'package:MyFamilyVoice/common_widgets/navigator/tab_navigator_stories.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 class FabWithIcons extends StatefulWidget {
   const FabWithIcons({this.icons, this.onIconTapped});

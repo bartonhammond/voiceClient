@@ -5,8 +5,8 @@ import 'dart:isolate';
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
 
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
 
 import '../seed/graphQLClient.dart';
 import '../seed/queries.dart' as q;

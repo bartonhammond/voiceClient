@@ -1,5 +1,5 @@
 import 'package:i18n_extension/i18n_extension.dart';
-import 'package:voiceClient/constants/strings.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 
 extension Localization on String {
   static final _t = Translations('en') +

@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:voiceClient/app/sign_in/email_link/email_link_sign_in_page.dart';
-import 'package:voiceClient/constants/keys.dart';
-import 'package:voiceClient/services/auth_service.dart';
-import 'package:voiceClient/services/firebase_email_link_handler.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/services/locale_secure_store.dart';
-import 'package:voiceClient/services/logger.dart' as logger;
-import 'package:voiceClient/services/service_locator.dart';
+import 'package:MyFamilyVoice/app/sign_in/email_link/email_link_sign_in_page.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/locale_secure_store.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/services/service_locator.dart';
 
-import 'package:voiceClient/app/home_page.dart';
+import 'package:MyFamilyVoice/app/home_page.dart';
 
 /// Builds the signed-in or non signed-in UI, depending on the user snapshot.
 /// This widget should be below the [MaterialApp].

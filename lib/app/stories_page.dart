@@ -3,17 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:voiceClient/app/sign_in/custom_raised_button.dart';
-import 'package:voiceClient/common_widgets/drawer_widget.dart';
-import 'package:voiceClient/common_widgets/friend_widget.dart';
-import 'package:voiceClient/common_widgets/staggered_grid_tile_story.dart';
-import 'package:voiceClient/constants/enums.dart';
-import 'package:voiceClient/constants/graphql.dart';
-import 'package:voiceClient/constants/strings.dart';
-import 'package:voiceClient/services/graphql_auth.dart';
-import 'package:voiceClient/constants/mfv.i18n.dart';
-import 'package:voiceClient/services/service_locator.dart';
-import 'package:voiceClient/services/logger.dart' as logger;
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_story.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 class Debouncer {
   Debouncer({this.milliseconds});
