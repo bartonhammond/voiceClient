@@ -1,25 +1,12 @@
 import 'dart:io' as io;
 import 'dart:io';
-
-import 'package:flutter/material.dart';
-import 'package:graphql/client.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:http/http.dart';
-
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:responsive_builder/responsive_builder.dart';
-import 'package:uuid/uuid.dart';
-
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/comments.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
-
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
-
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/tags.dart';
-
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
@@ -28,10 +15,18 @@ import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/user_tag_counts.dart';
-import 'package:MyFamilyVoice/services/logger.dart' as logger;
+import 'package:flushbar/flushbar.dart';
+import 'package:flutter/material.dart';
+import 'package:graphql/client.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:responsive_builder/responsive_builder.dart';
+import 'package:uuid/uuid.dart';
 
 class StoryPlay extends StatefulWidget {
   const StoryPlay({Key key, this.params}) : super(key: key);
@@ -163,6 +158,7 @@ class _StoryPlayState extends State<StoryPlay>
             return Text('\nErrors: \n  ' + snapshot.error.toString());
           } else if (!snapshot.hasData) {
             return Scaffold(
+              key: _scaffoldKey,
               body: Center(
                 child: CircularProgressIndicator(),
               ),
@@ -192,23 +188,26 @@ class _StoryPlayState extends State<StoryPlay>
           return WillPopScope(
             onWillPop: () async => false,
             child: Scaffold(
-                key: _scaffoldKey,
-                appBar: AppBar(
-                  title: Text(
-                    Strings.MFV.i18n,
-                  ),
-                  backgroundColor: Color(0xff00bcd4),
-                  leading: IconButton(
-                      icon: Icon(MdiIcons.lessThan),
-                      onPressed: () {
-                        if (widget.params.isNotEmpty &&
-                            widget.params.containsKey('onFinish')) {
-                          widget.params['onFinish']();
-                        }
-                        Navigator.of(context).pop('upload');
-                      }),
+              key: _scaffoldKey,
+              appBar: AppBar(
+                title: Text(
+                  Strings.MFV.i18n,
                 ),
-                body: Center(child: getCard(context))),
+                backgroundColor: Color(0xff00bcd4),
+                leading: IconButton(
+                    icon: Icon(MdiIcons.lessThan),
+                    onPressed: () {
+                      if (widget.params.isNotEmpty &&
+                          widget.params.containsKey('onFinish')) {
+                        widget.params['onFinish']();
+                      }
+                      Navigator.of(context).pop('upload');
+                    }),
+              ),
+              body: Center(
+                child: getCard(context),
+              ),
+            ),
           );
         });
   }
@@ -431,26 +430,29 @@ class _StoryPlayState extends State<StoryPlay>
   Widget _buildUploadButton(BuildContext context) {
     return _uploadInProgress
         ? CircularProgressIndicator()
-        : CustomRaisedButton(
-            key: Key(Keys.commentsUploadButton),
-            icon: Icon(
-              Icons.file_upload,
-              color: Colors.white,
-            ),
-            text: Strings.upload.i18n,
-            onPressed: () async {
-              setState(() {
-                _uploadInProgress = true;
-              });
-              await doCommentUploads(context);
-              setState(() {
-                _commentAudio = null;
-                _uploadInProgress = false;
-              });
-
-              //Navigator.pop(context);
-            },
-          );
+        : Builder(
+            builder: (context) => CustomRaisedButton(
+                  key: Key(Keys.commentsUploadButton),
+                  icon: Icon(
+                    Icons.file_upload,
+                    color: Colors.white,
+                  ),
+                  text: Strings.upload.i18n,
+                  onPressed: () async {
+                    setState(() {
+                      _uploadInProgress = true;
+                    });
+                    await doCommentUploads(context);
+                    setState(() {
+                      _commentAudio = null;
+                      _uploadInProgress = false;
+                    });
+                    Flushbar<dynamic>(
+                      message: Strings.saved.i18n,
+                      duration: Duration(seconds: 3),
+                    )..show(_scaffoldKey.currentContext);
+                  },
+                ));
   }
 
   Widget _buildUploadStoryButton(BuildContext context) {
@@ -471,6 +473,11 @@ class _StoryPlayState extends State<StoryPlay>
               setState(() {
                 _uploadInProgress = false;
               });
+
+              Flushbar<dynamic>(
+                message: Strings.saved.i18n,
+                duration: Duration(seconds: 3),
+              )..show(_scaffoldKey.currentContext);
             },
           );
   }
@@ -659,7 +666,10 @@ class _StoryPlayState extends State<StoryPlay>
                   _story['id'],
                 );
 
-                widget.params['onDelete']();
+                if (widget.params.isNotEmpty &&
+                    widget.params.containsKey('onDelete')) {
+                  widget.params['onDelete']();
+                }
                 Navigator.of(context).pop();
               }
             },

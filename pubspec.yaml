@@ -25,6 +25,7 @@ dependencies:
   event_bus: ^1.1.1
   file: ^5.0.4
   flag: ^3.0.4
+  flushbar: ^1.10.4
   flutter:
     sdk: flutter
   flutter_audio_recorder: ^0.5.5
@@ -41,6 +42,7 @@ dependencies:
       url: https://github.com/mrmilu/flutterfire
       path: packages/firebase_dynamic_links
       ref: firebase_dynamic_links
+  get: ^3.13.2
   get_it: ^4.0.2
   graphql: ^3.0.0
   graphql_flutter: ^3.1.0

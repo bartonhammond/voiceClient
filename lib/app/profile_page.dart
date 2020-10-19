@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -34,6 +35,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   String userId = '';
   String name = '';
@@ -142,11 +144,11 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _formReady() {
-    if (_image != null &&
+    if ((user['image'] != null || _image != null) &&
         name != null &&
         name.length > 5 &&
         cityState != null &&
-        cityState.length > 5) {
+        cityState.length > 1) {
       setState(() {
         formReady = true;
       });
@@ -331,7 +333,14 @@ class _ProfilePageState extends State<ProfilePage> {
         throw queryResult.exception;
       }
       await graphQLAuth.setupEnvironment();
+
+      //This enables the other tabs
       eventBus.fire(ProfileEvent(true));
+
+      Flushbar<dynamic>(
+        message: Strings.saved.i18n,
+        duration: Duration(seconds: 3),
+      )..show(_scaffoldKey.currentContext);
     } catch (e) {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
@@ -368,6 +377,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _width = _height = 100;
     }
     return Scaffold(
+      key: _scaffoldKey,
       drawer: getDrawer(context),
       appBar: AppBar(
         title: Text(Strings.profilePageName.i18n),

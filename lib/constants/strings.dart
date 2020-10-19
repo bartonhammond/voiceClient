@@ -8,7 +8,7 @@ class Strings {
   static const String areYouSure = 'Are you sure?';
   static const String yes = 'Yes';
   static const String noResults = 'No results';
-  static const String upload = 'Upload';
+  static const String upload = 'Save';
   static const String loadMore = 'Load More';
 
   // Logout / Drawer
@@ -148,4 +148,6 @@ class Strings {
 
   //New strings on bottom
   static const String languages = 'Languages';
+  static const String saved = 'Save successful';
+  static const String deleted = 'Delete successful';
 }

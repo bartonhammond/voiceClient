@@ -29,7 +29,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.upload,
-        'es': 'Subir',
+        'es': 'Salvar',
       } +
       {
         'en': Strings.loadMore,
@@ -442,6 +442,14 @@ extension Localization on String {
       {
         'en': Strings.languages,
         'es': 'Idiomas',
+      } +
+      {
+        'en': Strings.saved,
+        'es': 'Guardar exitoso',
+      } +
+      {
+        'en': Strings.deleted,
+        'es': 'Eliminar exitoso',
       };
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);

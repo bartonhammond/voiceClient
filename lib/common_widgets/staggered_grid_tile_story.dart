@@ -38,18 +38,22 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showTags = false;
 
   Future<void> callBack() async {
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getStoryByIdQL),
-      variables: <String, dynamic>{'id': widget.story['id']},
-    );
+    try {
+      final QueryOptions _queryOptions = QueryOptions(
+        documentNode: gql(getStoryByIdQL),
+        variables: <String, dynamic>{'id': widget.story['id']},
+      );
 
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+      final QueryResult queryResult = await graphQLClient.query(_queryOptions);
 
-    setState(() {
-      widget.story = queryResult.data['Story'][0];
-    });
+      setState(() {
+        widget.story = queryResult.data['Story'][0];
+      });
+    } catch (e) {
+      //ignore
+    }
   }
 
   Widget buildFriend() {
