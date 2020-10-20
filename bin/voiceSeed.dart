@@ -61,6 +61,7 @@ Future<void> main(List<String> arguments) async {
   } //for
 
   //Make everyone friends
+
   for (var userIndex = 0; userIndex < users.length; userIndex++) {
     for (var friendIndex = 0; friendIndex < users.length; friendIndex++) {
       if (userIndex == friendIndex) {
@@ -85,7 +86,7 @@ Future<void> main(List<String> arguments) async {
   }
 
   //Make stories
-  for (var userIndex = 0; userIndex < users.length; userIndex++) {
+  for (var userIndex = 0; userIndex < 1 /*users.length*/; userIndex++) {
     try {
       for (var storyIndex = 25; storyIndex > -1; storyIndex--) {
         final String userId = userIds[userIndex];
@@ -118,6 +119,7 @@ Future<void> main(List<String> arguments) async {
             print('add story $storyId, tag: ${allTags[randomTag]}');
           }
         }
+
         final int randomComments = randomCommentGen.nextInt(5);
 
         for (var i = 0; i < randomComments; i++) {

@@ -1,5 +1,12 @@
 final users = [
   {
+    'email': 'randyallen@gmail.com',
+    'announce': 'The real piano man, he tickles the ivory keys ',
+    'name': 'Randy Allen',
+    'profile': 'randy',
+    'home': 'Dallas, TX'
+  },
+  {
     'email': 'karenhammond@gmail.com',
     'announce': 'She hails for Durango but she has lived everywhere',
     'name': 'Karen Hammond',
