@@ -6,7 +6,6 @@ import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
-import 'package:MyFamilyVoice/common_widgets/tags.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
@@ -18,7 +17,6 @@ import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:MyFamilyVoice/services/user_tag_counts.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
@@ -41,9 +39,6 @@ class _StoryPlayState extends State<StoryPlay>
   bool _showComments = false;
   Map<String, dynamic> _story;
 
-  List<String> _tags = <String>[];
-  List<String> _allTags;
-
   io.File _image;
   io.File _storyAudio;
   io.File _commentAudio;
@@ -52,7 +47,6 @@ class _StoryPlayState extends State<StoryPlay>
 
   final _uuid = Uuid();
   bool _isCurrentUserAuthor = false;
-  bool _showAllTags = false;
 
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -109,44 +103,11 @@ class _StoryPlayState extends State<StoryPlay>
     });
   }
 
-  bool tagsHaveChanged() {
-    if (_tags.isEmpty && _story == null) {
-      return false;
-    }
-    if (_tags.isNotEmpty && _story == null) {
-      return true;
-    }
-    if (_tags.isNotEmpty && _story['hashtags'].isEmpty) {
-      return true;
-    }
-    OUTER1:
-    for (var tag in _tags) {
-      bool tagFound = false;
-      for (var hashtag in _story['hashtags']) {
-        if (hashtag['tag'] == tag) {
-          tagFound = true;
-          continue OUTER1;
-        }
-      }
-      if (!tagFound) {
-        return true;
-      }
-    }
-    for (var hashtag in _story['hashtags']) {
-      if (_tags.contains(hashtag['tag'])) {
-        continue;
-      }
-      return true;
-    }
-    return false;
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
         future: Future.wait([
           getStory(),
-          getUserHashtagCounts(),
         ]),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -165,7 +126,6 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
-          _allTags = snapshot.data[1];
 
           if (_story == null ||
               (_story != null &&
@@ -174,15 +134,6 @@ class _StoryPlayState extends State<StoryPlay>
             _isCurrentUserAuthor = true;
           } else {
             _isCurrentUserAuthor = false;
-          }
-          if (_story != null && _story['hashtags'] != null) {
-            final List<dynamic> hashtags = _story['hashtags'];
-            for (var tag in hashtags) {
-              if (_tags.contains(tag['tag'])) {
-                continue;
-              }
-              _tags.add(tag['tag']);
-            }
           }
 
           return WillPopScope(
@@ -282,20 +233,6 @@ class _StoryPlayState extends State<StoryPlay>
         _imageFilePath,
         _audioFilePath,
       );
-
-      _tags = _tags.toSet().toList();
-
-      for (var tag in _tags) {
-        await addHashTag(
-          graphQLClientApolloServer,
-          tag,
-        );
-        await addStoryHashtags(
-          graphQLClientApolloServer,
-          _id,
-          tag,
-        );
-      }
     } else {
       //don't update unnecessarily
       if (_imageFilePath != null || _audioFilePath != null) {
@@ -307,54 +244,6 @@ class _StoryPlayState extends State<StoryPlay>
           _imageFilePath,
           _audioFilePath,
           _story['created']['formatted'],
-        );
-      }
-
-      _tags = _tags.toSet().toList();
-
-      if (_tags.isNotEmpty && _story['hashtags'].isEmpty) {
-        for (var tag in _tags) {
-          await addHashTag(
-            graphQLClientApolloServer,
-            tag,
-          );
-
-          await addStoryHashtags(
-            graphQLClientApolloServer,
-            _story['id'],
-            tag,
-          );
-        }
-      }
-      OUTER:
-      for (var tag in _tags) {
-        //does tag exist in the story
-        for (var hashtag in _story['hashtags']) {
-          if (hashtag['tag'] == tag) {
-            continue OUTER;
-          }
-          await addHashTag(
-            graphQLClientApolloServer,
-            tag,
-          );
-
-          await addStoryHashtags(
-            graphQLClientApolloServer,
-            _story['id'],
-            tag,
-          );
-        }
-      }
-
-      //does story have tags that were deleted?
-      for (var hashtag in _story['hashtags']) {
-        if (_tags.contains(hashtag['tag'])) {
-          continue;
-        }
-        await removeStoryHashtags(
-          graphQLClientApolloServer,
-          _story['id'],
-          hashtag['tag'],
         );
       }
     }
@@ -535,14 +424,12 @@ class _StoryPlayState extends State<StoryPlay>
                       height: 8,
                     )
                   : Container(),
-              _isCurrentUserAuthor
-                  ? RecorderWidget(
-                      isCurrentUserAuthor: _isCurrentUserAuthor,
-                      setAudioFile: setStoryAudioFile,
-                      width: width,
-                      url: host(_story['audio']),
-                    )
-                  : Container(),
+              RecorderWidget(
+                isCurrentUserAuthor: _isCurrentUserAuthor,
+                setAudioFile: setStoryAudioFile,
+                width: width,
+                url: host(_story['audio']),
+              )
             ],
           );
   }
@@ -653,14 +540,6 @@ class _StoryPlayState extends State<StoryPlay>
                   );
                 }
 
-                for (var hashtag in _story['hashtags']) {
-                  await removeStoryHashtags(
-                    GraphQLProvider.of(context).value,
-                    _story['id'],
-                    hashtag['tag'],
-                  );
-                }
-
                 await deleteStory(
                   GraphQLProvider.of(context).value,
                   _story['id'],
@@ -681,8 +560,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   Widget getStoryControls() {
     return Column(children: [
-      if (_story != null &&
-              (_image != null || _storyAudio != null || tagsHaveChanged()) ||
+      if (_story != null && (_image != null || _storyAudio != null) ||
           (_story == null && _image != null && _storyAudio != null))
         _buildUploadStoryButton(context),
       if (_image != null || _storyAudio != null)
@@ -695,69 +573,11 @@ class _StoryPlayState extends State<StoryPlay>
       ),
       getPlayerControls(_width, _showIcons),
       Divider(
-        height: _spacer.toDouble(),
-        thickness: 2,
-      ),
-      SizedBox(
-        height: 8,
-      ),
-      Text(Strings.tagsLabel.i18n,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          )),
-      getTags(
-        allTags: _allTags,
-        tags: _tags,
-        onTagAdd: (String tag) {
-          setState(() {
-            _tags.add(tag);
-          });
-        },
-        onTagRemove: (int index) {
-          setState(() {
-            _tags.removeAt(index);
-          });
-        },
-        updatedAble: _isCurrentUserAuthor,
-      ),
-      SizedBox(
-        height: _spacer.toDouble(),
-      ),
-      _isCurrentUserAuthor
-          ? Container(
-              padding: EdgeInsets.all(20),
-              child: Column(
-                children: <Widget>[
-                  Text(Strings.showAllTags.i18n,
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  Checkbox(
-                    value: _showAllTags,
-                    onChanged: (bool show) {
-                      if (show) {
-                        _allTags.forEach(_tags.add);
-                      } else {
-                        _allTags.forEach(_tags.remove);
-                      }
-                      setState(() {
-                        _showAllTags = !_showAllTags;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            )
-          : Container(),
-      Divider(
         indent: 50,
         endIndent: 50,
         height: _spacer.toDouble(),
         thickness: 5,
       ),
-      SizedBox(
-        height: _spacer.toDouble(),
-      )
     ]);
   }
 
@@ -793,6 +613,9 @@ class _StoryPlayState extends State<StoryPlay>
             _showComments == false ? getStoryControls() : Container(),
             _story != null
                 ? Column(children: <Widget>[
+                    SizedBox(
+                      height: _spacer.toDouble(),
+                    ),
                     InkWell(
                         child: _showComments
                             ? Text(
@@ -814,6 +637,9 @@ class _StoryPlayState extends State<StoryPlay>
                             _showComments = !_showComments;
                           });
                         }),
+                    SizedBox(
+                      height: _spacer.toDouble(),
+                    ),
                     _showComments
                         ? Column(
                             mainAxisAlignment: MainAxisAlignment.start,

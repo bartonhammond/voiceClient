@@ -40,14 +40,9 @@ class ResultTypes {
   final TypeStoriesView _typeStoriesView;
 
   final String _userFriendStoriesByDate = 'userFriendsStories';
-  final String _userFriendStoriesByHashTag = 'userFriendsStoriesByHashtag';
   final String _userStoriesByDate = 'userStories';
-  final String _userStoriesByHashTag = 'userStoriesByHashtag';
-
   bool _userFriendStoriesByDateHasMore = true;
-  bool _userFriendStoriesByHashTagHasMore = true;
   bool _userStoriesByDateHasMore = true;
-  bool _userStoriesByHashTagHasMore = true;
 
   TypeStoriesView getTypeStoriesView() {
     return _typeStoriesView;
@@ -55,34 +50,18 @@ class ResultTypes {
 
   void setHasMore(bool value) {
     if (_typeStoriesView == TypeStoriesView.allFriends) {
-      if (_typeSearch == TypeSearch.hashtag) {
-        _userFriendStoriesByHashTagHasMore = value;
-      } else {
-        _userFriendStoriesByDateHasMore = value;
-      }
+      _userFriendStoriesByDateHasMore = value;
     }
     if (_typeStoriesView == TypeStoriesView.oneFriend) {
-      if (_typeSearch == TypeSearch.hashtag) {
-        _userStoriesByHashTagHasMore = value;
-      } else {
-        _userStoriesByDateHasMore = value;
-      }
+      _userStoriesByDateHasMore = value;
     }
   }
 
   bool getHasMore() {
     if (_typeStoriesView == TypeStoriesView.allFriends) {
-      if (_typeSearch == TypeSearch.hashtag) {
-        return _userFriendStoriesByHashTagHasMore;
-      } else {
-        return _userFriendStoriesByDateHasMore;
-      }
+      return _userFriendStoriesByDateHasMore;
     }
-    if (_typeStoriesView == TypeStoriesView.oneFriend) {
-      if (_typeSearch == TypeSearch.hashtag) {
-        return _userStoriesByHashTagHasMore;
-      }
-    }
+
     return _userStoriesByDateHasMore;
   }
 
@@ -96,16 +75,7 @@ class ResultTypes {
 
   String getResultType() {
     if (_typeStoriesView == TypeStoriesView.allFriends) {
-      if (_typeSearch == TypeSearch.hashtag) {
-        return _userFriendStoriesByHashTag;
-      } else {
-        return _userFriendStoriesByDate;
-      }
-    }
-    if (_typeStoriesView == TypeStoriesView.oneFriend) {
-      if (_typeSearch == TypeSearch.hashtag) {
-        return _userStoriesByHashTag;
-      }
+      return _userFriendStoriesByDate;
     }
     return _userStoriesByDate;
   }
@@ -127,15 +97,13 @@ class _StoriesPageState extends State<StoriesPage> {
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
   Map<String, dynamic> user;
-  final _debouncer = Debouncer(milliseconds: 500);
-  String _searchString;
 
   ResultTypes _resultTypes;
 
   @override
   void initState() {
     super.initState();
-    _searchString = '*';
+
     if (getId() == null) {
       _resultTypes = ResultTypes(
         TypeStoriesView.allFriends,
@@ -177,60 +145,6 @@ class _StoriesPageState extends State<StoriesPage> {
       throw queryResult.exception;
     }
     return queryResult.data['User'][0];
-  }
-
-  Widget getDropDownTypeSearchButtons() {
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<TypeSearch>(
-        value: _resultTypes.getTypeSearch(),
-        items: [
-          DropdownMenuItem(
-              child: Text(
-                Strings.dateLabel.i18n,
-              ),
-              value: TypeSearch.date),
-          DropdownMenuItem(
-            child: Text(
-              Strings.tagsLabel.i18n,
-            ),
-            value: TypeSearch.hashtag,
-          ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _resultTypes.setTypeSearch(value);
-          });
-        },
-      ),
-    );
-  }
-
-  Widget buildSearchField() {
-    return Flexible(
-      fit: FlexFit.loose,
-      child: TextField(
-        decoration: InputDecoration(
-            focusedBorder: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff00bcd4))),
-            labelStyle: TextStyle(color: Color(0xff00bcd4)),
-            border: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xff00bcd4))),
-            contentPadding: EdgeInsets.all(15.0),
-            hintText: Strings.searchByTagsHint.i18n,
-            hintStyle: TextStyle(color: Color(0xff00bcd4))),
-        onChanged: (string) {
-          _debouncer.run(() {
-            setState(() {
-              if (string.isEmpty) {
-                _searchString = '*';
-              } else {
-                _searchString = '$string*';
-              }
-            });
-          });
-        },
-      ),
-    );
   }
 
   String getCursor(List<dynamic> _list) {
@@ -279,40 +193,16 @@ class _StoriesPageState extends State<StoriesPage> {
 
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
     if (_resultTypes.getTypeStoriesView() == TypeStoriesView.allFriends) {
-      if (_resultTypes.getTypeSearch() == TypeSearch.hashtag) {
-        return QueryOptions(
-          documentNode: gql(getUserFriendsStoriesByHashtagQL),
-          variables: <String, dynamic>{
-            'email': graphQLAuth.getUser().email,
-            'searchString': _searchString,
-            'limit': nStories.toString(),
-            'cursor': DateTime.now().toIso8601String(),
-          },
-        );
-      } else {
-        return QueryOptions(
-          documentNode: gql(getUserFriendsStories),
-          variables: <String, dynamic>{
-            'email': graphQLAuth.getUser().email,
-            'limit': nStories.toString(),
-            'cursor': DateTime.now().toIso8601String(),
-          },
-        );
-      }
+      return QueryOptions(
+        documentNode: gql(getUserFriendsStories),
+        variables: <String, dynamic>{
+          'email': graphQLAuth.getUser().email,
+          'limit': nStories.toString(),
+          'cursor': DateTime.now().toIso8601String(),
+        },
+      );
     }
-    if (_resultTypes.getTypeStoriesView() == TypeStoriesView.oneFriend) {
-      if (_resultTypes.getTypeSearch() == TypeSearch.hashtag) {
-        return QueryOptions(
-          documentNode: gql(getUserStoriesByHashtagQL),
-          variables: <String, dynamic>{
-            'email': user['email'],
-            'searchString': _searchString,
-            'limit': nStories.toString(),
-            'cursor': DateTime.now().toIso8601String(),
-          },
-        );
-      }
-    }
+
     return QueryOptions(
       documentNode: gql(getUserStories),
       variables: <String, dynamic>{
@@ -382,15 +272,6 @@ class _StoriesPageState extends State<StoriesPage> {
                         context,
                         user,
                       ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    getDropDownTypeSearchButtons(),
-                    _resultTypes.getTypeSearch() == TypeSearch.date
-                        ? Container()
-                        : buildSearchField()
-                  ],
-                ),
                 Query(
                     options: getQueryOptions(graphQLAuth),
                     builder: (

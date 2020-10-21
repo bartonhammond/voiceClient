@@ -405,11 +405,11 @@ extension Localization on String {
       } +
       {
         'en': Strings.commentsLabel,
-        'es': 'Comentarios',
+        'es': 'Ver Comentarios',
       } +
       {
         'en': Strings.storyLabel,
-        'es': 'Historia',
+        'es': 'Ver Historia',
       } +
       {
         'en': Strings.deleteStoryQuestion,

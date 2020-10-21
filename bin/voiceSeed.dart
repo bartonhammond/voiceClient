@@ -9,7 +9,6 @@ import 'package:MyFamilyVoice/services/mutation_service.dart';
 import '../seed/addComments.dart';
 import '../seed/addSingleStory.dart';
 import '../seed/addUser.dart';
-import '../seed/constants.dart';
 import '../seed/getPhotoFiles.dart';
 import '../seed/graphQLClient.dart';
 import '../seed/voiceUsers.dart';
@@ -40,11 +39,8 @@ Future<void> main(List<String> arguments) async {
   //Create User
   final Random randomVoiceGen = Random();
   final Random randomFileGen = Random();
-  final Random randomTagGen = Random();
   final Random randomCommentGen = Random();
   final Random randomUserGen = Random();
-
-  final List<String> allTags = tags.replaceAll('\n/', '').split(' ');
 
   for (var userIndex = 0; userIndex < users.length; userIndex++) {
     try {
@@ -73,16 +69,6 @@ Future<void> main(List<String> arguments) async {
       );
     }
   }
-  //Create the system wide tags
-  for (var i = 0; i < allTags.length; i++) {
-    if (allTags[i].isNotEmpty && allTags[i].length > 5) {
-      await addHashTag(
-        graphQLClientApolloServer,
-        allTags[i],
-      );
-      print('add tag: ${allTags[i]}');
-    }
-  }
 
   //Make stories
   for (var userIndex = 0; userIndex < users.length; userIndex++) {
@@ -105,19 +91,6 @@ Future<void> main(List<String> arguments) async {
 
         print('addStory: $storyId');
 
-        final int maxTag = allTags.length - 1;
-
-        for (var i = 0; i < 5; i++) {
-          final int randomTag = randomTagGen.nextInt(maxTag);
-          if (allTags[randomTag].isNotEmpty && allTags[randomTag].length > 5) {
-            await addStoryHashtags(
-              graphQLClientApolloServer,
-              storyId,
-              allTags[randomTag],
-            );
-            print('add story $storyId, tag: ${allTags[randomTag]}');
-          }
-        }
         final int randomComments = randomCommentGen.nextInt(5);
 
         for (var i = 0; i < randomComments; i++) {

@@ -132,8 +132,8 @@ class Strings {
 
   //Story play
   static const String recordAComment = 'Record a comment';
-  static const String commentsLabel = 'Comments';
-  static const String storyLabel = 'Story';
+  static const String commentsLabel = 'View Comments';
+  static const String storyLabel = 'View Story';
   static const String deleteStoryQuestion = 'Delete Story?';
 
   //Stories Page
