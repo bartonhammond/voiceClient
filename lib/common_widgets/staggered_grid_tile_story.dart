@@ -33,7 +33,6 @@ class StaggeredGridTileStory extends StatefulWidget {
 
 class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showComments = false;
-  bool _showTags = false;
 
   Future<void> callBack() async {
     try {
