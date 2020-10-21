@@ -4,9 +4,7 @@ import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
-import 'package:MyFamilyVoice/common_widgets/tags.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
@@ -227,30 +225,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             SizedBox(
               height: 7.toDouble(),
             ),
-            InkWell(
-                child: Text(
-                  Strings.gridStoryShowTagsText
-                      .plural(widget.story['hashtags'].length),
-                  style: TextStyle(
-                    color: Color(0xff00bcd4),
-                    fontSize: 16.0,
-                  ),
-                ),
-                onTap: () {
-                  setState(() {
-                    _showTags = !_showTags;
-                  });
-                }),
-            _showTags
-                ? getTags(
-                    allTags: [],
-                    tags: _tags,
-                    onTagAdd: (String _) {},
-                    onTagRemove: (int index) {},
-                    updatedAble: false,
-                    showTagsOnly: true,
-                  )
-                : Container(),
             InkWell(
                 child: Text(
                   Strings.gridStoryShowCommentsText.plural(commentsLength),

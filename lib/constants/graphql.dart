@@ -48,9 +48,6 @@ query getStoryById($id: ID!) {
       image
       id
     }
-    hashtags {
-      tag
-    }
     comments {
       id
       audio
@@ -254,9 +251,6 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       name
       home
       image
-    }
-    hashtags{
-        tag
     }
     comments {
       id
@@ -521,9 +515,6 @@ userFriendsStories(
       home
       image
     }
-    hashtags{
-        tag
-    }
     comments {
       id
       audio
@@ -687,152 +678,4 @@ mutation addStoryComments($storyId: ID!, $commentId: ID!) {
     }
   }
 }
-''';
-
-const String addHashTagQL = r'''
-mutation addHashTag($tag: String!) {
-  CreateHashTag(
-    tag: $tag
-  ) {
-    tag
-  }
-}
-''';
-
-const String addStoryHashtagsQL = r'''
-mutation addStoryHashtags($id: ID!, $tag: String!) {
-  AddStoryHashtags(
-    from:  {
-      id: $id
-      }
-    to: {
-      tag: $tag
-    }
-  ) {
-    from {
-      id
-    }
-    to {
-      tag
-    }
-  }
-}
-''';
-
-const String removeStoryHashtagsQL = r'''
-mutation removeStoryHashtags($id: ID!, $tag: String!) {
-  RemoveStoryHashtags(
-    from:  {
-      id: $id
-      }
-    to: {
-      tag: $tag
-    }
-  ) {
-    from {
-      id
-    }
-    to {
-      tag
-    }
-  }
-}
-''';
-
-const String userHashTagsCountQL = r'''
-query userHashTagsCount($email: String!){
-  userHashTagsCount(email: $email) {
-    __typename
-    hashtag
-    count
-  }
-}
-''';
-
-const String getUserFriendsStoriesByHashtagQL = r'''
-query userFriendsStoriesByHashtag($email: String!, $searchString: String!, $cursor: String!, $limit: String!){
-  userFriendsStoriesByHashtag(
-    email: $email
-    searchString: $searchString
-    cursor: $cursor
-    limit: $limit
-    ){
-    __typename
-    id
-    image
-    audio
-    created {
-      formatted
-    }
-    updated {
-      formatted
-    }
-    user {
-      email
-      name
-      home
-      image
-    }
-    hashtags{
-        tag
-    }
-    comments {
-      id
-      audio
-      created {
-        formatted
-      }
-      from {
-        id
-        email
-        name
-      }
-      status
-    }
-  }
-} 
-''';
-
-const String getUserStoriesByHashtagQL = r'''
-query userStoriesByHashtag($email: String!, $searchString: String!, $cursor: String!, $limit: String!){
-  userStoriesByHashtag(
-    email: $email
-    searchString: $searchString
-    cursor: $cursor
-    limit: $limit
-    ){
-    __typename
-    id
-    image
-    audio
-    created {
-      formatted
-    }
-    updated {
-      formatted
-    }
-    user {
-      email
-      name
-      home
-      image
-    }
-    hashtags{
-        tag
-    }
-    comments {
-      id
-      audio
-      created {
-        formatted
-      }
-      from {
-        id
-        email
-        name
-      }
-      status
-    }
-  }
-} 
 ''';

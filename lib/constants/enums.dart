@@ -21,7 +21,6 @@ enum TypeUser {
 
 enum TypeSearch {
   date,
-  hashtag,
 }
 
 enum TypeStoriesView {
