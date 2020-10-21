@@ -1,3 +1,4 @@
+import 'package:MyFamilyVoice/app/legal/legal_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -46,15 +47,38 @@ Future<String> getVersionAndBuild(AppConfig config) async {
   return '${config.flavorName} $version+$buildNumber';
 }
 
-Widget drawer(BuildContext context, String versionBuild, bool showLogout) {
+Widget drawer(
+  BuildContext context,
+  String versionBuild,
+  bool showLogout,
+) {
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
       children: <Widget>[
         DrawerHeader(
-          child: Text(Strings.MFV.i18n),
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
           decoration: BoxDecoration(
-            color: Color(0xff00bcd4),
+            image: DecorationImage(
+              fit: BoxFit.fill,
+              image: AssetImage('assets/mfv.png'),
+            ),
+          ),
+          child: Stack(
+            children: <Widget>[
+              Positioned(
+                bottom: 12.0,
+                left: 16.0,
+                child: Text(
+                  Strings.MFV.i18n,
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+            ],
           ),
         ),
         Card(
@@ -110,8 +134,76 @@ Widget drawer(BuildContext context, String versionBuild, bool showLogout) {
             ),
           ],
         ),
+        ExpansionTile(
+          title: Text('Legal docs'),
+          children: <Widget>[
+            Card(
+              child: ListTile(
+                title: Text('Disclaimer'),
+                onTap: () async {
+                  await getDialog(context, 'Disclaimer', 'disclaimer.html');
+                },
+              ),
+            ),
+            Card(
+              child: ListTile(
+                title: Text('EULA'),
+                onTap: () async {
+                  await getDialog(context, 'EULA', 'eula.html');
+                },
+              ),
+            ),
+            Card(
+              child: ListTile(
+                title: Text('Policy'),
+                onTap: () async {
+                  await getDialog(context, 'Policy', 'policy.html');
+                },
+              ),
+            ),
+            Card(
+              child: ListTile(
+                title: Text('Terms'),
+                onTap: () async {
+                  await getDialog(context, 'Terms', 'terms.html');
+                },
+              ),
+            )
+          ],
+        ),
       ],
     ),
+  );
+}
+
+Future<Widget> getDialog(
+    BuildContext context, String title, String fileName) async {
+  return showDialog(
+    barrierDismissible: true,
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        contentPadding: EdgeInsets.only(left: 25, right: 25),
+        title: Center(child: Text(title)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(20.0))),
+        content: Container(
+          height: 200,
+          width: 300,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                SizedBox(
+                  height: 20,
+                ),
+                LegalPage(fileName),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
   );
 }
 
