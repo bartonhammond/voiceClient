@@ -43,19 +43,18 @@ class MyApp extends StatelessWidget {
   });
 
   Future<Locale> getDeviceLocal(BuildContext context) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     logger.createMessage(
-      userEmail: graphQLAuth.getUser().email,
+      userEmail: 'initializing',
       source: 'my_app',
-      shortMessage: 'getDeviceLocale start',
+      shortMessage: 'getDeviceLocal start',
       stackTrace: StackTrace.current.toString(),
     );
     final LocaleSecureStore localeSecureStore =
         LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
     logger.createMessage(
-      userEmail: graphQLAuth.getUser().email,
+      userEmail: 'initializing',
       source: 'my_app',
-      shortMessage: 'getDeviceLocale after',
+      shortMessage: 'getDeviceLocal after',
       stackTrace: StackTrace.current.toString(),
     );
     return localeSecureStore.getLocale();
@@ -165,9 +164,9 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           locale = snapshot.data;
-          final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
           logger.createMessage(
-            userEmail: graphQLAuth.getUser().email,
+            userEmail: 'initializing',
             source: 'my_app',
             shortMessage: 'build locale: ${locale.toString()}',
             stackTrace: StackTrace.current.toString(),
@@ -176,6 +175,13 @@ class MyApp extends StatelessWidget {
             return getMultiProvider(context, locale);
           }
           return testing(context, locale);
+        } else if (snapshot.hasError) {
+          logger.createMessage(
+            userEmail: 'initializing',
+            source: 'my_app',
+            shortMessage: 'snapshot has error ${snapshot.error}',
+            stackTrace: StackTrace.current.toString(),
+          );
         } else {
           return const Center(
             child: CircularProgressIndicator(),
