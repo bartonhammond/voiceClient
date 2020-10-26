@@ -1,4 +1,3 @@
-import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
@@ -61,6 +60,13 @@ class MyApp extends StatelessWidget {
   }
 
   MultiProvider getMultiProvider(BuildContext context, Locale locale) {
+    logger.createMessage(
+      userEmail: 'initializing',
+      source: 'my_app',
+      shortMessage: 'multiprovider start',
+      stackTrace: StackTrace.current.toString(),
+    );
+
     return MultiProvider(
       providers: [
         Provider<AuthService>(
@@ -93,6 +99,20 @@ class MyApp extends StatelessWidget {
         BuildContext context,
         AsyncSnapshot<User> userSnapshot,
       ) {
+        logger.createMessage(
+          userEmail: 'initializing',
+          source: 'my_app',
+          shortMessage: 'multiprovider finish',
+          stackTrace: StackTrace.current.toString(),
+        );
+
+        setupServiceLocator(context);
+        logger.createMessage(
+          userEmail: 'initizing',
+          source: 'my_app',
+          shortMessage: 'multiprovider finish',
+          stackTrace: StackTrace.current.toString(),
+        );
         return MaterialApp(
           theme: ThemeData(
             primarySwatch: myColorSwatch,
@@ -157,7 +177,6 @@ class MyApp extends StatelessWidget {
       services.DeviceOrientation.portraitDown,
       services.DeviceOrientation.portraitUp,
     ]);
-    setupServiceLocator(context);
     Locale locale;
     return FutureBuilder(
       future: getDeviceLocal(context),
@@ -182,11 +201,10 @@ class MyApp extends StatelessWidget {
             shortMessage: 'snapshot has error ${snapshot.error}',
             stackTrace: StackTrace.current.toString(),
           );
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
         }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
       },
     );
   }
