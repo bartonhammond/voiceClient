@@ -1,3 +1,4 @@
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
@@ -15,6 +16,7 @@ import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
 import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 class MyApp extends StatelessWidget {
   // [initialAuthServiceType] is made configurable for testing
@@ -41,8 +43,21 @@ class MyApp extends StatelessWidget {
   });
 
   Future<Locale> getDeviceLocal(BuildContext context) async {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    logger.createMessage(
+      userEmail: graphQLAuth.getUser().email,
+      source: 'my_app',
+      shortMessage: 'getDeviceLocale start',
+      stackTrace: StackTrace.current.toString(),
+    );
     final LocaleSecureStore localeSecureStore =
         LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
+    logger.createMessage(
+      userEmail: graphQLAuth.getUser().email,
+      source: 'my_app',
+      shortMessage: 'getDeviceLocale after',
+      stackTrace: StackTrace.current.toString(),
+    );
     return localeSecureStore.getLocale();
   }
 
@@ -79,7 +94,6 @@ class MyApp extends StatelessWidget {
         BuildContext context,
         AsyncSnapshot<User> userSnapshot,
       ) {
-        setupServiceLocator(context);
         return MaterialApp(
           theme: ThemeData(
             primarySwatch: myColorSwatch,
@@ -144,13 +158,20 @@ class MyApp extends StatelessWidget {
       services.DeviceOrientation.portraitDown,
       services.DeviceOrientation.portraitUp,
     ]);
-
+    setupServiceLocator(context);
     Locale locale;
     return FutureBuilder(
       future: getDeviceLocal(context),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           locale = snapshot.data;
+          final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+          logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'my_app',
+            shortMessage: 'build locale: ${locale.toString()}',
+            stackTrace: StackTrace.current.toString(),
+          );
           if (!isTesting) {
             return getMultiProvider(context, locale);
           }
