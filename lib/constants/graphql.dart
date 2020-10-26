@@ -28,6 +28,7 @@ query getUserByEmail($id: ID!) {
   }
 }
 ''';
+
 const String getStoryByIdQL = r'''
 query getStoryById($id: ID!) {
   Story(id: $id) {
@@ -60,6 +61,25 @@ query getStoryById($id: ID!) {
         formatted
       }
       status
+    }
+  }
+}
+''';
+
+const String getStoryReactionsByIdQL = r'''
+query getStoryReactionsById($id: ID!) {
+  Story(id: $id) {
+    __typename
+    id
+    reactions (orderBy: type_asc){
+      id
+      type
+      from {
+        email
+        id
+        name
+        home
+      }
     }
   }
 }
@@ -385,11 +405,14 @@ mutation addUserMessages($from: ID!, $to: ID!, $id: ID!, $created: String!, $sta
 ''';
 
 const String updateUserMessageStatusByIdQL = r'''
-mutation updateUserMessageStatusById($email: String!, $id: String! $status: String!){
+mutation updateUserMessageStatusById($email: String!, $id: String! $status: String!, $resolved: String!){
   updateUserMessageStatusById(
     email: $email
     id: $id
     status: $status
+    resolved: {
+      formatted: $resolved
+    }
   ){
     __typename
     messageId
@@ -676,6 +699,67 @@ mutation addStoryComments($storyId: ID!, $commentId: ID!) {
 			id
       audio
     }
+  }
+}
+''';
+
+const String createReactionQL = r'''
+mutation CreateReaction($id: ID!, $storyId: ID!, $created: String!, $type: ReactionType!) {
+  CreateReaction(
+    id: $id
+    story: $storyId
+    created: {
+      formatted: $created
+    }
+    type: $type
+  ) {
+    id
+    type
+    created {
+      formatted
+    }
+  }
+}
+''';
+
+const String addReactionFromQL = r'''
+mutation AddReactionFrom($userId: ID!, $reactionId: ID!) {
+  AddReactionFrom(
+    from: {
+      id: $userId
+    }
+    to: {
+      id: $reactionId
+    }
+  ) {
+    from {
+      email
+    }
+    to {
+        type
+    }
+    
+  }
+}
+''';
+
+const String addStoryReactionQL = r'''
+mutation AddStoryReaction($storyId: ID!, $reactionId: ID!) {
+  AddStoryReactions(
+    from: {
+      id: $storyId
+    }
+    to: {
+      id: $reactionId
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      type
+    }
+    
   }
 }
 ''';

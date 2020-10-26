@@ -125,3 +125,20 @@ Future<List> getMessagesQuery(
   }
   return queryResult.data['userMessages'];
 }
+
+Future<List> getStoryReactions(
+  GraphQLClient graphQLClient,
+  String storyId,
+) async {
+  final QueryOptions _queryOptions = QueryOptions(
+    documentNode: gql(getStoryReactionsByIdQL),
+    variables: <String, dynamic>{
+      'id': storyId,
+    },
+  );
+  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return queryResult.data['Story'];
+}
