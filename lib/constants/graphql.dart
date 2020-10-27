@@ -67,20 +67,24 @@ query getStoryById($id: ID!) {
 ''';
 
 const String getStoryReactionsByIdQL = r'''
-query getStoryReactionsById($id: ID!) {
-  Story(id: $id) {
-    __typename
+query storyReactions($id: String!, $email: String!) {
+storyReactions(
+  email: $email, 
+  id: $id
+  orderBy: [
+    type_asc
+  ]
+  ){
     id
-    reactions (orderBy: type_asc){
-      id
-      type
-      from {
-        email
-        id
-        name
-        home
-      }
+    type
+    created{
+      formatted
     }
+    userId
+    name
+    home
+    image
+    friend
   }
 }
 ''';

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:args/args.dart';
@@ -8,7 +9,7 @@ import 'package:MyFamilyVoice/services/mutation_service.dart';
 import '../seed/graphQLClient.dart';
 import '../seed/queries.dart';
 
-final List types = <String>['LIKE', 'CLAP', 'KISS', 'HUGS', 'SAD', 'BROKE'];
+final List types = <String>['LIKE', 'WOW', 'JOY', 'HAHA', 'SAD', 'LOVE'];
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser();
   parser.addOption(
@@ -57,7 +58,11 @@ Future<void> process(ArgResults argResults) async {
   final reactions = await getStoryReactions(
     graphQLClient,
     _storyId,
+    'bartonhammond@gmail.com',
   );
+
+  String json = jsonEncode(reactions);
+  Map<String, dynamic> foo = jsonDecode(json);
   print('ok');
 }
 
