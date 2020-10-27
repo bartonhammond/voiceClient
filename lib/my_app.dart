@@ -113,6 +113,9 @@ class MyApp extends StatelessWidget {
           shortMessage: 'multiprovider finish',
           stackTrace: StackTrace.current.toString(),
         );
+        if (isTesting) {
+          return testing(context, locale);
+        }
         return MaterialApp(
           theme: ThemeData(
             primarySwatch: myColorSwatch,
@@ -190,10 +193,8 @@ class MyApp extends StatelessWidget {
             shortMessage: 'build locale: ${locale.toString()}',
             stackTrace: StackTrace.current.toString(),
           );
-          if (!isTesting) {
-            return getMultiProvider(context, locale);
-          }
-          return testing(context, locale);
+
+          return getMultiProvider(context, locale);
         } else if (snapshot.hasError) {
           logger.createMessage(
             userEmail: 'initializing',
