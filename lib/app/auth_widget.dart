@@ -28,34 +28,18 @@ class AuthWidget extends StatelessWidget {
   final String userEmail;
 
   Future<Locale> getLocaleFromStorage(BuildContext context) async {
-    logger.createMessage(
-      userEmail: 'init',
-      source: 'auth_widget',
-      shortMessage: 'getLocaleFromStorage start',
-      stackTrace: StackTrace.current.toString(),
-    );
     final LocaleSecureStore localeSecureStore =
         Provider.of<LocaleSecureStore>(context, listen: false);
     final Locale locale = await localeSecureStore.getLocale();
     I18n.of(context).locale = locale;
-    logger.createMessage(
-      userEmail: 'init',
-      source: 'auth_widget',
-      shortMessage: 'getLocaleFromStorage finish ${locale.toString()}',
-      stackTrace: StackTrace.current.toString(),
-    );
+
     return locale;
   }
 
   FutureBuilder setupHomePage(BuildContext context, User user) {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     graphQLAuth.setUser(user);
-    logger.createMessage(
-      userEmail: user.email,
-      source: 'auth_widget',
-      shortMessage: 'setupHomePage start',
-      stackTrace: StackTrace.current.toString(),
-    );
+
     return FutureBuilder<dynamic>(
       future: Future.wait([
         graphQLAuth.setupEnvironment(),
@@ -104,41 +88,19 @@ class AuthWidget extends StatelessWidget {
       if (userSnapshot.hasData) {
         return setupHomePage(context, userSnapshot.data);
       }
-      logger.createMessage(
-        userEmail: 'init',
-        source: 'auth_widget',
-        shortMessage: 'no userSnapshot',
-        stackTrace: StackTrace.current.toString(),
-      );
+
       final AuthService authService =
           Provider.of<AuthService>(context, listen: false);
       final FirebaseEmailLinkHandler linkHandler =
           Provider.of<FirebaseEmailLinkHandler>(context, listen: false);
-      logger.createMessage(
-        userEmail: 'init',
-        source: 'auth_widget',
-        shortMessage: 'going to EmailLinkSignInPage',
-        stackTrace: StackTrace.current.toString(),
-      );
+
       return EmailLinkSignInPage(
         authService: authService,
         linkHandler: linkHandler,
         onSignedIn: null,
       );
     } else {
-      logger.createMessage(
-        userEmail: 'init',
-        source: 'auth_widget',
-        shortMessage: 'no userSnapshot',
-        stackTrace: StackTrace.current.toString(),
-      );
       if (userEmail != null && userEmail.isNotEmpty) {
-        logger.createMessage(
-          userEmail: 'init',
-          source: 'auth_widget',
-          shortMessage: 'userEmail is notEmpty',
-          stackTrace: StackTrace.current.toString(),
-        );
         return setupHomePage(
             context,
             User(
@@ -149,12 +111,6 @@ class AuthWidget extends StatelessWidget {
             ));
       }
     }
-    logger.createMessage(
-      userEmail: 'init',
-      source: 'auth_widget',
-      shortMessage: 'userEmail was empty, now what? was this testing?',
-      stackTrace: StackTrace.current.toString(),
-    );
     return Scaffold(
       body: Center(
         child: CircularProgressIndicator(),

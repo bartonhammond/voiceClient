@@ -42,31 +42,13 @@ class MyApp extends StatelessWidget {
   });
 
   Future<Locale> getDeviceLocal(BuildContext context) async {
-    logger.createMessage(
-      userEmail: 'initializing',
-      source: 'my_app',
-      shortMessage: 'getDeviceLocal start',
-      stackTrace: StackTrace.current.toString(),
-    );
     final LocaleSecureStore localeSecureStore =
         LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
-    logger.createMessage(
-      userEmail: 'initializing',
-      source: 'my_app',
-      shortMessage: 'getDeviceLocal after',
-      stackTrace: StackTrace.current.toString(),
-    );
+
     return localeSecureStore.getLocale();
   }
 
   MultiProvider getMultiProvider(BuildContext context, Locale locale) {
-    logger.createMessage(
-      userEmail: 'initializing',
-      source: 'my_app',
-      shortMessage: 'multiprovider start',
-      stackTrace: StackTrace.current.toString(),
-    );
-
     return MultiProvider(
       providers: [
         Provider<AuthService>(
@@ -99,20 +81,8 @@ class MyApp extends StatelessWidget {
         BuildContext context,
         AsyncSnapshot<User> userSnapshot,
       ) {
-        logger.createMessage(
-          userEmail: 'initializing',
-          source: 'my_app',
-          shortMessage: 'multiprovider finish',
-          stackTrace: StackTrace.current.toString(),
-        );
-
         setupServiceLocator(context);
-        logger.createMessage(
-          userEmail: 'initizing',
-          source: 'my_app',
-          shortMessage: 'multiprovider finish',
-          stackTrace: StackTrace.current.toString(),
-        );
+
         if (isTesting) {
           return testing(context, locale);
         }
@@ -186,14 +156,6 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           locale = snapshot.data;
-
-          logger.createMessage(
-            userEmail: 'initializing',
-            source: 'my_app',
-            shortMessage: 'build locale: ${locale.toString()}',
-            stackTrace: StackTrace.current.toString(),
-          );
-
           return getMultiProvider(context, locale);
         } else if (snapshot.hasError) {
           logger.createMessage(
