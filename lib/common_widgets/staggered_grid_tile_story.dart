@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_reaction_button/flutter_reaction_button.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +12,7 @@ import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:MyFamilyVoice/common_widgets/reactions.dart' as react;
 
 import 'comments.dart';
 
@@ -221,22 +223,42 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                   ),
-            SizedBox(
-              height: 7.toDouble(),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              height: 1,
+              color: Colors.grey[300],
             ),
-            InkWell(
-                child: Text(
-                  Strings.gridStoryShowCommentsText.plural(commentsLength),
-                  style: TextStyle(
-                    color: Color(0xff00bcd4),
-                    fontSize: 16.0,
-                  ),
-                ),
-                onTap: () {
-                  setState(() {
-                    _showComments = !_showComments;
-                  });
-                }),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * .2,
+                        child: FlutterReactionButtonCheck(
+                          onReactionChanged: (reaction, isChecked) {
+                            print('reaction selected id: ${reaction.id}');
+                          },
+                          reactions: react.reactions,
+                          initialReaction: react.defaultInitialReaction,
+                          selectedReaction: react.reactions[0],
+                        ),
+                      ),
+                      InkWell(
+                          child: Text(
+                            Strings.gridStoryShowCommentsText
+                                .plural(commentsLength),
+                            style: TextStyle(
+                              color: Color(0xff00bcd4),
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _showComments = !_showComments;
+                            });
+                          }),
+                    ])),
             _showComments
                 ? Comments(
                     key: Key(
@@ -245,6 +267,11 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     fontSize: 12,
                   )
                 : Container(),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              height: 1,
+              color: Colors.grey[300],
+            ),
           ],
         ),
       ),
