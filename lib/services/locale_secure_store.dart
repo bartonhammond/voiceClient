@@ -23,9 +23,14 @@ class LocaleSecureStore {
   }
 
   Future<Locale> getLocale() async {
-    String languageCode =
-        await flutterSecureStorage.read(key: storageUserLocaleAddressKey);
-
+    String languageCode;
+    try {
+      languageCode =
+          await flutterSecureStorage.read(key: storageUserLocaleAddressKey);
+    } catch (e) {
+      //https://github.com/mogol/flutter_secure_storage/issues/43
+      flutterSecureStorage.deleteAll();
+    }
     if (languageCode == null) {
       final Locale locale = await DeviceLocale.getCurrentLocale();
       languageCode = locale.languageCode;
