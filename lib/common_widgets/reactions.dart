@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_reaction_button/flutter_reaction_button.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 
 final defaultInitialReaction = Reaction(
   id: 0,
-  icon: Text('Like'),
+  icon: Container(
+    color: Colors.transparent,
+    child: Row(
+      children: <Widget>[
+        Icon(
+          MdiIcons.thumbUpOutline,
+          size: 20,
+        ),
+        const SizedBox(width: 5),
+        Text('Like'),
+      ],
+    ),
+  ),
 );
 
 final reactions = [
   Reaction(
     id: 1,
-    previewIcon: _buildPreviewIconFacebook('assets/images/thumbsup.png'),
+    previewIcon: _buildPreviewIconFacebook('assets/images/like.png'),
     icon: _buildIconFacebook(
       'assets/images/like.png',
       Text(
         'Like',
         style: TextStyle(
-          color: Color(0XFF3b5998),
+          color: Colors.black,
         ),
       ),
     ),
@@ -28,7 +41,7 @@ final reactions = [
       Text(
         'Haha',
         style: TextStyle(
-          color: Color(0XFFed5168),
+          color: Colors.black,
         ),
       ),
     ),
@@ -41,7 +54,7 @@ final reactions = [
       Text(
         'Joy',
         style: TextStyle(
-          color: Color(0XFFffda6b),
+          color: Colors.black,
         ),
       ),
     ),
@@ -54,7 +67,7 @@ final reactions = [
       Text(
         'Wow',
         style: TextStyle(
-          color: Color(0XFFffda6b),
+          color: Colors.black,
         ),
       ),
     ),
@@ -67,7 +80,7 @@ final reactions = [
       Text(
         'Sad',
         style: TextStyle(
-          color: Color(0XFFffda6b),
+          color: Colors.black,
         ),
       ),
     ),
@@ -80,7 +93,7 @@ final reactions = [
       Text(
         'Love',
         style: TextStyle(
-          color: Color(0XFFf05766),
+          color: Colors.black,
         ),
       ),
     ),
