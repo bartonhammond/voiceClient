@@ -20,6 +20,13 @@ class EmailSecureStore {
   }
 
   Future<String> getEmail() async {
-    return await flutterSecureStorage.read(key: storageUserEmailAddressKey);
+    String rtn;
+    try {
+      rtn = await flutterSecureStorage.read(key: storageUserEmailAddressKey);
+    } catch (e) {
+      //https://github.com/mogol/flutter_secure_storage/issues/43
+      flutterSecureStorage.deleteAll();
+    }
+    return rtn;
   }
 }

@@ -32,12 +32,14 @@ class AuthWidget extends StatelessWidget {
         Provider.of<LocaleSecureStore>(context, listen: false);
     final Locale locale = await localeSecureStore.getLocale();
     I18n.of(context).locale = locale;
+
     return locale;
   }
 
   FutureBuilder setupHomePage(BuildContext context, User user) {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     graphQLAuth.setUser(user);
+
     return FutureBuilder<dynamic>(
       future: Future.wait([
         graphQLAuth.setupEnvironment(),
@@ -75,10 +77,9 @@ class AuthWidget extends StatelessWidget {
     if (userSnapshot != null &&
         userSnapshot.connectionState == ConnectionState.active) {
       if (userSnapshot.hasError) {
-        final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
         logger.createMessage(
-          userEmail: graphQLAuth.getUser().email,
-          source: 'auth_widget',
+          userEmail: 'init',
+          source: 'auth_widget userSnapshot has error',
           shortMessage: userSnapshot.error.toString(),
           stackTrace: StackTrace.current.toString(),
         );

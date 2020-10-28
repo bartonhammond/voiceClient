@@ -15,6 +15,7 @@ import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
 import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 class MyApp extends StatelessWidget {
   // [initialAuthServiceType] is made configurable for testing
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
   Future<Locale> getDeviceLocal(BuildContext context) async {
     final LocaleSecureStore localeSecureStore =
         LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
+
     return localeSecureStore.getLocale();
   }
 
@@ -80,6 +82,10 @@ class MyApp extends StatelessWidget {
         AsyncSnapshot<User> userSnapshot,
       ) {
         setupServiceLocator(context);
+
+        if (isTesting) {
+          return testing(context, locale);
+        }
         return MaterialApp(
           theme: ThemeData(
             primarySwatch: myColorSwatch,
@@ -144,22 +150,24 @@ class MyApp extends StatelessWidget {
       services.DeviceOrientation.portraitDown,
       services.DeviceOrientation.portraitUp,
     ]);
-
     Locale locale;
     return FutureBuilder(
       future: getDeviceLocal(context),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           locale = snapshot.data;
-          if (!isTesting) {
-            return getMultiProvider(context, locale);
-          }
-          return testing(context, locale);
-        } else {
-          return const Center(
-            child: CircularProgressIndicator(),
+          return getMultiProvider(context, locale);
+        } else if (snapshot.hasError) {
+          logger.createMessage(
+            userEmail: 'initializing',
+            source: 'my_app',
+            shortMessage: 'snapshot has error ${snapshot.error}',
+            stackTrace: StackTrace.current.toString(),
           );
         }
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
       },
     );
   }
