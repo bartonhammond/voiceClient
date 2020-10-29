@@ -69,10 +69,10 @@ Future<void> runQueries(CustomObject customObject) async {
   final String email = customObject.email;
   print('runQueries $email');
   while (true) {
-    await getStories(graphQLClient, email, getUserStories, 'userStories');
+    await loadStories(graphQLClient, email, getUserStories, 'userStories');
     await Future<dynamic>.delayed(Duration(seconds: 1));
 
-    await getStories(
+    await loadStories(
         graphQLClient, email, getUserFriendsStories, 'userFriendsStories');
     await Future<dynamic>.delayed(Duration(seconds: 1));
 
@@ -99,7 +99,25 @@ Future<void> runQueries(CustomObject customObject) async {
   }
 }
 
-Future<void> getStories(
+Future<List<dynamic>> getStories(
+  GraphQLClient graphQLClient,
+  String email,
+  String storyQL,
+  String resultsName,
+) async {
+  final String cursor = DateTime.now().toIso8601String();
+
+  return await q.getStoriesQuery(
+    graphQLClient,
+    email,
+    200,
+    cursor,
+    storyQL,
+    resultsName,
+  );
+}
+
+Future<void> loadStories(
   GraphQLClient graphQLClient,
   String email,
   String storyQL,

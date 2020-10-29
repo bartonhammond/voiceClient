@@ -1,6 +1,6 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
 import 'package:uuid/uuid.dart';
@@ -8,8 +8,12 @@ import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import '../seed/graphQLClient.dart';
 import '../seed/queries.dart';
+import 'loadTest.dart';
 
 final List types = <String>['LIKE', 'WOW', 'JOY', 'HAHA', 'SAD', 'LOVE'];
+final List makeReactions = <bool>[false, false, true, false];
+final List storyHasReactions = <bool>[true, false, true, true, true];
+
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser();
   parser.addOption(
@@ -61,9 +65,7 @@ Future<void> process(ArgResults argResults) async {
     'bartonhammond@gmail.com',
   );
 
-  String json = jsonEncode(reactions);
-  Map<String, dynamic> foo = jsonDecode(json);
-  print('ok');
+  print('ok ${reactions.length}');
 }
 
 Future<void> build(ArgResults argResults) async {
@@ -75,52 +77,55 @@ Future<void> build(ArgResults argResults) async {
     'bartonhammond@gmail.com',
   );
 
-  final Random randonReaction = Random();
-  for (var i = 0; i < users.length; i++) {
-    users[i]['reaction'] = types[randonReaction.nextInt(6)];
-  }
-  String _storyId;
+  final stories = await getStories(
+    graphQLClient,
+    'bartonhammond@gmail.com',
+    getUserStories,
+    'userStories',
+  );
 
-  if (argResults['mode'] == 'prod') {
-    _storyId = 'e44ab8d0-ed45-11ea-8678-7da3b3f67897';
-  }
-  if (argResults['mode'] == 'dev') {
-    _storyId = 'e44ab8d0-ed45-11ea-8678-7da3b3f67897';
-  }
+  final Random randonReaction = Random();
+  final Random makeAReaction = Random();
+  final Random storyHasReaction = Random();
 
   final uuid = Uuid();
-  int limit = 0;
-  if (argResults['count'] == 'one') {
-    limit = 1;
-  }
-  if (argResults['count'] == 'all') {
-    limit = users.length;
-  }
 
-  for (var i = 0; i < limit; i++) {
-    final String _reactionId = uuid.v1();
+  for (var i = 0; i < stories.length; i++) {
+    if (!storyHasReactions[storyHasReaction.nextInt(5)]) {
+      continue;
+    }
 
-    //reaction
-    await createReaction(
-      graphQLClient,
-      _reactionId,
-      _storyId,
-      users[i]['reaction'],
-    );
+    for (var j = 0; j < 15; j++) {
+      if (!makeReactions[makeAReaction.nextInt(4)]) {
+        continue;
+      }
+      final String _reactionId = uuid.v1();
 
-    //from user
-    await addReactionFrom(
-      graphQLClient,
-      users[i]['id'],
-      _reactionId,
-    );
+      //reaction
+      await createReaction(
+        graphQLClient,
+        _reactionId,
+        stories[i]['id'],
+        types[randonReaction.nextInt(6)],
+      );
+      print('created reaction $_reactionId');
 
-    //from storyu
-    await addStoryReaction(
-      graphQLClient,
-      _storyId,
-      _reactionId,
-    );
+      //from user
+      await addReactionFrom(
+        graphQLClient,
+        users[i]['id'],
+        _reactionId,
+      );
+      print('added user ${users[i]["id"]}');
+
+      //from story
+      await addStoryReaction(
+        graphQLClient,
+        stories[i]['id'],
+        _reactionId,
+      );
+      print('added story ${stories[i]["id"]}');
+    }
   }
   return;
 }

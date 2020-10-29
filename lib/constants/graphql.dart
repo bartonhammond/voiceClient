@@ -555,6 +555,13 @@ userFriendsStories(
         name
       }
     }
+    totalReactions
+    totalLikes
+    totalWows
+    totalJoys
+    totalHahas
+    totalSads
+    totalLoves
   }
 }
 ''';

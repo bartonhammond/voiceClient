@@ -223,6 +223,37 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                   ),
+            Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width * .2,
+                        child: FlutterReactionButtonCheck(
+                          onReactionChanged: (reaction, isChecked) {
+                            print('reaction selected id: ${reaction.id}');
+                          },
+                          reactions: react.reactions,
+                          initialReaction: react.defaultInitialReaction,
+                          selectedReaction: react.reactions[0],
+                        ),
+                      ),
+                      InkWell(
+                          child: Text(
+                            Strings.gridStoryShowCommentsText
+                                .plural(commentsLength),
+                            style: TextStyle(
+                              color: Color(0xff00bcd4),
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _showComments = !_showComments;
+                            });
+                          }),
+                    ])),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               height: 1,
