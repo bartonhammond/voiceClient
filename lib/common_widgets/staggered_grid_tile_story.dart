@@ -1,10 +1,14 @@
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/debouncer.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_reaction_button/flutter_reaction_button.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
@@ -14,6 +18,7 @@ import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/common_widgets/reactions.dart' as react;
+import 'package:uuid/uuid.dart';
 
 import 'comments.dart';
 
@@ -24,11 +29,13 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.story,
     @required this.showFriend,
     @required this.onDelete,
+    @required this.onReaction,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
   final VoidCallback onDelete;
+  final VoidCallback onReaction;
 
   @override
   State<StatefulWidget> createState() => _StaggeredGridTileStoryState();
@@ -36,6 +43,13 @@ class StaggeredGridTileStory extends StatefulWidget {
 
 class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showComments = false;
+  final _debouncer = Debouncer(milliseconds: 500);
+
+  @override
+  void dispose() {
+    _debouncer.stop();
+    super.dispose();
+  }
 
   Future<void> callBack() async {
     try {
@@ -172,10 +186,11 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         .length;
     return Card(
       shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
           side: BorderSide(
-        color: Colors.grey,
-        width: 2.0,
-      )),
+            color: Colors.grey,
+            width: 2.0,
+          )),
       shadowColor: Colors.black,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -320,7 +335,45 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                         width: MediaQuery.of(context).size.width * .2,
                         child: FlutterReactionButtonCheck(
                           onReactionChanged: (reaction, isChecked) {
-                            print('reaction selected id: ${reaction.id}');
+                            _debouncer.run(() async {
+                              final GraphQLClient graphQLClient =
+                                  GraphQLProvider.of(context).value;
+                              final GraphQLAuth graphQLAuth =
+                                  locator<GraphQLAuth>();
+                              final uuid = Uuid();
+
+                              final String _reactionId = uuid.v1();
+
+                              //detach delete current story reaction for this user
+                              await deleteUserReactionToStory(
+                                graphQLClient,
+                                graphQLAuth.getUserMap()['email'],
+                                widget.story['id'],
+                              );
+
+                              //reaction
+                              await createReaction(
+                                graphQLClient,
+                                _reactionId,
+                                widget.story['id'],
+                                reactionTypes[reaction.id - 1],
+                              );
+
+                              //from user
+                              await addReactionFrom(
+                                graphQLClient,
+                                graphQLAuth.getUserMap()['id'],
+                                _reactionId,
+                              );
+
+                              //from story
+                              await addStoryReaction(
+                                graphQLClient,
+                                widget.story['id'],
+                                _reactionId,
+                              );
+                              widget.onReaction();
+                            });
                           },
                           reactions: react.reactions,
                           initialReaction: react.defaultInitialReaction,

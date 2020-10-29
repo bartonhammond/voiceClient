@@ -781,3 +781,11 @@ mutation AddStoryReaction($storyId: ID!, $reactionId: ID!) {
   }
 }
 ''';
+
+const String deleteUserReactionToStoryQL = r'''
+mutation deleteUserReactionToStory($storyId: String!, $email: String!) {
+  deleteUserReactionToStory(story: $storyId, email: $email){
+    id
+  }
+}
+''';

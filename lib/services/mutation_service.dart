@@ -390,6 +390,27 @@ Future<void> addStoryComments(
   return;
 }
 
+Future<void> deleteUserReactionToStory(
+  GraphQLClient graphQLClient,
+  String email,
+  String storyId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(deleteUserReactionToStoryQL),
+    variables: <String, dynamic>{
+      'email': email,
+      'storyId': storyId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
 Future<void> createReaction(
   GraphQLClient graphQLClient,
   String id,

@@ -25,10 +25,11 @@ class StaggeredGridTileMessage extends StatelessWidget {
       height: 200,
       child: Card(
         shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
             side: BorderSide(
-          color: Colors.grey,
-          width: 2.0,
-        )),
+              color: Colors.grey,
+              width: 2.0,
+            )),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[

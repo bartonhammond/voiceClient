@@ -90,12 +90,12 @@ Future<void> build(ArgResults argResults) async {
 
   final uuid = Uuid();
 
-  for (var i = 0; i < stories.length; i++) {
+  for (var story = 0; story < stories.length; story++) {
     if (!storyHasReactions[storyHasReaction.nextInt(5)]) {
       continue;
     }
 
-    for (var j = 0; j < 15; j++) {
+    for (var user = 0; user < 15; user++) {
       if (!makeReactions[makeAReaction.nextInt(4)]) {
         continue;
       }
@@ -105,7 +105,7 @@ Future<void> build(ArgResults argResults) async {
       await createReaction(
         graphQLClient,
         _reactionId,
-        stories[i]['id'],
+        stories[story]['id'],
         types[randonReaction.nextInt(6)],
       );
       print('created reaction $_reactionId');
@@ -113,18 +113,18 @@ Future<void> build(ArgResults argResults) async {
       //from user
       await addReactionFrom(
         graphQLClient,
-        users[i]['id'],
+        users[user]['id'],
         _reactionId,
       );
-      print('added user ${users[i]["id"]}');
+      print('added user ${users[user]["id"]}');
 
       //from story
       await addStoryReaction(
         graphQLClient,
-        stories[i]['id'],
+        stories[story]['id'],
         _reactionId,
       );
-      print('added story ${stories[i]["id"]}');
+      print('added story ${stories[story]["id"]}');
     }
   }
   return;

@@ -46,10 +46,11 @@ class StaggeredGridTileFriend extends StatelessWidget {
 
     return Card(
       shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
           side: BorderSide(
-        color: Colors.grey,
-        width: 2.0,
-      )),
+            color: Colors.grey,
+            width: 2.0,
+          )),
       shadowColor: Colors.white,
       child: GestureDetector(
         onTap: () {
