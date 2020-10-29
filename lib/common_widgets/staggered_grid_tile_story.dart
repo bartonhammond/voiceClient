@@ -29,13 +29,11 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.story,
     @required this.showFriend,
     @required this.onDelete,
-    @required this.onReaction,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
   final VoidCallback onDelete;
-  final VoidCallback onReaction;
 
   @override
   State<StatefulWidget> createState() => _StaggeredGridTileStoryState();
@@ -53,9 +51,13 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   Future<void> callBack() async {
     try {
+      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final QueryOptions _queryOptions = QueryOptions(
         documentNode: gql(getStoryByIdQL),
-        variables: <String, dynamic>{'id': widget.story['id']},
+        variables: <String, dynamic>{
+          'id': widget.story['id'],
+          'email': graphQLAuth.getUserMap()['email']
+        },
       );
 
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
@@ -372,11 +374,15 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                                 widget.story['id'],
                                 _reactionId,
                               );
-                              widget.onReaction();
+                              //get the updated story
+                              callBack();
                             });
                           },
                           reactions: react.reactions,
-                          initialReaction: react.defaultInitialReaction,
+                          initialReaction: widget.story['reactions'].length == 1
+                              ? react.reactions[reactionTypes.indexOf(
+                                  widget.story['reactions'][0]['type'])]
+                              : react.defaultInitialReaction,
                           selectedReaction: react.reactions[0],
                         ),
                       ),

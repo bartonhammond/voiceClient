@@ -29,9 +29,9 @@ enum TypeStoriesView {
 }
 final List reactionTypes = <String>[
   'LIKE',
-  'WOW',
-  'JOY',
   'HAHA',
+  'JOY',
+  'WOW',
   'SAD',
   'LOVE'
 ];

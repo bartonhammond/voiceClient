@@ -167,9 +167,13 @@ class _StoryPlayState extends State<StoryPlay>
     if (widget.params.isEmpty) {
       return null;
     }
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
-      variables: <String, dynamic>{'id': widget.params['id']},
+      variables: <String, dynamic>{
+        'id': widget.params['id'],
+        'email': graphQLAuth.getUserMap()['email']
+      },
     );
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 

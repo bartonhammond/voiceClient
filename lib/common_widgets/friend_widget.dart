@@ -25,6 +25,12 @@ Widget buildFriend(BuildContext context, Map<String, dynamic> user) {
       _width = _height = 100;
   }
   return Card(
+    shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
+        side: BorderSide(
+          color: Colors.grey,
+          width: 2.0,
+        )),
     child: Column(
       children: <Widget>[
         Center(

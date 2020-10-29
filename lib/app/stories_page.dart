@@ -329,9 +329,6 @@ class _StoriesPageState extends State<StoriesPage> {
                                           onDelete: () {
                                             setState(() {});
                                           },
-                                          onReaction: () {
-                                            setState(() {});
-                                          },
                                           story: Map<String, dynamic>.from(
                                               stories[index]),
                                         )
