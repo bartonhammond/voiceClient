@@ -4,6 +4,7 @@ import 'package:flutter_reaction_button/flutter_reaction_button.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
@@ -170,6 +171,11 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         .toList()
         .length;
     return Card(
+      shape: RoundedRectangleBorder(
+          side: BorderSide(
+        color: Colors.grey,
+        width: 2.0,
+      )),
       shadowColor: Colors.black,
       child: GestureDetector(
         behavior: HitTestBehavior.translucent,
@@ -182,6 +188,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         },
         child: Column(
           children: <Widget>[
+            SizedBox(height: 10),
             InkWell(
               onTap: () {
                 widget.onPush(<String, dynamic>{
@@ -223,36 +230,80 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
                   ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+              height: 1,
+              color: Colors.grey[300],
+            ),
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * .2,
-                        child: FlutterReactionButtonCheck(
-                          onReactionChanged: (reaction, isChecked) {
-                            print('reaction selected id: ${reaction.id}');
-                          },
-                          reactions: react.reactions,
-                          initialReaction: react.defaultInitialReaction,
-                          selectedReaction: react.reactions[0],
-                        ),
-                      ),
-                      InkWell(
-                          child: Text(
-                            Strings.gridStoryShowCommentsText
-                                .plural(commentsLength),
-                            style: TextStyle(
-                              color: Color(0xff00bcd4),
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _showComments = !_showComments;
-                            });
-                          }),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            widget.story['totalLikes'] > 0
+                                ? Image.asset(
+                                    'assets/images/like.png',
+                                    height: 20.0,
+                                  )
+                                : Container(),
+                            widget.story['totalHahas'] > 0
+                                ? Image.asset(
+                                    'assets/images/haha.png',
+                                    height: 20.0,
+                                  )
+                                : Container(),
+                            widget.story['totalJoys'] > 0
+                                ? Image.asset(
+                                    'assets/images/joy.png',
+                                    height: 20.0,
+                                  )
+                                : Container(),
+                            widget.story['totalWows'] > 0
+                                ? Image.asset(
+                                    'assets/images/wow.png',
+                                    height: 20.0,
+                                  )
+                                : Container(),
+                            widget.story['totalSads'] > 0
+                                ? Image.asset(
+                                    'assets/images/sad.png',
+                                    height: 20.0,
+                                  )
+                                : Container(),
+                            widget.story['totalLoves'] > 0
+                                ? Image.asset(
+                                    'assets/images/love.png',
+                                    height: 20.0,
+                                  )
+                                : Container(),
+                            widget.story['totalReactions'] > 0
+                                ? SizedBox(width: 5.0)
+                                : Container(),
+                            widget.story['totalReactions'] > 0
+                                ? Text(
+                                    widget.story['totalReactions'].toString())
+                                : Text(''),
+                          ]),
+                      commentsLength > 0
+                          ? InkWell(
+                              child: Text(
+                                Strings.gridStoryShowCommentsText
+                                    .plural(commentsLength),
+                                style: TextStyle(
+                                  color: Color(0xff00bcd4),
+                                  fontSize: 16.0,
+                                ),
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  _showComments = !_showComments;
+                                });
+                              })
+                          : Container(),
                     ])),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
@@ -260,7 +311,8 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               color: Colors.grey[300],
             ),
             Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -275,20 +327,20 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                           selectedReaction: react.reactions[0],
                         ),
                       ),
-                      InkWell(
-                          child: Text(
-                            Strings.gridStoryShowCommentsText
-                                .plural(commentsLength),
-                            style: TextStyle(
-                              color: Color(0xff00bcd4),
-                              fontSize: 16.0,
-                            ),
-                          ),
-                          onTap: () {
-                            setState(() {
-                              _showComments = !_showComments;
-                            });
-                          }),
+                      Row(children: <Widget>[
+                        Icon(
+                          Icons.comment_outlined,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 5),
+                        InkWell(
+                            child: Text('Comment'),
+                            onTap: () {
+                              setState(() {
+                                _showComments = !_showComments;
+                              });
+                            })
+                      ]),
                     ])),
             _showComments
                 ? Comments(
@@ -298,11 +350,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     fontSize: 12,
                   )
                 : Container(),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              height: 1,
-              color: Colors.grey[300],
-            ),
           ],
         ),
       ),

@@ -289,6 +289,13 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       }
       status
     }
+    totalReactions
+    totalLikes
+    totalWows
+    totalJoys
+    totalHahas
+    totalSads
+    totalLoves
   }
 }
 ''';
