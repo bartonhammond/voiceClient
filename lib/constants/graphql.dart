@@ -286,6 +286,7 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       name
       home
       image
+      id
     }
     comments {
       id
@@ -566,6 +567,7 @@ userFriendsStories(
       name
       home
       image
+      id
     }
     comments {
       id
