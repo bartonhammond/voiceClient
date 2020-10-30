@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/reaction_table.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
@@ -44,7 +45,7 @@ class StaggeredGridTileStory extends StatefulWidget {
 class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showComments = false;
   bool _showMakeComments = false;
-
+  bool _showReactionTotals = false;
   bool _uploadInProgress = false;
 
   io.File _commentAudio;
@@ -293,76 +294,84 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               color: Colors.grey[300],
             ),
             Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            widget.story['totalLikes'] > 0
-                                ? Image.asset(
-                                    'assets/images/like.png',
-                                    height: 20.0,
-                                  )
-                                : Container(),
-                            widget.story['totalHahas'] > 0
-                                ? Image.asset(
-                                    'assets/images/haha.png',
-                                    height: 20.0,
-                                  )
-                                : Container(),
-                            widget.story['totalJoys'] > 0
-                                ? Image.asset(
-                                    'assets/images/joy.png',
-                                    height: 20.0,
-                                  )
-                                : Container(),
-                            widget.story['totalWows'] > 0
-                                ? Image.asset(
-                                    'assets/images/wow.png',
-                                    height: 20.0,
-                                  )
-                                : Container(),
-                            widget.story['totalSads'] > 0
-                                ? Image.asset(
-                                    'assets/images/sad.png',
-                                    height: 20.0,
-                                  )
-                                : Container(),
-                            widget.story['totalLoves'] > 0
-                                ? Image.asset(
-                                    'assets/images/love.png',
-                                    height: 20.0,
-                                  )
-                                : Container(),
-                            widget.story['totalReactions'] > 0
-                                ? SizedBox(width: 5.0)
-                                : Container(),
-                            widget.story['totalReactions'] > 0
-                                ? Text(
-                                    widget.story['totalReactions'].toString())
-                                : Text(''),
-                          ]),
-                      commentsLength > 0
-                          ? InkWell(
-                              child: Text(
-                                Strings.gridStoryShowCommentsText
-                                    .plural(commentsLength),
-                                style: TextStyle(
-                                  color: Color(0xff00bcd4),
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                              onTap: () {
-                                setState(() {
-                                  _showComments = !_showComments;
-                                  _showMakeComments = false;
-                                });
-                              })
-                          : Container(),
-                    ])),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _showReactionTotals = !_showReactionTotals;
+                      });
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        widget.story['totalLikes'] > 0
+                            ? Image.asset(
+                                'assets/images/like.png',
+                                height: 20.0,
+                              )
+                            : Container(),
+                        widget.story['totalHahas'] > 0
+                            ? Image.asset(
+                                'assets/images/haha.png',
+                                height: 20.0,
+                              )
+                            : Container(),
+                        widget.story['totalJoys'] > 0
+                            ? Image.asset(
+                                'assets/images/joy.png',
+                                height: 20.0,
+                              )
+                            : Container(),
+                        widget.story['totalWows'] > 0
+                            ? Image.asset(
+                                'assets/images/wow.png',
+                                height: 20.0,
+                              )
+                            : Container(),
+                        widget.story['totalSads'] > 0
+                            ? Image.asset(
+                                'assets/images/sad.png',
+                                height: 20.0,
+                              )
+                            : Container(),
+                        widget.story['totalLoves'] > 0
+                            ? Image.asset(
+                                'assets/images/love.png',
+                                height: 20.0,
+                              )
+                            : Container(),
+                        widget.story['totalReactions'] > 0
+                            ? SizedBox(width: 5.0)
+                            : Container(),
+                        widget.story['totalReactions'] > 0
+                            ? Text(widget.story['totalReactions'].toString())
+                            : Text(''),
+                      ],
+                    ),
+                  ),
+                  commentsLength > 0
+                      ? InkWell(
+                          child: Text(
+                            Strings.gridStoryShowCommentsText
+                                .plural(commentsLength),
+                            style: TextStyle(
+                              color: Color(0xff00bcd4),
+                              fontSize: 16.0,
+                            ),
+                          ),
+                          onTap: () {
+                            setState(() {
+                              _showComments = !_showComments;
+                              _showMakeComments = false;
+                            });
+                          })
+                      : Container(),
+                ],
+              ),
+            ),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
               height: 1,
@@ -472,6 +481,20 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                         callBack();
                       }
                     },
+                  )
+                : Container(),
+            _showReactionTotals
+                ? Container(
+                    margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                    height: 1,
+                    color: Colors.grey[300],
+                  )
+                : Container(),
+            _showReactionTotals
+                ? Container(
+                    child: ReactionTable(
+                      story: widget.story,
+                    ),
                   )
                 : Container(),
             _showMakeComments
