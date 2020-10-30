@@ -35,3 +35,11 @@ final List reactionTypes = <String>[
   'SAD',
   'LOVE'
 ];
+enum ReactionType {
+  LIKE,
+  HAHA,
+  JOY,
+  WOW,
+  SAD,
+  LOVE,
+}

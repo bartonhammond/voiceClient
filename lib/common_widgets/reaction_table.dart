@@ -7,7 +7,6 @@ import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:MyFamilyVoice/common_widgets/reactions.dart' as react;
 
 class ReactionTable extends StatefulWidget {
   const ReactionTable({@required this.story});
@@ -17,25 +16,12 @@ class ReactionTable extends StatefulWidget {
 }
 
 class _State extends State<ReactionTable> {
-  bool sort;
-
   @override
   void initState() {
-    sort = false;
     super.initState();
   }
 
-  void onSortColum(int columnIndex, bool ascending) {
-    /*
-    if (columnIndex == 0) {
-      if (ascending) {
-        avengers.sort((a, b) => a.name.compareTo(b.name));
-      } else {
-        avengers.sort((a, b) => b.name.compareTo(a.name));
-      }
-    }
-    */
-  }
+  ReactionType _filter;
 
   Future<List> getReactions() async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -79,24 +65,80 @@ class _State extends State<ReactionTable> {
         });
   }
 
+  void onButtonClicked(ReactionType type) {
+    setState(() {
+      _filter = type;
+    });
+  }
+
   Widget getSingleScrollView(List reactions) {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text(
+            'Reactions',
+            style: TextStyle(
+              fontSize: 16.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           ButtonBar(
+            alignment: MainAxisAlignment.start,
             buttonHeight: 15,
             buttonMinWidth: 15,
-            // this will take space as minimum as posible(to center)
             children: <Widget>[
               //getButton(false, '', 'All  5'),
-              getButton(true, 'assets/images/like.png', false),
-              getButton(true, 'assets/images/haha.png', false),
-              getButton(true, 'assets/images/joy.png', false),
-              getButton(true, 'assets/images/wow.png', false),
-              getButton(true, 'assets/images/sad.png', false),
-              getButton(true, 'assets/images/love.png', false),
+              widget.story['totalLikes'] > 0
+                  ? getButton(
+                      ReactionType.LIKE,
+                      'assets/images/like.png',
+                      _filter == ReactionType.LIKE,
+                      widget.story['totalLikes'],
+                    )
+                  : Container(),
+              widget.story['totalHahas'] > 0
+                  ? getButton(
+                      ReactionType.HAHA,
+                      'assets/images/haha.png',
+                      _filter == ReactionType.HAHA,
+                      widget.story['totalHahas'],
+                    )
+                  : Container(),
+              widget.story['totalJoys'] > 0
+                  ? getButton(
+                      ReactionType.JOY,
+                      'assets/images/joy.png',
+                      _filter == ReactionType.JOY,
+                      widget.story['totalJoys'],
+                    )
+                  : Container(),
+              widget.story['totalWows'] > 0
+                  ? getButton(
+                      ReactionType.WOW,
+                      'assets/images/wow.png',
+                      _filter == ReactionType.WOW,
+                      widget.story['totalWows'],
+                    )
+                  : Container(),
+              widget.story['totalSads'] > 0
+                  ? getButton(
+                      ReactionType.SAD,
+                      'assets/images/sad.png',
+                      _filter == ReactionType.SAD,
+                      widget.story['totalSads'],
+                    )
+                  : Container(),
+              widget.story['totalLoves'] > 0
+                  ? getButton(
+                      ReactionType.LOVE,
+                      'assets/images/love.png',
+                      _filter == ReactionType.LOVE,
+                      widget.story['totalLoves'],
+                    )
+                  : Container(),
             ],
           ),
           Center(
@@ -104,7 +146,6 @@ class _State extends State<ReactionTable> {
               padding: const EdgeInsets.only(top: 0.0),
               child: DataTable(
                 headingRowHeight: 0.0,
-                sortAscending: sort,
                 sortColumnIndex: 0,
                 dataRowHeight: 80.0,
                 columns: const <DataColumn>[
@@ -118,19 +159,37 @@ class _State extends State<ReactionTable> {
                   ),
                 ],
                 rows: reactions
+                    .where((dynamic element) {
+                      if (_filter == null) {
+                        return true;
+                      }
+                      return element['type'] == reactionTypes[_filter.index];
+                    })
                     .map(
-                      (dynamic reaction) => DataRow(cells: [
-                        DataCell(
-                          getCard(reaction),
-                        ),
-                        DataCell(
-                          RaisedButton(
-                            onPressed: () {},
-                            child: const Text('Add Friend',
-                                style: TextStyle(fontSize: 15)),
+                      (dynamic reaction) => DataRow(
+                        cells: [
+                          DataCell(
+                            getCard(reaction),
                           ),
-                        ),
-                      ]),
+                          reaction['friend']
+                              //if friend, do nothing
+                              ? DataCell(Text(''))
+                              : reaction['userId'] ==
+                                      graphQLAuth.getUserMap()['id']
+                                  //if its you, do nothing
+                                  ? DataCell(
+                                      Text(''),
+                                    )
+                                  //if not a friend
+                                  : DataCell(
+                                      RaisedButton(
+                                        onPressed: () {},
+                                        child: const Text('Add Friend',
+                                            style: TextStyle(fontSize: 15)),
+                                      ),
+                                    ),
+                        ],
+                      ),
                     )
                     .toList(),
               ),
@@ -142,7 +201,10 @@ class _State extends State<ReactionTable> {
   }
 
   Widget getCard(Map reaction) {
+    String asset = reaction['type'];
+    asset = asset.toLowerCase();
     return ListTile(
+      isThreeLine: true,
       leading: Container(
         height: 30,
         child: ClipRRect(
@@ -160,35 +222,41 @@ class _State extends State<ReactionTable> {
         ),
       ),
       title: Text(reaction['name']),
-      react.reactions[reactionTypes
-                              .indexOf(reaction['type'])]
       subtitle: Image.asset(
-          asset,
-          height: 20,
-        ),,
+        'assets/images/$asset.png',
+        height: 20,
+      ),
     );
   }
 
   Widget getButton(
-    bool withAsset,
+    ReactionType type,
     String asset,
     bool isActive,
+    int count,
   ) {
     return Container(
+      height: 35,
       decoration: BoxDecoration(
           border: Border(
         bottom: BorderSide(
           width: 3,
-          color: isActive ? Colors.green : Colors.white,
+          color: isActive ? Color(0xff00bcd4) : Colors.white,
         ),
       )),
       child: RaisedButton(
-        onPressed: () {},
+        onPressed: () {
+          if (isActive) {
+            onButtonClicked(null);
+          } else {
+            onButtonClicked(type);
+          }
+        },
+        color: Colors.white,
         child: Image.asset(
           asset,
           height: 20,
         ),
-        color: Colors.white,
       ),
     );
   }
