@@ -1,11 +1,11 @@
 import 'dart:io';
 
+import 'package:MyFamilyVoice/my_app.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:MyFamilyVoice/common_main.dart';
 
 import 'app_config.dart';
-import 'my_app.dart';
 
 String get host => Platform.isAndroid ? '10.0.2.2' : 'localhost';
 void main() {

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:MyFamilyVoice/my_app.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/io_client.dart';
@@ -8,7 +9,6 @@ import 'package:MyFamilyVoice/common_main.dart';
 import 'package:MyFamilyVoice/constants/myfamilyvoice-cert.dart' as cert;
 
 import 'app_config.dart';
-import 'my_app.dart';
 
 String get host => Platform.isAndroid ? '10.0.2.2' : 'localhost';
 

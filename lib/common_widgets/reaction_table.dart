@@ -1,4 +1,3 @@
-import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
@@ -184,7 +183,7 @@ class _State extends State<ReactionTable> {
           ),
           Center(
             child: Padding(
-              padding: const EdgeInsets.only(top: 0.0),
+              padding: const EdgeInsets.only(top: 10.0),
               child: DataTable(
                 headingRowHeight: 0.0,
                 sortColumnIndex: 0,
@@ -230,6 +229,7 @@ class _State extends State<ReactionTable> {
                                           _newFriendRequest(reaction['userId']);
                                         },
                                         fontSize: 20,
+                                        icon: null,
                                       ),
                                     ),
                         ],
