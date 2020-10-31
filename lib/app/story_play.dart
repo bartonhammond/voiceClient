@@ -261,7 +261,7 @@ class _StoryPlayState extends State<StoryPlay>
             builder: (context) => CustomRaisedButton(
                   key: Key(Keys.commentsUploadButton),
                   icon: Icon(
-                    Icons.file_upload,
+                    Icons.cloud_upload,
                     color: Colors.white,
                   ),
                   text: Strings.upload.i18n,
@@ -292,7 +292,7 @@ class _StoryPlayState extends State<StoryPlay>
         : CustomRaisedButton(
             key: Key(Keys.storyPageUploadButton),
             icon: Icon(
-              Icons.file_upload,
+              Icons.cloud_upload,
               color: Colors.white,
             ),
             text: Strings.upload.i18n,

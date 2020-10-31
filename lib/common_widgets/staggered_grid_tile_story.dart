@@ -168,7 +168,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             builder: (context) => CustomRaisedButton(
               key: Key(Keys.commentsUploadButton),
               icon: Icon(
-                Icons.file_upload,
+                Icons.cloud_upload,
                 color: Colors.white,
               ),
               text: Strings.upload.i18n,
@@ -429,7 +429,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                 ),
                 Row(children: <Widget>[
                   Icon(
-                    Icons.comment_outlined,
+                    Icons.comment,
                     size: 20,
                   ),
                   const SizedBox(width: 5),
