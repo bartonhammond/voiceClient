@@ -1,6 +1,11 @@
 import 'dart:io' as io;
 
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
@@ -387,5 +392,161 @@ Future<void> addStoryComments(
     throw result.exception;
   }
 
+  return;
+}
+
+Future<void> deleteUserReactionToStory(
+  GraphQLClient graphQLClient,
+  String email,
+  String storyId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(deleteUserReactionToStoryQL),
+    variables: <String, dynamic>{
+      'email': email,
+      'storyId': storyId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> createReaction(
+  GraphQLClient graphQLClient,
+  String id,
+  String storyId,
+  String type,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(createReactionQL),
+    variables: <String, dynamic>{
+      'id': id,
+      'storyId': storyId,
+      'created': now.toIso8601String(),
+      'type': type,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addReactionFrom(
+  GraphQLClient graphQLClient,
+  String userId,
+  String reactionId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addReactionFromQL),
+    variables: <String, dynamic>{
+      'userId': userId,
+      'reactionId': reactionId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addStoryReaction(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String reactionId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addStoryReactionQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
+      'reactionId': reactionId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> doCommentUploads(BuildContext context, io.File _commentAudio,
+    Map<String, dynamic> _story) async {
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+  final GraphQLClient graphQLClientFileServer =
+      graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+  final GraphQLClient graphQLClientApolloServer =
+      GraphQLProvider.of(context).value;
+
+  final _uuid = Uuid();
+  final String _commentId = _uuid.v1();
+
+  final MultipartFile multipartFile = getMultipartFile(
+    _commentAudio,
+    '$_commentId.mp3',
+    'audio',
+    'mp3',
+  );
+
+  final String _audioFilePath = await performMutation(
+    graphQLClientFileServer,
+    multipartFile,
+    'mp3',
+  );
+
+  await createComment(
+    graphQLClientApolloServer,
+    _commentId,
+    _story['id'],
+    _audioFilePath,
+    'new',
+  );
+
+  await mergeCommentFrom(
+    graphQLClientApolloServer,
+    graphQLAuth.getCurrentUserId(),
+    _commentId,
+  );
+
+  await addStoryComments(
+    graphQLClientApolloServer,
+    _story['id'],
+    _commentId,
+  );
+
+  //make sure the updated field gets updated
+  await updateStory(
+    graphQLClientApolloServer,
+    _story['id'],
+    _story['image'],
+    _story['audio'],
+    _story['created']['formatted'],
+  );
+
+  await addUserMessages(
+    graphQLClientApolloServer,
+    graphQLAuth.getCurrentUserId(),
+    _story['user']['id'],
+    _uuid.v1(),
+    'new',
+    'Comment',
+    'comment',
+    _story['id'],
+  );
   return;
 }

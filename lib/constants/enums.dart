@@ -27,3 +27,19 @@ enum TypeStoriesView {
   allFriends,
   oneFriend,
 }
+final List reactionTypes = <String>[
+  'LIKE',
+  'HAHA',
+  'JOY',
+  'WOW',
+  'SAD',
+  'LOVE'
+];
+enum ReactionType {
+  LIKE,
+  HAHA,
+  JOY,
+  WOW,
+  SAD,
+  LOVE,
+}

@@ -28,8 +28,9 @@ query getUserByEmail($id: ID!) {
   }
 }
 ''';
+
 const String getStoryByIdQL = r'''
-query getStoryById($id: ID!) {
+query getStoryById($id: ID!, $email: String!) {
   Story(id: $id) {
     __typename
     id
@@ -61,6 +62,40 @@ query getStoryById($id: ID!) {
       }
       status
     }
+    reactions(filter: { from: { email: $email	} } ) {
+      id
+      type
+    }
+    totalReactions
+    totalLikes
+    totalWows
+    totalJoys
+    totalHahas
+    totalSads
+    totalLoves
+  }
+}
+''';
+
+const String getStoryReactionsByIdQL = r'''
+query storyReactions($id: String!, $email: String!) {
+storyReactions(
+  email: $email, 
+  id: $id
+  orderBy: [
+    type_asc
+  ]
+  ){
+    id
+    type
+    created{
+      formatted
+    }
+    userId
+    name
+    home
+    image
+    friend
   }
 }
 ''';
@@ -251,6 +286,7 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       name
       home
       image
+      id
     }
     comments {
       id
@@ -263,8 +299,22 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
         email
         name
       }
+      created {
+        formatted
+      }
       status
     }
+    reactions(filter: { from: { email: $email	} } ) {
+      id
+      type
+    }
+    totalReactions
+    totalLikes
+    totalWows
+    totalJoys
+    totalHahas
+    totalSads
+    totalLoves
   }
 }
 ''';
@@ -385,11 +435,14 @@ mutation addUserMessages($from: ID!, $to: ID!, $id: ID!, $created: String!, $sta
 ''';
 
 const String updateUserMessageStatusByIdQL = r'''
-mutation updateUserMessageStatusById($email: String!, $id: String! $status: String!){
+mutation updateUserMessageStatusById($email: String!, $id: String! $status: String!, $resolved: String!){
   updateUserMessageStatusById(
     email: $email
     id: $id
     status: $status
+    resolved: {
+      formatted: $resolved
+    }
   ){
     __typename
     messageId
@@ -514,6 +567,7 @@ userFriendsStories(
       name
       home
       image
+      id
     }
     comments {
       id
@@ -528,6 +582,17 @@ userFriendsStories(
         name
       }
     }
+    reactions(filter: { from: { email: $email	} } ) {
+      id
+      type
+    }
+    totalReactions
+    totalLikes
+    totalWows
+    totalJoys
+    totalHahas
+    totalSads
+    totalLoves
   }
 }
 ''';
@@ -676,6 +741,75 @@ mutation addStoryComments($storyId: ID!, $commentId: ID!) {
 			id
       audio
     }
+  }
+}
+''';
+
+const String createReactionQL = r'''
+mutation CreateReaction($id: ID!, $storyId: ID!, $created: String!, $type: ReactionType!) {
+  CreateReaction(
+    id: $id
+    story: $storyId
+    created: {
+      formatted: $created
+    }
+    type: $type
+  ) {
+    id
+    type
+    created {
+      formatted
+    }
+  }
+}
+''';
+
+const String addReactionFromQL = r'''
+mutation AddReactionFrom($userId: ID!, $reactionId: ID!) {
+  AddReactionFrom(
+    from: {
+      id: $userId
+    }
+    to: {
+      id: $reactionId
+    }
+  ) {
+    from {
+      email
+    }
+    to {
+        type
+    }
+    
+  }
+}
+''';
+
+const String addStoryReactionQL = r'''
+mutation AddStoryReaction($storyId: ID!, $reactionId: ID!) {
+  AddStoryReactions(
+    from: {
+      id: $storyId
+    }
+    to: {
+      id: $reactionId
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      type
+    }
+    
+  }
+}
+''';
+
+const String deleteUserReactionToStoryQL = r'''
+mutation deleteUserReactionToStory($storyId: String!, $email: String!) {
+  deleteUserReactionToStory(storyId: $storyId, email: $email){
+    id
   }
 }
 ''';

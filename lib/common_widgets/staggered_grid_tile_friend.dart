@@ -45,6 +45,12 @@ class StaggeredGridTileFriend extends StatelessWidget {
     }
 
     return Card(
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+          side: BorderSide(
+            color: Colors.grey,
+            width: 2.0,
+          )),
       shadowColor: Colors.white,
       child: GestureDetector(
         onTap: () {
@@ -56,6 +62,9 @@ class StaggeredGridTileFriend extends StatelessWidget {
         },
         child: Column(
           children: <Widget>[
+            SizedBox(
+              height: 10,
+            ),
             Center(
               child: friend['image'] == null
                   ? Image(
@@ -79,21 +88,26 @@ class StaggeredGridTileFriend extends StatelessWidget {
                       ),
                     ),
             ),
-            Text(
+            Center(
+                child: Text(
               friend['name'] == null
                   ? Strings.yourFullNameLabel.i18n
                   : friend['name'],
               style:
                   TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
-            ),
+            )),
             friend['home'] == null
                 ? Container()
-                : Text(
+                : Center(
+                    child: Text(
                     friend['home'],
                     style: TextStyle(
                         fontWeight: FontWeight.bold, fontSize: _fontSize),
-                  ),
-            friendButton
+                  )),
+            friendButton,
+            SizedBox(
+              height: 10,
+            )
           ],
         ),
       ),

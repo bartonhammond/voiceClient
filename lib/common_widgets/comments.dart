@@ -33,15 +33,10 @@ class Comments extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            PlayerWidget(
-              key: Key("playWidget${comment['id']}"),
-              url: host(comment['audio']),
-              showSlider: false,
-            ),
-          ],
+        PlayerWidget(
+          key: Key("playWidget${comment['id']}"),
+          url: host(comment['audio']),
+          showSlider: true,
         ),
         Text(
           comment['from']['name'],
@@ -116,10 +111,10 @@ class Comments extends StatelessWidget {
     for (var i = 0; i < comments.length; i++) {
       _comments.add(_getCommentDetail(comments[i], fontSize));
       if (i < comments.length - 1) {
-        _comments.add(Divider(
-          indent: 50,
-          endIndent: 50,
-          thickness: 3.0,
+        _comments.add(Container(
+          margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+          height: 1,
+          color: Colors.grey[300],
         ));
       }
     }
@@ -129,6 +124,7 @@ class Comments extends StatelessWidget {
     }
     return Container(
       height: heightContainer,
+      width: 200,
       child: Scrollbar(
         child: ListView.builder(
           padding: const EdgeInsets.all(8),

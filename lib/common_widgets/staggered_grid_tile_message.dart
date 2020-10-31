@@ -24,9 +24,16 @@ class StaggeredGridTileMessage extends StatelessWidget {
     return Container(
       height: 200,
       child: Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15.0),
+            side: BorderSide(
+              color: Colors.grey,
+              width: 2.0,
+            )),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
+            SizedBox(height: 10),
             Center(
               child: Text(
                 title,
@@ -64,10 +71,14 @@ class StaggeredGridTileMessage extends StatelessWidget {
                   : message['User']['home'],
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
             ),
-            ButtonBar(mainAxisSize: MainAxisSize.min, children: <Widget>[
-              approveButton,
-              rejectButton,
-            ])
+            ButtonBar(
+              mainAxisSize: MainAxisSize.min,
+              buttonHeight: 20,
+              children: <Widget>[
+                approveButton,
+                rejectButton,
+              ],
+            )
           ],
         ),
       ),
