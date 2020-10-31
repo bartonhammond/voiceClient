@@ -235,302 +235,295 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             width: 2.0,
           )),
       shadowColor: Colors.black,
-      child: GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          widget.onPush(<String, dynamic>{
-            'id': widget.story['id'],
-            'onFinish': callBack,
-            'onDelete': widget.onDelete,
-          });
-        },
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 10),
-            InkWell(
-              onTap: () {
-                widget.onPush(<String, dynamic>{
-                  'id': widget.story['id'],
-                  'onFinish': callBack,
-                  'onDelete': widget.onDelete,
-                });
-              },
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: FadeInImage.memoryNetwork(
-                  placeholder: kTransparentImage,
-                  image: host(
-                    widget.story['image'],
-                    width: _width,
-                    height: _height,
-                  ),
+      child: Column(
+        children: <Widget>[
+          SizedBox(height: 10),
+          InkWell(
+            onTap: () {
+              widget.onPush(<String, dynamic>{
+                'id': widget.story['id'],
+                'onFinish': callBack,
+                'onDelete': widget.onDelete,
+              });
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(25.0),
+              child: FadeInImage.memoryNetwork(
+                placeholder: kTransparentImage,
+                image: host(
+                  widget.story['image'],
+                  width: _width,
+                  height: _height,
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Column(
-                children: <Widget>[
-                  PlayerWidget(
-                    key: Key("playWidget${widget.story['id']}"),
-                    url: host(
-                      widget.story['audio'],
-                    ),
-                    width: _width,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Column(
+              children: <Widget>[
+                PlayerWidget(
+                  key: Key("playWidget${widget.story['id']}"),
+                  url: host(
+                    widget.story['audio'],
                   ),
-                ],
-              ),
+                  width: _width,
+                ),
+              ],
             ),
-            widget.showFriend
-                ? buildFriend()
-                : Text(
-                    df.format(dt),
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+          ),
+          widget.showFriend
+              ? buildFriend()
+              : Text(
+                  df.format(dt),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),
+                ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+            height: 1,
+            color: Colors.grey[300],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      _showReactionTotals = !_showReactionTotals;
+                      _showComments = false;
+                      _showMakeComments = false;
+                    });
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      widget.story['totalLikes'] > 0
+                          ? Image.asset(
+                              'assets/images/like.png',
+                              height: 20.0,
+                            )
+                          : Container(),
+                      widget.story['totalHahas'] > 0
+                          ? Image.asset(
+                              'assets/images/haha.png',
+                              height: 20.0,
+                            )
+                          : Container(),
+                      widget.story['totalJoys'] > 0
+                          ? Image.asset(
+                              'assets/images/joy.png',
+                              height: 20.0,
+                            )
+                          : Container(),
+                      widget.story['totalWows'] > 0
+                          ? Image.asset(
+                              'assets/images/wow.png',
+                              height: 20.0,
+                            )
+                          : Container(),
+                      widget.story['totalSads'] > 0
+                          ? Image.asset(
+                              'assets/images/sad.png',
+                              height: 20.0,
+                            )
+                          : Container(),
+                      widget.story['totalLoves'] > 0
+                          ? Image.asset(
+                              'assets/images/love.png',
+                              height: 20.0,
+                            )
+                          : Container(),
+                      widget.story['totalReactions'] > 0
+                          ? SizedBox(width: 5.0)
+                          : Container(),
+                      widget.story['totalReactions'] > 0
+                          ? Text(widget.story['totalReactions'].toString())
+                          : Text(''),
+                    ],
                   ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              height: 1,
-              color: Colors.grey[300],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  InkWell(
-                    onTap: () {
-                      setState(() {
-                        _showReactionTotals = !_showReactionTotals;
-                      });
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        widget.story['totalLikes'] > 0
-                            ? Image.asset(
-                                'assets/images/like.png',
-                                height: 20.0,
-                              )
-                            : Container(),
-                        widget.story['totalHahas'] > 0
-                            ? Image.asset(
-                                'assets/images/haha.png',
-                                height: 20.0,
-                              )
-                            : Container(),
-                        widget.story['totalJoys'] > 0
-                            ? Image.asset(
-                                'assets/images/joy.png',
-                                height: 20.0,
-                              )
-                            : Container(),
-                        widget.story['totalWows'] > 0
-                            ? Image.asset(
-                                'assets/images/wow.png',
-                                height: 20.0,
-                              )
-                            : Container(),
-                        widget.story['totalSads'] > 0
-                            ? Image.asset(
-                                'assets/images/sad.png',
-                                height: 20.0,
-                              )
-                            : Container(),
-                        widget.story['totalLoves'] > 0
-                            ? Image.asset(
-                                'assets/images/love.png',
-                                height: 20.0,
-                              )
-                            : Container(),
-                        widget.story['totalReactions'] > 0
-                            ? SizedBox(width: 5.0)
-                            : Container(),
-                        widget.story['totalReactions'] > 0
-                            ? Text(widget.story['totalReactions'].toString())
-                            : Text(''),
-                      ],
-                    ),
-                  ),
-                  commentsLength > 0
-                      ? InkWell(
-                          child: Text(
-                            Strings.gridStoryShowCommentsText
-                                .plural(commentsLength),
-                            style: TextStyle(
-                              color: Color(0xff00bcd4),
-                              fontSize: 16.0,
-                            ),
+                ),
+                commentsLength > 0
+                    ? InkWell(
+                        child: Text(
+                          Strings.gridStoryShowCommentsText
+                              .plural(commentsLength),
+                          style: TextStyle(
+                            color: Color(0xff00bcd4),
+                            fontSize: 16.0,
                           ),
-                          onTap: () {
-                            setState(() {
-                              _showComments = !_showComments;
-                              _showMakeComments = false;
-                            });
-                          })
-                      : Container(),
-                ],
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-              height: 1,
-              color: Colors.grey[300],
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width * .2,
-                    child: FlutterReactionButtonCheck(
-                      onReactionChanged: (reaction, isChecked) async {
-                        final GraphQLClient graphQLClient =
-                            GraphQLProvider.of(context).value;
-                        final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-                        final uuid = Uuid();
-
-                        final String _reactionId = uuid.v1();
-
-                        //detach delete current story reaction for this user
-                        await deleteUserReactionToStory(
-                          graphQLClient,
-                          graphQLAuth.getUserMap()['email'],
-                          widget.story['id'],
-                        );
-
-                        if (isChecked) {
-                          //reaction
-                          await createReaction(
-                            graphQLClient,
-                            _reactionId,
-                            widget.story['id'],
-                            reactionTypes[reaction.id - 1],
-                          );
-
-                          //from user
-                          await addReactionFrom(
-                            graphQLClient,
-                            graphQLAuth.getUserMap()['id'],
-                            _reactionId,
-                          );
-
-                          //from story
-                          await addStoryReaction(
-                            graphQLClient,
-                            widget.story['id'],
-                            _reactionId,
-                          );
-                        }
-                        //get the updated story
-                        callBack();
-                      },
-                      reactions: react.reactions,
-                      initialReaction: widget.story['reactions'].length == 1
-                          ? react.reactions[reactionTypes
-                              .indexOf(widget.story['reactions'][0]['type'])]
-                          : react.defaultInitialReaction,
-                      selectedReaction: react.defaultInitialReaction,
-                    ),
-                  ),
-                  Row(children: <Widget>[
-                    Icon(
-                      Icons.comment_outlined,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 5),
-                    InkWell(
-                        child: Text('Comment'),
+                        ),
                         onTap: () {
                           setState(() {
-                            _showMakeComments = !_showMakeComments;
-                            _showComments = false;
+                            _showComments = !_showComments;
+                            _showMakeComments = false;
+                            _showReactionTotals = false;
                           });
                         })
-                  ]),
-                ],
-              ),
+                    : Container(),
+              ],
             ),
-            _showComments
-                ? Container(
-                    margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                    height: 1,
-                    color: Colors.grey[300],
-                  )
-                : Container(),
-            _showComments
-                ? Comments(
-                    showExpand: true,
-                    key: Key(
-                        '${Keys.commentsWidgetExpansionTile}-${widget.story["id"]}'),
-                    story: widget.story,
-                    fontSize: 12,
-                    onClickDelete: (Map<String, dynamic> _comment) async {
-                      final bool _deleteComment = await PlatformAlertDialog(
-                        title: Strings.deleteComment.i18n,
-                        content: Strings.areYouSure.i18n,
-                        cancelActionText: Strings.cancel.i18n,
-                        defaultActionText: Strings.yes.i18n,
-                      ).show(context);
-                      if (_deleteComment == true) {
-                        await deleteComment(
-                          GraphQLProvider.of(context).value,
-                          _comment['id'],
+          ),
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+            height: 1,
+            color: Colors.grey[300],
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width * .2,
+                  child: FlutterReactionButtonCheck(
+                    onReactionChanged: (reaction, isChecked) async {
+                      final GraphQLClient graphQLClient =
+                          GraphQLProvider.of(context).value;
+                      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+                      final uuid = Uuid();
+
+                      final String _reactionId = uuid.v1();
+
+                      //detach delete current story reaction for this user
+                      await deleteUserReactionToStory(
+                        graphQLClient,
+                        graphQLAuth.getUserMap()['email'],
+                        widget.story['id'],
+                      );
+
+                      if (isChecked) {
+                        //reaction
+                        await createReaction(
+                          graphQLClient,
+                          _reactionId,
+                          widget.story['id'],
+                          reactionTypes[reaction.id - 1],
                         );
-                        callBack();
+
+                        //from user
+                        await addReactionFrom(
+                          graphQLClient,
+                          graphQLAuth.getUserMap()['id'],
+                          _reactionId,
+                        );
+
+                        //from story
+                        await addStoryReaction(
+                          graphQLClient,
+                          widget.story['id'],
+                          _reactionId,
+                        );
                       }
+                      //get the updated story
+                      callBack();
                     },
-                  )
-                : Container(),
-            _showReactionTotals
-                ? Container(
-                    margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                    height: 1,
-                    color: Colors.grey[300],
-                  )
-                : Container(),
-            _showReactionTotals
-                ? Container(
-                    child: ReactionTable(
-                      story: widget.story,
-                    ),
-                  )
-                : Container(),
-            _showMakeComments
-                ? Container(
-                    margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-                    height: 1,
-                    color: Colors.grey[300],
-                  )
-                : Container(),
-            _showMakeComments
-                ? Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                        Text(Strings.recordAComment.i18n,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16)),
-                        SizedBox(
-                          height: 20,
-                        ),
-                        RecorderWidget(
-                          isCurrentUserAuthor: true,
-                          setAudioFile: setCommentAudioFile,
-                          timerDuration: 90,
-                        ),
-                        if (_commentAudio != null) _buildUploadButton(context),
-                        Divider(
-                          indent: 50,
-                          endIndent: 50,
-                          height: 20,
-                          thickness: 5,
-                        )
-                      ])
-                : Container(),
-          ],
-        ),
+                    reactions: react.reactions,
+                    initialReaction: widget.story['reactions'].length == 1
+                        ? react.reactions[reactionTypes
+                            .indexOf(widget.story['reactions'][0]['type'])]
+                        : react.defaultInitialReaction,
+                    selectedReaction: react.defaultInitialReaction,
+                  ),
+                ),
+                Row(children: <Widget>[
+                  Icon(
+                    Icons.comment_outlined,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 5),
+                  InkWell(
+                      child: Text('Comment'),
+                      onTap: () {
+                        setState(() {
+                          _showMakeComments = !_showMakeComments;
+                          _showComments = false;
+                          _showReactionTotals = false;
+                        });
+                      })
+                ]),
+              ],
+            ),
+          ),
+          _showComments
+              ? Container(
+                  margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  height: 1,
+                  color: Colors.grey[300],
+                )
+              : Container(),
+          _showComments
+              ? Comments(
+                  showExpand: true,
+                  key: Key(
+                      '${Keys.commentsWidgetExpansionTile}-${widget.story["id"]}'),
+                  story: widget.story,
+                  fontSize: 12,
+                  onClickDelete: (Map<String, dynamic> _comment) async {
+                    final bool _deleteComment = await PlatformAlertDialog(
+                      title: Strings.deleteComment.i18n,
+                      content: Strings.areYouSure.i18n,
+                      cancelActionText: Strings.cancel.i18n,
+                      defaultActionText: Strings.yes.i18n,
+                    ).show(context);
+                    if (_deleteComment == true) {
+                      await deleteComment(
+                        GraphQLProvider.of(context).value,
+                        _comment['id'],
+                      );
+                      callBack();
+                    }
+                  },
+                )
+              : Container(),
+          _showReactionTotals
+              ? Container(
+                  margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  height: 1,
+                  color: Colors.grey[300],
+                )
+              : Container(),
+          _showReactionTotals
+              ? Container(
+                  child: ReactionTable(
+                    story: widget.story,
+                  ),
+                )
+              : Container(),
+          _showMakeComments
+              ? Container(
+                  margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  height: 1,
+                  color: Colors.grey[300],
+                )
+              : Container(),
+          _showMakeComments
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                      Text(Strings.recordAComment.i18n,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      RecorderWidget(
+                        isCurrentUserAuthor: true,
+                        setAudioFile: setCommentAudioFile,
+                        timerDuration: 90,
+                      ),
+                      if (_commentAudio != null) _buildUploadButton(context),
+                      Divider(
+                        indent: 50,
+                        endIndent: 50,
+                        height: 20,
+                        thickness: 5,
+                      )
+                    ])
+              : Container(),
+        ],
       ),
     );
   }

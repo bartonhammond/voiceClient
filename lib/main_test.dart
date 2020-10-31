@@ -16,12 +16,12 @@ void main() {
 
   final configuredApp = AppConfig(
     flavorName: 'Test',
-    apiBaseUrl: 'https://myfamilyvoice.com',
+    apiBaseUrl: 'http://dev-myfamilyvoice.com',
     getHttpLink: getHttpLink,
     isSecured: false,
     child: MyApp(
       isTesting: true,
-      userEmail: 'charlesjameshammond@gmail.com',
+      userEmail: 'bartonhammond@gmail.com',
     ),
   );
 

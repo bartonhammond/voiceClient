@@ -1,12 +1,21 @@
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:uuid/uuid.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 class ReactionTable extends StatefulWidget {
   const ReactionTable({@required this.story});
@@ -69,6 +78,38 @@ class _State extends State<ReactionTable> {
     setState(() {
       _filter = type;
     });
+  }
+
+  Future<void> _newFriendRequest(String _friendId) async {
+    final bool addNewFriend = await PlatformAlertDialog(
+      title: Strings.requestFriendship.i18n,
+      content: Strings.areYouSure.i18n,
+      cancelActionText: Strings.cancel.i18n,
+      defaultActionText: Strings.yes.i18n,
+    ).show(context);
+    if (addNewFriend == true) {
+      final _uuid = Uuid();
+      try {
+        await addUserMessages(
+          GraphQLProvider.of(context).value,
+          locator<GraphQLAuth>().getCurrentUserId(),
+          _friendId,
+          _uuid.v1(),
+          'new',
+          'Friend Request',
+          'friend-request',
+          null,
+        );
+      } catch (e) {
+        logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'reaction_table',
+            shortMessage: e.toString(),
+            stackTrace: StackTrace.current.toString());
+        rethrow;
+      }
+    }
+    return;
   }
 
   Widget getSingleScrollView(List reactions) {
@@ -182,10 +223,13 @@ class _State extends State<ReactionTable> {
                                     )
                                   //if not a friend
                                   : DataCell(
-                                      RaisedButton(
-                                        onPressed: () {},
-                                        child: const Text('Add Friend',
-                                            style: TextStyle(fontSize: 15)),
+                                      MessageButton(
+                                        key: Key('${Keys.newFriendsButton}'),
+                                        text: 'Friend',
+                                        onPressed: () {
+                                          _newFriendRequest(reaction['userId']);
+                                        },
+                                        fontSize: 20,
                                       ),
                                     ),
                         ],
