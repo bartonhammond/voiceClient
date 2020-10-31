@@ -52,7 +52,7 @@ dependencies:
   intl: ^0.16.1
   image_cropper: ^1.2.3
   image_picker: ^0.6.7+2
-  material_design_icons_flutter: 4.0.5345
+  material_design_icons_flutter: 4.0.5755
   package_info: ^0.4.0+13
   path_provider: ^1.6.11
   provider: ^4.0.1
