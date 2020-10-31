@@ -167,9 +167,13 @@ class _StoryPlayState extends State<StoryPlay>
     if (widget.params.isEmpty) {
       return null;
     }
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
-      variables: <String, dynamic>{'id': widget.params['id']},
+      variables: <String, dynamic>{
+        'id': widget.params['id'],
+        'email': graphQLAuth.getUserMap()['email']
+      },
     );
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
@@ -250,72 +254,6 @@ class _StoryPlayState extends State<StoryPlay>
     return;
   }
 
-  Future<void> doCommentUploads(BuildContext context) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
-    final GraphQLClient graphQLClientApolloServer =
-        GraphQLProvider.of(context).value;
-
-    final String _commentId = _uuid.v1();
-
-    final MultipartFile multipartFile = getMultipartFile(
-      _commentAudio,
-      '$_commentId.mp3',
-      'audio',
-      'mp3',
-    );
-
-    final String _audioFilePath = await performMutation(
-      graphQLClientFileServer,
-      multipartFile,
-      'mp3',
-    );
-
-    await createComment(
-      graphQLClientApolloServer,
-      _commentId,
-      _story['id'],
-      _audioFilePath,
-      'new',
-    );
-
-    await mergeCommentFrom(
-      graphQLClientApolloServer,
-      graphQLAuth.getCurrentUserId(),
-      _commentId,
-    );
-
-    await addStoryComments(
-      graphQLClientApolloServer,
-      _story['id'],
-      _commentId,
-    );
-
-    //make sure the updated field gets updated
-    await updateStory(
-      graphQLClientApolloServer,
-      _story['id'],
-      _story['image'],
-      _story['audio'],
-      _story['created']['formatted'],
-    );
-
-    await addUserMessages(
-      graphQLClientApolloServer,
-      graphQLAuth.getCurrentUserId(),
-      _story['user']['id'],
-      _uuid.v1(),
-      'new',
-      'Comment',
-      'comment',
-      _story['id'],
-    );
-    return;
-  }
-
   Widget _buildUploadButton(BuildContext context) {
     return _uploadInProgress
         ? CircularProgressIndicator()
@@ -331,7 +269,11 @@ class _StoryPlayState extends State<StoryPlay>
                     setState(() {
                       _uploadInProgress = true;
                     });
-                    await doCommentUploads(context);
+                    await doCommentUploads(
+                      context,
+                      _commentAudio,
+                      _story,
+                    );
                     setState(() {
                       _commentAudio = null;
                       _uploadInProgress = false;
@@ -653,7 +595,7 @@ class _StoryPlayState extends State<StoryPlay>
                                   height: _spacer.toDouble(),
                                 ),
                                 RecorderWidget(
-                                  isCurrentUserAuthor: true,
+                                  isCurrentUserAuthor: _isCurrentUserAuthor,
                                   setAudioFile: setCommentAudioFile,
                                   timerDuration: 90,
                                 ),

@@ -296,7 +296,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
         resetPosition: true,
       );
     }
-    if (widget.url != null) {
+    if (widget.url != null && widget.url.isNotEmpty) {
       return PlayerWidget(
         width: widget.width,
         path: '',
@@ -330,15 +330,17 @@ class _RecorderWidgetState extends State<RecorderWidget>
             ],
           ),
           getRecordWidget(),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.max,
-              children: <Widget>[
-                SizedBox(
-                  height: 8,
-                ),
-                getCountdownTimer(),
-              ]),
+          widget.isCurrentUserAuthor
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.max,
+                  children: <Widget>[
+                      SizedBox(
+                        height: 8,
+                      ),
+                      getCountdownTimer(),
+                    ])
+              : Container(),
         ],
       ),
     );

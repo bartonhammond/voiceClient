@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -22,27 +23,6 @@ import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
-
-class Debouncer {
-  Debouncer({this.milliseconds});
-  final int milliseconds;
-  VoidCallback action;
-  Timer _timer;
-
-  void run(VoidCallback action) {
-    if (null != _timer) {
-      _timer.cancel();
-    }
-    _timer = Timer(Duration(milliseconds: milliseconds), action);
-    return;
-  }
-
-  void stop() {
-    if (null != _timer) {
-      _timer.cancel();
-    }
-  }
-}
 
 class FriendsPage extends StatefulWidget {
   const FriendsPage({
