@@ -440,9 +440,7 @@ mutation updateUserMessageStatusById($email: String!, $id: String! $status: Stri
     email: $email
     id: $id
     status: $status
-    resolved: {
-      formatted: $resolved
-    }
+    resolved: $resolved
   ){
     __typename
     messageId

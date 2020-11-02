@@ -4,6 +4,7 @@ import 'dart:io' as io;
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_timer/simple_timer.dart';
@@ -263,6 +264,15 @@ class _RecorderWidgetState extends State<RecorderWidget>
 
   Widget getRecordWidget() {
     if (widget.isCurrentUserAuthor) {
+      double level = _current?.metering?.averagePower;
+      if (level != null) {
+        level += 100;
+      } else {
+        level = 0;
+      }
+      if (_currentStatus == RecordingStatus.Stopped) {
+        level = 0;
+      }
       return Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
@@ -281,6 +291,29 @@ class _RecorderWidgetState extends State<RecorderWidget>
                   : null,
               onPressed: _stopButtonEnabled ? _stop : null,
             ),
+            SizedBox(
+              width: 4,
+            ),
+            Container(
+              height: 40,
+              child: FAProgressBar(
+                currentValue: level.toInt(),
+                maxValue: 100,
+                size: 40,
+                animatedDuration: const Duration(milliseconds: 400),
+                direction: Axis.vertical,
+                verticalDirection: VerticalDirection.up,
+                borderRadius: 0,
+                border: Border.all(
+                  color: Colors.indigo,
+                  width: 0.5,
+                ),
+                backgroundColor: Colors.white,
+                progressColor: Colors.red,
+                changeColorValue: 75,
+                changeProgressColor: Colors.green,
+              ),
+            )
           ]);
     }
     return Container();

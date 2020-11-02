@@ -123,6 +123,11 @@ class Comments extends StatelessWidget {
       heightContainer = 250;
     }
     return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Color(0xff00bcd4),
+        ),
+      ),
       height: heightContainer,
       width: 200,
       child: Scrollbar(
