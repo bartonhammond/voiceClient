@@ -469,22 +469,14 @@ class _StoryPlayState extends State<StoryPlay>
                 defaultActionText: Strings.yes.i18n,
               ).show(context);
               if (_deleteStory == true) {
-                for (var _comment in _story['comments']) {
-                  await removeStoryComment(
-                    GraphQLProvider.of(context).value,
-                    _story['id'],
-                    _comment['id'],
-                  );
-
-                  await deleteComment(
-                    GraphQLProvider.of(context).value,
-                    _comment['id'],
-                  );
-                }
-
+                final String id = _story['id'];
                 await deleteStory(
                   GraphQLProvider.of(context).value,
-                  _story['id'],
+                  id,
+                );
+                await deleteMessage(
+                  GraphQLProvider.of(context).value,
+                  id,
                 );
 
                 if (widget.params.isNotEmpty &&

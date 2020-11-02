@@ -136,7 +136,28 @@ Future<void> deleteStory(
   final MutationOptions _mutationOptions = MutationOptions(
     documentNode: gql(deleteStoryQL),
     variables: <String, dynamic>{
-      'id': storyId,
+      'storyId': storyId,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return;
+}
+
+Future<void> deleteMessage(
+  GraphQLClient graphQLClientApolloServer,
+  String storyId,
+) async {
+  //delete the message
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(deleteMessageQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
     },
   );
 
@@ -537,6 +558,11 @@ Future<void> doCommentUploads(BuildContext context, io.File _commentAudio,
     _story['audio'],
     _story['created']['formatted'],
   );
+
+  //don't create message if it's your story
+  if (graphQLAuth.getCurrentUserId() == _story['user']['id']) {
+    return;
+  }
 
   await addUserMessages(
     graphQLClientApolloServer,
