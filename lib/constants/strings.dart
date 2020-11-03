@@ -122,7 +122,7 @@ class Strings {
 
   //Staggered Grid Tile Message
   static const String friendRequest = 'Friend Request';
-  static const String commentRequest = 'New Comment';
+  static const String commentRequest = 'Comment';
 
   // Developer menu
   static const String developerMenu = 'Developer menu';

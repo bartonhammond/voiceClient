@@ -381,7 +381,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.commentRequest,
-        'es': 'Nuevo comentario',
+        'es': 'Comentario',
       } +
       {
         'en': Strings.developerMenu,

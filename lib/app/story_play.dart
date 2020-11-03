@@ -1,5 +1,5 @@
 import 'dart:io' as io;
-import 'dart:io';
+
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/comments.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
@@ -43,9 +43,14 @@ class _StoryPlayState extends State<StoryPlay>
   io.File _storyAudio;
   io.File _commentAudio;
 
+  String _imageFilePath;
+  String _audioFilePath;
+
   bool _uploadInProgress = false;
 
   final _uuid = Uuid();
+  String _id;
+
   bool _isCurrentUserAuthor = false;
 
   final _formKey = GlobalKey<FormState>();
@@ -59,6 +64,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   @override
   void initState() {
+    _id = _uuid.v1();
     super.initState();
   }
 
@@ -91,15 +97,37 @@ class _StoryPlayState extends State<StoryPlay>
     super.dispose();
   }
 
-  void setCommentAudioFile(io.File audio) {
+  Future<void> setCommentAudioFile(io.File audio) async {
     setState(() {
       _commentAudio = audio;
+      _uploadInProgress = true;
     });
+    await doCommentUploads(
+      context,
+      _commentAudio,
+      _story,
+    );
+    setState(() {
+      _commentAudio = null;
+      _uploadInProgress = false;
+    });
+    Flushbar<dynamic>(
+      message: Strings.saved.i18n,
+      duration: Duration(seconds: 3),
+    )..show(_scaffoldKey.currentContext);
+    return;
   }
 
-  void setStoryAudioFile(io.File audio) {
+  Future<void> setStoryAudioFile(io.File audio) async {
     setState(() {
       _storyAudio = audio;
+      _uploadInProgress = true;
+    });
+
+    await doAudioUpload();
+
+    setState(() {
+      _uploadInProgress = false;
     });
   }
 
@@ -186,19 +214,13 @@ class _StoryPlayState extends State<StoryPlay>
     return story;
   }
 
-  Future<void> doStoryUploads() async {
-    String _imageFilePath;
-    String _audioFilePath;
+  Future<void> doImageUpload() async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
-    final GraphQLClient graphQLClientApolloServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
-
     MultipartFile multipartFile;
-    final String _id = _uuid.v1();
 
     if (_image != null) {
       multipartFile = getMultipartFile(
@@ -214,6 +236,17 @@ class _StoryPlayState extends State<StoryPlay>
         'jpeg',
       );
     }
+    await doStoryUpload();
+    return;
+  }
+
+  Future<void> doAudioUpload() async {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    MultipartFile multipartFile;
 
     if (_storyAudio != null) {
       multipartFile = getMultipartFile(
@@ -229,14 +262,30 @@ class _StoryPlayState extends State<StoryPlay>
         'mp3',
       );
     }
+    await doStoryUpload();
+    return;
+  }
+
+  Future<void> doStoryUpload() async {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientApolloServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
     if (_story == null) {
-      await addStory(
-        graphQLClientApolloServer,
-        graphQLAuth.getCurrentUserId(),
-        _id,
-        _imageFilePath,
-        _audioFilePath,
-      );
+      if (_imageFilePath != null && _audioFilePath != null) {
+        await addStory(
+          graphQLClientApolloServer,
+          graphQLAuth.getCurrentUserId(),
+          _id,
+          _imageFilePath,
+          _audioFilePath,
+        );
+        Flushbar<dynamic>(
+          message: Strings.saved.i18n,
+          duration: Duration(seconds: 3),
+        )..show(_scaffoldKey.currentContext);
+      }
     } else {
       //don't update unnecessarily
       if (_imageFilePath != null || _audioFilePath != null) {
@@ -249,68 +298,14 @@ class _StoryPlayState extends State<StoryPlay>
           _audioFilePath,
           _story['created']['formatted'],
         );
+        Flushbar<dynamic>(
+          message: Strings.saved.i18n,
+          duration: Duration(seconds: 3),
+        )..show(_scaffoldKey.currentContext);
       }
     }
+
     return;
-  }
-
-  Widget _buildUploadButton(BuildContext context) {
-    return _uploadInProgress
-        ? CircularProgressIndicator()
-        : Builder(
-            builder: (context) => CustomRaisedButton(
-                  key: Key(Keys.commentsUploadButton),
-                  icon: Icon(
-                    Icons.cloud_upload,
-                    color: Colors.white,
-                  ),
-                  text: Strings.upload.i18n,
-                  onPressed: () async {
-                    setState(() {
-                      _uploadInProgress = true;
-                    });
-                    await doCommentUploads(
-                      context,
-                      _commentAudio,
-                      _story,
-                    );
-                    setState(() {
-                      _commentAudio = null;
-                      _uploadInProgress = false;
-                    });
-                    Flushbar<dynamic>(
-                      message: Strings.saved.i18n,
-                      duration: Duration(seconds: 3),
-                    )..show(_scaffoldKey.currentContext);
-                  },
-                ));
-  }
-
-  Widget _buildUploadStoryButton(BuildContext context) {
-    return _uploadInProgress
-        ? CircularProgressIndicator()
-        : CustomRaisedButton(
-            key: Key(Keys.storyPageUploadButton),
-            icon: Icon(
-              Icons.cloud_upload,
-              color: Colors.white,
-            ),
-            text: Strings.upload.i18n,
-            onPressed: () async {
-              setState(() {
-                _uploadInProgress = true;
-              });
-              await doStoryUploads();
-              setState(() {
-                _uploadInProgress = false;
-              });
-
-              Flushbar<dynamic>(
-                message: Strings.saved.i18n,
-                duration: Duration(seconds: 3),
-              )..show(_scaffoldKey.currentContext);
-            },
-          );
   }
 
   Widget getImageControls(bool _showIcons) {
@@ -318,11 +313,19 @@ class _StoryPlayState extends State<StoryPlay>
       return Container();
     }
     final ImageControls _imageControls =
-        ImageControls(onImageSelected: (File croppedFile) {
+        ImageControls(onImageSelected: (io.File croppedFile) async {
       setState(() {
         _image = croppedFile;
+        _uploadInProgress = true;
+      });
+
+      await doImageUpload();
+
+      setState(() {
+        _uploadInProgress = false;
       });
     });
+
     return Card(
       margin: EdgeInsets.all(0),
       child: Column(
@@ -494,9 +497,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   Widget getStoryControls() {
     return Column(children: [
-      if (_story != null && (_image != null || _storyAudio != null) ||
-          (_story == null && _image != null && _storyAudio != null))
-        _buildUploadStoryButton(context),
+      _uploadInProgress ? CircularProgressIndicator() : Container(),
       if (_image != null || _storyAudio != null)
         SizedBox(
           height: _spacer.toDouble(),
@@ -591,14 +592,14 @@ class _StoryPlayState extends State<StoryPlay>
                                   setAudioFile: setCommentAudioFile,
                                   timerDuration: 90,
                                 ),
-                                if (_commentAudio != null)
-                                  _buildUploadButton(context),
-                                Divider(
-                                  indent: 50,
-                                  endIndent: 50,
-                                  height: _spacer.toDouble(),
-                                  thickness: 5,
-                                ),
+                                _uploadInProgress
+                                    ? CircularProgressIndicator()
+                                    : Divider(
+                                        indent: 50,
+                                        endIndent: 50,
+                                        height: _spacer.toDouble(),
+                                        thickness: 5,
+                                      ),
                                 Comments(
                                   key: Key(Keys.commentsWidgetExpansionTile),
                                   story: _story,

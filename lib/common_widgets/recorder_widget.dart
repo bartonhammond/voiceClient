@@ -266,7 +266,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
     if (widget.isCurrentUserAuthor) {
       double level = _current?.metering?.averagePower;
       if (level != null) {
-        level += 100;
+        level += 120;
       } else {
         level = 0;
       }
@@ -305,13 +305,15 @@ class _RecorderWidgetState extends State<RecorderWidget>
                 verticalDirection: VerticalDirection.up,
                 borderRadius: 0,
                 border: Border.all(
-                  color: Colors.indigo,
+                  color: level == 0.0 ? Colors.transparent : Colors.indigo,
                   width: 0.5,
                 ),
-                backgroundColor: Colors.white,
-                progressColor: Colors.red,
+                backgroundColor:
+                    level == 0.0 ? Colors.transparent : Colors.white,
+                progressColor: level == 0.0 ? Colors.transparent : Colors.red,
                 changeColorValue: 75,
-                changeProgressColor: Colors.green,
+                changeProgressColor:
+                    level == 0.0 ? Colors.transparent : Colors.green,
               ),
             )
           ]);

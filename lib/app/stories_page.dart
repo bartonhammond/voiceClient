@@ -324,6 +324,8 @@ class _StoriesPageState extends State<StoriesPage> {
                                 itemBuilder: (context, index) {
                                   return index < stories.length
                                       ? StaggeredGridTileStory(
+                                          index: index,
+                                          crossAxisCount: _crossAxisCount,
                                           onPush: widget.onPush,
                                           showFriend: getId() == null,
                                           onDelete: () {
