@@ -1,5 +1,4 @@
 import 'dart:io' as io;
-import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/reaction_table.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
@@ -32,11 +31,15 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.story,
     @required this.showFriend,
     @required this.onDelete,
+    this.index,
+    this.crossAxisCount,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
   final VoidCallback onDelete;
+  final int index;
+  final int crossAxisCount;
 
   @override
   State<StatefulWidget> createState() => _StaggeredGridTileStoryState();
@@ -47,6 +50,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showMakeComments = false;
   bool _showReactionTotals = false;
   bool _uploadInProgress = false;
+  final GlobalKey _key = GlobalKey();
 
   io.File _commentAudio;
 
@@ -78,10 +82,26 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     }
   }
 
-  void setCommentAudioFile(io.File audio) {
+  Future<void> setCommentAudioFile(io.File audio) async {
+    if (audio == null) {
+      return;
+    }
     setState(() {
       _commentAudio = audio;
+      _uploadInProgress = true;
     });
+    await doCommentUploads(
+      context,
+      _commentAudio,
+      widget.story,
+    );
+    setState(() {
+      _commentAudio = null;
+      _uploadInProgress = false;
+      _showMakeComments = false;
+    });
+    callBack();
+    return;
   }
 
   Widget buildFriend() {
@@ -161,35 +181,18 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     );
   }
 
-  Widget _buildUploadButton(BuildContext context) {
-    return _uploadInProgress
-        ? CircularProgressIndicator()
-        : Builder(
-            builder: (context) => CustomRaisedButton(
-              key: Key(Keys.commentsUploadButton),
-              icon: Icon(
-                Icons.cloud_upload,
-                color: Colors.white,
-              ),
-              text: Strings.upload.i18n,
-              onPressed: () async {
-                setState(() {
-                  _uploadInProgress = true;
-                });
-                await doCommentUploads(
-                  context,
-                  _commentAudio,
-                  widget.story,
-                );
-                setState(() {
-                  _commentAudio = null;
-                  _uploadInProgress = false;
-                  _showMakeComments = false;
-                });
-                callBack();
-              },
-            ),
-          );
+  Alignment getAlignment() {
+    if (widget.crossAxisCount == 3) {
+      switch (widget.index % 3) {
+        case 0:
+          return Alignment.centerLeft;
+        case 1:
+          return Alignment.center;
+        case 2:
+          return Alignment.centerRight;
+      }
+    }
+    return Alignment.center;
   }
 
   @override
@@ -227,7 +230,9 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         .where((dynamic comment) => comment['status'] == 'new')
         .toList()
         .length;
+
     return Card(
+      key: _key,
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(15.0),
           side: BorderSide(
@@ -373,78 +378,84 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * .2,
-                  child: FlutterReactionButtonCheck(
-                    onReactionChanged: (reaction, isChecked) async {
-                      final GraphQLClient graphQLClient =
-                          GraphQLProvider.of(context).value;
-                      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-                      final uuid = Uuid();
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Builder(
+                    builder: (BuildContext c) {
+                      return FlutterReactionButtonCheck(
+                        key: Key('reaction-${widget.story['id']}'),
+                        boxAlignment: getAlignment(),
+                        onReactionChanged: (reaction, isChecked) async {
+                          final GraphQLClient graphQLClient =
+                              GraphQLProvider.of(context).value;
+                          final GraphQLAuth graphQLAuth =
+                              locator<GraphQLAuth>();
+                          final uuid = Uuid();
 
-                      final String _reactionId = uuid.v1();
+                          final String _reactionId = uuid.v1();
 
-                      //detach delete current story reaction for this user
-                      await deleteUserReactionToStory(
-                        graphQLClient,
-                        graphQLAuth.getUserMap()['email'],
-                        widget.story['id'],
+                          //detach delete current story reaction for this user
+                          await deleteUserReactionToStory(
+                            graphQLClient,
+                            graphQLAuth.getUserMap()['email'],
+                            widget.story['id'],
+                          );
+
+                          if (isChecked) {
+                            //reaction
+                            await createReaction(
+                              graphQLClient,
+                              _reactionId,
+                              widget.story['id'],
+                              reactionTypes[reaction.id - 1],
+                            );
+
+                            //from user
+                            await addReactionFrom(
+                              graphQLClient,
+                              graphQLAuth.getUserMap()['id'],
+                              _reactionId,
+                            );
+
+                            //from story
+                            await addStoryReaction(
+                              graphQLClient,
+                              widget.story['id'],
+                              _reactionId,
+                            );
+                          }
+                          //get the updated story
+                          callBack();
+                        },
+                        reactions: react.reactions,
+                        initialReaction: widget.story['reactions'].length == 1
+                            ? react.reactions[reactionTypes
+                                .indexOf(widget.story['reactions'][0]['type'])]
+                            : react.defaultInitialReaction,
+                        selectedReaction: react.defaultInitialReaction,
                       );
-
-                      if (isChecked) {
-                        //reaction
-                        await createReaction(
-                          graphQLClient,
-                          _reactionId,
-                          widget.story['id'],
-                          reactionTypes[reaction.id - 1],
-                        );
-
-                        //from user
-                        await addReactionFrom(
-                          graphQLClient,
-                          graphQLAuth.getUserMap()['id'],
-                          _reactionId,
-                        );
-
-                        //from story
-                        await addStoryReaction(
-                          graphQLClient,
-                          widget.story['id'],
-                          _reactionId,
-                        );
-                      }
-                      //get the updated story
-                      callBack();
                     },
-                    reactions: react.reactions,
-                    initialReaction: widget.story['reactions'].length == 1
-                        ? react.reactions[reactionTypes
-                            .indexOf(widget.story['reactions'][0]['type'])]
-                        : react.defaultInitialReaction,
-                    selectedReaction: react.defaultInitialReaction,
                   ),
-                ),
-                Row(children: <Widget>[
-                  Icon(
-                    Icons.comment,
-                    size: 20,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.comment,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 5),
+                      InkWell(
+                          child: Text(Strings.commentRequest.i18n),
+                          onTap: () {
+                            setState(() {
+                              _showMakeComments = !_showMakeComments;
+                              _showComments = false;
+                              _showReactionTotals = false;
+                            });
+                          })
+                    ],
                   ),
-                  const SizedBox(width: 5),
-                  InkWell(
-                      child: Text('Comment'),
-                      onTap: () {
-                        setState(() {
-                          _showMakeComments = !_showMakeComments;
-                          _showComments = false;
-                          _showReactionTotals = false;
-                        });
-                      })
                 ]),
-              ],
-            ),
           ),
           _showComments
               ? Container(
@@ -514,7 +525,9 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                         setAudioFile: setCommentAudioFile,
                         timerDuration: 90,
                       ),
-                      if (_commentAudio != null) _buildUploadButton(context),
+                      _uploadInProgress
+                          ? CircularProgressIndicator()
+                          : Container(),
                       Divider(
                         indent: 50,
                         endIndent: 50,

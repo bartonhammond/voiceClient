@@ -1,9 +1,12 @@
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_reaction_button/flutter_reaction_button.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 final defaultInitialReaction = Reaction(
   id: 0,
+  title: _buildTitle(Strings.reactionLike.i18n),
   icon: Container(
     color: Colors.transparent,
     child: Row(
@@ -13,7 +16,7 @@ final defaultInitialReaction = Reaction(
           size: 20,
         ),
         const SizedBox(width: 5),
-        Text('Like'),
+        Text(Strings.reactionLike.i18n),
       ],
     ),
   ),
@@ -22,11 +25,12 @@ final defaultInitialReaction = Reaction(
 final reactions = [
   Reaction(
     id: 1,
+    title: _buildTitle(Strings.reactionLike.i18n),
     previewIcon: _buildPreviewIconFacebook('assets/images/like.png'),
-    icon: _buildIconFacebook(
+    icon: _buildReactionsIcon(
       'assets/images/like.png',
       Text(
-        'Like',
+        Strings.reactionLike.i18n,
         style: TextStyle(
           color: Colors.black,
         ),
@@ -35,11 +39,12 @@ final reactions = [
   ),
   Reaction(
     id: 2,
+    title: _buildTitle(Strings.reactionHaha.i18n),
     previewIcon: _buildPreviewIconFacebook('assets/images/haha.png'),
-    icon: _buildIconFacebook(
+    icon: _buildReactionsIcon(
       'assets/images/haha.png',
       Text(
-        'Haha',
+        Strings.reactionHaha.i18n,
         style: TextStyle(
           color: Colors.black,
         ),
@@ -48,11 +53,12 @@ final reactions = [
   ),
   Reaction(
     id: 3,
+    title: _buildTitle(Strings.reactionJoy.i18n),
     previewIcon: _buildPreviewIconFacebook('assets/images/joy.png'),
-    icon: _buildIconFacebook(
+    icon: _buildReactionsIcon(
       'assets/images/joy.png',
       Text(
-        'Joy',
+        Strings.reactionJoy.i18n,
         style: TextStyle(
           color: Colors.black,
         ),
@@ -61,11 +67,12 @@ final reactions = [
   ),
   Reaction(
     id: 4,
+    title: _buildTitle(Strings.reactionWow.i18n),
     previewIcon: _buildPreviewIconFacebook('assets/images/wow.png'),
-    icon: _buildIconFacebook(
+    icon: _buildReactionsIcon(
       'assets/images/wow.png',
       Text(
-        'Wow',
+        Strings.reactionWow.i18n,
         style: TextStyle(
           color: Colors.black,
         ),
@@ -74,11 +81,12 @@ final reactions = [
   ),
   Reaction(
     id: 5,
+    title: _buildTitle(Strings.reactionSad.i18n),
     previewIcon: _buildPreviewIconFacebook('assets/images/sad.png'),
-    icon: _buildIconFacebook(
+    icon: _buildReactionsIcon(
       'assets/images/sad.png',
       Text(
-        'Sad',
+        Strings.reactionSad.i18n,
         style: TextStyle(
           color: Colors.black,
         ),
@@ -87,11 +95,12 @@ final reactions = [
   ),
   Reaction(
     id: 6,
+    title: _buildTitle(Strings.reactionLove.i18n),
     previewIcon: _buildPreviewIconFacebook('assets/images/love.png'),
-    icon: _buildIconFacebook(
+    icon: _buildReactionsIcon(
       'assets/images/love.png',
       Text(
-        'Love',
+        Strings.reactionLove.i18n,
         style: TextStyle(
           color: Colors.black,
         ),
@@ -100,12 +109,24 @@ final reactions = [
   ),
 ];
 
+Widget _buildTitle(String title) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Color(0xff00bcd4),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Text(
+        title,
+        style: TextStyle(color: Colors.black, fontSize: 15),
+      ),
+    );
+
 Widget _buildPreviewIconFacebook(String path) => Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3.5, vertical: 5),
       child: Image.asset(path, height: 40),
     );
 
-Widget _buildIconFacebook(String path, Text text) => Container(
+Widget _buildReactionsIcon(String path, Text text) => Container(
       color: Colors.transparent,
       child: Row(
         children: <Widget>[

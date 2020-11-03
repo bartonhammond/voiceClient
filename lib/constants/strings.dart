@@ -122,7 +122,7 @@ class Strings {
 
   //Staggered Grid Tile Message
   static const String friendRequest = 'Friend Request';
-  static const String commentRequest = 'New Comment';
+  static const String commentRequest = 'Comment';
 
   // Developer menu
   static const String developerMenu = 'Developer menu';
@@ -150,4 +150,12 @@ class Strings {
   static const String languages = 'Languages';
   static const String saved = 'Save successful';
   static const String deleted = 'Delete successful';
+
+  //Reactions
+  static const String reactionLike = 'Like';
+  static const String reactionHaha = 'HaHa';
+  static const String reactionJoy = 'Joy';
+  static const String reactionWow = 'Wow';
+  static const String reactionSad = 'Sad';
+  static const String reactionLove = 'Love';
 }
