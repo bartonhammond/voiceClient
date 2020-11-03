@@ -381,7 +381,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.commentRequest,
-        'es': 'Nuevo comentario',
+        'es': 'Comentario',
       } +
       {
         'en': Strings.developerMenu,
@@ -450,6 +450,30 @@ extension Localization on String {
       {
         'en': Strings.deleted,
         'es': 'Eliminar exitoso',
+      } +
+      {
+        'en': Strings.reactionLike,
+        'es': 'Gusta',
+      } +
+      {
+        'en': Strings.reactionHaha,
+        'es': 'HaHa',
+      } +
+      {
+        'en': Strings.reactionJoy,
+        'es': 'Alegría',
+      } +
+      {
+        'en': Strings.reactionLove,
+        'es': 'Amor',
+      } +
+      {
+        'en': Strings.reactionSad,
+        'es': 'Triste',
+      } +
+      {
+        'en': Strings.reactionWow,
+        'es': '¡Caray!',
       };
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);

@@ -169,17 +169,6 @@ UpdateStory(
 }
 ''';
 
-const String deleteStoryQL = r'''
-mutation deleteStory($id: ID!) {
-DeleteStory(
-  id: $id
-) {
-   __typename
-    id
-  } 
-}
-''';
-
 const String mergeUserStories = r'''
 mutation mergeStoryUser($from: _UserInput!, $to: _StoryInput!) {
 MergeStoryUser(
@@ -440,9 +429,7 @@ mutation updateUserMessageStatusById($email: String!, $id: String! $status: Stri
     email: $email
     id: $id
     status: $status
-    resolved: {
-      formatted: $resolved
-    }
+    resolved: $resolved
   ){
     __typename
     messageId
@@ -811,5 +798,17 @@ mutation deleteUserReactionToStory($storyId: String!, $email: String!) {
   deleteUserReactionToStory(storyId: $storyId, email: $email){
     id
   }
+}
+''';
+
+const String deleteStoryQL = r'''
+mutation deleteStory($storyId: String!) {
+  deleteStory(storyId: $storyId)
+}
+''';
+
+const String deleteMessageQL = r'''
+mutation deleteMessage($storyId: String!) {
+  deleteMessage(storyId: $storyId)
 }
 ''';
