@@ -209,6 +209,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                   onDelete: widget.onDelete,
                   callBack: callBack,
                   showBorder: false,
+                  showMessage: false,
                 )
               : Text(
                   df.format(dt),

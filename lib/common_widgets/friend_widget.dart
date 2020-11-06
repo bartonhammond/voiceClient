@@ -65,6 +65,8 @@ class FriendWidget extends StatelessWidget {
     }
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return Card(
+      shadowColor: Colors.transparent,
+      borderOnForeground: false,
       shape: showBorder
           ? RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15.0),
@@ -130,7 +132,7 @@ class FriendWidget extends StatelessWidget {
               : showMessage
                   ? Container(
                       margin:
-                          EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                          EdgeInsets.symmetric(horizontal: 25, vertical: 15),
                       height: 1,
                       color: Colors.grey[300],
                     )
@@ -150,9 +152,11 @@ class FriendWidget extends StatelessWidget {
                       ],
                     )
                   : Container(),
-          SizedBox(
-            height: 7.toDouble(),
-          ),
+          friendButton == null
+              ? Container()
+              : SizedBox(
+                  height: 7.toDouble(),
+                ),
           friendButton == null ? Container() : friendButton,
           SizedBox(
             height: 7.toDouble(),

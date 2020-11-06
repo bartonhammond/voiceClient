@@ -533,6 +533,7 @@ class _StoryPlayState extends State<StoryPlay>
               FriendWidget(
                 user: _story['user'],
                 story: _story,
+                showMessage: false,
               ),
             if (widget.params != null &&
                 widget.params['id'] != null &&
