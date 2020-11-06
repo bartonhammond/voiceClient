@@ -44,7 +44,8 @@ class FABBottomAppBar extends StatefulWidget {
   State<StatefulWidget> createState() => FABBottomAppBarState();
 }
 
-class FABBottomAppBarState extends State<FABBottomAppBar> {
+class FABBottomAppBarState extends State<FABBottomAppBar>
+    with WidgetsBindingObserver {
   int _selectedIndex = 0;
   int _messageCount = 0;
   Timer timer;
@@ -72,15 +73,40 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     });
     timer =
         Timer.periodic(Duration(seconds: 60), (Timer t) => _getUserMessages());
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
     timer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _getUserMessages();
+        });
+        if (timer != null && !timer.isActive) {
+          timer = Timer.periodic(
+              Duration(seconds: 60), (Timer t) => _getUserMessages());
+        }
+        break;
+      case AppLifecycleState.inactive:
+        timer?.cancel();
+        break;
+      case AppLifecycleState.paused:
+        break;
+      case AppLifecycleState.detached:
+        break;
+    }
+  }
+
   Future<void> _getUserMessages() async {
+    print('getUserMessages');
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(

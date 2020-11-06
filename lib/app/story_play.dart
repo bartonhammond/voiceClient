@@ -98,6 +98,9 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setCommentAudioFile(io.File audio) async {
+    if (audio == null) {
+      return;
+    }
     setState(() {
       _commentAudio = audio;
       _uploadInProgress = true;
@@ -527,9 +530,9 @@ class _StoryPlayState extends State<StoryPlay>
             if (widget.params != null &&
                 widget.params['id'] != null &&
                 widget.params['id'].isNotEmpty)
-              buildFriend(
-                context,
-                _story['user'],
+              FriendWidget(
+                user: _story['user'],
+                story: _story,
               ),
             if (widget.params != null &&
                 widget.params['id'] != null &&

@@ -266,12 +266,7 @@ class _StoriesPageState extends State<StoriesPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getId() == null
-                    ? Container()
-                    : buildFriend(
-                        context,
-                        user,
-                      ),
+                getId() == null ? Container() : FriendWidget(user: user),
                 Query(
                     options: getQueryOptions(graphQLAuth),
                     builder: (
