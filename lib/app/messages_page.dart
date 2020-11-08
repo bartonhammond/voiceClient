@@ -173,6 +173,7 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         );
         break;
+
       case 'comment':
         return StaggeredGridTileMessage(
           title: Strings.commentRequest.i18n,
@@ -200,6 +201,26 @@ class _MessagesPageState extends State<MessagesPage> {
           rejectButton: MessageButton(
             key: Key('${Keys.clearCommentButton}-$index'),
             text: Strings.clearCommentButton.i18n,
+            fontSize: 16,
+            onPressed: () => callBack(messages[index]),
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+        );
+        break;
+
+      case 'message':
+        return StaggeredGridTileMessage(
+          title: 'Message',
+          key: Key('${Keys.messageGridTile}_$index'),
+          message: messages[index],
+          isAudio: true,
+          approveButton: null,
+          rejectButton: MessageButton(
+            key: Key('deleteMessage-$index'),
+            text: 'Delete message',
             fontSize: 16,
             onPressed: () => callBack(messages[index]),
             icon: Icon(

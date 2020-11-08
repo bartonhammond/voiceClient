@@ -386,6 +386,7 @@ class _FriendsPageState extends State<FriendsPage> {
                           itemBuilder: (context, index) {
                             return index < friends.length
                                 ? StaggeredGridTileFriend(
+                                    typeUser: _typeUser,
                                     onPush: _typeUser == TypeUser.friends ||
                                             _typeUser == TypeUser.me
                                         ? widget.onPush

@@ -1,12 +1,17 @@
+import 'dart:io' as io;
+import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
-class FriendWidget extends StatelessWidget {
+class FriendWidget extends StatefulWidget {
   const FriendWidget({
     @required this.user,
     this.onPush,
@@ -17,6 +22,7 @@ class FriendWidget extends StatelessWidget {
     this.onFriendPush,
     this.showBorder = true,
     this.showMessage = true,
+    this.message,
   });
   final Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
@@ -27,13 +33,50 @@ class FriendWidget extends StatelessWidget {
   final ValueChanged<Map<String, dynamic>> onFriendPush;
   final bool showBorder;
   final bool showMessage;
+  final Map<String, dynamic> message;
+
+  @override
+  State<StatefulWidget> createState() => _FriendWidgetState();
+}
+
+class _FriendWidgetState extends State<FriendWidget> {
+  bool _showMakeMessage = false;
+  bool _uploadInProgress = false;
+  io.File _messageAudio;
+
+  Future<void> setCommentAudioFile(io.File audio) async {
+    if (audio == null) {
+      return;
+    }
+    setState(() {
+      _messageAudio = audio;
+      _uploadInProgress = true;
+    });
+    await doMessageUploads(
+      context,
+      widget.user['id'],
+      _messageAudio,
+    );
+    setState(() {
+      _showMakeMessage = false;
+      _messageAudio = null;
+      _uploadInProgress = false;
+    });
+
+    return;
+  }
 
   @override
   Widget build(BuildContext context) {
     DateTime dt;
     DateFormat df;
-    if (story != null) {
-      dt = DateTime.parse(story['updated']['formatted']);
+    if (widget.story != null) {
+      dt = DateTime.parse(widget.story['updated']['formatted']);
+      df = DateFormat.yMd().add_jm();
+    }
+
+    if (widget.message != null) {
+      dt = DateTime.parse(widget.message['created']['formatted']);
       df = DateFormat.yMd().add_jm();
     }
 
@@ -67,7 +110,7 @@ class FriendWidget extends StatelessWidget {
     return Card(
       shadowColor: Colors.transparent,
       borderOnForeground: false,
-      shape: showBorder
+      shape: widget.showBorder
           ? RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15.0),
               side: BorderSide(
@@ -83,16 +126,16 @@ class FriendWidget extends StatelessWidget {
           Center(
             child: GestureDetector(
               onTap: () {
-                if (onPush != null) {
-                  onPush(<String, dynamic>{
-                    'id': story['id'],
-                    'onFinish': callBack,
-                    'onDelete': onDelete,
+                if (widget.onPush != null) {
+                  widget.onPush(<String, dynamic>{
+                    'id': widget.story['id'],
+                    'onFinish': widget.callBack,
+                    'onDelete': widget.onDelete,
                   });
                 }
-                if (onFriendPush != null) {
-                  onFriendPush(<String, dynamic>{
-                    'id': user['id'],
+                if (widget.onFriendPush != null) {
+                  widget.onFriendPush(<String, dynamic>{
+                    'id': widget.user['id'],
                   });
                 }
               },
@@ -103,7 +146,7 @@ class FriendWidget extends StatelessWidget {
                   width: _width.toDouble(),
                   placeholder: kTransparentImage,
                   image: host(
-                    user['image'],
+                    widget.user['image'],
                     width: _width,
                     height: _height,
                     resizingType: 'fill',
@@ -114,22 +157,28 @@ class FriendWidget extends StatelessWidget {
             ),
           ),
           Text(
-            user['name'],
+            widget.user['name'],
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
           ),
           Text(
-            user['home'],
+            widget.user['home'],
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: _fontSize),
           ),
-          story == null
+          widget.story == null
               ? Container()
               : Text(
                   df.format(dt),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
                 ),
-          user['id'] == graphQLAuth.getUserMap()['id']
+          widget.message == null
               ? Container()
-              : showMessage
+              : Text(
+                  df.format(dt),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+                ),
+          widget.user['id'] == graphQLAuth.getUserMap()['id']
+              ? Container()
+              : widget.showMessage
                   ? Container(
                       margin:
                           EdgeInsets.symmetric(horizontal: 25, vertical: 15),
@@ -137,30 +186,72 @@ class FriendWidget extends StatelessWidget {
                       color: Colors.grey[300],
                     )
                   : Container(),
-          user['id'] == graphQLAuth.getUserMap()['id']
+          widget.user['id'] == graphQLAuth.getUserMap()['id']
               ? Container()
-              : showMessage
+              : widget.showMessage
                   ? Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Icon(
-                          Icons.comment,
+                          Icons.message,
                           size: 20,
                         ),
                         const SizedBox(width: 5),
-                        InkWell(child: Text('Message'), onTap: () {})
+                        InkWell(
+                            child: Text('Message'),
+                            onTap: () {
+                              setState(() {
+                                _showMakeMessage = !_showMakeMessage;
+                              });
+                            })
                       ],
                     )
                   : Container(),
-          friendButton == null
+          widget.friendButton == null
               ? Container()
               : SizedBox(
                   height: 7.toDouble(),
                 ),
-          friendButton == null ? Container() : friendButton,
+          widget.friendButton == null ? Container() : widget.friendButton,
           SizedBox(
             height: 7.toDouble(),
           ),
+          _showMakeMessage
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                      Container(
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                        height: 1,
+                        color: Colors.grey[300],
+                      ),
+                      Text('Record Message',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16)),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      RecorderWidget(
+                        showStacked: true,
+                        showIcon: true,
+                        isCurrentUserAuthor: true,
+                        setAudioFile: setCommentAudioFile,
+                        timerDuration: 90,
+                        showPlayerWidget: false,
+                      ),
+                      _uploadInProgress
+                          ? CircularProgressIndicator()
+                          : Container(),
+                      Divider(
+                        indent: 50,
+                        endIndent: 50,
+                        height: 20,
+                        thickness: 5,
+                      )
+                    ])
+              : Container(),
         ],
       ),
     );

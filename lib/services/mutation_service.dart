@@ -504,8 +504,11 @@ Future<void> addStoryReaction(
   return;
 }
 
-Future<void> doCommentUploads(BuildContext context, io.File _commentAudio,
-    Map<String, dynamic> _story) async {
+Future<void> doCommentUploads(
+  BuildContext context,
+  io.File _commentAudio,
+  Map<String, dynamic> _story,
+) async {
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   final GraphQLClient graphQLClientFileServer =
@@ -573,6 +576,48 @@ Future<void> doCommentUploads(BuildContext context, io.File _commentAudio,
     'Comment',
     'comment',
     _story['id'],
+  );
+  return;
+}
+
+Future<void> doMessageUploads(
+  BuildContext context,
+  String userId,
+  io.File _messageAudio,
+) async {
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+  final GraphQLClient graphQLClientFileServer =
+      graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+  final GraphQLClient graphQLClientApolloServer =
+      GraphQLProvider.of(context).value;
+
+  final _uuid = Uuid();
+  final String _messageId = _uuid.v1();
+
+  final MultipartFile multipartFile = getMultipartFile(
+    _messageAudio,
+    '$_messageId.mp3',
+    'audio',
+    'mp3',
+  );
+
+  final String _audioFilePath = await performMutation(
+    graphQLClientFileServer,
+    multipartFile,
+    'mp3',
+  );
+
+  await addUserMessages(
+    graphQLClientApolloServer,
+    graphQLAuth.getCurrentUserId(),
+    userId,
+    _messageId,
+    'new',
+    'Message',
+    'message',
+    _audioFilePath,
   );
   return;
 }

@@ -1,4 +1,5 @@
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/full_screen_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
@@ -212,7 +213,25 @@ class _State extends State<ReactionTable> {
                           ),
                           reaction['friend']
                               //if friend, do nothing
-                              ? DataCell(Text(''))
+                              ? DataCell(
+                                  MessageButton(
+                                    key: Key('${Keys.newFriendsButton}'),
+                                    text: 'Message',
+                                    onPressed: () async {
+                                      Navigator.push<dynamic>(
+                                          context,
+                                          MaterialPageRoute<dynamic>(
+                                            builder: (BuildContext context) =>
+                                                FullScreenDialog(
+                                              user: reaction,
+                                            ),
+                                            fullscreenDialog: false,
+                                          ));
+                                    },
+                                    fontSize: 20,
+                                    icon: null,
+                                  ),
+                                )
                               : reaction['userId'] ==
                                       graphQLAuth.getUserMap()['id']
                                   //if its you, do nothing
