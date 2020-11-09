@@ -482,6 +482,28 @@ query getUserMessages($email: String!, $status: String!, $cursor: String, $limit
 }
 ''';
 
+const String getUserMessagesByTypeQL = r'''
+query getUserMessagesByType($email: String!, $status: String!, $cursor: String, $limit: String, $type: String) {
+  userMessagesByType(email: $email, status: $status, cursor: $cursor, limit: $limit, type: $type)  {
+    __typename
+    messageId
+    messageType
+    messageCreated {
+      formatted
+    }
+    messageText
+    messageKey1
+    messageStatus
+    userId
+    userEmail
+    userName
+    userHome
+    userImage
+    userIsFamily
+  }
+}
+''';
+
 const String getAllNewFriendRequestsToMe = r'''
 query getAllNewFriendRequests($email: String) {
 User(email: $email) {

@@ -38,12 +38,30 @@ class _MessagesPageState extends State<MessagesPage> {
   final nMessages = 20;
   int lastResultSetSize = 0;
 
+  MessageType _messageType;
+
+  // VoidCallback _refetchQuery;
+
   final ScrollController _scrollController = ScrollController();
-  bool _shouldBeMore = true;
+
+  Map<int, bool> moreSearchResults = {
+    0: true,
+    1: true,
+    2: true,
+    3: true,
+  };
+
+  Map<int, String> searchResultsName = {
+    0: 'userMessages',
+    1: 'userMessagesByType',
+    2: 'userMessagesByType',
+    3: 'userMessagesByType',
+  };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   @override
   void initState() {
+    _messageType = MessageType.ALL;
     super.initState();
   }
 
@@ -144,18 +162,34 @@ class _MessagesPageState extends State<MessagesPage> {
     }
   }
 
-  Widget getDetailWidget(List<dynamic> messages, int index) {
-    switch (messages[index]['type']) {
+  Widget getDetailWidget(Map<String, dynamic> _message, int index) {
+    final Map<String, dynamic> message = <String, dynamic>{};
+    message['id'] = _message['messageId'];
+    message['type'] = _message['messageType'];
+    message['created'] = _message['messageCreated'];
+    message['text'] = _message['messageText'];
+    message['status'] = _message['messageStatus'];
+
+    message['key1'] = _message['messageKey1'];
+    message['User'] = <String, dynamic>{};
+    message['User']['id'] = _message['userId'];
+    message['User']['email'] = _message['userEmail'];
+    message['User']['name'] = _message['userName'];
+    message['User']['home'] = _message['userHome'];
+    message['User']['image'] = _message['userImage'];
+    message['User']['isFamily'] = _message['userIsFamily'];
+
+    switch (message['type']) {
       case 'friend-request':
         return StaggeredGridTileMessage(
           title: Strings.friendRequest.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
-          message: messages[index],
+          message: message,
           approveButton: MessageButton(
             key: Key('${Keys.approveFriendRequestButton}-$index'),
             text: Strings.approveFriendButton.i18n,
             fontSize: 16,
-            onPressed: () => _approveFriendRequest(messages[index]),
+            onPressed: () => _approveFriendRequest(message),
             icon: Icon(
               MdiIcons.accountPlus,
               color: Colors.white,
@@ -165,7 +199,7 @@ class _MessagesPageState extends State<MessagesPage> {
             key: Key('${Keys.rejectFriendRequestButton}-$index'),
             text: Strings.rejectFriendButton.i18n,
             fontSize: 16,
-            onPressed: () => _rejectFriendRequest(messages[index]),
+            onPressed: () => _rejectFriendRequest(message),
             icon: Icon(
               MdiIcons.accountRemove,
               color: Colors.white,
@@ -178,7 +212,7 @@ class _MessagesPageState extends State<MessagesPage> {
         return StaggeredGridTileMessage(
           title: Strings.commentRequest.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
-          message: messages[index],
+          message: message,
           approveButton: MessageButton(
             key: Key('${Keys.viewCommentButton}-$index'),
             text: Strings.viewCommentButton.i18n,
@@ -186,9 +220,9 @@ class _MessagesPageState extends State<MessagesPage> {
             onPressed: () {
               widget.onPush(
                 <String, dynamic>{
-                  'id': messages[index]['key1'],
+                  'id': message['key1'],
                   'onFinish': () {
-                    callBack(messages[index]);
+                    callBack(_message);
                   },
                 },
               );
@@ -202,7 +236,7 @@ class _MessagesPageState extends State<MessagesPage> {
             key: Key('${Keys.clearCommentButton}-$index'),
             text: Strings.clearCommentButton.i18n,
             fontSize: 16,
-            onPressed: () => callBack(messages[index]),
+            onPressed: () => callBack(message),
             icon: Icon(
               MdiIcons.accountRemove,
               color: Colors.white,
@@ -215,14 +249,14 @@ class _MessagesPageState extends State<MessagesPage> {
         return StaggeredGridTileMessage(
           title: 'Message',
           key: Key('${Keys.messageGridTile}_$index'),
-          message: messages[index],
+          message: message,
           isAudio: true,
           approveButton: null,
           rejectButton: MessageButton(
             key: Key('deleteMessage-$index'),
             text: 'Delete message',
             fontSize: 16,
-            onPressed: () => callBack(messages[index]),
+            onPressed: () => callBack(message),
             icon: Icon(
               MdiIcons.accountRemove,
               color: Colors.white,
@@ -240,9 +274,14 @@ class _MessagesPageState extends State<MessagesPage> {
     if (_list == null || _list.isEmpty) {
       datetime = DateTime.now().toIso8601String();
     } else {
-      datetime = _list[_list.length - 1]['created']['formatted'];
+      datetime = _list[_list.length - 1]['messageCreated']['formatted'];
     }
     return datetime;
+  }
+
+  void isThereMoreSearchResults(dynamic fetchMoreResultData) {
+    moreSearchResults[_messageType.index] =
+        fetchMoreResultData[searchResultsName[_messageType.index]].length > 0;
   }
 
   Widget getLoadMoreButton(
@@ -262,15 +301,12 @@ class _MessagesPageState extends State<MessagesPage> {
             },
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
-              _shouldBeMore = fetchMoreResultData['userMessages'].length > 0;
-
               final List<dynamic> data = <dynamic>[
-                ...previousResultData['userMessages'],
-                ...fetchMoreResultData['userMessages'],
+                ...previousResultData[searchResultsName[_messageType.index]],
+                ...fetchMoreResultData[searchResultsName[_messageType.index]],
               ];
-
-              fetchMoreResultData['userMessages'] = data;
-
+              isThereMoreSearchResults(fetchMoreResultData);
+              fetchMoreResultData[searchResultsName[_messageType.index]] = data;
               return fetchMoreResultData;
             },
           );
@@ -289,6 +325,69 @@ class _MessagesPageState extends State<MessagesPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget getDropDownTypeMessageButtons() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<MessageType>(
+        value: _messageType,
+        items: const [
+          DropdownMenuItem(
+            child: Text('All'),
+            value: MessageType.ALL,
+          ),
+          DropdownMenuItem(
+            child: Text('Messages'),
+            value: MessageType.MESSAGE,
+          ),
+          DropdownMenuItem(
+            child: Text('Comments'),
+            value: MessageType.COMMENT,
+          ),
+          DropdownMenuItem(
+            child: Text('Friend Requests'),
+            value: MessageType.FRIEND_REQUEST,
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _messageType = value;
+          });
+        },
+      ),
+    );
+  }
+
+  QueryOptions getQueryOptions() {
+    String gqlString;
+
+    final _variables = <String, dynamic>{
+      'email': graphQLAuth.getUser().email,
+      'status': 'new',
+      'limit': '20',
+      'cursor': DateTime.now().toIso8601String(),
+    };
+    switch (_messageType) {
+      case MessageType.ALL:
+        gqlString = getUserMessagesQL;
+        break;
+      case MessageType.COMMENT:
+        gqlString = getUserMessagesByTypeQL;
+        _variables['type'] = 'comment';
+        break;
+      case MessageType.MESSAGE:
+        gqlString = getUserMessagesByTypeQL;
+        _variables['type'] = 'message';
+        break;
+      case MessageType.FRIEND_REQUEST:
+        gqlString = getUserMessagesByTypeQL;
+        _variables['type'] = 'friend-request';
+        break;
+    }
+    return QueryOptions(
+      documentNode: gql(gqlString),
+      variables: _variables,
     );
   }
 
@@ -323,16 +422,15 @@ class _MessagesPageState extends State<MessagesPage> {
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                getDropDownTypeMessageButtons(),
+              ],
+            ),
+            Divider(),
             Query(
-              options: QueryOptions(
-                documentNode: gql(getUserMessagesQL),
-                variables: <String, dynamic>{
-                  'email': graphQLAuth.getUser().email,
-                  'status': 'new',
-                  'limit': '20',
-                  'cursor': DateTime.now().toIso8601String(),
-                },
-              ),
+              options: getQueryOptions(),
               builder: (
                 QueryResult result, {
                 VoidCallback refetch,
@@ -352,34 +450,14 @@ class _MessagesPageState extends State<MessagesPage> {
                       stackTrace: StackTrace.current.toString());
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
-
-                final List<dynamic> messages = <dynamic>[];
-
-                ///barton
-                ///convert
-                if (result.data['userMessages'].length > 0) {
-                  for (final tmp in result.data['userMessages']) {
-                    final Map<String, dynamic> message = <String, dynamic>{};
-                    message['id'] = tmp['messageId'];
-                    message['type'] = tmp['messageType'];
-                    message['created'] = tmp['messageCreated'];
-                    message['text'] = tmp['messageText'];
-                    message['status'] = tmp['messageStatus'];
-
-                    message['key1'] = tmp['messageKey1'];
-                    message['User'] = <String, dynamic>{};
-                    message['User']['id'] = tmp['userId'];
-                    message['User']['email'] = tmp['userEmail'];
-                    message['User']['name'] = tmp['userName'];
-                    message['User']['home'] = tmp['userHome'];
-                    message['User']['image'] = tmp['userImage'];
-                    messages.add(message);
-                  }
-                  eventBus.fire(MessagesEvent(false));
-                }
+                //_refetchQuery = refetch;
+                final List<dynamic> messages = List<dynamic>.from(
+                    result.data[searchResultsName[_messageType.index]]);
 
                 if (messages.isEmpty || messages.length < nMessages) {
-                  _shouldBeMore = false;
+                  moreSearchResults[_messageType.index] = false;
+                } else {
+                  eventBus.fire(MessagesEvent(false));
                 }
 
                 return Expanded(
@@ -394,8 +472,8 @@ class _MessagesPageState extends State<MessagesPage> {
                           crossAxisSpacing: 4.0,
                           itemBuilder: (context, index) {
                             return index < messages.length
-                                ? getDetailWidget(messages, index)
-                                : _shouldBeMore
+                                ? getDetailWidget(messages[index], index)
+                                : moreSearchResults[_messageType.index]
                                     ? getLoadMoreButton(fetchMore, messages)
                                     : Container();
                           },

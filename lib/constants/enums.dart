@@ -53,3 +53,15 @@ enum StoryType {
   FRIENDS,
   FAMILY,
 }
+final List messageTypes = <String>[
+  'all',
+  'message',
+  'comment',
+  'friend-request'
+];
+enum MessageType {
+  ALL,
+  MESSAGE,
+  COMMENT,
+  FRIEND_REQUEST,
+}

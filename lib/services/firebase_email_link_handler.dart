@@ -155,7 +155,8 @@ class FirebaseEmailLinkHandler {
           },
         );
 
-        QueryResult queryResult = await graphQLClient.query(_queryOptions);
+        final QueryResult queryResult =
+            await graphQLClient.query(_queryOptions);
 
         if (queryResult != null &&
             queryResult.data != null &&

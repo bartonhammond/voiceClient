@@ -91,8 +91,18 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       _commentAudio = audio;
       _uploadInProgress = true;
     });
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClientApolloServer =
+        GraphQLProvider.of(context).value;
+
     await doCommentUploads(
-      context,
+      graphQLAuth,
+      graphQLClientFileServer,
+      graphQLClientApolloServer,
       _commentAudio,
       widget.story,
     );

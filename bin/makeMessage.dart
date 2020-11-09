@@ -1,11 +1,12 @@
 import 'dart:io';
+
+import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
 import 'package:uuid/uuid.dart';
-import 'package:MyFamilyVoice/constants/enums.dart';
 
-import 'package:MyFamilyVoice/services/mutation_service.dart';
 import '../seed/graphQLClient.dart';
+import '../seed/queries.dart';
 import '../seed/queries.dart' as q;
 
 Future<void> main(List<String> arguments) async {
@@ -14,10 +15,11 @@ Future<void> main(List<String> arguments) async {
       help: 'which enviroment to run with', allowed: ['dev', 'prod']);
 
   parser.addOption('type',
-      help: 'what type of message', allowed: ['comment', 'friend-request']);
+      help: 'what type of message',
+      allowed: ['comment', 'friend-request', 'message']);
 
   parser.addOption('count',
-      help: 'creat how many messages', allowed: ['one', 'ten']);
+      help: 'create how many messages', allowed: ['one', 'ten']);
 
   if (arguments == null || arguments.isEmpty) {
     print('missing arguments');
@@ -81,6 +83,22 @@ Future<void> main(List<String> arguments) async {
         'Friend Request',
         'friend-request',
         null,
+      );
+    }
+  }
+  const String mp3 =
+      'storage/yxF3c4-QB-ebce4820-221e-11eb-85c5-7bff015f4e79.mp3';
+  if (argResults['type'] == 'message') {
+    for (var i = 0; i < limit; i++) {
+      await addUserMessages(
+        graphQLClient,
+        _fromId,
+        _toId,
+        uuid.v1(),
+        'new',
+        'Message',
+        'message',
+        mp3,
       );
     }
   }

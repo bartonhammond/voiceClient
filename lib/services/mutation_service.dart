@@ -1,12 +1,7 @@
 import 'dart:io' as io;
-
-import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
@@ -278,7 +273,7 @@ Future<QueryResult> createOrUpdateUserInfo(
   String email;
 
   if (shouldCreateUser) {
-    email = await emailSecureStore.getEmail();
+    //email = await emailSecureStore.getEmail();
   }
 
   final DateTime now = DateTime.now();
@@ -531,18 +526,12 @@ Future<void> addStoryReaction(
 }
 
 Future<void> doCommentUploads(
-  BuildContext context,
+  GraphQLAuth graphQLAuth,
+  GraphQLClient graphQLClientFileServer,
+  GraphQLClient graphQLClientApolloServer,
   io.File _commentAudio,
   Map<String, dynamic> _story,
 ) async {
-  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
-  final GraphQLClient graphQLClientFileServer =
-      graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
-  final GraphQLClient graphQLClientApolloServer =
-      GraphQLProvider.of(context).value;
-
   final _uuid = Uuid();
   final String _commentId = _uuid.v1();
 
@@ -608,18 +597,12 @@ Future<void> doCommentUploads(
 }
 
 Future<void> doMessageUploads(
-  BuildContext context,
+  GraphQLAuth graphQLAuth,
+  GraphQLClient graphQLClientFileServer,
+  GraphQLClient graphQLClientApolloServer,
   String userId,
   io.File _messageAudio,
 ) async {
-  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
-  final GraphQLClient graphQLClientFileServer =
-      graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
-  final GraphQLClient graphQLClientApolloServer =
-      GraphQLProvider.of(context).value;
-
   final _uuid = Uuid();
   final String _messageId = _uuid.v1();
 

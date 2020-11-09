@@ -1,9 +1,11 @@
 import 'dart:io' as io;
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
@@ -52,8 +54,17 @@ class _FriendWidgetState extends State<FriendWidget> {
       _messageAudio = audio;
       _uploadInProgress = true;
     });
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClientApolloServer =
+        GraphQLProvider.of(context).value;
     await doMessageUploads(
-      context,
+      graphQLAuth,
+      graphQLClientFileServer,
+      graphQLClientApolloServer,
       widget.user['id'],
       _messageAudio,
     );
