@@ -43,3 +43,13 @@ enum ReactionType {
   SAD,
   LOVE,
 }
+final List storyTypes = <String>[
+  'GLOBAL',
+  'FRIENDS',
+  'FAMILY',
+];
+enum StoryType {
+  GLOBAL,
+  FRIENDS,
+  FAMILY,
+}

@@ -21,6 +21,7 @@ class StaggeredGridTileFriend extends StatelessWidget {
       friendButton: friendButton,
       onFriendPush: onPush,
       showMessage: typeUser == TypeUser.friends,
+      showFamilyCheckbox: typeUser == TypeUser.friends,
     );
   }
 }

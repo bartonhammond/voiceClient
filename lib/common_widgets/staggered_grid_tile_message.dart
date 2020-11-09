@@ -3,9 +3,6 @@ import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:flutter/material.dart';
 
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
-import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
-import 'package:MyFamilyVoice/constants/strings.dart';
-import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 
 class StaggeredGridTileMessage extends StatelessWidget {

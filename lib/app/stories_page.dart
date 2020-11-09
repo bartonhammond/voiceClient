@@ -99,6 +99,7 @@ class _StoriesPageState extends State<StoriesPage> {
   Map<String, dynamic> user;
 
   ResultTypes _resultTypes;
+  StoryType _storyType = StoryType.FRIENDS;
 
   @override
   void initState() {
@@ -213,6 +214,39 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
+  Widget getDropDownStoryTypeButtons() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<StoryType>(
+        value: _storyType,
+        items: const[
+          DropdownMenuItem(
+            child: Text(
+              'Friends',
+            ),
+            value: StoryType.FRIENDS,
+          ),
+          DropdownMenuItem(
+            child: Text(
+              'Family',
+            ),
+            value: StoryType.FAMILY,
+          ),
+          DropdownMenuItem(
+            child: Text(
+              'Global',
+            ),
+            value: StoryType.GLOBAL,
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _storyType = value;
+          });
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final DeviceScreenType deviceType =
@@ -266,7 +300,14 @@ class _StoriesPageState extends State<StoriesPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getId() == null ? Container() : FriendWidget(user: user),
+                getId() == null
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          getDropDownStoryTypeButtons(),
+                        ],
+                      )
+                    : FriendWidget(user: user),
                 Query(
                     options: getQueryOptions(graphQLAuth),
                     builder: (

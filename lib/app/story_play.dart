@@ -45,7 +45,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   String _imageFilePath;
   String _audioFilePath;
-
+  StoryType _storyType = StoryType.FRIENDS;
   bool _uploadInProgress = false;
 
   final _uuid = Uuid();
@@ -283,6 +283,7 @@ class _StoryPlayState extends State<StoryPlay>
           _id,
           _imageFilePath,
           _audioFilePath,
+          storyTypes[_storyType.index],
         );
         Flushbar<dynamic>(
           message: Strings.saved.i18n,
@@ -300,6 +301,7 @@ class _StoryPlayState extends State<StoryPlay>
           _imageFilePath,
           _audioFilePath,
           _story['created']['formatted'],
+          storyTypes[_storyType.index],
         );
         Flushbar<dynamic>(
           message: Strings.saved.i18n,
@@ -519,6 +521,39 @@ class _StoryPlayState extends State<StoryPlay>
     ]);
   }
 
+  Widget getStoryTypeDropDown() {
+    return Container(
+      padding: EdgeInsets.all(20.0),
+      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Text(
+          'Audiance:',
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(width: 25),
+        DropdownButton<StoryType>(
+            value: _storyType,
+            items: const [
+              DropdownMenuItem(
+                child: Text('Friends', style: TextStyle(fontSize: 15)),
+                value: StoryType.FRIENDS,
+              ),
+              DropdownMenuItem(
+                child: Text('Family', style: TextStyle(fontSize: 15)),
+                value: StoryType.FAMILY,
+              ),
+              DropdownMenuItem(
+                  child: Text('Global', style: TextStyle(fontSize: 15)),
+                  value: StoryType.GLOBAL),
+            ],
+            onChanged: (_value) {
+              setState(() {
+                _storyType = _value;
+              });
+            })
+      ]),
+    );
+  }
+
   Widget getCard(BuildContext context) {
     return SingleChildScrollView(
       child: Form(
@@ -541,6 +576,8 @@ class _StoryPlayState extends State<StoryPlay>
                 _isCurrentUserAuthor &&
                 _showComments == false)
               buildDeleteStory(_showIcons),
+            SizedBox(height: _spacer.toDouble()),
+            getStoryTypeDropDown(),
             SizedBox(height: _spacer.toDouble()),
             getImageDisplay(
               _width,

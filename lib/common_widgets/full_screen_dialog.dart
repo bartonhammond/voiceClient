@@ -2,7 +2,7 @@ import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:flutter/material.dart';
 
 class FullScreenDialog extends StatefulWidget {
-  FullScreenDialog({
+  const FullScreenDialog({
     this.user,
   });
   final Map<String, dynamic> user;

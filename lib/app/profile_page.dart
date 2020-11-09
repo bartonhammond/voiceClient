@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
@@ -6,6 +7,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
@@ -20,6 +22,7 @@ import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
+import 'package:uuid/uuid.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -38,8 +41,11 @@ class _ProfilePageState extends State<ProfilePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   String userId = '';
+  String userEmail = '';
   String name = '';
   String cityState = '';
+  String userImage = '';
+  bool shouldCreateUser = true;
 
   Map<String, dynamic> user;
   io.File _image;
@@ -58,9 +64,18 @@ class _ProfilePageState extends State<ProfilePage> {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     user = graphQLAuth.getUserMap();
     setState(() {
-      userId = user['id'];
-      name = user['name'];
-      cityState = user['home'];
+      if (user != null) {
+        shouldCreateUser = false;
+        userEmail = user['email'];
+        userId = user['id'];
+        name = user['name'];
+        cityState = user['home'];
+        userImage = user['image'];
+      } else {
+        shouldCreateUser = true;
+        final _uuid = Uuid();
+        userId = _uuid.v1();
+      }
     });
 
     nameFormFieldController = TextEditingController(text: name);
@@ -144,18 +159,34 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _formReady() {
-    if ((user['image'] != null || _image != null) &&
-        name != null &&
-        name.length > 5 &&
-        cityState != null &&
-        cityState.length > 1) {
-      setState(() {
-        formReady = true;
-      });
+    if (shouldCreateUser) {
+      if (_image != null &&
+          name != null &&
+          name.length > 5 &&
+          cityState != null &&
+          cityState.length > 1) {
+        setState(() {
+          formReady = true;
+        });
+      } else {
+        setState(() {
+          formReady = false;
+        });
+      }
     } else {
-      setState(() {
-        formReady = false;
-      });
+      if ((name != null && name != user['name'] && name.length > 5) ||
+          (cityState != null &&
+              cityState != user['home'] &&
+              cityState.length > 1) ||
+          (_image != null)) {
+        setState(() {
+          formReady = true;
+        });
+      } else {
+        setState(() {
+          formReady = false;
+        });
+      }
     }
   }
 
@@ -248,9 +279,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? null
                     : () async {
                         setState(() {
-                          userId = user['id'];
-                          name = user['name'];
-                          cityState = user['home'];
                           nameFormFieldController.text = name;
                           homeFormFieldController.text = cityState;
                           _image = null;
@@ -315,13 +343,18 @@ class _ProfilePageState extends State<ProfilePage> {
           'jpeg',
         );
       }
-      final QueryResult queryResult = await updateUserInfo(
+      final EmailSecureStore emailSecureStore =
+          Provider.of<EmailSecureStore>(context, listen: false);
+      final QueryResult queryResult = await createOrUpdateUserInfo(
+        emailSecureStore,
+        shouldCreateUser,
         graphQLClientFileServer,
         graphQLClient,
-        jpegPathUrl: jpegPathUrl == null ? user['image'] : jpegPathUrl,
-        id: user['id'],
+        jpegPathUrl: jpegPathUrl == null ? userImage : jpegPathUrl,
+        id: userId,
         name: name,
         home: cityState,
+        isFamily: false,
       );
       if (queryResult.hasException) {
         logger.createMessage(

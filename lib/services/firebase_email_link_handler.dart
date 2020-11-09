@@ -3,10 +3,8 @@ import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:uuid/uuid.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
@@ -145,7 +143,10 @@ class FirebaseEmailLinkHandler {
 
       // sign in
       if (await auth.isSignInWithEmailLink(link)) {
-        await auth.signInWithEmailAndLink(email: email, link: link);
+        await auth.signInWithEmailAndLink(
+          email: email,
+          link: link,
+        );
 
         final QueryOptions _queryOptions = QueryOptions(
           documentNode: gql(getUserByEmailQL),
@@ -162,25 +163,6 @@ class FirebaseEmailLinkHandler {
             queryResult.data['User'].length > 0 &&
             queryResult.data['User'][0]['id'] != null) {
           graphQLAuth.setCurrentUserId(queryResult.data['User'][0]['id']);
-        } else {
-          final uuid = Uuid();
-          final DateTime now = DateTime.now();
-          final DateFormat formatter = DateFormat('yyyy-MM-dd');
-          final String formattedDate = formatter.format(now);
-          final String id = uuid.v1();
-          final MutationOptions _mutationOptions = MutationOptions(
-            documentNode: gql(createUser),
-            variables: <String, dynamic>{
-              'id': id,
-              'email': email,
-              'created': formattedDate
-            },
-          );
-
-          queryResult = await graphQLClient.mutate(_mutationOptions);
-          if (queryResult.data != null) {
-            graphQLAuth.setCurrentUserId(queryResult.data['CreateUser']['id']);
-          }
         }
       } else {
         _errorController.add(EmailLinkError(

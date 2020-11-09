@@ -13,6 +13,7 @@ query getUserByEmail($email: String!) {
     email
     home
     image
+    isFamily
   }
 }
 ''';
@@ -25,6 +26,7 @@ query getUserByEmail($id: ID!) {
     email
     home
     image
+    isFamily
   }
 }
 ''';
@@ -36,6 +38,7 @@ query getStoryById($id: ID!, $email: String!) {
     id
     image
     audio
+    type
     created {
       formatted
     }
@@ -48,6 +51,7 @@ query getStoryById($id: ID!, $email: String!) {
       home
       image
       id
+      isFamily
     }
     comments {
       id
@@ -100,14 +104,15 @@ storyReactions(
 }
 ''';
 
-const String createUser = r'''
-mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, ) {
+const String createUserQL = r'''
+mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, $isFamily: Boolean! ) {
   CreateUser(
     id: $id
     name: $name
     email: $email
     home: $home
     image: $image
+    isFamily: $isFamily
     created: { 
       formatted: $created 
     }
@@ -115,16 +120,24 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     __typename
     id
     name
+    email
+    home
+    image
+    isFamily
+    created {
+      formatted
+    }
   }
 }
 ''';
 
 const String createStory = r'''
-mutation createStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!) {
+mutation createStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!) {
 CreateStory(
     id: $id
     image: $image
     audio: $audio
+    type: $type
     created: {
       formatted: $created
     } 
@@ -147,11 +160,12 @@ CreateStory(
 ''';
 
 const String updateStoryQL = r'''
-mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!) {
+mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!) {
 UpdateStory(
   id: $id
   image: $image
   audio: $audio
+  type: $type
   created: {formatted: $created}
   updated: {formatted: $updated}
 ) {
@@ -227,6 +241,7 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   name
   home
   image
+  isFamily
   activities(
     email: $email
     first: $first
@@ -264,6 +279,7 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
     id
     image
     audio
+    type
     created {
       formatted
     }
@@ -275,6 +291,7 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       name
       home
       image
+      isFamily
       id
     }
     comments {
@@ -318,6 +335,7 @@ query getFriendsOfMine ($email: String!) {
     name
     home
     image
+    isFamily
     created{
       formatted
     }
@@ -334,6 +352,7 @@ query userSearch($searchString: String!) {
     email
     home
     image
+    isFamily
   }
 }
 ''';
@@ -347,6 +366,7 @@ query userSearchFriends($searchString: String!, $email: String!, $skip: String!,
     email
     home
     image
+    isFamily
     created {
       formatted
     }
@@ -363,6 +383,7 @@ query userSearchNotFriends($searchString: String!, $email: String!, $skip: Strin
     email
     home
     image
+    isFamily
     created {
       formatted
     }
@@ -379,6 +400,7 @@ query userSearchMe($email: String!) {
     email
     home
     image
+    isFamily
     created {
       formatted
     }
@@ -455,6 +477,7 @@ query getUserMessages($email: String!, $status: String!, $cursor: String, $limit
     userName
     userHome
     userImage
+    userIsFamily
   }
 }
 ''';
@@ -484,6 +507,7 @@ User(email: $email) {
           id
           name
           email
+          isFamily
         }
       } 
       }
@@ -516,6 +540,7 @@ User(email: $email) {
           id
           name
           email
+          isFamily
         }
       } 
       }
@@ -543,6 +568,7 @@ userFriendsStories(
     id
     image
     audio
+    type
     created {
       formatted
     }
@@ -554,6 +580,7 @@ userFriendsStories(
       name
       home
       image
+      isFamily
       id
     }
     comments {
@@ -567,6 +594,7 @@ userFriendsStories(
         id
         email
         name
+        isFamily
       }
     }
     reactions(filter: { from: { email: $email	} } ) {
@@ -584,14 +612,15 @@ userFriendsStories(
 }
 ''';
 
-const String updateUser = r'''
-mutation updateUser($id: ID!, $name: String, $home: String, $updated: String, $image: String, ){
+const String updateUserQL = r'''
+mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, $isFamily: Boolean! ){
 UpdateUser(
   id: $id
   name: $name
   home: $home
   updated: {formatted: $updated}
   image: $image
+  isFamily: $isFamily
 ) {
     id
     name
@@ -604,6 +633,7 @@ UpdateUser(
     updated {
       formatted
     }
+    isFamily
   }
 }
 ''';

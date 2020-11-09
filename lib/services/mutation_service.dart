@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 
 import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
@@ -56,6 +57,7 @@ Future<void> addStory(
     String storyId,
     String imageFilePath,
     String audioFilePath,
+    String type,
     {int daysOffset = 0}) async {
   DateTime now = DateTime.now();
   now = now.subtract(Duration(days: daysOffset));
@@ -68,7 +70,8 @@ Future<void> addStory(
       'image': imageFilePath,
       'audio': audioFilePath,
       'created': now.toIso8601String(),
-      'updated': now.toIso8601String()
+      'updated': now.toIso8601String(),
+      'type': type,
     },
   );
 
@@ -104,6 +107,7 @@ Future<void> updateStory(
   String imageFilePath,
   String audioFilePath,
   String created,
+  String type,
 ) async {
   final DateTime now = DateTime.now();
 
@@ -115,7 +119,8 @@ Future<void> updateStory(
       'image': imageFilePath,
       'audio': audioFilePath,
       'created': created,
-      'updated': now.toIso8601String()
+      'updated': now.toIso8601String(),
+      'type': type,
     },
   );
 
@@ -259,28 +264,49 @@ Future<void> addUserMessages(
   return;
 }
 
-Future<QueryResult> updateUserInfo(
+Future<QueryResult> createOrUpdateUserInfo(
+  EmailSecureStore emailSecureStore,
+  bool shouldCreateUser,
   GraphQLClient graphQLClientFileServer,
   GraphQLClient graphQLClient, {
   String jpegPathUrl,
   String id,
   String name,
   String home,
+  bool isFamily,
 }) async {
+  String email;
+
+  if (shouldCreateUser) {
+    email = await emailSecureStore.getEmail();
+  }
+
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   final String formattedDate = formatter.format(now);
+  final MutationOptions _mutationOptions = shouldCreateUser
+      ? MutationOptions(
+          documentNode: gql(createUserQL),
+          variables: <String, dynamic>{
+              'id': id,
+              'email': email,
+              'name': name,
+              'home': home,
+              'image': jpegPathUrl,
+              'created': formattedDate,
+              'isFamily': isFamily,
+            })
+      : MutationOptions(
+          documentNode: gql(updateUserQL),
+          variables: <String, dynamic>{
+              'id': id,
+              'name': name,
+              'home': home,
+              'image': jpegPathUrl,
+              'updated': formattedDate,
+              'isFamily': isFamily,
+            });
 
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(updateUser),
-    variables: <String, dynamic>{
-      'id': id,
-      'name': name,
-      'home': home,
-      'image': jpegPathUrl,
-      'updated': formattedDate
-    },
-  );
   return await graphQLClient.mutate(_mutationOptions);
 }
 
@@ -560,6 +586,7 @@ Future<void> doCommentUploads(
     _story['image'],
     _story['audio'],
     _story['created']['formatted'],
+    _story['type'],
   );
 
   //don't create message if it's your story

@@ -1,6 +1,5 @@
 import 'dart:io' as io;
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
-import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
@@ -9,7 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
-import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 class FriendWidget extends StatefulWidget {
   const FriendWidget({
@@ -23,6 +21,7 @@ class FriendWidget extends StatefulWidget {
     this.showBorder = true,
     this.showMessage = true,
     this.message,
+    this.showFamilyCheckbox = true,
   });
   final Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
@@ -33,6 +32,7 @@ class FriendWidget extends StatefulWidget {
   final ValueChanged<Map<String, dynamic>> onFriendPush;
   final bool showBorder;
   final bool showMessage;
+  final bool showFamilyCheckbox;
   final Map<String, dynamic> message;
 
   @override
@@ -170,6 +170,21 @@ class _FriendWidgetState extends State<FriendWidget> {
                   df.format(dt),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
                 ),
+          widget.showFamilyCheckbox
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Checkbox(
+                        value: true, //widget.user['family'],
+                        onChanged: (bool newValue) {
+                          setState(() {
+                            //toggle update
+                          });
+                        }),
+                    Text('Family'),
+                  ],
+                )
+              : Container(),
           widget.message == null
               ? Container()
               : Text(
@@ -180,8 +195,7 @@ class _FriendWidgetState extends State<FriendWidget> {
               ? Container()
               : widget.showMessage
                   ? Container(
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+                      margin: EdgeInsets.fromLTRB(25, 10, 25, 20),
                       height: 1,
                       color: Colors.grey[300],
                     )
@@ -196,7 +210,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                           Icons.message,
                           size: 20,
                         ),
-                        const SizedBox(width: 5),
+                        const SizedBox(width: 10),
                         InkWell(
                             child: Text('Message'),
                             onTap: () {
@@ -210,7 +224,7 @@ class _FriendWidgetState extends State<FriendWidget> {
           widget.friendButton == null
               ? Container()
               : SizedBox(
-                  height: 7.toDouble(),
+                  height: 10.toDouble(),
                 ),
           widget.friendButton == null ? Container() : widget.friendButton,
           SizedBox(

@@ -106,7 +106,6 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   Future<void> _getUserMessages() async {
-    print('getUserMessages');
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(

@@ -19,7 +19,7 @@ void main() {
     isSecured: false,
     child: MyApp(
       isTesting: true,
-      userEmail: 'charlesjameshammond@gmail.com',
+      userEmail: 'bartonhammond@gmail.com',
     ),
   );
 
