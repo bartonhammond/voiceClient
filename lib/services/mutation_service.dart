@@ -631,3 +631,23 @@ Future<void> doMessageUploads(
   );
   return;
 }
+
+Future<void> updateUserIsFamily(
+  GraphQLClient graphQLClient,
+  String email,
+  bool isFamily,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(updateUserIsFamilyQL),
+    variables: <String, dynamic>{
+      'email': email,
+      'isFamily': isFamily,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+  return;
+}

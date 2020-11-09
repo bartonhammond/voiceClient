@@ -864,3 +864,15 @@ mutation deleteMessage($storyId: String!) {
   deleteMessage(storyId: $storyId)
 }
 ''';
+
+const String updateUserIsFamilyQL = r'''
+mutation updateUserIsFamily($email: String!, $isFamily: Boolean!) {
+  updateUserIsFamily(email: $email, isFamily: $isFamily){
+    id
+    name
+    home
+    image
+    isFamily
+  }
+}
+''';

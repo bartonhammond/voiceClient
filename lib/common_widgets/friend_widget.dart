@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
@@ -11,8 +12,9 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 
+// ignore: must_be_immutable
 class FriendWidget extends StatefulWidget {
-  const FriendWidget({
+  FriendWidget({
     @required this.user,
     this.onPush,
     this.story,
@@ -25,7 +27,7 @@ class FriendWidget extends StatefulWidget {
     this.message,
     this.showFamilyCheckbox = true,
   });
-  final Map<String, dynamic> user;
+  Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map<String, dynamic> story;
   final VoidCallback onDelete;
@@ -75,6 +77,27 @@ class _FriendWidgetState extends State<FriendWidget> {
     });
 
     return;
+  }
+
+  Future<void> callBack() async {
+    try {
+      final QueryOptions _queryOptions = QueryOptions(
+        documentNode: gql(getUserByEmailQL),
+        variables: <String, dynamic>{
+          'email': widget.user['email'],
+        },
+      );
+
+      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+
+      final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+
+      setState(() {
+        widget.user = queryResult.data['User'][0];
+      });
+    } catch (e) {
+      //ignore
+    }
   }
 
   @override
@@ -186,11 +209,16 @@ class _FriendWidgetState extends State<FriendWidget> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Checkbox(
-                        value: true, //widget.user['family'],
-                        onChanged: (bool newValue) {
-                          setState(() {
-                            //toggle update
-                          });
+                        value: widget.user['isFamily'],
+                        onChanged: (bool newValue) async {
+                          final GraphQLClient graphQLClient =
+                              GraphQLProvider.of(context).value;
+                          await updateUserIsFamily(
+                            graphQLClient,
+                            widget.user['email'],
+                            newValue,
+                          );
+                          callBack();
                         }),
                     Text('Family'),
                   ],
