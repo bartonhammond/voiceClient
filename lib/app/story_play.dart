@@ -45,7 +45,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   String _imageFilePath;
   String _audioFilePath;
-  StoryType _storyType = StoryType.FRIENDS;
+  StoryType _storyType = StoryType.FAMILY;
   bool _uploadInProgress = false;
 
   final _uuid = Uuid();
@@ -65,6 +65,7 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   void initState() {
     _id = _uuid.v1();
+
     super.initState();
   }
 
@@ -166,6 +167,17 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
+          switch (_story['type']) {
+            case 'FAMILY':
+              _storyType = StoryType.FAMILY;
+              break;
+            case 'FRIENDS':
+              _storyType = StoryType.FRIENDS;
+              break;
+            case 'GLOBAL':
+              _storyType = StoryType.GLOBAL;
+              break;
+          }
 
           if (_story == null ||
               (_story != null &&
@@ -301,7 +313,9 @@ class _StoryPlayState extends State<StoryPlay>
       }
     } else {
       //don't update unnecessarily
-      if (_imageFilePath != null || _audioFilePath != null) {
+      if (_imageFilePath != null ||
+          _audioFilePath != null ||
+          _storyType != _story['type']) {
         _imageFilePath ??= _story['image'];
         _audioFilePath ??= _story['audio'];
         await updateStory(
@@ -554,10 +568,11 @@ class _StoryPlayState extends State<StoryPlay>
                   child: Text('Global', style: TextStyle(fontSize: 15)),
                   value: StoryType.GLOBAL),
             ],
-            onChanged: (_value) {
+            onChanged: (_value) async {
               setState(() {
                 _storyType = _value;
               });
+              await doStoryUpload();
             })
       ]),
     );
