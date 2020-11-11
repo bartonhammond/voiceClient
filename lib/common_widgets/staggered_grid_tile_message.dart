@@ -47,6 +47,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
               showMessage: message['type'] == 'message',
               message: message,
               showFamilyCheckbox: false,
+              allowExpandToggle: false,
             ),
             isAudio
                 ? Padding(

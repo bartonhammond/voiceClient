@@ -47,8 +47,6 @@ class _StoriesPageState extends State<StoriesPage> {
   final ScrollController _scrollController = ScrollController();
 
   Map<String, dynamic> user;
-  //Drop down value
-  StoryType _storyType = StoryType.FRIENDS;
 
   //Who is the audiance?
   TypeStoriesView _typeStoryView = TypeStoriesView.allFriends;
@@ -70,16 +68,18 @@ class _StoriesPageState extends State<StoriesPage> {
       StoryFeedType.FRIENDS: true,
     },
   };
-  Map<TypeStoriesView, Map<StoryType, String>> searchResultsName = {
+  Map<TypeStoriesView, Map<StoryFeedType, String>> searchResultsName = {
     TypeStoriesView.allFriends: {
-      StoryType.FAMILY: 'userFriendsStories',
-      StoryType.GLOBAL: 'userFriendsStories',
-      StoryType.FRIENDS: 'userFriendsStories',
+      StoryFeedType.ALL: 'userFriendsStories',
+      StoryFeedType.FAMILY: 'userFriendsStoriesFamily',
+      StoryFeedType.GLOBAL: 'userFriendsStoriesGlobal',
+      StoryFeedType.FRIENDS: 'userFriendsStoriesFriends',
     },
     TypeStoriesView.oneFriend: {
-      StoryType.FAMILY: 'userStories',
-      StoryType.GLOBAL: 'userStories',
-      StoryType.FRIENDS: 'userStories',
+      StoryFeedType.ALL: 'userStories',
+      StoryFeedType.FAMILY: 'userStoriesFamily',
+      StoryFeedType.GLOBAL: 'userStoriesGlobal',
+      StoryFeedType.FRIENDS: 'userStoriesFriends',
     },
   };
 
@@ -192,13 +192,13 @@ class _StoriesPageState extends State<StoriesPage> {
             gqlString = getUserFriendsStoriesQL;
             break;
           case StoryFeedType.GLOBAL:
-            gqlString = getUserFriendsStoriesQL;
+            gqlString = getUserFriendsStoriesGlobalQL;
             break;
           case StoryFeedType.FAMILY:
-            gqlString = getUserFriendsStoriesQL;
+            gqlString = getUserFriendsStoriesFamilyQL;
             break;
           case StoryFeedType.FRIENDS:
-            gqlString = getUserFriendsStoriesQL;
+            gqlString = getUserFriendsStoriesFriendsQL;
             break;
         }
         break;
@@ -206,15 +206,25 @@ class _StoriesPageState extends State<StoriesPage> {
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
             gqlString = getUserStoriesQL;
+            _variables.remove('email');
+            _variables['friendEmail'] = user['email'];
+            _variables['currentUserEmail'] = graphQLAuth.getUser().email;
             break;
           case StoryFeedType.GLOBAL:
-            gqlString = getUserStoriesQL;
+            gqlString = getUserStoriesGlobalQL;
+            _variables.remove('email');
+            _variables['friendEmail'] = user['email'];
             break;
           case StoryFeedType.FAMILY:
-            gqlString = getUserStoriesQL;
+            gqlString = getUserStoriesFamilyQL;
+            _variables.remove('email');
+            _variables['friendEmail'] = user['email'];
+            _variables['currentUserEmail'] = graphQLAuth.getUser().email;
             break;
           case StoryFeedType.FRIENDS:
-            gqlString = getUserStoriesQL;
+            gqlString = getUserStoriesFriendsQL;
+            _variables.remove('email');
+            _variables['friendEmail'] = user['email'];
             break;
         }
         break;
@@ -318,14 +328,13 @@ class _StoriesPageState extends State<StoriesPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getId() == null
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          getDropDownStoryTypeButtons(),
-                        ],
-                      )
-                    : FriendWidget(user: user),
+                getId() == null ? Container() : FriendWidget(user: user),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    getDropDownStoryTypeButtons(),
+                  ],
+                ),
                 Query(
                     options: getQueryOptions(graphQLAuth),
                     builder: (
@@ -349,8 +358,9 @@ class _StoriesPageState extends State<StoriesPage> {
                             '\nErrors: \n  ' + result.exception.toString());
                       }
 
-                      final List<dynamic> stories = List<dynamic>.from(result
-                          .data[searchResultsName[_typeStoryView][_storyType]]);
+                      final List<dynamic> stories = List<dynamic>.from(
+                          result.data[searchResultsName[_typeStoryView]
+                              [_storyFeedType]]);
 
                       if (stories.isEmpty || stories.length < nStories) {
                         moreSearchResults[_typeStoryView][_storyFeedType] =
