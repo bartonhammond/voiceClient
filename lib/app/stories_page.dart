@@ -228,31 +228,37 @@ class _StoriesPageState extends State<StoriesPage> {
 
   Widget getDropDownStoryTypeButtons() {
     return DropdownButtonHideUnderline(
-      child: DropdownButton<StoryType>(
-        value: _storyType,
+      child: DropdownButton<StoryFeedType>(
+        value: _storyFeedType,
         items: const [
+          DropdownMenuItem(
+            child: Text(
+              'All',
+            ),
+            value: StoryFeedType.ALL,
+          ),
           DropdownMenuItem(
             child: Text(
               'Family',
             ),
-            value: StoryType.FAMILY,
+            value: StoryFeedType.FAMILY,
           ),
           DropdownMenuItem(
             child: Text(
               'Friends',
             ),
-            value: StoryType.FRIENDS,
+            value: StoryFeedType.FRIENDS,
           ),
           DropdownMenuItem(
             child: Text(
               'Global',
             ),
-            value: StoryType.GLOBAL,
+            value: StoryFeedType.GLOBAL,
           ),
         ],
         onChanged: (value) {
           setState(() {
-            _storyType = value;
+            _storyFeedType = value;
           });
         },
       ),

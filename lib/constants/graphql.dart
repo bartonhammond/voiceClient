@@ -238,7 +238,13 @@ const String mergeUserFriends = r'''
   MergeUserFriends(
     from: { id: $from }
     to: { id: $to }
-    data: { id: $id, created: { formatted: $created } }
+    data: { 
+      id: $id, 
+      created: { 
+        formatted: $created 
+      } 
+      isFamily: false
+    }
   ) {
     from {
       email

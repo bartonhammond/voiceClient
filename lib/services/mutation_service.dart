@@ -272,7 +272,7 @@ Future<QueryResult> createOrUpdateUserInfo(
   String email;
 
   if (shouldCreateUser) {
-    //email = await emailSecureStore.getEmail();
+    email = await emailSecureStore.getEmail();
   }
 
   final DateTime now = DateTime.now();
