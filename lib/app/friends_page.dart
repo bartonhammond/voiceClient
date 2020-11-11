@@ -265,10 +265,10 @@ class _FriendsPageState extends State<FriendsPage> {
     };
     switch (_typeUser) {
       case TypeUser.friends:
-        gqlString = userSearchFriends;
+        gqlString = userSearchFriendsQL;
         break;
       case TypeUser.users:
-        gqlString = userSearchNotFriends;
+        gqlString = userSearchNotFriendsQL;
         break;
       case TypeUser.me:
         gqlString = userSearchMeQL;

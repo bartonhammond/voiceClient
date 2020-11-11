@@ -268,7 +268,6 @@ Future<QueryResult> createOrUpdateUserInfo(
   String id,
   String name,
   String home,
-  bool isFamily,
 }) async {
   String email;
 
@@ -289,7 +288,6 @@ Future<QueryResult> createOrUpdateUserInfo(
               'home': home,
               'image': jpegPathUrl,
               'created': formattedDate,
-              'isFamily': isFamily,
             })
       : MutationOptions(
           documentNode: gql(updateUserQL),
@@ -299,7 +297,6 @@ Future<QueryResult> createOrUpdateUserInfo(
               'home': home,
               'image': jpegPathUrl,
               'updated': formattedDate,
-              'isFamily': isFamily,
             });
 
   return await graphQLClient.mutate(_mutationOptions);
@@ -634,13 +631,15 @@ Future<void> doMessageUploads(
 
 Future<void> updateUserIsFamily(
   GraphQLClient graphQLClient,
-  String email,
+  String emailFrom,
+  String emailTo,
   bool isFamily,
 ) async {
   final MutationOptions options = MutationOptions(
     documentNode: gql(updateUserIsFamilyQL),
     variables: <String, dynamic>{
-      'email': email,
+      'emailFrom': emailFrom,
+      'emailTo': emailTo,
       'isFamily': isFamily,
     },
   );

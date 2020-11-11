@@ -81,10 +81,12 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   Future<void> callBack() async {
     try {
+      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final QueryOptions _queryOptions = QueryOptions(
         documentNode: gql(getUserByEmailQL),
         variables: <String, dynamic>{
           'email': widget.user['email'],
+          'friendEmail': graphQLAuth.getUserMap()['email'],
         },
       );
 
@@ -98,6 +100,29 @@ class _FriendWidgetState extends State<FriendWidget> {
     } catch (e) {
       //ignore
     }
+  }
+
+  bool checkIfIsFamily() {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    if (widget.user['friends'].containsKey('from') &&
+        widget.user['friends']['from'].length > 0) {
+      for (var i = 0; i < widget.user['friends']['from'].length; i++) {
+        if (widget.user['friends']['from'][i].containsKey('isFamily')) {
+          if (widget.user['friends']['from'][0]['isFamily']) {
+            if (widget.user['friends']['from'][0].containsKey('User')) {
+              if (widget.user['friends']['from'][0]['User']
+                      .containsKey('email') &&
+                  widget.user['friends']['from'][0]['User']['email'] ==
+                      graphQLAuth.getUserMap()['email']) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   @override
@@ -205,24 +230,27 @@ class _FriendWidgetState extends State<FriendWidget> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
                 ),
           widget.showFamilyCheckbox
-              ? Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Checkbox(
-                        value: widget.user['isFamily'],
-                        onChanged: (bool newValue) async {
-                          final GraphQLClient graphQLClient =
-                              GraphQLProvider.of(context).value;
-                          await updateUserIsFamily(
-                            graphQLClient,
-                            widget.user['email'],
-                            newValue,
-                          );
-                          callBack();
-                        }),
-                    Text('Family'),
-                  ],
-                )
+              ? widget.user['email'] == graphQLAuth.getUserMap()['email']
+                  ? Container()
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                            value: checkIfIsFamily(),
+                            onChanged: (bool newValue) async {
+                              final GraphQLClient graphQLClient =
+                                  GraphQLProvider.of(context).value;
+                              await updateUserIsFamily(
+                                graphQLClient,
+                                graphQLAuth.getUserMap()['email'],
+                                widget.user['email'],
+                                newValue,
+                              );
+                              callBack();
+                            }),
+                        Text('Family'),
+                      ],
+                    )
               : Container(),
           widget.message == null
               ? Container()

@@ -6,7 +6,7 @@ Future<String> getUserByEmail(
   String email,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmailQL),
+    documentNode: gql(getUserByEmailForAuthQL),
     variables: <String, dynamic>{
       'email': email,
     },

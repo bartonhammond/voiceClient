@@ -48,11 +48,20 @@ final List storyTypes = <String>[
   'FRIENDS',
   'FAMILY',
 ];
+//What types can a story be?
 enum StoryType {
   GLOBAL,
   FRIENDS,
   FAMILY,
 }
+
+enum StoryFeedType {
+  ALL,
+  GLOBAL,
+  FRIENDS,
+  FAMILY,
+}
+
 final List messageTypes = <String>[
   'all',
   'message',

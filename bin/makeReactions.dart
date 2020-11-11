@@ -80,7 +80,7 @@ Future<void> build(ArgResults argResults) async {
   final stories = await getStories(
     graphQLClient,
     'bartonhammond@gmail.com',
-    getUserStories,
+    getUserStoriesQL,
     'userStories',
   );
 

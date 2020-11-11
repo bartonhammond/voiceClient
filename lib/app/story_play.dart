@@ -167,16 +167,20 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
-          switch (_story['type']) {
-            case 'FAMILY':
-              _storyType = StoryType.FAMILY;
-              break;
-            case 'FRIENDS':
-              _storyType = StoryType.FRIENDS;
-              break;
-            case 'GLOBAL':
-              _storyType = StoryType.GLOBAL;
-              break;
+          if (_story == null) {
+            _storyType ??= StoryType.FAMILY;
+          } else {
+            switch (_story['type']) {
+              case 'FAMILY':
+                _storyType = StoryType.FAMILY;
+                break;
+              case 'FRIENDS':
+                _storyType = StoryType.FRIENDS;
+                break;
+              case 'GLOBAL':
+                _storyType = StoryType.GLOBAL;
+                break;
+            }
           }
 
           if (_story == null ||
@@ -546,35 +550,40 @@ class _StoryPlayState extends State<StoryPlay>
 
   Widget getStoryTypeDropDown() {
     return Container(
-      padding: EdgeInsets.all(20.0),
-      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-        Text(
-          'Audiance:',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(width: 25),
-        DropdownButton<StoryType>(
-            value: _storyType,
-            items: const [
-              DropdownMenuItem(
-                child: Text('Friends', style: TextStyle(fontSize: 15)),
-                value: StoryType.FRIENDS,
-              ),
-              DropdownMenuItem(
-                child: Text('Family', style: TextStyle(fontSize: 15)),
-                value: StoryType.FAMILY,
-              ),
-              DropdownMenuItem(
-                  child: Text('Global', style: TextStyle(fontSize: 15)),
-                  value: StoryType.GLOBAL),
-            ],
-            onChanged: (_value) async {
-              setState(() {
-                _storyType = _value;
-              });
-              await doStoryUpload();
-            })
-      ]),
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Audiance:',
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          DropdownButton<StoryType>(
+              value: _storyType,
+              items: const [
+                DropdownMenuItem(
+                  child: Text('Friends', style: TextStyle(fontSize: 15)),
+                  value: StoryType.FRIENDS,
+                ),
+                DropdownMenuItem(
+                  child: Text('Family', style: TextStyle(fontSize: 15)),
+                  value: StoryType.FAMILY,
+                ),
+                DropdownMenuItem(
+                    child: Text('Global', style: TextStyle(fontSize: 15)),
+                    value: StoryType.GLOBAL),
+              ],
+              onChanged: (_value) async {
+                setState(() {
+                  _storyType = _value;
+                });
+                await doStoryUpload();
+              })
+        ],
+      ),
     );
   }
 
@@ -583,7 +592,7 @@ class _StoryPlayState extends State<StoryPlay>
       child: Form(
         key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             if (widget.params != null &&
@@ -600,9 +609,7 @@ class _StoryPlayState extends State<StoryPlay>
                 _isCurrentUserAuthor &&
                 _showComments == false)
               buildDeleteStory(_showIcons),
-            SizedBox(height: _spacer.toDouble()),
             getStoryTypeDropDown(),
-            SizedBox(height: _spacer.toDouble()),
             getImageDisplay(
               _width,
               _height,

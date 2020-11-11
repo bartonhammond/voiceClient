@@ -13,12 +13,33 @@ query getUserByEmail($email: String!) {
     email
     home
     image
-    isFamily
+    friends {
+      from {
+        isFamily
+        User {
+          email
+        }
+      }
+    }
   }
 }
 ''';
+
+const String getUserByEmailForAuthQL = r'''
+query getUserByEmail($email: String!) {
+  User(email: $email) {
+    __typename
+    id
+    name
+    email
+    home
+    image
+  }
+}
+''';
+
 const String getUserById = r'''
-query getUserByEmail($id: ID!) {
+query getUserById($id: ID!) {
   User(id: $id) {
     __typename
     id
@@ -26,7 +47,14 @@ query getUserByEmail($id: ID!) {
     email
     home
     image
-    isFamily
+    friends {
+      from {
+        isFamily
+        User {
+          email
+        }
+      }
+    }
   }
 }
 ''';
@@ -51,7 +79,14 @@ query getStoryById($id: ID!, $email: String!) {
       home
       image
       id
-      isFamily
+      friends {
+        to(filter: { User: { email: $email} }) {
+          isFamily
+          User {
+            email
+          }
+        }
+      }
     }
     comments {
       id
@@ -105,14 +140,13 @@ storyReactions(
 ''';
 
 const String createUserQL = r'''
-mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, $isFamily: Boolean! ) {
+mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, ) {
   CreateUser(
     id: $id
     name: $name
     email: $email
     home: $home
     image: $image
-    isFamily: $isFamily
     created: { 
       formatted: $created 
     }
@@ -123,7 +157,6 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     email
     home
     image
-    isFamily
     created {
       formatted
     }
@@ -241,7 +274,6 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   name
   home
   image
-  isFamily
   activities(
     email: $email
     first: $first
@@ -268,7 +300,7 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
 }
 ''';
 
-const String getUserStories = r'''
+const String getUserStoriesQL = r'''
 query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
  userStories(
   		email: $email 
@@ -291,8 +323,15 @@ query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
       name
       home
       image
-      isFamily
       id
+      friends {
+        to(filter: { User: { email: $email} }) {
+          isFamily
+          User {
+            email
+          }
+        }
+      }
     }
     comments {
       id
@@ -335,7 +374,6 @@ query getFriendsOfMine ($email: String!) {
     name
     home
     image
-    isFamily
     created{
       formatted
     }
@@ -352,12 +390,11 @@ query userSearch($searchString: String!) {
     email
     home
     image
-    isFamily
   }
 }
 ''';
 
-const String userSearchFriends = r'''
+const String userSearchFriendsQL = r'''
 query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
   userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
@@ -366,15 +403,22 @@ query userSearchFriends($searchString: String!, $email: String!, $skip: String!,
     email
     home
     image
-    isFamily
     created {
       formatted
+    }
+    friends {
+      from {
+        isFamily
+        User {
+          email
+        }
+      }
     }
   }
 }
 ''';
 
-const String userSearchNotFriends = r'''
+const String userSearchNotFriendsQL = r'''
 query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
     __typename
@@ -383,10 +427,17 @@ query userSearchNotFriends($searchString: String!, $email: String!, $skip: Strin
     email
     home
     image
-    isFamily
     created {
       formatted
     }
+    friends {
+        from {
+          isFamily
+          User {
+            email
+          }
+        }
+      }
   }
 }
 ''';
@@ -400,10 +451,17 @@ query userSearchMe($email: String!) {
     email
     home
     image
-    isFamily
     created {
       formatted
     }
+    friends {
+        to {
+          isFamily
+          User {
+            email
+          }
+        }
+      }
   }
 }
 ''';
@@ -477,7 +535,6 @@ query getUserMessages($email: String!, $status: String!, $cursor: String, $limit
     userName
     userHome
     userImage
-    userIsFamily
   }
 }
 ''';
@@ -499,7 +556,6 @@ query getUserMessagesByType($email: String!, $status: String!, $cursor: String, 
     userName
     userHome
     userImage
-    userIsFamily
   }
 }
 ''';
@@ -529,7 +585,6 @@ User(email: $email) {
           id
           name
           email
-          isFamily
         }
       } 
       }
@@ -562,7 +617,6 @@ User(email: $email) {
           id
           name
           email
-          isFamily
         }
       } 
       }
@@ -579,7 +633,7 @@ query newMessagesCount($email: String!) {
 }
 ''';
 
-const String getUserFriendsStories = r'''
+const String getUserFriendsStoriesQL = r'''
 query getUserFriendsStories($email: String!, $limit: String!, $cursor: String!) {
 userFriendsStories(
   		email: $email 
@@ -602,8 +656,15 @@ userFriendsStories(
       name
       home
       image
-      isFamily
       id
+      friends {
+        from {
+          isFamily
+          User {
+            email
+          }
+        }
+      }
     }
     comments {
       id
@@ -616,7 +677,6 @@ userFriendsStories(
         id
         email
         name
-        isFamily
       }
     }
     reactions(filter: { from: { email: $email	} } ) {
@@ -635,14 +695,13 @@ userFriendsStories(
 ''';
 
 const String updateUserQL = r'''
-mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, $isFamily: Boolean! ){
+mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, ){
 UpdateUser(
   id: $id
   name: $name
   home: $home
   updated: {formatted: $updated}
   image: $image
-  isFamily: $isFamily
 ) {
     id
     name
@@ -655,7 +714,6 @@ UpdateUser(
     updated {
       formatted
     }
-    isFamily
   }
 }
 ''';
@@ -866,12 +924,9 @@ mutation deleteMessage($storyId: String!) {
 ''';
 
 const String updateUserIsFamilyQL = r'''
-mutation updateUserIsFamily($email: String!, $isFamily: Boolean!) {
-  updateUserIsFamily(email: $email, isFamily: $isFamily){
+mutation updateUserIsFamily($emailFrom: String!, $emailTo: String!, $isFamily: Boolean!) {
+  updateUserIsFamily(emailFrom: $emailFrom, emailTo: $emailTo, isFamily: $isFamily){
     id
-    name
-    home
-    image
     isFamily
   }
 }

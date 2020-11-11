@@ -153,13 +153,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     final DateTime dt = DateTime.parse(widget.story['updated']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
 
-    final List<String> _tags = [];
-    if (widget.story != null && widget.story['hashtags'] != null) {
-      final List<dynamic> hashtags = widget.story['hashtags'];
-      for (var tag in hashtags) {
-        _tags.add(tag['tag']);
-      }
-    }
     final int commentsLength = widget.story['comments']
         .where((dynamic comment) => comment['status'] == 'new')
         .toList()
@@ -177,6 +170,22 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       child: Column(
         children: <Widget>[
           SizedBox(height: 10),
+          Container(
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Audiance:',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(widget.story['type']),
+              ],
+            ),
+          ),
           InkWell(
             onTap: () {
               widget.onPush(<String, dynamic>{

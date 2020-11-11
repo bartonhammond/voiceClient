@@ -98,7 +98,7 @@ class GraphQLAuth {
 
   Future<GraphQLClient> setupEnvironment() async {
     final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getUserByEmailQL),
+      documentNode: gql(getUserByEmailForAuthQL),
       variables: <String, dynamic>{
         'email': user.email,
       },

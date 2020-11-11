@@ -354,7 +354,6 @@ class _ProfilePageState extends State<ProfilePage> {
         id: userId,
         name: name,
         home: cityState,
-        isFamily: false,
       );
       if (queryResult.hasException) {
         logger.createMessage(

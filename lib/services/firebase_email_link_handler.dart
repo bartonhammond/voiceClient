@@ -149,7 +149,7 @@ class FirebaseEmailLinkHandler {
         );
 
         final QueryOptions _queryOptions = QueryOptions(
-          documentNode: gql(getUserByEmailQL),
+          documentNode: gql(getUserByEmailForAuthQL),
           variables: <String, dynamic>{
             'email': email,
           },
