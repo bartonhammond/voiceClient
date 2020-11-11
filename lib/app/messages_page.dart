@@ -177,7 +177,6 @@ class _MessagesPageState extends State<MessagesPage> {
     message['User']['name'] = _message['userName'];
     message['User']['home'] = _message['userHome'];
     message['User']['image'] = _message['userImage'];
-    message['User']['isFamily'] = _message['userIsFamily'];
 
     switch (message['type']) {
       case 'friend-request':
