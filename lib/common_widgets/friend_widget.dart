@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/constants/globals.dart' as globals;
 
 // ignore: must_be_immutable
 class FriendWidget extends StatefulWidget {
@@ -49,7 +50,7 @@ class _FriendWidgetState extends State<FriendWidget> {
   bool _showMakeMessage = false;
   bool _uploadInProgress = false;
   io.File _messageAudio;
-  bool _collapsed = false;
+
   Future<void> setCommentAudioFile(io.File audio) async {
     if (audio == null) {
       return;
@@ -168,14 +169,15 @@ class _FriendWidgetState extends State<FriendWidget> {
         _width = _height = 100;
     }
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    return widget.allowExpandToggle && _collapsed
+    return widget.allowExpandToggle && globals.collapseFriendWidget
         ? Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
                 GestureDetector(
                     onTap: () {
                       setState(() {
-                        _collapsed = !_collapsed;
+                        globals.collapseFriendWidget =
+                            !globals.collapseFriendWidget;
                       });
                     },
                     child: Icon(
@@ -213,7 +215,8 @@ class _FriendWidgetState extends State<FriendWidget> {
                         ? GestureDetector(
                             onTap: () {
                               setState(() {
-                                _collapsed = !_collapsed;
+                                globals.collapseFriendWidget =
+                                    !globals.collapseFriendWidget;
                               });
                             },
                             child: Icon(
