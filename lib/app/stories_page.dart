@@ -67,6 +67,12 @@ class _StoriesPageState extends State<StoriesPage> {
       StoryFeedType.GLOBAL: true,
       StoryFeedType.FRIENDS: true,
     },
+    TypeStoriesView.me: {
+      StoryFeedType.ALL: true,
+      StoryFeedType.FAMILY: true,
+      StoryFeedType.GLOBAL: true,
+      StoryFeedType.FRIENDS: true,
+    },
   };
   Map<TypeStoriesView, Map<StoryFeedType, String>> searchResultsName = {
     TypeStoriesView.allFriends: {
@@ -81,6 +87,12 @@ class _StoriesPageState extends State<StoriesPage> {
       StoryFeedType.GLOBAL: 'userStoriesGlobal',
       StoryFeedType.FRIENDS: 'userStoriesFriends',
     },
+    TypeStoriesView.me: {
+      StoryFeedType.ALL: 'userStoriesMe',
+      StoryFeedType.FAMILY: 'userStoriesMeFamily',
+      StoryFeedType.GLOBAL: 'userStoriesGlobal',
+      StoryFeedType.FRIENDS: 'userStoriesFriends',
+    },
   };
 
   @override
@@ -90,7 +102,12 @@ class _StoriesPageState extends State<StoriesPage> {
     if (getId() == null) {
       _typeStoryView = TypeStoriesView.allFriends;
     } else {
-      _typeStoryView = TypeStoriesView.oneFriend;
+      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+      if (getId() == graphQLAuth.getUserMap()['id']) {
+        _typeStoryView = TypeStoriesView.me;
+      } else {
+        _typeStoryView = TypeStoriesView.oneFriend;
+      }
     }
   }
 
@@ -111,7 +128,7 @@ class _StoriesPageState extends State<StoriesPage> {
       return user;
     }
     final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getUserById),
+      documentNode: gql(getUserByIdQL),
       variables: <String, dynamic>{
         'id': getId(),
       },
@@ -147,7 +164,9 @@ class _StoriesPageState extends State<StoriesPage> {
     FetchMore fetchMore,
     List<dynamic> activities,
   ) {
-    return CustomRaisedButton(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
+      child: CustomRaisedButton(
         text: Strings.loadMore.i18n,
         icon: Icon(
           Icons.arrow_downward,
@@ -174,7 +193,9 @@ class _StoriesPageState extends State<StoriesPage> {
             },
           );
           fetchMore(opts);
-        });
+        },
+      ),
+    );
   }
 
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
@@ -202,29 +223,43 @@ class _StoriesPageState extends State<StoriesPage> {
             break;
         }
         break;
+
       case TypeStoriesView.oneFriend:
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
             gqlString = getUserStoriesQL;
-            _variables.remove('email');
-            _variables['friendEmail'] = user['email'];
+            _variables['email'] = user['email'];
             _variables['currentUserEmail'] = graphQLAuth.getUser().email;
             break;
           case StoryFeedType.GLOBAL:
             gqlString = getUserStoriesGlobalQL;
-            _variables.remove('email');
-            _variables['friendEmail'] = user['email'];
+            _variables['email'] = user['email'];
             break;
           case StoryFeedType.FAMILY:
             gqlString = getUserStoriesFamilyQL;
-            _variables.remove('email');
-            _variables['friendEmail'] = user['email'];
+            _variables['email'] = user['email'];
             _variables['currentUserEmail'] = graphQLAuth.getUser().email;
             break;
           case StoryFeedType.FRIENDS:
             gqlString = getUserStoriesFriendsQL;
-            _variables.remove('email');
-            _variables['friendEmail'] = user['email'];
+            _variables['email'] = user['email'];
+            break;
+        }
+        break;
+
+      case TypeStoriesView.me:
+        switch (_storyFeedType) {
+          case StoryFeedType.ALL:
+            gqlString = getUserStoriesMeQL;
+            break;
+          case StoryFeedType.GLOBAL:
+            gqlString = getUserStoriesGlobalQL;
+            break;
+          case StoryFeedType.FAMILY:
+            gqlString = getUserStoriesMeFamilyQL;
+            break;
+          case StoryFeedType.FRIENDS:
+            gqlString = getUserStoriesFriendsQL;
             break;
         }
         break;

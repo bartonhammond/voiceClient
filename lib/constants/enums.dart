@@ -26,6 +26,7 @@ enum TypeSearch {
 enum TypeStoriesView {
   allFriends,
   oneFriend,
+  me,
 }
 final List reactionTypes = <String>[
   'LIKE',

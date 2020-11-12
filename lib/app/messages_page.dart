@@ -287,7 +287,9 @@ class _MessagesPageState extends State<MessagesPage> {
     FetchMore fetchMore,
     List<dynamic> messages,
   ) {
-    return CustomRaisedButton(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
+      child: CustomRaisedButton(
         text: Strings.loadMore.i18n,
         icon: Icon(
           Icons.arrow_downward,
@@ -310,7 +312,9 @@ class _MessagesPageState extends State<MessagesPage> {
             },
           );
           fetchMore(opts);
-        });
+        },
+      ),
+    );
   }
 
   Widget handleEmptyMessages() {

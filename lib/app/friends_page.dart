@@ -424,7 +424,9 @@ class _FriendsPageState extends State<FriendsPage> {
     FetchMore fetchMore,
     List<dynamic> friends,
   ) {
-    return CustomRaisedButton(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
+      child: CustomRaisedButton(
         text: Strings.loadMore.i18n,
         icon: Icon(
           Icons.arrow_downward,
@@ -448,7 +450,9 @@ class _FriendsPageState extends State<FriendsPage> {
             },
           );
           fetchMore(opts);
-        });
+        },
+      ),
+    );
   }
 
   Widget getMessageButton(
