@@ -158,4 +158,20 @@ class Strings {
   static const String reactionWow = 'Wow';
   static const String reactionSad = 'Sad';
   static const String reactionLove = 'Love';
+
+  static const String messagesPageMessage = 'Message';
+  static const String messagesPageDeleteMessage = 'Delete Message';
+  static const String messagesPageMessageAll = 'All';
+  static const String messagesPageMessageMessages = 'Messages';
+  static const String messagesPageMessageComments = 'Comments';
+  static const String messagesPageMessageFriendRequests = 'Friend Requests';
+
+  static const String storiesPageAll = 'All';
+  static const String storiesPageFamily = 'Family';
+  static const String storiesPageFriends = 'Friends';
+  static const String storiesPageGlobal = 'Global';
+
+  static const String storyPlayAudience = 'Audience';
+
+  static const String friendWidgetRecordMessage = 'Record Message';
 }

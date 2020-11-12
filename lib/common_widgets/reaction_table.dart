@@ -215,8 +215,9 @@ class _State extends State<ReactionTable> {
                               //if friend, do nothing
                               ? DataCell(
                                   MessageButton(
-                                    key: Key('${Keys.newFriendsButton}'),
-                                    text: 'Message',
+                                    key: Key(
+                                        '${Keys.reactionTableMessageButton}'),
+                                    text: Strings.reactionTableFriend.i18n,
                                     onPressed: () async {
                                       Navigator.push<dynamic>(
                                           context,
@@ -241,8 +242,9 @@ class _State extends State<ReactionTable> {
                                   //if not a friend
                                   : DataCell(
                                       MessageButton(
-                                        key: Key('${Keys.newFriendsButton}'),
-                                        text: 'Friend',
+                                        key: Key(
+                                            '${Keys.reactionTableNewFriendsButton}'),
+                                        text: Strings.reactionTableFriend.i18n,
                                         onPressed: () {
                                           _newFriendRequest(reaction['userId']);
                                         },

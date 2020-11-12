@@ -275,28 +275,28 @@ class _StoriesPageState extends State<StoriesPage> {
     return DropdownButtonHideUnderline(
       child: DropdownButton<StoryFeedType>(
         value: _storyFeedType,
-        items: const [
+        items: [
           DropdownMenuItem(
             child: Text(
-              'All',
+              Strings.storiesPageAll.i18n,
             ),
             value: StoryFeedType.ALL,
           ),
           DropdownMenuItem(
             child: Text(
-              'Family',
+              Strings.storiesPageFamily.i18n,
             ),
             value: StoryFeedType.FAMILY,
           ),
           DropdownMenuItem(
             child: Text(
-              'Friends',
+              Strings.storiesPageFamily.i18n,
             ),
             value: StoryFeedType.FRIENDS,
           ),
           DropdownMenuItem(
             child: Text(
-              'Global',
+              Strings.storiesPageGlobal.i18n,
             ),
             value: StoryFeedType.GLOBAL,
           ),

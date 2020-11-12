@@ -29,4 +29,8 @@ class Keys {
   static const String deleteStoryButton = 'deleteStoryButton';
   static const String viewCommentButton = 'viewCommentButton';
   static const String clearCommentButton = 'clearCommentButton';
+
+  static const String reactionTableNewFriendsButton =
+      'reactionTableNewFriendsButton';
+  static const String reactionTableMessageButton = 'reactionTableMessageButton';
 }

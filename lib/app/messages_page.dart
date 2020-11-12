@@ -246,14 +246,14 @@ class _MessagesPageState extends State<MessagesPage> {
 
       case 'message':
         return StaggeredGridTileMessage(
-          title: 'Message',
+          title: Strings.messagesPageMessage.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           isAudio: true,
           approveButton: null,
           rejectButton: MessageButton(
             key: Key('deleteMessage-$index'),
-            text: 'Delete message',
+            text: Strings.messagesPageDeleteMessage.i18n,
             fontSize: 16,
             onPressed: () => callBack(message),
             icon: Icon(
@@ -335,21 +335,21 @@ class _MessagesPageState extends State<MessagesPage> {
     return DropdownButtonHideUnderline(
       child: DropdownButton<MessageType>(
         value: _messageType,
-        items: const [
+        items: [
           DropdownMenuItem(
-            child: Text('All'),
+            child: Text(Strings.messagesPageMessageAll.i18n),
             value: MessageType.ALL,
           ),
           DropdownMenuItem(
-            child: Text('Messages'),
+            child: Text(Strings.messagesPageMessage.i18n),
             value: MessageType.MESSAGE,
           ),
           DropdownMenuItem(
-            child: Text('Comments'),
+            child: Text(Strings.messagesPageMessageComments.i18n),
             value: MessageType.COMMENT,
           ),
           DropdownMenuItem(
-            child: Text('Friend Requests'),
+            child: Text(Strings.messagesPageMessageFriendRequests.i18n),
             value: MessageType.FRIEND_REQUEST,
           ),
         ],

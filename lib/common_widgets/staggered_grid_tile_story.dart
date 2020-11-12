@@ -176,7 +176,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Audiance:',
+                  Strings.storyPlayAudience.i18n,
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(

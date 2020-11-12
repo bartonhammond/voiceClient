@@ -555,7 +555,7 @@ class _StoryPlayState extends State<StoryPlay>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Audiance:',
+            Strings.storyPlayAudience.i18n,
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
           SizedBox(
@@ -563,17 +563,26 @@ class _StoryPlayState extends State<StoryPlay>
           ),
           DropdownButton<StoryType>(
               value: _storyType,
-              items: const [
+              items: [
                 DropdownMenuItem(
-                  child: Text('Friends', style: TextStyle(fontSize: 15)),
-                  value: StoryType.FRIENDS,
-                ),
-                DropdownMenuItem(
-                  child: Text('Family', style: TextStyle(fontSize: 15)),
+                  child: Text(Strings.storiesPageFamily.i18n,
+                      style: TextStyle(
+                        fontSize: 15,
+                      )),
                   value: StoryType.FAMILY,
                 ),
                 DropdownMenuItem(
-                    child: Text('Global', style: TextStyle(fontSize: 15)),
+                  child: Text(Strings.storiesPageFriends.i18n,
+                      style: TextStyle(
+                        fontSize: 15,
+                      )),
+                  value: StoryType.FRIENDS,
+                ),
+                DropdownMenuItem(
+                    child: Text(Strings.storiesPageGlobal,
+                        style: TextStyle(
+                          fontSize: 15,
+                        )),
                     value: StoryType.GLOBAL),
               ],
               onChanged: (_value) async {
