@@ -518,6 +518,10 @@ extension Localization on String {
       {
         'en': Strings.storyPlayAudience,
         'es': 'Audiencia',
+      } +
+      {
+        'en': Strings.friendWidgetRecordMessage,
+        'es': 'Grabar mensaje',
       };
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);

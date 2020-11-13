@@ -174,4 +174,7 @@ class Strings {
   static const String storyPlayAudience = 'Audience';
 
   static const String friendWidgetRecordMessage = 'Record Message';
+
+  static const String reactionTableMessage = 'Message?';
+  static const String reactionTableFriend = 'Friend?';
 }
