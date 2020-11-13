@@ -229,6 +229,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                   callBack: callBack,
                   showBorder: false,
                   showMessage: false,
+                  showFamilyCheckbox: false,
                 )
               : Text(
                   df.format(dt),

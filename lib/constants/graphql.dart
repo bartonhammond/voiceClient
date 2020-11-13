@@ -130,6 +130,7 @@ storyReactions(
       formatted
     }
     userId
+    email
     name
     home
     image

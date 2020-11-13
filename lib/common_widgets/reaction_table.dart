@@ -10,6 +10,7 @@ import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -209,7 +210,10 @@ class _State extends State<ReactionTable> {
                       (dynamic reaction) => DataRow(
                         cells: [
                           DataCell(
-                            getCard(reaction),
+                            Container(
+                              width: 150,
+                              child: getCard(reaction),
+                            ),
                           ),
                           reaction['friend']
                               //if friend, do nothing
@@ -217,7 +221,7 @@ class _State extends State<ReactionTable> {
                                   MessageButton(
                                     key: Key(
                                         '${Keys.reactionTableMessageButton}'),
-                                    text: Strings.reactionTableFriend.i18n,
+                                    text: Strings.reactionTableMessage.i18n,
                                     onPressed: () async {
                                       Navigator.push<dynamic>(
                                           context,
@@ -244,7 +248,7 @@ class _State extends State<ReactionTable> {
                                       MessageButton(
                                         key: Key(
                                             '${Keys.reactionTableNewFriendsButton}'),
-                                        text: Strings.reactionTableFriend.i18n,
+                                        text: Strings.newFriend.i18n,
                                         onPressed: () {
                                           _newFriendRequest(reaction['userId']);
                                         },
@@ -285,7 +289,10 @@ class _State extends State<ReactionTable> {
           ),
         ),
       ),
-      title: Text(reaction['name']),
+      title: AutoSizeText(
+        reaction['name'],
+        maxLines: 2,
+      ),
       subtitle: Image.asset(
         'assets/images/$asset.png',
         height: 20,

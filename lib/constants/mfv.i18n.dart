@@ -522,7 +522,12 @@ extension Localization on String {
       {
         'en': Strings.friendWidgetRecordMessage,
         'es': 'Grabar mensaje',
+      } +
+      {
+        'en': Strings.reactionTableMessage,
+        'es': '¿Mensaje?',
       };
+
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);
   String plural(int value) => localizePlural(value, this, _t);

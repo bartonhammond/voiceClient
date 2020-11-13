@@ -2,9 +2,11 @@ import 'dart:io' as io;
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +14,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/constants/globals.dart' as globals;
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 // ignore: must_be_immutable
 class FriendWidget extends StatefulWidget {
@@ -107,7 +110,8 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   bool checkIfIsFamily() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    if (widget.user['friends'].containsKey('from') &&
+    if (widget.user.containsKey('friends') &&
+        widget.user['friends'].containsKey('from') &&
         widget.user['friends']['from'].length > 0) {
       for (var i = 0; i < widget.user['friends']['from'].length; i++) {
         if (widget.user['friends']['from'][i].containsKey('isFamily')) {
@@ -185,10 +189,12 @@ class _FriendWidgetState extends State<FriendWidget> {
                       color: Color(0xff00bcd4),
                       size: 20,
                     )),
-                Text(
+                AutoSizeText(
                   widget.user['name'],
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: _fontSize),
+                    fontWeight: FontWeight.bold,
+                    fontSize: _fontSize,
+                  ),
                 ),
                 Container(),
               ])
@@ -260,22 +266,28 @@ class _FriendWidgetState extends State<FriendWidget> {
                     Container(),
                   ],
                 ),
-                Text(
+                AutoSizeText(
                   widget.user['name'],
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: _fontSize),
+                    fontWeight: FontWeight.bold,
+                    fontSize: _fontSize,
+                  ),
                 ),
-                Text(
+                AutoSizeText(
                   widget.user['home'],
                   style: TextStyle(
-                      fontWeight: FontWeight.bold, fontSize: _fontSize),
+                    fontWeight: FontWeight.bold,
+                    fontSize: _fontSize,
+                  ),
                 ),
                 widget.story == null
                     ? Container()
-                    : Text(
+                    : AutoSizeText(
                         df.format(dt),
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 10.0),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 10.0,
+                        ),
                       ),
                 widget.showFamilyCheckbox
                     ? widget.user['email'] == graphQLAuth.getUserMap()['email']
@@ -296,10 +308,12 @@ class _FriendWidgetState extends State<FriendWidget> {
                                     );
                                     callBack();
                                   }),
-                              Text('Family'),
+                              Text(Strings.storiesPageFamily.i18n),
                             ],
                           )
-                    : Container(),
+                    : checkIfIsFamily()
+                        ? Text(Strings.storiesPageFamily.i18n)
+                        : Container(),
                 widget.message == null
                     ? Container()
                     : Text(
