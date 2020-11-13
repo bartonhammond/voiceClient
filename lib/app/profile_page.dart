@@ -45,7 +45,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String name = '';
   String cityState = '';
   String userImage = '';
-  bool shouldCreateUser = true;
+  bool shouldCreateUser = false;
 
   Map<String, dynamic> user;
   io.File _image;
@@ -55,29 +55,40 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _uploadInProgress = false;
   bool formReady = false;
 
+  TextEditingController emailFormFieldController;
   TextEditingController nameFormFieldController;
-
   TextEditingController homeFormFieldController;
+
+  Map getUser() {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    if (graphQLAuth.getUserMap() == null) {
+      return <String, dynamic>{
+        'id': '',
+        'email': graphQLAuth.user.email,
+        'image': '',
+        'audio': '',
+        'home': '',
+      };
+    }
+    return graphQLAuth.getUserMap();
+  }
 
   @override
   void initState() {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    user = graphQLAuth.getUserMap();
-    setState(() {
-      if (user != null) {
-        shouldCreateUser = false;
-        userEmail = user['email'];
-        userId = user['id'];
-        name = user['name'];
-        cityState = user['home'];
-        userImage = user['image'];
-      } else {
-        shouldCreateUser = true;
-        final _uuid = Uuid();
-        userId = _uuid.v1();
-      }
-    });
+    user = getUser();
+    userEmail = user['email'];
+    userId = user['id'];
+    name = user['name'];
+    cityState = user['home'];
+    userImage = user['image'];
 
+    //if user is new, id will be empty
+    if (userId == null || userId.isEmpty) {
+      userId = Uuid().v1();
+      shouldCreateUser = true;
+    }
+
+    emailFormFieldController = TextEditingController(text: userEmail);
     nameFormFieldController = TextEditingController(text: name);
     homeFormFieldController = TextEditingController(text: cityState);
 
@@ -99,6 +110,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void dispose() {
+    emailFormFieldController.dispose();
     nameFormFieldController.dispose();
     homeFormFieldController.dispose();
 
@@ -174,11 +186,11 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } else {
-      if ((name != null && name != user['name'] && name.length > 5) ||
+      if (_image != null ||
+          (name != null && name.length > 5 && name != user['name']) ||
           (cityState != null &&
-              cityState != user['home'] &&
-              cityState.length > 1) ||
-          (_image != null)) {
+              cityState.length > 1 &&
+              cityState != user['home'])) {
         setState(() {
           formReady = true;
         });
@@ -328,6 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     String jpegPathUrl;
+
     try {
       if (imageUpdated) {
         final MultipartFile multipartFile = getMultipartFile(
@@ -352,6 +365,7 @@ class _ProfilePageState extends State<ProfilePage> {
         graphQLClient,
         jpegPathUrl: jpegPathUrl == null ? userImage : jpegPathUrl,
         id: userId,
+        email: userEmail,
         name: name,
         home: cityState,
       );
@@ -384,8 +398,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget getForm() {
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;
@@ -408,118 +421,180 @@ class _ProfilePageState extends State<ProfilePage> {
       default:
         _width = _height = 100;
     }
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: getDrawer(context),
-      appBar: AppBar(
-        title: Text(Strings.profilePageName.i18n),
-        backgroundColor: Color(0xff00bcd4),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(
-              height: 7.0,
-            ),
-            if (_image != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(40.0),
-                child: Image.file(
-                  _image,
-                  width: _width.toDouble(),
-                  height: _height.toDouble(),
-                ),
-              )
-            else if (userId != null &&
-                userId.isNotEmpty &&
-                user != null &&
-                user['image'] != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(25.0),
-                child: FadeInImage.memoryNetwork(
-                  height: _width.toDouble(),
-                  width: _width.toDouble(),
-                  placeholder: kTransparentImage,
-                  image: host(
-                    user['image'],
-                    width: _width,
-                    height: _height,
-                    resizingType: 'fill',
-                    enlarge: 1,
-                  ),
-                ),
-              )
-            else
-              Flexible(
-                flex: 2,
-                child: Stack(
-                  children: <Widget>[
-                    Positioned(
-                      left: (MediaQuery.of(context).size.width / 2) - 70,
-                      top: 35,
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(8.0),
-                          topRight: Radius.circular(8.0),
-                        ),
-                        child: Image.asset(
-                          'assets/user.png',
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                    Container(
-                      height: 100,
-                      width: 300,
-                      padding: EdgeInsets.all(5.0),
-                      alignment: Alignment.topCenter,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: <Color>[
-                            Colors.black.withAlpha(30),
-                            Colors.black12,
-                            Colors.black54
-                          ],
-                        ),
-                      ),
-                      child: Text(
-                        Strings.imagePlaceholderText.i18n,
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ],
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            height: 7.0,
+          ),
+          if (_image != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(40.0),
+              child: Image.file(
+                _image,
+                width: _width.toDouble(),
+                height: _height.toDouble(),
+              ),
+            )
+          else if (userId != null &&
+              userId.isNotEmpty &&
+              user != null &&
+              user['image'] != null &&
+              user['image'].isNotEmpty)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(25.0),
+              child: FadeInImage.memoryNetwork(
+                height: _width.toDouble(),
+                width: _width.toDouble(),
+                placeholder: kTransparentImage,
+                image: host(
+                  user['image'],
+                  width: _width,
+                  height: _height,
+                  resizingType: 'fill',
+                  enlarge: 1,
                 ),
               ),
-            SizedBox(
-              height: 5,
+            )
+          else
+            Flexible(
+              flex: 2,
+              child: Stack(
+                children: <Widget>[
+                  Positioned(
+                    left: (MediaQuery.of(context).size.width / 2) - 70,
+                    top: 35,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(8.0),
+                        topRight: Radius.circular(8.0),
+                      ),
+                      child: Image.asset(
+                        'assets/user.png',
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.fill,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    height: 100,
+                    width: 300,
+                    padding: EdgeInsets.all(5.0),
+                    alignment: Alignment.topCenter,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Colors.black.withAlpha(30),
+                          Colors.black12,
+                          Colors.black54
+                        ],
+                      ),
+                    ),
+                    child: Text(
+                      Strings.imagePlaceholderText.i18n,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            Text(
-              Strings.yourPictureSelection.i18n,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            Strings.yourPictureSelection.i18n,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          _buildImageControls(),
+          SizedBox(
+            height: 5,
+          ),
+          Container(
+            width: _formFieldWidth.toDouble(),
+            margin: const EdgeInsets.only(right: 10, left: 10),
+            child: TextFormField(
+              controller: emailFormFieldController,
+              readOnly: true,
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Color(0xff00bcd4),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Color(0xff00bcd4),
+                    width: 2.0,
+                  ),
+                ),
+                hintStyle: TextStyle(color: Color(0xff00bcd4)),
+                border: const OutlineInputBorder(),
+                filled: true,
+                labelText: Strings.emailLabel.i18n,
+                labelStyle: TextStyle(color: Color(0xff00bcd4)),
+              ),
             ),
-            SizedBox(
-              height: 5,
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Container(
+            width: _formFieldWidth.toDouble(),
+            margin: const EdgeInsets.only(right: 10, left: 10),
+            child: TextFormField(
+              controller: nameFormFieldController,
+              decoration: InputDecoration(
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Color(0xff00bcd4),
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25.0),
+                  borderSide: BorderSide(
+                    color: Color(0xff00bcd4),
+                    width: 2.0,
+                  ),
+                ),
+                hintStyle: TextStyle(color: Color(0xff00bcd4)),
+                border: const OutlineInputBorder(),
+                filled: true,
+                hintText: Strings.yourFullNameText.i18n,
+                labelText: Strings.yourFullNameLabel.i18n,
+                labelStyle: TextStyle(color: Color(0xff00bcd4)),
+              ),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return Strings.nameEmptyMessage.i18n;
+                }
+                return null;
+              },
             ),
-            _buildImageControls(),
-            SizedBox(
-              height: 5,
-            ),
-            Container(
-              width: _formFieldWidth.toDouble(),
-              margin: const EdgeInsets.only(right: 10, left: 10),
-              child: TextFormField(
-                controller: nameFormFieldController,
-                decoration: InputDecoration(
+          ),
+          SizedBox(
+            height: 15,
+          ),
+          Container(
+            width: _formFieldWidth.toDouble(),
+            margin: const EdgeInsets.only(right: 10, left: 10),
+            child: TextFormField(
+              controller: homeFormFieldController,
+              decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
                     borderSide: BorderSide(
@@ -533,64 +608,39 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: 2.0,
                     ),
                   ),
-                  hintStyle: TextStyle(color: Color(0xff00bcd4)),
                   border: const OutlineInputBorder(),
                   filled: true,
-                  hintText: Strings.yourFullNameText.i18n,
-                  labelText: Strings.yourFullNameLabel.i18n,
-                  labelStyle: TextStyle(color: Color(0xff00bcd4)),
-                ),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return Strings.nameEmptyMessage.i18n;
-                  }
-                  return null;
-                },
-              ),
+                  hintText: Strings.yourHomeText.i18n,
+                  hintStyle: TextStyle(color: Color(0xff00bcd4)),
+                  labelText: Strings.yourHomeLabel.i18n,
+                  labelStyle: TextStyle(color: Color(0xff00bcd4))),
+              validator: (value) {
+                if (value.isEmpty) {
+                  return Strings.homeEmptyMessage.i18n;
+                }
+                return null;
+              },
             ),
-            SizedBox(
-              height: 15,
-            ),
-            Container(
-              width: _formFieldWidth.toDouble(),
-              margin: const EdgeInsets.only(right: 10, left: 10),
-              child: TextFormField(
-                controller: homeFormFieldController,
-                decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(25.0),
-                      borderSide: BorderSide(
-                        color: Color(0xff00bcd4),
-                        width: 2.0,
-                      ),
-                    ),
-                    border: const OutlineInputBorder(),
-                    filled: true,
-                    hintText: Strings.yourHomeText.i18n,
-                    hintStyle: TextStyle(color: Color(0xff00bcd4)),
-                    labelText: Strings.yourHomeLabel.i18n,
-                    labelStyle: TextStyle(color: Color(0xff00bcd4))),
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return Strings.homeEmptyMessage.i18n;
-                  }
-                  return null;
-                },
-              ),
-            ),
-            SizedBox(
-              height: 8,
-            ),
-            _buildUploadButton(context)
-          ],
-        ),
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          _buildUploadButton(context)
+        ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: getDrawer(context),
+      appBar: AppBar(
+        title: Text(Strings.profilePageName.i18n),
+        backgroundColor: Color(0xff00bcd4),
+      ),
+      body: getForm(),
     );
   }
 }

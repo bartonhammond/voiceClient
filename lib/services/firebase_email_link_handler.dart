@@ -2,17 +2,11 @@ import 'dart:async';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:MyFamilyVoice/services/email_secure_store.dart';
-import 'package:MyFamilyVoice/services/service_locator.dart';
-
-import 'graphql_auth.dart';
 
 enum EmailLinkErrorType {
   linkError,
@@ -119,9 +113,6 @@ class FirebaseEmailLinkHandler {
   }
 
   Future<void> _signInWithEmail(String link) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final GraphQLClient graphQLClient =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
     try {
       isLoading.value = true;
       // check that user is not signed in
@@ -147,24 +138,6 @@ class FirebaseEmailLinkHandler {
           email: email,
           link: link,
         );
-
-        final QueryOptions _queryOptions = QueryOptions(
-          documentNode: gql(getUserByEmailForAuthQL),
-          variables: <String, dynamic>{
-            'email': email,
-          },
-        );
-
-        final QueryResult queryResult =
-            await graphQLClient.query(_queryOptions);
-
-        if (queryResult != null &&
-            queryResult.data != null &&
-            queryResult.data['User'] != null &&
-            queryResult.data['User'].length > 0 &&
-            queryResult.data['User'][0]['id'] != null) {
-          graphQLAuth.setCurrentUserId(queryResult.data['User'][0]['id']);
-        }
       } else {
         _errorController.add(EmailLinkError(
           error: EmailLinkErrorType.isNotSignInWithEmailLink,

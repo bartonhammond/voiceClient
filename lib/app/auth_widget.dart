@@ -99,17 +99,6 @@ class AuthWidget extends StatelessWidget {
         linkHandler: linkHandler,
         onSignedIn: null,
       );
-    } else {
-      if (userEmail != null && userEmail.isNotEmpty) {
-        return setupHomePage(
-            context,
-            User(
-              uid: 'does not matter',
-              email: userEmail,
-              photoUrl: 'does not matter',
-              displayName: 'does not matter',
-            ));
-      }
     }
     return Scaffold(
       body: Center(

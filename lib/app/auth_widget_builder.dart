@@ -16,7 +16,6 @@ class AuthWidgetBuilder extends StatelessWidget {
         stream: authService.onAuthStateChanged,
         builder: (BuildContext context, AsyncSnapshot<User> snapshot) {
           final User user = snapshot.data;
-
           if (user != null) {
             return MultiProvider(
               providers: [

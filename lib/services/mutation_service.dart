@@ -260,21 +260,15 @@ Future<void> addUserMessages(
 }
 
 Future<QueryResult> createOrUpdateUserInfo(
-  EmailSecureStore emailSecureStore,
-  bool shouldCreateUser,
-  GraphQLClient graphQLClientFileServer,
-  GraphQLClient graphQLClient, {
-  String jpegPathUrl,
-  String id,
-  String name,
-  String home,
-}) async {
-  String email;
-
-  if (shouldCreateUser) {
-    email = await emailSecureStore.getEmail();
-  }
-
+    EmailSecureStore emailSecureStore,
+    bool shouldCreateUser,
+    GraphQLClient graphQLClientFileServer,
+    GraphQLClient graphQLClient,
+    {String jpegPathUrl,
+    String id,
+    String email,
+    String name,
+    String home}) async {
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   final String formattedDate = formatter.format(now);
