@@ -69,23 +69,23 @@ Future<void> runQueries(CustomObject customObject) async {
   final String email = customObject.email;
   print('runQueries $email');
   while (true) {
-    await loadStories(graphQLClient, email, getUserStories, 'userStories');
+    await loadStories(graphQLClient, email, getUserStoriesQL, 'userStories');
     await Future<dynamic>.delayed(Duration(seconds: 1));
 
     await loadStories(
-        graphQLClient, email, getUserFriendsStories, 'userFriendsStories');
+        graphQLClient, email, getUserFriendsStoriesQL, 'userFriendsStories');
     await Future<dynamic>.delayed(Duration(seconds: 1));
 
     await getSearchFriends(
       graphQLClient,
       email,
-      userSearchFriends,
+      userSearchFriendsQL,
       'userSearchFriends',
     );
     await getSearchFriends(
       graphQLClient,
       email,
-      userSearchNotFriends,
+      userSearchNotFriendsQL,
       'userSearchNotFriends',
     );
     await getSearchFriends(

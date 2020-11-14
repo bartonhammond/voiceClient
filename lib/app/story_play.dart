@@ -45,7 +45,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   String _imageFilePath;
   String _audioFilePath;
-
+  StoryType _storyType = StoryType.FAMILY;
   bool _uploadInProgress = false;
 
   final _uuid = Uuid();
@@ -65,6 +65,7 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   void initState() {
     _id = _uuid.v1();
+
     super.initState();
   }
 
@@ -98,12 +99,24 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setCommentAudioFile(io.File audio) async {
+    if (audio == null) {
+      return;
+    }
     setState(() {
       _commentAudio = audio;
       _uploadInProgress = true;
     });
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClientApolloServer =
+        GraphQLProvider.of(context).value;
     await doCommentUploads(
-      context,
+      graphQLAuth,
+      graphQLClientFileServer,
+      graphQLClientApolloServer,
       _commentAudio,
       _story,
     );
@@ -154,6 +167,21 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
+          if (_story == null) {
+            _storyType ??= StoryType.FAMILY;
+          } else {
+            switch (_story['type']) {
+              case 'FAMILY':
+                _storyType = StoryType.FAMILY;
+                break;
+              case 'FRIENDS':
+                _storyType = StoryType.FRIENDS;
+                break;
+              case 'GLOBAL':
+                _storyType = StoryType.GLOBAL;
+                break;
+            }
+          }
 
           if (_story == null ||
               (_story != null &&
@@ -280,6 +308,7 @@ class _StoryPlayState extends State<StoryPlay>
           _id,
           _imageFilePath,
           _audioFilePath,
+          storyTypes[_storyType.index],
         );
         Flushbar<dynamic>(
           message: Strings.saved.i18n,
@@ -288,7 +317,9 @@ class _StoryPlayState extends State<StoryPlay>
       }
     } else {
       //don't update unnecessarily
-      if (_imageFilePath != null || _audioFilePath != null) {
+      if (_imageFilePath != null ||
+          _audioFilePath != null ||
+          _storyType != _story['type']) {
         _imageFilePath ??= _story['image'];
         _audioFilePath ??= _story['audio'];
         await updateStory(
@@ -297,6 +328,7 @@ class _StoryPlayState extends State<StoryPlay>
           _imageFilePath,
           _audioFilePath,
           _story['created']['formatted'],
+          storyTypes[_storyType.index],
         );
         Flushbar<dynamic>(
           message: Strings.saved.i18n,
@@ -516,20 +548,70 @@ class _StoryPlayState extends State<StoryPlay>
     ]);
   }
 
+  Widget getStoryTypeDropDown() {
+    return Container(
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            Strings.storyPlayAudience.i18n,
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          DropdownButton<StoryType>(
+              value: _storyType,
+              items: [
+                DropdownMenuItem(
+                  child: Text(Strings.storiesPageFamily.i18n,
+                      style: TextStyle(
+                        fontSize: 15,
+                      )),
+                  value: StoryType.FAMILY,
+                ),
+                DropdownMenuItem(
+                  child: Text(Strings.storiesPageFriends.i18n,
+                      style: TextStyle(
+                        fontSize: 15,
+                      )),
+                  value: StoryType.FRIENDS,
+                ),
+                DropdownMenuItem(
+                    child: Text(Strings.storiesPageGlobal,
+                        style: TextStyle(
+                          fontSize: 15,
+                        )),
+                    value: StoryType.GLOBAL),
+              ],
+              onChanged: (_value) async {
+                setState(() {
+                  _storyType = _value;
+                });
+                await doStoryUpload();
+                setState(() {});
+              })
+        ],
+      ),
+    );
+  }
+
   Widget getCard(BuildContext context) {
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             if (widget.params != null &&
                 widget.params['id'] != null &&
                 widget.params['id'].isNotEmpty)
-              buildFriend(
-                context,
-                _story['user'],
+              FriendWidget(
+                user: _story['user'],
+                story: _story,
+                showMessage: false,
               ),
             if (widget.params != null &&
                 widget.params['id'] != null &&
@@ -537,7 +619,7 @@ class _StoryPlayState extends State<StoryPlay>
                 _isCurrentUserAuthor &&
                 _showComments == false)
               buildDeleteStory(_showIcons),
-            SizedBox(height: _spacer.toDouble()),
+            getStoryTypeDropDown(),
             getImageDisplay(
               _width,
               _height,

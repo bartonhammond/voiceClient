@@ -24,6 +24,8 @@ class RecorderWidget extends StatefulWidget {
     this.showIcon = true,
     this.width = 200,
     this.url = '',
+    this.showStacked = false,
+    this.showPlayerWidget = true,
   }) : super(key: key);
   final ValueChanged<io.File> setAudioFile;
   final bool isCurrentUserAuthor;
@@ -31,6 +33,8 @@ class RecorderWidget extends StatefulWidget {
   final bool showIcon;
   final int width;
   final String url;
+  final bool showStacked;
+  final bool showPlayerWidget;
 
   final LocalFileSystem localFileSystem = LocalFileSystem();
   @override
@@ -273,50 +277,13 @@ class _RecorderWidgetState extends State<RecorderWidget>
       if (_currentStatus == RecordingStatus.Stopped) {
         level = 0;
       }
-      return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            getRecordButton(widget.showIcon),
-            SizedBox(
-              width: 4,
-            ),
-            CustomRaisedButton(
-              key: Key(Keys.storyPageStopButton),
-              text: Strings.audioStop.i18n,
-              icon: widget.showIcon
-                  ? Icon(
-                      Icons.stop,
-                      color: Colors.white,
-                    )
-                  : null,
-              onPressed: _stopButtonEnabled ? _stop : null,
-            ),
-            SizedBox(
-              width: 4,
-            ),
-            Container(
-              height: 40,
-              child: FAProgressBar(
-                currentValue: level.toInt(),
-                maxValue: 100,
-                size: 40,
-                animatedDuration: const Duration(milliseconds: 400),
-                direction: Axis.vertical,
-                verticalDirection: VerticalDirection.up,
-                borderRadius: 0,
-                border: Border.all(
-                  color: level == 0.0 ? Colors.transparent : Colors.indigo,
-                  width: 0.5,
-                ),
-                backgroundColor:
-                    level == 0.0 ? Colors.transparent : Colors.white,
-                progressColor: level == 0.0 ? Colors.transparent : Colors.red,
-                changeColorValue: 75,
-                changeProgressColor:
-                    level == 0.0 ? Colors.transparent : Colors.green,
-              ),
-            )
-          ]);
+      return widget.showStacked
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: getChildren(level))
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: getChildren(level));
     }
     return Container();
   }
@@ -343,6 +310,49 @@ class _RecorderWidgetState extends State<RecorderWidget>
     return Container();
   }
 
+  List<Widget> getChildren(double level) {
+    return <Widget>[
+      getRecordButton(widget.showIcon),
+      SizedBox(
+        width: 4,
+      ),
+      CustomRaisedButton(
+        key: Key(Keys.storyPageStopButton),
+        text: Strings.audioStop.i18n,
+        icon: widget.showIcon
+            ? Icon(
+                Icons.stop,
+                color: Colors.white,
+              )
+            : null,
+        onPressed: _stopButtonEnabled ? _stop : null,
+      ),
+      SizedBox(
+        width: 4,
+      ),
+      Container(
+        height: 40,
+        child: FAProgressBar(
+          currentValue: level.toInt(),
+          maxValue: 100,
+          size: 40,
+          animatedDuration: const Duration(milliseconds: 400),
+          direction: Axis.vertical,
+          verticalDirection: VerticalDirection.up,
+          borderRadius: 0,
+          border: Border.all(
+            color: level == 0.0 ? Colors.transparent : Colors.indigo,
+            width: 0.5,
+          ),
+          backgroundColor: level == 0.0 ? Colors.transparent : Colors.white,
+          progressColor: level == 0.0 ? Colors.transparent : Colors.red,
+          changeColorValue: 75,
+          changeProgressColor: level == 0.0 ? Colors.transparent : Colors.green,
+        ),
+      )
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Flexible(
@@ -358,12 +368,14 @@ class _RecorderWidgetState extends State<RecorderWidget>
               ),
             ],
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              getPlayerWidget(),
-            ],
-          ),
+          widget.showPlayerWidget
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    getPlayerWidget(),
+                  ],
+                )
+              : Container(),
           getRecordWidget(),
           widget.isCurrentUserAuthor
               ? Row(

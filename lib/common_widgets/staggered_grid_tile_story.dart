@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/reaction_table.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
@@ -90,8 +91,18 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       _commentAudio = audio;
       _uploadInProgress = true;
     });
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClientApolloServer =
+        GraphQLProvider.of(context).value;
+
     await doCommentUploads(
-      context,
+      graphQLAuth,
+      graphQLClientFileServer,
+      graphQLClientApolloServer,
       _commentAudio,
       widget.story,
     );
@@ -102,83 +113,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     });
     callBack();
     return;
-  }
-
-  Widget buildFriend() {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _width = 100;
-    int _height = 200;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.watch:
-        _width = _height = 50;
-        break;
-      case DeviceScreenType.mobile:
-        _width = _height = 50;
-        break;
-      default:
-        _width = _height = 100;
-    }
-
-    final DateTime dt = DateTime.parse(widget.story['updated']['formatted']);
-    final DateFormat df = DateFormat.yMd().add_jm();
-
-    return Card(
-      shadowColor: Colors.white,
-      child: Column(
-        children: <Widget>[
-          Center(
-            child: GestureDetector(
-              onTap: () => widget.onPush(
-                <String, dynamic>{
-                  'id': widget.story['id'],
-                  'onFinish': callBack,
-                  'onDelete': widget.onDelete,
-                },
-              ),
-              child: widget.story['user']['image'] == null
-                  ? Image(
-                      image: AssetImage('assets/placeholder.png'),
-                      width: 100,
-                      height: 100,
-                    )
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(25.0),
-                      child: FadeInImage.memoryNetwork(
-                        height: _height.toDouble(),
-                        width: _width.toDouble(),
-                        placeholder: kTransparentImage,
-                        image: host(
-                          widget.story['user']['image'],
-                          width: _width,
-                          height: _height,
-                          resizingType: 'fill',
-                          enlarge: 1,
-                        ),
-                      ),
-                    ),
-            ),
-          ),
-          Text(
-            widget.story['user']['name'] == null
-                ? 'Name...'
-                : widget.story['user']['name'],
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
-          ),
-          Text(
-            df.format(dt),
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
-          ),
-          SizedBox(
-            height: 7.toDouble(),
-          ),
-        ],
-      ),
-    );
   }
 
   Alignment getAlignment() {
@@ -219,13 +153,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     final DateTime dt = DateTime.parse(widget.story['updated']['formatted']);
     final DateFormat df = DateFormat.yMd().add_jm();
 
-    final List<String> _tags = [];
-    if (widget.story != null && widget.story['hashtags'] != null) {
-      final List<dynamic> hashtags = widget.story['hashtags'];
-      for (var tag in hashtags) {
-        _tags.add(tag['tag']);
-      }
-    }
     final int commentsLength = widget.story['comments']
         .where((dynamic comment) => comment['status'] == 'new')
         .toList()
@@ -243,6 +170,22 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       child: Column(
         children: <Widget>[
           SizedBox(height: 10),
+          Container(
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  Strings.storyPlayAudience.i18n,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(widget.story['type']),
+              ],
+            ),
+          ),
           InkWell(
             onTap: () {
               widget.onPush(<String, dynamic>{
@@ -278,7 +221,16 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             ),
           ),
           widget.showFriend
-              ? buildFriend()
+              ? FriendWidget(
+                  user: widget.story['user'],
+                  onPush: widget.onPush,
+                  story: widget.story,
+                  onDelete: widget.onDelete,
+                  callBack: callBack,
+                  showBorder: false,
+                  showMessage: false,
+                  showFamilyCheckbox: false,
+                )
               : Text(
                   df.format(dt),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0),

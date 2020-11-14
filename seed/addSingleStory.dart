@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:graphql/client.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart';
@@ -67,6 +68,7 @@ Future<String> addSingleStory(
     _storyId,
     jpegPathUrl,
     mp3PathUrl,
+    storyTypes[StoryType.FRIENDS.index],
     daysOffset: daysOffset,
   );
 

@@ -30,57 +30,6 @@ class Debouncer {
   }
 }
 
-class ResultTypes {
-  ResultTypes(
-    this._typeStoriesView,
-    this._typeSearch,
-  );
-
-  TypeSearch _typeSearch;
-  final TypeStoriesView _typeStoriesView;
-
-  final String _userFriendStoriesByDate = 'userFriendsStories';
-  final String _userStoriesByDate = 'userStories';
-  bool _userFriendStoriesByDateHasMore = true;
-  bool _userStoriesByDateHasMore = true;
-
-  TypeStoriesView getTypeStoriesView() {
-    return _typeStoriesView;
-  }
-
-  void setHasMore(bool value) {
-    if (_typeStoriesView == TypeStoriesView.allFriends) {
-      _userFriendStoriesByDateHasMore = value;
-    }
-    if (_typeStoriesView == TypeStoriesView.oneFriend) {
-      _userStoriesByDateHasMore = value;
-    }
-  }
-
-  bool getHasMore() {
-    if (_typeStoriesView == TypeStoriesView.allFriends) {
-      return _userFriendStoriesByDateHasMore;
-    }
-
-    return _userStoriesByDateHasMore;
-  }
-
-  void setTypeSearch(TypeSearch typeSearch) {
-    _typeSearch = typeSearch;
-  }
-
-  TypeSearch getTypeSearch() {
-    return _typeSearch;
-  }
-
-  String getResultType() {
-    if (_typeStoriesView == TypeStoriesView.allFriends) {
-      return _userFriendStoriesByDate;
-    }
-    return _userStoriesByDate;
-  }
-}
-
 class StoriesPage extends StatefulWidget {
   const StoriesPage({
     Key key,
@@ -96,24 +45,69 @@ class StoriesPage extends StatefulWidget {
 class _StoriesPageState extends State<StoriesPage> {
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
+
   Map<String, dynamic> user;
 
-  ResultTypes _resultTypes;
+  //Who is the audiance?
+  TypeStoriesView _typeStoryView = TypeStoriesView.allFriends;
+
+  //What kind of feed
+  StoryFeedType _storyFeedType = StoryFeedType.ALL;
+
+  Map<TypeStoriesView, Map<StoryFeedType, bool>> moreSearchResults = {
+    TypeStoriesView.allFriends: {
+      StoryFeedType.ALL: true,
+      StoryFeedType.FAMILY: true,
+      StoryFeedType.GLOBAL: true,
+      StoryFeedType.FRIENDS: true,
+    },
+    TypeStoriesView.oneFriend: {
+      StoryFeedType.ALL: true,
+      StoryFeedType.FAMILY: true,
+      StoryFeedType.GLOBAL: true,
+      StoryFeedType.FRIENDS: true,
+    },
+    TypeStoriesView.me: {
+      StoryFeedType.ALL: true,
+      StoryFeedType.FAMILY: true,
+      StoryFeedType.GLOBAL: true,
+      StoryFeedType.FRIENDS: true,
+    },
+  };
+  Map<TypeStoriesView, Map<StoryFeedType, String>> searchResultsName = {
+    TypeStoriesView.allFriends: {
+      StoryFeedType.ALL: 'userFriendsStories',
+      StoryFeedType.FAMILY: 'userFriendsStoriesFamily',
+      StoryFeedType.GLOBAL: 'userFriendsStoriesGlobal',
+      StoryFeedType.FRIENDS: 'userFriendsStoriesFriends',
+    },
+    TypeStoriesView.oneFriend: {
+      StoryFeedType.ALL: 'userStories',
+      StoryFeedType.FAMILY: 'userStoriesFamily',
+      StoryFeedType.GLOBAL: 'userStoriesGlobal',
+      StoryFeedType.FRIENDS: 'userStoriesFriends',
+    },
+    TypeStoriesView.me: {
+      StoryFeedType.ALL: 'userStoriesMe',
+      StoryFeedType.FAMILY: 'userStoriesMeFamily',
+      StoryFeedType.GLOBAL: 'userStoriesGlobal',
+      StoryFeedType.FRIENDS: 'userStoriesFriends',
+    },
+  };
 
   @override
   void initState() {
     super.initState();
 
     if (getId() == null) {
-      _resultTypes = ResultTypes(
-        TypeStoriesView.allFriends,
-        TypeSearch.date,
-      );
+      _typeStoryView = TypeStoriesView.allFriends;
     } else {
-      _resultTypes = ResultTypes(
-        TypeStoriesView.oneFriend,
-        TypeSearch.date,
-      );
+      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+      if (getId() == graphQLAuth.getUserMap()['id']) {
+        _typeStoryView = TypeStoriesView.me;
+      } else {
+        _typeStoryView = TypeStoriesView.oneFriend;
+      }
     }
   }
 
@@ -134,8 +128,10 @@ class _StoriesPageState extends State<StoriesPage> {
       return user;
     }
     final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getUserById),
-      variables: <String, dynamic>{'id': getId()},
+      documentNode: gql(getUserByIdQL),
+      variables: <String, dynamic>{
+        'id': getId(),
+      },
     );
 
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
@@ -157,11 +153,20 @@ class _StoriesPageState extends State<StoriesPage> {
     return datetime;
   }
 
+  void isThereMoreSearchResults(dynamic fetchMoreResultData) {
+    moreSearchResults[_typeStoryView][_storyFeedType] =
+        fetchMoreResultData[searchResultsName[_typeStoryView][_storyFeedType]]
+                .length >
+            0;
+  }
+
   Widget getLoadMoreButton(
     FetchMore fetchMore,
     List<dynamic> activities,
   ) {
-    return CustomRaisedButton(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
+      child: CustomRaisedButton(
         text: Strings.loadMore.i18n,
         icon: Icon(
           Icons.arrow_downward,
@@ -174,42 +179,134 @@ class _StoriesPageState extends State<StoriesPage> {
             },
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
-              _resultTypes.setHasMore(
-                  fetchMoreResultData[_resultTypes.getResultType()].length > 0);
-
               final List<dynamic> data = <dynamic>[
-                ...previousResultData[_resultTypes.getResultType()],
-                ...fetchMoreResultData[_resultTypes.getResultType()],
+                ...previousResultData[searchResultsName[_typeStoryView]
+                    [_storyFeedType]],
+                ...fetchMoreResultData[searchResultsName[_typeStoryView]
+                    [_storyFeedType]]
               ];
-
-              fetchMoreResultData[_resultTypes.getResultType()] = data;
+              isThereMoreSearchResults(fetchMoreResultData);
+              fetchMoreResultData[searchResultsName[_typeStoryView]
+                  [_storyFeedType]] = data;
 
               return fetchMoreResultData;
             },
           );
           fetchMore(opts);
-        });
+        },
+      ),
+    );
   }
 
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
-    if (_resultTypes.getTypeStoriesView() == TypeStoriesView.allFriends) {
-      return QueryOptions(
-        documentNode: gql(getUserFriendsStories),
-        variables: <String, dynamic>{
-          'email': graphQLAuth.getUser().email,
-          'limit': nStories.toString(),
-          'cursor': DateTime.now().toIso8601String(),
-        },
-      );
+    String gqlString;
+    final _variables = <String, dynamic>{
+      'email': graphQLAuth.getUser().email,
+      'limit': nStories.toString(),
+      'cursor': DateTime.now().toIso8601String(),
+    };
+
+    switch (_typeStoryView) {
+      case TypeStoriesView.allFriends:
+        switch (_storyFeedType) {
+          case StoryFeedType.ALL:
+            gqlString = getUserFriendsStoriesQL;
+            break;
+          case StoryFeedType.GLOBAL:
+            gqlString = getUserFriendsStoriesGlobalQL;
+            break;
+          case StoryFeedType.FAMILY:
+            gqlString = getUserFriendsStoriesFamilyQL;
+            break;
+          case StoryFeedType.FRIENDS:
+            gqlString = getUserFriendsStoriesFriendsQL;
+            break;
+        }
+        break;
+
+      case TypeStoriesView.oneFriend:
+        switch (_storyFeedType) {
+          case StoryFeedType.ALL:
+            gqlString = getUserStoriesQL;
+            _variables['email'] = user['email'];
+            _variables['currentUserEmail'] = graphQLAuth.getUser().email;
+            break;
+          case StoryFeedType.GLOBAL:
+            gqlString = getUserStoriesGlobalQL;
+            _variables['email'] = user['email'];
+            break;
+          case StoryFeedType.FAMILY:
+            gqlString = getUserStoriesFamilyQL;
+            _variables['email'] = user['email'];
+            _variables['currentUserEmail'] = graphQLAuth.getUser().email;
+            break;
+          case StoryFeedType.FRIENDS:
+            gqlString = getUserStoriesFriendsQL;
+            _variables['email'] = user['email'];
+            break;
+        }
+        break;
+
+      case TypeStoriesView.me:
+        switch (_storyFeedType) {
+          case StoryFeedType.ALL:
+            gqlString = getUserStoriesMeQL;
+            break;
+          case StoryFeedType.GLOBAL:
+            gqlString = getUserStoriesGlobalQL;
+            break;
+          case StoryFeedType.FAMILY:
+            gqlString = getUserStoriesMeFamilyQL;
+            break;
+          case StoryFeedType.FRIENDS:
+            gqlString = getUserStoriesFriendsQL;
+            break;
+        }
+        break;
     }
 
     return QueryOptions(
-      documentNode: gql(getUserStories),
-      variables: <String, dynamic>{
-        'email': user['email'],
-        'limit': nStories.toString(),
-        'cursor': DateTime.now().toIso8601String(),
-      },
+      documentNode: gql(gqlString),
+      variables: _variables,
+    );
+  }
+
+  Widget getDropDownStoryTypeButtons() {
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<StoryFeedType>(
+        value: _storyFeedType,
+        items: [
+          DropdownMenuItem(
+            child: Text(
+              Strings.storiesPageAll.i18n,
+            ),
+            value: StoryFeedType.ALL,
+          ),
+          DropdownMenuItem(
+            child: Text(
+              Strings.storiesPageFamily.i18n,
+            ),
+            value: StoryFeedType.FAMILY,
+          ),
+          DropdownMenuItem(
+            child: Text(
+              Strings.storiesPageFriends.i18n,
+            ),
+            value: StoryFeedType.FRIENDS,
+          ),
+          DropdownMenuItem(
+            child: Text(
+              Strings.storiesPageGlobal.i18n,
+            ),
+            value: StoryFeedType.GLOBAL,
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _storyFeedType = value;
+          });
+        },
+      ),
     );
   }
 
@@ -266,12 +363,13 @@ class _StoriesPageState extends State<StoriesPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getId() == null
-                    ? Container()
-                    : buildFriend(
-                        context,
-                        user,
-                      ),
+                getId() == null ? Container() : FriendWidget(user: user),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    getDropDownStoryTypeButtons(),
+                  ],
+                ),
                 Query(
                     options: getQueryOptions(graphQLAuth),
                     builder: (
@@ -291,16 +389,17 @@ class _StoriesPageState extends State<StoriesPage> {
                             source: 'stories_page',
                             shortMessage: result.exception.toString(),
                             stackTrace: StackTrace.current.toString());
-
                         return Text(
                             '\nErrors: \n  ' + result.exception.toString());
                       }
 
                       final List<dynamic> stories = List<dynamic>.from(
-                          result.data[_resultTypes.getResultType()]);
+                          result.data[searchResultsName[_typeStoryView]
+                              [_storyFeedType]]);
 
                       if (stories.isEmpty || stories.length < nStories) {
-                        _resultTypes.setHasMore(false);
+                        moreSearchResults[_typeStoryView][_storyFeedType] =
+                            false;
                       }
 
                       return Expanded(
@@ -334,7 +433,8 @@ class _StoriesPageState extends State<StoriesPage> {
                                           story: Map<String, dynamic>.from(
                                               stories[index]),
                                         )
-                                      : _resultTypes.getHasMore()
+                                      : moreSearchResults[_typeStoryView]
+                                              [_storyFeedType]
                                           ? getLoadMoreButton(
                                               fetchMore, stories)
                                           : Container();

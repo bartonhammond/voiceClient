@@ -1,11 +1,7 @@
 import 'dart:io' as io;
-
-import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:flutter/material.dart';
 import 'package:graphql/client.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:intl/intl.dart';
@@ -56,6 +52,7 @@ Future<void> addStory(
     String storyId,
     String imageFilePath,
     String audioFilePath,
+    String type,
     {int daysOffset = 0}) async {
   DateTime now = DateTime.now();
   now = now.subtract(Duration(days: daysOffset));
@@ -68,7 +65,8 @@ Future<void> addStory(
       'image': imageFilePath,
       'audio': audioFilePath,
       'created': now.toIso8601String(),
-      'updated': now.toIso8601String()
+      'updated': now.toIso8601String(),
+      'type': type,
     },
   );
 
@@ -104,6 +102,7 @@ Future<void> updateStory(
   String imageFilePath,
   String audioFilePath,
   String created,
+  String type,
 ) async {
   final DateTime now = DateTime.now();
 
@@ -115,7 +114,8 @@ Future<void> updateStory(
       'image': imageFilePath,
       'audio': audioFilePath,
       'created': created,
-      'updated': now.toIso8601String()
+      'updated': now.toIso8601String(),
+      'type': type,
     },
   );
 
@@ -259,28 +259,40 @@ Future<void> addUserMessages(
   return;
 }
 
-Future<QueryResult> updateUserInfo(
-  GraphQLClient graphQLClientFileServer,
-  GraphQLClient graphQLClient, {
-  String jpegPathUrl,
-  String id,
-  String name,
-  String home,
-}) async {
+Future<QueryResult> createOrUpdateUserInfo(
+    EmailSecureStore emailSecureStore,
+    bool shouldCreateUser,
+    GraphQLClient graphQLClientFileServer,
+    GraphQLClient graphQLClient,
+    {String jpegPathUrl,
+    String id,
+    String email,
+    String name,
+    String home}) async {
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   final String formattedDate = formatter.format(now);
+  final MutationOptions _mutationOptions = shouldCreateUser
+      ? MutationOptions(
+          documentNode: gql(createUserQL),
+          variables: <String, dynamic>{
+              'id': id,
+              'email': email,
+              'name': name,
+              'home': home,
+              'image': jpegPathUrl,
+              'created': formattedDate,
+            })
+      : MutationOptions(
+          documentNode: gql(updateUserQL),
+          variables: <String, dynamic>{
+              'id': id,
+              'name': name,
+              'home': home,
+              'image': jpegPathUrl,
+              'updated': formattedDate,
+            });
 
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(updateUser),
-    variables: <String, dynamic>{
-      'id': id,
-      'name': name,
-      'home': home,
-      'image': jpegPathUrl,
-      'updated': formattedDate
-    },
-  );
   return await graphQLClient.mutate(_mutationOptions);
 }
 
@@ -504,16 +516,13 @@ Future<void> addStoryReaction(
   return;
 }
 
-Future<void> doCommentUploads(BuildContext context, io.File _commentAudio,
-    Map<String, dynamic> _story) async {
-  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
-  final GraphQLClient graphQLClientFileServer =
-      graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
-  final GraphQLClient graphQLClientApolloServer =
-      GraphQLProvider.of(context).value;
-
+Future<void> doCommentUploads(
+  GraphQLAuth graphQLAuth,
+  GraphQLClient graphQLClientFileServer,
+  GraphQLClient graphQLClientApolloServer,
+  io.File _commentAudio,
+  Map<String, dynamic> _story,
+) async {
   final _uuid = Uuid();
   final String _commentId = _uuid.v1();
 
@@ -557,6 +566,7 @@ Future<void> doCommentUploads(BuildContext context, io.File _commentAudio,
     _story['image'],
     _story['audio'],
     _story['created']['formatted'],
+    _story['type'],
   );
 
   //don't create message if it's your story
@@ -574,5 +584,63 @@ Future<void> doCommentUploads(BuildContext context, io.File _commentAudio,
     'comment',
     _story['id'],
   );
+  return;
+}
+
+Future<void> doMessageUploads(
+  GraphQLAuth graphQLAuth,
+  GraphQLClient graphQLClientFileServer,
+  GraphQLClient graphQLClientApolloServer,
+  String userId,
+  io.File _messageAudio,
+) async {
+  final _uuid = Uuid();
+  final String _messageId = _uuid.v1();
+
+  final MultipartFile multipartFile = getMultipartFile(
+    _messageAudio,
+    '$_messageId.mp3',
+    'audio',
+    'mp3',
+  );
+
+  final String _audioFilePath = await performMutation(
+    graphQLClientFileServer,
+    multipartFile,
+    'mp3',
+  );
+
+  await addUserMessages(
+    graphQLClientApolloServer,
+    graphQLAuth.getCurrentUserId(),
+    userId,
+    _messageId,
+    'new',
+    'Message',
+    'message',
+    _audioFilePath,
+  );
+  return;
+}
+
+Future<void> updateUserIsFamily(
+  GraphQLClient graphQLClient,
+  String emailFrom,
+  String emailTo,
+  bool isFamily,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(updateUserIsFamilyQL),
+    variables: <String, dynamic>{
+      'emailFrom': emailFrom,
+      'emailTo': emailTo,
+      'isFamily': isFamily,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
   return;
 }

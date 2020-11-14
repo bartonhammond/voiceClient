@@ -6,7 +6,7 @@ Future<String> getUserByEmail(
   String email,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmailQL),
+    documentNode: gql(getUserByEmailForAuthQL),
     variables: <String, dynamic>{
       'email': email,
     },
@@ -143,4 +143,37 @@ Future<List> getStoryReactions(
     throw queryResult.exception;
   }
   return queryResult.data['storyReactions'];
+}
+
+Future<void> addUserMessages(
+  GraphQLClient graphQLClient,
+  String fromUserId,
+  String toUserId,
+  String messageId,
+  String status,
+  String text,
+  String type,
+  String key1,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addUserMessagesQL),
+    variables: <String, dynamic>{
+      'from': fromUserId,
+      'to': toUserId,
+      'id': messageId,
+      'created': now.toIso8601String(),
+      'status': status,
+      'text': text,
+      'type': type,
+      'key1': key1
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
 }

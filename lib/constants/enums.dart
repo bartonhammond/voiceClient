@@ -26,6 +26,7 @@ enum TypeSearch {
 enum TypeStoriesView {
   allFriends,
   oneFriend,
+  me,
 }
 final List reactionTypes = <String>[
   'LIKE',
@@ -42,4 +43,35 @@ enum ReactionType {
   WOW,
   SAD,
   LOVE,
+}
+final List storyTypes = <String>[
+  'GLOBAL',
+  'FRIENDS',
+  'FAMILY',
+];
+//What types can a story be?
+enum StoryType {
+  GLOBAL,
+  FRIENDS,
+  FAMILY,
+}
+
+enum StoryFeedType {
+  ALL,
+  GLOBAL,
+  FRIENDS,
+  FAMILY,
+}
+
+final List messageTypes = <String>[
+  'all',
+  'message',
+  'comment',
+  'friend-request'
+];
+enum MessageType {
+  ALL,
+  MESSAGE,
+  COMMENT,
+  FRIEND_REQUEST,
 }
