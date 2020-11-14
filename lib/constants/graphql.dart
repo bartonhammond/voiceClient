@@ -4,7 +4,33 @@ mutation($file: Upload!) {
 }
 ''';
 
+const String _user_ = r'''
+ {
+    __typename
+    id
+    name
+    email
+    home
+    image
+    friends {
+      from {
+        isFamily
+        User {
+          email
+        }
+      }
+    }
+  }
+''';
 const String getUserByEmailQL = r'''
+query getUserByEmail($email: String!) {
+  User(email: $email)''' +
+    _user_ +
+    '''
+}
+''';
+
+const String getUserByEmailForAuthQL = r'''
 query getUserByEmail($email: String!) {
   User(email: $email) {
     __typename
@@ -16,26 +42,22 @@ query getUserByEmail($email: String!) {
   }
 }
 ''';
-const String getUserById = r'''
-query getUserByEmail($id: ID!) {
-  User(id: $id) {
-    __typename
-    id
-    name
-    email
-    home
-    image
-  }
+
+const String getUserByIdQL = r'''
+query getUserById($id: ID!) {
+User(id: $id)''' +
+    _user_ +
+    '''
 }
 ''';
 
-const String getStoryByIdQL = r'''
-query getStoryById($id: ID!, $email: String!) {
-  Story(id: $id) {
+const _story_ = r'''
+{
     __typename
     id
     image
     audio
+    type
     created {
       formatted
     }
@@ -48,6 +70,14 @@ query getStoryById($id: ID!, $email: String!) {
       home
       image
       id
+      friends {
+        from {
+          isFamily
+          User {
+            email
+          }
+        }
+      }      
     }
     comments {
       id
@@ -74,6 +104,14 @@ query getStoryById($id: ID!, $email: String!) {
     totalSads
     totalLoves
   }
+
+''';
+
+const String getStoryByIdQL = r'''
+query getStoryById($id: ID!, $email: String!) {
+Story(id: $id)''' +
+    _story_ +
+    '''
 }
 ''';
 
@@ -92,6 +130,7 @@ storyReactions(
       formatted
     }
     userId
+    email
     name
     home
     image
@@ -100,7 +139,7 @@ storyReactions(
 }
 ''';
 
-const String createUser = r'''
+const String createUserQL = r'''
 mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, ) {
   CreateUser(
     id: $id
@@ -115,16 +154,23 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     __typename
     id
     name
+    email
+    home
+    image
+    created {
+      formatted
+    }
   }
 }
 ''';
 
 const String createStory = r'''
-mutation createStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!) {
+mutation createStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!) {
 CreateStory(
     id: $id
     image: $image
     audio: $audio
+    type: $type
     created: {
       formatted: $created
     } 
@@ -147,11 +193,12 @@ CreateStory(
 ''';
 
 const String updateStoryQL = r'''
-mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!) {
+mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!) {
 UpdateStory(
   id: $id
   image: $image
   audio: $audio
+  type: $type
   created: {formatted: $created}
   updated: {formatted: $updated}
 ) {
@@ -191,7 +238,13 @@ const String mergeUserFriends = r'''
   MergeUserFriends(
     from: { id: $from }
     to: { id: $to }
-    data: { id: $id, created: { formatted: $created } }
+    data: { 
+      id: $id, 
+      created: { 
+        formatted: $created 
+      } 
+      isFamily: false
+    }
   ) {
     from {
       email
@@ -253,58 +306,77 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
 }
 ''';
 
-const String getUserStories = r'''
-query getUserStories ($email: String!, $limit: String!, $cursor: String!) {
+const String getUserStoriesQL = r'''
+query getUserStories ($email: String!, $currentUserEmail: String!, $limit: String!, $cursor: String!) {
  userStories(
+  		email: $email 
+      currentUserEmail: $currentUserEmail
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''      
+}
+''';
+
+const String getUserStoriesFriendsQL = r'''
+query getUserStoriesFriends($email: String!, $limit: String!, $cursor: String!) {
+ userStoriesFriends(
   		email: $email 
 			limit: $limit
   		cursor: $cursor
-		){
-    __typename
-    id
-    image
-    audio
-    created {
-      formatted
-    }
-    updated {
-      formatted
-    }
-    user {
-      email
-      name
-      home
-      image
-      id
-    }
-    comments {
-      id
-      audio
-      created {
-        formatted
-      }
-      from {
-        id
-        email
-        name
-      }
-      created {
-        formatted
-      }
-      status
-    }
-    reactions(filter: { from: { email: $email	} } ) {
-      id
-      type
-    }
-    totalReactions
-    totalLikes
-    totalWows
-    totalJoys
-    totalHahas
-    totalSads
-    totalLoves
-  }
+		)''' +
+    _story_ +
+    '''
+}
+''';
+
+const String getUserStoriesFamilyQL = r'''
+query getUserStoriesFamily($email: String!, $currentUserEmail: String!, $limit: String!, $cursor: String!) {
+ userStoriesFamily(
+  		email: $email 
+      currentUserEmail: $currentUserEmail
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''      
+}
+''';
+
+const String getUserStoriesGlobalQL = r'''
+query getUserStoriesGlobal($email: String!, $limit: String!, $cursor: String!) {
+ userStoriesGlobal(
+  		email: $email 
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''
+}
+''';
+
+const String getUserStoriesMeQL = r'''
+query getUserStoriesMe ($email: String!, $limit: String!, $cursor: String!) {
+ userStoriesMe(
+  		email: $email 
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''      
+}
+''';
+
+const String getUserStoriesMeFamilyQL = r'''
+query getUserStoriesMeFamily ($email: String!, $limit: String!, $cursor: String!) {
+ userStoriesMeFamily(
+  		email: $email 
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''      
 }
 ''';
 
@@ -338,9 +410,8 @@ query userSearch($searchString: String!) {
 }
 ''';
 
-const String userSearchFriends = r'''
-query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
-  userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
+const String _friend_ = r'''
+ {
     __typename
     id
     name
@@ -350,39 +421,39 @@ query userSearchFriends($searchString: String!, $email: String!, $skip: String!,
     created {
       formatted
     }
+    friends {
+      from {
+        isFamily
+        User {
+          email
+        }
+      }
+    }
   }
+
+''';
+
+const String userSearchFriendsQL = r'''
+query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+   userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''
 }
 ''';
 
-const String userSearchNotFriends = r'''
+const String userSearchNotFriendsQL = r'''
 query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-  userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit) {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    created {
-      formatted
-    }
-  }
+  userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''  
 }
 ''';
 
 const String userSearchMeQL = r'''
 query userSearchMe($email: String!) {
-  User(email: $email) {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    created {
-      formatted
-    }
-  }
+  User(email: $email)''' +
+    _friend_ +
+    '''  
 }
 ''';
 
@@ -437,10 +508,8 @@ mutation updateUserMessageStatusById($email: String!, $id: String! $status: Stri
   }
 }
 ''';
-
-const String getUserMessagesQL = r'''
-query getUserMessages($email: String!, $status: String!, $cursor: String, $limit: String) {
-  userMessages(email: $email, status: $status, cursor: $cursor, limit: $limit)  {
+const String _message_ = r'''
+ {
     __typename
     messageId
     messageType
@@ -456,6 +525,21 @@ query getUserMessages($email: String!, $status: String!, $cursor: String, $limit
     userHome
     userImage
   }
+''';
+
+const String getUserMessagesQL = r'''
+query getUserMessages($email: String!, $status: String!, $cursor: String, $limit: String) {
+  userMessages(email: $email, status: $status, cursor: $cursor, limit: $limit)''' +
+    _message_ +
+    '''  
+}
+''';
+
+const String getUserMessagesByTypeQL = r'''
+query getUserMessagesByType($email: String!, $status: String!, $cursor: String, $limit: String, $type: String) {
+  userMessagesByType(email: $email, status: $status, cursor: $cursor, limit: $limit, type: $type)''' +
+    _message_ +
+    '''  
 }
 ''';
 
@@ -532,60 +616,55 @@ query newMessagesCount($email: String!) {
 }
 ''';
 
-const String getUserFriendsStories = r'''
+const String getUserFriendsStoriesQL = r'''
 query getUserFriendsStories($email: String!, $limit: String!, $cursor: String!) {
 userFriendsStories(
   		email: $email 
 			limit: $limit
   		cursor: $cursor
-		) {
-    __typename
-    id
-    image
-    audio
-    created {
-      formatted
-    }
-    updated {
-      formatted
-    }
-    user {
-      email
-      name
-      home
-      image
-      id
-    }
-    comments {
-      id
-      audio
-      created {
-        formatted
-      }
-      status
-      from {
-        id
-        email
-        name
-      }
-    }
-    reactions(filter: { from: { email: $email	} } ) {
-      id
-      type
-    }
-    totalReactions
-    totalLikes
-    totalWows
-    totalJoys
-    totalHahas
-    totalSads
-    totalLoves
-  }
+		)''' +
+    _story_ +
+    '''      
 }
 ''';
 
-const String updateUser = r'''
-mutation updateUser($id: ID!, $name: String, $home: String, $updated: String, $image: String, ){
+const String getUserFriendsStoriesFamilyQL = r'''
+query getUserFriendsStoriesFamily($email: String!, $limit: String!, $cursor: String!) {
+userFriendsStoriesFamily(
+  		email: $email 
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''      
+}
+''';
+
+const String getUserFriendsStoriesFriendsQL = r'''
+query getUserFriendsStoriesFriends($email: String!, $limit: String!, $cursor: String!) {
+userFriendsStoriesFriends(
+  		email: $email 
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''      
+}
+  ''';
+
+const String getUserFriendsStoriesGlobalQL = r'''
+query getUserFriendsStoriesGlobal($email: String!, $limit: String!, $cursor: String!) {
+userFriendsStoriesGlobal(
+			limit: $limit
+  		cursor: $cursor
+		)''' +
+    _story_ +
+    '''      
+}
+  ''';
+
+const String updateUserQL = r'''
+mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, ){
 UpdateUser(
   id: $id
   name: $name
@@ -810,5 +889,14 @@ mutation deleteStory($storyId: String!) {
 const String deleteMessageQL = r'''
 mutation deleteMessage($storyId: String!) {
   deleteMessage(storyId: $storyId)
+}
+''';
+
+const String updateUserIsFamilyQL = r'''
+mutation updateUserIsFamily($emailFrom: String!, $emailTo: String!, $isFamily: Boolean!) {
+  updateUserIsFamily(emailFrom: $emailFrom, emailTo: $emailTo, isFamily: $isFamily){
+    id
+    isFamily
+  }
 }
 ''';

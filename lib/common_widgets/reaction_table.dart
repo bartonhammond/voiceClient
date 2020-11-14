@@ -1,4 +1,5 @@
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/full_screen_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
@@ -9,6 +10,7 @@ import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -208,11 +210,33 @@ class _State extends State<ReactionTable> {
                       (dynamic reaction) => DataRow(
                         cells: [
                           DataCell(
-                            getCard(reaction),
+                            Container(
+                              width: 150,
+                              child: getCard(reaction),
+                            ),
                           ),
                           reaction['friend']
                               //if friend, do nothing
-                              ? DataCell(Text(''))
+                              ? DataCell(
+                                  MessageButton(
+                                    key: Key(
+                                        '${Keys.reactionTableMessageButton}'),
+                                    text: Strings.reactionTableMessage.i18n,
+                                    onPressed: () async {
+                                      Navigator.push<dynamic>(
+                                          context,
+                                          MaterialPageRoute<dynamic>(
+                                            builder: (BuildContext context) =>
+                                                FullScreenDialog(
+                                              user: reaction,
+                                            ),
+                                            fullscreenDialog: false,
+                                          ));
+                                    },
+                                    fontSize: 20,
+                                    icon: null,
+                                  ),
+                                )
                               : reaction['userId'] ==
                                       graphQLAuth.getUserMap()['id']
                                   //if its you, do nothing
@@ -222,8 +246,9 @@ class _State extends State<ReactionTable> {
                                   //if not a friend
                                   : DataCell(
                                       MessageButton(
-                                        key: Key('${Keys.newFriendsButton}'),
-                                        text: 'Friend',
+                                        key: Key(
+                                            '${Keys.reactionTableNewFriendsButton}'),
+                                        text: Strings.newFriend.i18n,
                                         onPressed: () {
                                           _newFriendRequest(reaction['userId']);
                                         },
@@ -264,7 +289,10 @@ class _State extends State<ReactionTable> {
           ),
         ),
       ),
-      title: Text(reaction['name']),
+      title: AutoSizeText(
+        reaction['name'],
+        maxLines: 2,
+      ),
       subtitle: Image.asset(
         'assets/images/$asset.png',
         height: 20,

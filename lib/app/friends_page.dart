@@ -265,10 +265,10 @@ class _FriendsPageState extends State<FriendsPage> {
     };
     switch (_typeUser) {
       case TypeUser.friends:
-        gqlString = userSearchFriends;
+        gqlString = userSearchFriendsQL;
         break;
       case TypeUser.users:
-        gqlString = userSearchNotFriends;
+        gqlString = userSearchNotFriendsQL;
         break;
       case TypeUser.me:
         gqlString = userSearchMeQL;
@@ -386,6 +386,7 @@ class _FriendsPageState extends State<FriendsPage> {
                           itemBuilder: (context, index) {
                             return index < friends.length
                                 ? StaggeredGridTileFriend(
+                                    typeUser: _typeUser,
                                     onPush: _typeUser == TypeUser.friends ||
                                             _typeUser == TypeUser.me
                                         ? widget.onPush
@@ -423,7 +424,9 @@ class _FriendsPageState extends State<FriendsPage> {
     FetchMore fetchMore,
     List<dynamic> friends,
   ) {
-    return CustomRaisedButton(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(0, 0, 0, 50),
+      child: CustomRaisedButton(
         text: Strings.loadMore.i18n,
         icon: Icon(
           Icons.arrow_downward,
@@ -447,7 +450,9 @@ class _FriendsPageState extends State<FriendsPage> {
             },
           );
           fetchMore(opts);
-        });
+        },
+      ),
+    );
   }
 
   Widget getMessageButton(

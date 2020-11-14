@@ -474,7 +474,60 @@ extension Localization on String {
       {
         'en': Strings.reactionWow,
         'es': '¡Caray!',
+      } +
+      {
+        'en': Strings.messagesPageMessage,
+        'es': 'Mensaje',
+      } +
+      {
+        'en': Strings.messagesPageDeleteMessage,
+        'es': 'Borrar Mensaje',
+      } +
+      {
+        'en': Strings.messagesPageMessageAll,
+        'es': 'Todas',
+      } +
+      {
+        'en': Strings.messagesPageMessageComments,
+        'es': 'Comentarios',
+      } +
+      {
+        'en': Strings.messagesPageMessageFriendRequests,
+        'es': 'Peticiones de amistad',
+      } +
+      {
+        'en': Strings.messagesPageMessageMessages,
+        'es': 'Mensajes',
+      } +
+      {
+        'en': Strings.storiesPageAll,
+        'es': 'Todas',
+      } +
+      {
+        'en': Strings.storiesPageFamily,
+        'es': 'Familia',
+      } +
+      {
+        'en': Strings.storiesPageFriends,
+        'es': 'Amigos',
+      } +
+      {
+        'en': Strings.storiesPageGlobal,
+        'es': 'Global',
+      } +
+      {
+        'en': Strings.storyPlayAudience,
+        'es': 'Audiencia',
+      } +
+      {
+        'en': Strings.friendWidgetRecordMessage,
+        'es': 'Grabar mensaje',
+      } +
+      {
+        'en': Strings.reactionTableMessage,
+        'es': '¿Mensaje?',
       };
+
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);
   String plural(int value) => localizePlural(value, this, _t);

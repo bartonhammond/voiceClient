@@ -30,7 +30,7 @@ Future<String> addUser(
     );
   }
   final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(createUser),
+    documentNode: gql(createUserQL),
     variables: <String, dynamic>{
       'id': id,
       'email': user['email'],
@@ -38,6 +38,7 @@ Future<String> addUser(
       'home': user['home'],
       'image': user.containsKey('image') ? user['image'] : jpegPathUrl,
       'created': now.toIso8601String(),
+      'isFamily': false,
     },
   );
   final QueryResult result = await graphQLClient.mutate(_mutationOptions);

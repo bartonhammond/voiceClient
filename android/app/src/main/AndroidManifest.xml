@@ -19,6 +19,7 @@
         android:label="My Family Voice"
         android:icon="@mipmap/ic_launcher" 
         android:allowBackup="true"
+        android:usesCleartextTraffic="true"
         android:fullBackupContent="@xml/backup_rules">
         
         <activity

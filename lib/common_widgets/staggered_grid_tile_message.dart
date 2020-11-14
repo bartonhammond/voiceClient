@@ -1,9 +1,8 @@
+import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:flutter/material.dart';
 
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
-import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
-import 'package:MyFamilyVoice/constants/strings.dart';
-import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 
 class StaggeredGridTileMessage extends StatelessWidget {
@@ -13,16 +12,18 @@ class StaggeredGridTileMessage extends StatelessWidget {
     @required this.message,
     @required this.approveButton,
     @required this.rejectButton,
+    this.isAudio = false,
   }) : super(key: key);
 
   final String title;
   final Map<String, dynamic> message;
   final MessageButton approveButton;
   final MessageButton rejectButton;
+  final bool isAudio;
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
       child: Card(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15.0),
@@ -40,43 +41,36 @@ class StaggeredGridTileMessage extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
             ),
-            Center(
-              child: GestureDetector(
-                onTap: () {},
-                child: message['User']['image'] == null
-                    ? Image(
-                        image: AssetImage('assets/placeholder.png'),
-                        width: 100,
-                        height: 100,
-                      )
-                    : FadeInImage.memoryNetwork(
-                        placeholder: kTransparentImage,
-                        image: host(message['User']['image']),
-                        height: 50,
-                      ),
-              ),
+            FriendWidget(
+              user: message['User'],
+              showBorder: false,
+              showMessage: message['type'] == 'message',
+              message: message,
+              showFamilyCheckbox: false,
+              allowExpandToggle: false,
             ),
-            Text(
-              message['User']['name'] == null
-                  ? Strings.yourFullNameLabel.i18n
-                  : message['User']['name'],
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 15.0,
-              ),
-            ),
-            Text(
-              message['User']['home'] == null
-                  ? Strings.yourHomeLabel.i18n
-                  : message['User']['home'],
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
-            ),
+            isAudio
+                ? Padding(
+                    padding: const EdgeInsets.all(4.0),
+                    child: Column(
+                      children: <Widget>[
+                        PlayerWidget(
+                          key: Key("playWidget${message['id']}"),
+                          url: host(
+                            message['key1'],
+                          ),
+                          //width: _width,
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
             ButtonBar(
               mainAxisSize: MainAxisSize.min,
               buttonHeight: 20,
               children: <Widget>[
-                approveButton,
-                rejectButton,
+                approveButton == null ? Container() : approveButton,
+                rejectButton == null ? Container() : rejectButton,
               ],
             )
           ],

@@ -28,9 +28,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
-    if (graphQLAuth.getUserMap()['image'] == null &&
-        graphQLAuth.getUserMap()['name'] == null &&
-        graphQLAuth.getUserMap()['home'] == null) {
+    if (graphQLAuth.getUserMap() == null ||
+        (graphQLAuth.getUserMap()['image'] == null &&
+            graphQLAuth.getUserMap()['name'] == null &&
+            graphQLAuth.getUserMap()['home'] == null)) {
       _currentTab = TabItem.profile;
       _areTabsEnabled = false;
     } else {
