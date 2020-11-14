@@ -115,11 +115,11 @@ class _FriendWidgetState extends State<FriendWidget> {
         widget.user['friends']['from'].length > 0) {
       for (var i = 0; i < widget.user['friends']['from'].length; i++) {
         if (widget.user['friends']['from'][i].containsKey('isFamily')) {
-          if (widget.user['friends']['from'][0]['isFamily']) {
-            if (widget.user['friends']['from'][0].containsKey('User')) {
-              if (widget.user['friends']['from'][0]['User']
+          if (widget.user['friends']['from'][i]['isFamily']) {
+            if (widget.user['friends']['from'][i].containsKey('User')) {
+              if (widget.user['friends']['from'][i]['User']
                       .containsKey('email') &&
-                  widget.user['friends']['from'][0]['User']['email'] ==
+                  widget.user['friends']['from'][i]['User']['email'] ==
                       graphQLAuth.getUserMap()['email']) {
                 return true;
               }

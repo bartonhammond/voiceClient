@@ -590,6 +590,7 @@ class _StoryPlayState extends State<StoryPlay>
                   _storyType = _value;
                 });
                 await doStoryUpload();
+                setState(() {});
               })
         ],
       ),

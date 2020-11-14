@@ -290,7 +290,7 @@ class _StoriesPageState extends State<StoriesPage> {
           ),
           DropdownMenuItem(
             child: Text(
-              Strings.storiesPageFamily.i18n,
+              Strings.storiesPageFriends.i18n,
             ),
             value: StoryFeedType.FRIENDS,
           ),
