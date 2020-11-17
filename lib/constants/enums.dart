@@ -14,6 +14,7 @@ enum TabItem {
 }
 
 enum TypeUser {
+  family,
   friends,
   users,
   me,
@@ -61,6 +62,7 @@ enum StoryFeedType {
   GLOBAL,
   FRIENDS,
   FAMILY,
+  ME,
 }
 
 final List messageTypes = <String>[

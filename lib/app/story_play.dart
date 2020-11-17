@@ -50,6 +50,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   final _uuid = Uuid();
   String _id;
+  bool _storyWasSaved = false;
 
   bool _isCurrentUserAuthor = false;
 
@@ -65,7 +66,6 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   void initState() {
     _id = _uuid.v1();
-
     super.initState();
   }
 
@@ -132,6 +132,9 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setStoryAudioFile(io.File audio) async {
+    if (audio == null) {
+      return;
+    }
     setState(() {
       _storyAudio = audio;
       _uploadInProgress = true;
@@ -208,7 +211,7 @@ class _StoryPlayState extends State<StoryPlay>
                           widget.params.containsKey('onFinish')) {
                         widget.params['onFinish']();
                       }
-                      Navigator.of(context).pop('upload');
+                      Navigator.of(context).pop();
                     }),
               ),
               body: Center(
@@ -220,26 +223,33 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<Map> getStory() async {
-    if (widget.params.isEmpty) {
+    if (!(_storyWasSaved ||
+        (widget.params != null &&
+            widget.params.isNotEmpty &&
+            widget.params.containsKey('id')))) {
       return null;
     }
+
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
       variables: <String, dynamic>{
-        'id': widget.params['id'],
+        'id': _storyWasSaved ? _id : widget.params['id'],
         'email': graphQLAuth.getUserMap()['email']
       },
     );
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    final GraphQLClient graphQLClient =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
       throw queryResult.exception;
     }
-    final Map<String, dynamic> story = queryResult.data['Story'][0];
 
-    return story;
+    if (queryResult.data['Story'].length > 0) {
+      return queryResult.data['Story'][0];
+    }
+    return null;
   }
 
   Future<void> doImageUpload() async {
@@ -314,6 +324,9 @@ class _StoryPlayState extends State<StoryPlay>
           message: Strings.saved.i18n,
           duration: Duration(seconds: 3),
         )..show(_scaffoldKey.currentContext);
+        setState(() {
+          _storyWasSaved = true;
+        });
       }
     } else {
       //don't update unnecessarily
@@ -504,13 +517,19 @@ class _StoryPlayState extends State<StoryPlay>
                 defaultActionText: Strings.yes.i18n,
               ).show(context);
               if (_deleteStory == true) {
+                final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+                final GraphQLClient graphQLClient = graphQLAuth
+                    .getGraphQLClient(GraphQLClientType.ApolloServer);
+
                 final String id = _story['id'];
                 await deleteStory(
-                  GraphQLProvider.of(context).value,
+                  graphQLClient,
                   id,
                 );
+
                 await deleteMessage(
-                  GraphQLProvider.of(context).value,
+                  graphQLClient,
                   id,
                 );
 
@@ -561,37 +580,39 @@ class _StoryPlayState extends State<StoryPlay>
           SizedBox(
             width: 10,
           ),
-          DropdownButton<StoryType>(
-              value: _storyType,
-              items: [
-                DropdownMenuItem(
-                  child: Text(Strings.storiesPageFamily.i18n,
-                      style: TextStyle(
-                        fontSize: 15,
-                      )),
-                  value: StoryType.FAMILY,
-                ),
-                DropdownMenuItem(
-                  child: Text(Strings.storiesPageFriends.i18n,
-                      style: TextStyle(
-                        fontSize: 15,
-                      )),
-                  value: StoryType.FRIENDS,
-                ),
-                DropdownMenuItem(
-                    child: Text(Strings.storiesPageGlobal,
-                        style: TextStyle(
-                          fontSize: 15,
-                        )),
-                    value: StoryType.GLOBAL),
-              ],
-              onChanged: (_value) async {
-                setState(() {
-                  _storyType = _value;
-                });
-                await doStoryUpload();
-                setState(() {});
-              })
+          _isCurrentUserAuthor
+              ? DropdownButton<StoryType>(
+                  value: _storyType,
+                  items: [
+                    DropdownMenuItem(
+                      child: Text(Strings.storiesPageFamily.i18n,
+                          style: TextStyle(
+                            fontSize: 15,
+                          )),
+                      value: StoryType.FAMILY,
+                    ),
+                    DropdownMenuItem(
+                      child: Text(Strings.storiesPageFriends.i18n,
+                          style: TextStyle(
+                            fontSize: 15,
+                          )),
+                      value: StoryType.FRIENDS,
+                    ),
+                    DropdownMenuItem(
+                        child: Text(Strings.storiesPageGlobal,
+                            style: TextStyle(
+                              fontSize: 15,
+                            )),
+                        value: StoryType.GLOBAL),
+                  ],
+                  onChanged: (_value) async {
+                    setState(() {
+                      _storyType = _value;
+                    });
+                    await doStoryUpload();
+                    setState(() {});
+                  })
+              : Text(storyTypes[_storyType.index]),
         ],
       ),
     );
@@ -605,17 +626,19 @@ class _StoryPlayState extends State<StoryPlay>
           mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            if (widget.params != null &&
-                widget.params['id'] != null &&
-                widget.params['id'].isNotEmpty)
+            if (_story != null ||
+                (widget.params != null &&
+                    widget.params.containsKey('id') &&
+                    widget.params['id'].isNotEmpty))
               FriendWidget(
                 user: _story['user'],
                 story: _story,
                 showMessage: false,
               ),
-            if (widget.params != null &&
-                widget.params['id'] != null &&
-                widget.params['id'].isNotEmpty &&
+            if ((_story != null ||
+                    (widget.params != null &&
+                        widget.params.containsKey('id') &&
+                        widget.params['id'].isNotEmpty)) &&
                 _isCurrentUserAuthor &&
                 _showComments == false)
               buildDeleteStory(_showIcons),

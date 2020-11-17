@@ -188,6 +188,10 @@ extension Localization on String {
         'es': 'Filtrar por nombre o hogar',
       } +
       {
+        'en': Strings.typeUserButtonFamily,
+        'es': 'Familia',
+      } +
+      {
         'en': Strings.typeUserButtonFriends,
         'es': 'Amigos',
       } +
