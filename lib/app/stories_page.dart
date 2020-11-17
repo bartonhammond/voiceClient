@@ -284,7 +284,7 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   List<DropdownMenuItem<StoryFeedType>> getButtonItems() {
-    var buttonItems = [
+    final buttonItems = [
       DropdownMenuItem(
         child: Text(
           Strings.storiesPageAll.i18n,
