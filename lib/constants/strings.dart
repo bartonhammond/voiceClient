@@ -65,6 +65,7 @@ class Strings {
 
   //Friends page
   static const String filterText = 'Filter by name or home';
+  static const String typeUserButtonFamily = 'Family';
   static const String typeUserButtonFriends = 'Friends';
   static const String typeUserButtonUsers = 'Others';
   static const String typeUserButtonMe = 'Me';

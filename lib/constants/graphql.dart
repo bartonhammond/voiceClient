@@ -441,6 +441,14 @@ query userSearchFriends($searchString: String!, $email: String!, $skip: String!,
 }
 ''';
 
+const String userSearchFamilyQL = r'''
+query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+   userSearchFamily(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''
+}
+''';
+
 const String userSearchNotFriendsQL = r'''
 query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +

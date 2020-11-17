@@ -54,18 +54,20 @@ class _FriendsPageState extends State<FriendsPage> {
     0: true,
     1: true,
     2: true,
+    3: true,
   };
 
   Map<int, String> searchResultsName = {
-    0: 'userSearchFriends',
-    1: 'userSearchNotFriends',
-    2: 'User'
+    0: 'userSearchFamily',
+    1: 'userSearchFriends',
+    2: 'userSearchNotFriends',
+    3: 'User'
   };
 
   @override
   void initState() {
     _searchString = '*';
-    _typeUser = TypeUser.friends;
+    _typeUser = TypeUser.family;
     super.initState();
   }
 
@@ -145,6 +147,12 @@ class _FriendsPageState extends State<FriendsPage> {
       child: DropdownButton<TypeUser>(
         value: _typeUser,
         items: [
+          DropdownMenuItem(
+            child: Text(
+              Strings.typeUserButtonFamily.i18n,
+            ),
+            value: TypeUser.family,
+          ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonFriends.i18n,
@@ -264,6 +272,9 @@ class _FriendsPageState extends State<FriendsPage> {
       'skip': _skip.toString(),
     };
     switch (_typeUser) {
+      case TypeUser.family:
+        gqlString = userSearchFamilyQL;
+        break;
       case TypeUser.friends:
         gqlString = userSearchFriendsQL;
         break;
@@ -388,7 +399,8 @@ class _FriendsPageState extends State<FriendsPage> {
                                 ? StaggeredGridTileFriend(
                                     typeUser: _typeUser,
                                     onPush: _typeUser == TypeUser.friends ||
-                                            _typeUser == TypeUser.me
+                                            _typeUser == TypeUser.me ||
+                                            _typeUser == TypeUser.family
                                         ? widget.onPush
                                         : null,
                                     friend: friends[index],
@@ -475,7 +487,7 @@ class _FriendsPageState extends State<FriendsPage> {
     if (_typeUser == TypeUser.me) {
       return Container();
     }
-    if (_typeUser == TypeUser.friends) {
+    if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {
       button = MessageButton(
         key: Key('${Keys.newFriendsButton}-$index'),
         text: Strings.quitFriend.i18n,
