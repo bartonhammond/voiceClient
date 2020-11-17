@@ -60,18 +60,21 @@ class _StoriesPageState extends State<StoriesPage> {
       StoryFeedType.FAMILY: true,
       StoryFeedType.GLOBAL: true,
       StoryFeedType.FRIENDS: true,
+      StoryFeedType.ME: true,
     },
     TypeStoriesView.oneFriend: {
       StoryFeedType.ALL: true,
       StoryFeedType.FAMILY: true,
       StoryFeedType.GLOBAL: true,
       StoryFeedType.FRIENDS: true,
+      StoryFeedType.ME: true,
     },
     TypeStoriesView.me: {
       StoryFeedType.ALL: true,
       StoryFeedType.FAMILY: true,
       StoryFeedType.GLOBAL: true,
       StoryFeedType.FRIENDS: true,
+      StoryFeedType.ME: true,
     },
   };
   Map<TypeStoriesView, Map<StoryFeedType, String>> searchResultsName = {
@@ -80,6 +83,7 @@ class _StoriesPageState extends State<StoriesPage> {
       StoryFeedType.FAMILY: 'userFriendsStoriesFamily',
       StoryFeedType.GLOBAL: 'userFriendsStoriesGlobal',
       StoryFeedType.FRIENDS: 'userFriendsStoriesFriends',
+      StoryFeedType.ME: 'userStoriesMe',
     },
     TypeStoriesView.oneFriend: {
       StoryFeedType.ALL: 'userStories',
@@ -221,6 +225,8 @@ class _StoriesPageState extends State<StoriesPage> {
           case StoryFeedType.FRIENDS:
             gqlString = getUserFriendsStoriesFriendsQL;
             break;
+          case StoryFeedType.ME:
+            gqlString = getUserStoriesMeQL;
         }
         break;
 
@@ -244,6 +250,9 @@ class _StoriesPageState extends State<StoriesPage> {
             gqlString = getUserStoriesFriendsQL;
             _variables['email'] = user['email'];
             break;
+          case StoryFeedType.ME:
+            // never happens
+            break;
         }
         break;
 
@@ -261,6 +270,9 @@ class _StoriesPageState extends State<StoriesPage> {
           case StoryFeedType.FRIENDS:
             gqlString = getUserStoriesFriendsQL;
             break;
+          case StoryFeedType.ME:
+            // never happens
+            break;
         }
         break;
     }
@@ -271,36 +283,53 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
+  List<DropdownMenuItem<StoryFeedType>> getButtonItems() {
+    var buttonItems = [
+      DropdownMenuItem(
+        child: Text(
+          Strings.storiesPageAll.i18n,
+        ),
+        value: StoryFeedType.ALL,
+      ),
+      DropdownMenuItem(
+        child: Text(
+          Strings.storiesPageFamily.i18n,
+        ),
+        value: StoryFeedType.FAMILY,
+      ),
+      DropdownMenuItem(
+        child: Text(
+          Strings.storiesPageFriends.i18n,
+        ),
+        value: StoryFeedType.FRIENDS,
+      ),
+      DropdownMenuItem(
+        child: Text(
+          Strings.storiesPageGlobal.i18n,
+        ),
+        value: StoryFeedType.GLOBAL,
+      )
+    ];
+
+    if (_typeStoryView == TypeStoriesView.allFriends) {
+      buttonItems.add(
+        DropdownMenuItem(
+          child: Text(
+            Strings.typeUserButtonMe.i18n,
+          ),
+          value: StoryFeedType.ME,
+        ),
+      );
+    }
+
+    return buttonItems;
+  }
+
   Widget getDropDownStoryTypeButtons() {
     return DropdownButtonHideUnderline(
       child: DropdownButton<StoryFeedType>(
         value: _storyFeedType,
-        items: [
-          DropdownMenuItem(
-            child: Text(
-              Strings.storiesPageAll.i18n,
-            ),
-            value: StoryFeedType.ALL,
-          ),
-          DropdownMenuItem(
-            child: Text(
-              Strings.storiesPageFamily.i18n,
-            ),
-            value: StoryFeedType.FAMILY,
-          ),
-          DropdownMenuItem(
-            child: Text(
-              Strings.storiesPageFriends.i18n,
-            ),
-            value: StoryFeedType.FRIENDS,
-          ),
-          DropdownMenuItem(
-            child: Text(
-              Strings.storiesPageGlobal.i18n,
-            ),
-            value: StoryFeedType.GLOBAL,
-          ),
-        ],
+        items: getButtonItems(),
         onChanged: (value) {
           setState(() {
             _storyFeedType = value;

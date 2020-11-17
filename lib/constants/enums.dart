@@ -62,6 +62,7 @@ enum StoryFeedType {
   GLOBAL,
   FRIENDS,
   FAMILY,
+  ME,
 }
 
 final List messageTypes = <String>[
