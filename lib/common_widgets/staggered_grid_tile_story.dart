@@ -3,6 +3,7 @@ import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/reaction_table.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/tag_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
@@ -24,6 +25,7 @@ import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/common_widgets/reactions.dart' as react;
 import 'package:uuid/uuid.dart';
 import 'comments.dart';
+import 'friend_message_page.dart';
 
 // ignore: must_be_immutable
 class StaggeredGridTileStory extends StatefulWidget {
@@ -389,24 +391,49 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     },
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
+                    children: [
                       Icon(
-                        Icons.comment,
+                        Icons.group_add,
                         size: 20,
                       ),
                       const SizedBox(width: 5),
                       InkWell(
-                          child: Text(Strings.commentRequest.i18n),
-                          onTap: () {
-                            setState(() {
-                              _showMakeComments = !_showMakeComments;
-                              _showComments = false;
-                              _showReactionTotals = false;
-                            });
-                          })
+                        child: Text('Attention'),
+                        onTap: () async {
+                          setState(() {
+                            _showMakeComments = false;
+                            _showComments = false;
+                            _showReactionTotals = false;
+                          });
+                          Navigator.push<dynamic>(
+                            context,
+                            MaterialPageRoute<dynamic>(
+                              builder: (BuildContext context) => TagFriends(
+                                story: widget.story,
+                              ),
+                              fullscreenDialog: false,
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   ),
+                  Row(children: [
+                    Icon(
+                      Icons.comment,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 5),
+                    InkWell(
+                        child: Text(Strings.commentRequest.i18n),
+                        onTap: () {
+                          setState(() {
+                            _showMakeComments = !_showMakeComments;
+                            _showComments = false;
+                            _showReactionTotals = false;
+                          });
+                        }),
+                  ]),
                 ]),
           ),
           _showComments

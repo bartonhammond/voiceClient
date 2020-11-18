@@ -1,5 +1,5 @@
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
-import 'package:MyFamilyVoice/common_widgets/full_screen_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/friend_message_page.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
@@ -227,7 +227,7 @@ class _State extends State<ReactionTable> {
                                           context,
                                           MaterialPageRoute<dynamic>(
                                             builder: (BuildContext context) =>
-                                                FullScreenDialog(
+                                                FriendMessagePage(
                                               user: reaction,
                                             ),
                                             fullscreenDialog: false,
