@@ -74,9 +74,7 @@ class _MessagesPageState extends State<MessagesPage> {
     ).show(context);
     if (rejectFriendRequest == true) {
       try {
-        final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-        final GraphQLClient graphQLClient =
-            graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+        final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
         await updateUserMessageStatusById(
           graphQLClient,

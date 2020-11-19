@@ -1,26 +1,15 @@
-import 'dart:async';
-
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
+import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:uuid/uuid.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
-
-import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
-import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
-import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
-import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_friend.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
-import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
@@ -36,6 +25,7 @@ class TagFriends extends StatefulWidget {
 }
 
 class _TagFriendsState extends State<TagFriends> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _nFriends = 20;
   int _skip = 0;
 
@@ -44,7 +34,6 @@ class _TagFriendsState extends State<TagFriends> {
   final _debouncer = Debouncer(milliseconds: 500);
   TypeUser _typeUser;
 
-  VoidCallback _refetchQuery;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   dynamic allMyFriendRequests;
@@ -76,43 +65,6 @@ class _TagFriendsState extends State<TagFriends> {
   void dispose() {
     _debouncer.stop();
     super.dispose();
-  }
-
-  Future<List<dynamic>> _getAllNewFriendRequestsToMe(
-      BuildContext context) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getAllNewFriendRequestsToMe),
-      variables: <String, dynamic>{
-        'email': graphQLAuth.getUserMap()['email'],
-      },
-    );
-
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    return queryResult.data['User'][0]['messages']['from'];
-  }
-
-  Future<List<dynamic>> _getAllMyFriendRequests(BuildContext context) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getAllMyFriendRequests),
-      variables: <String, dynamic>{
-        'email': graphQLAuth.getUserMap()['email'],
-      },
-    );
-
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    return queryResult.data['User'][0]['messages']['to'];
   }
 
   Widget buildSearchField() {
@@ -170,87 +122,6 @@ class _TagFriendsState extends State<TagFriends> {
     );
   }
 
-  Future<void> _newFriendRequest(String _friendId) async {
-    final bool addNewFriend = await PlatformAlertDialog(
-      title: Strings.requestFriendship.i18n,
-      content: Strings.areYouSure.i18n,
-      cancelActionText: Strings.cancel.i18n,
-      defaultActionText: Strings.yes.i18n,
-    ).show(context);
-    if (addNewFriend == true) {
-      final _uuid = Uuid();
-      try {
-        await addUserMessages(
-          GraphQLProvider.of(context).value,
-          locator<GraphQLAuth>().getCurrentUserId(),
-          _friendId,
-          _uuid.v1(),
-          'new',
-          'Friend Request',
-          'friend-request',
-          null,
-        );
-
-        allMyFriendRequests = await _getAllMyFriendRequests(context);
-        allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
-
-        _refetchQuery();
-      } catch (e) {
-        logger.createMessage(
-            userEmail: graphQLAuth.getUser().email,
-            source: 'friends_page',
-            shortMessage: e.toString(),
-            stackTrace: StackTrace.current.toString());
-        rethrow;
-      }
-    }
-    return;
-  }
-
-  Future<void> _quitFriendRequest(String friendId) async {
-    final bool endFriendship = await PlatformAlertDialog(
-      title: Strings.cancelFriendship.i18n,
-      content: Strings.areYouSure.i18n,
-      cancelActionText: Strings.cancel.i18n,
-      defaultActionText: Strings.yes.i18n,
-    ).show(context);
-    if (endFriendship == true) {
-      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
-      MutationOptions options = MutationOptions(
-        documentNode: gql(removeUserFriends),
-        variables: <String, dynamic>{
-          'from': graphQLAuth.getCurrentUserId(),
-          'to': friendId,
-        },
-      );
-
-      final QueryResult result = await graphQLClient.mutate(options);
-
-      if (result.hasException) {
-        logger.createMessage(
-            userEmail: graphQLAuth.getUser().email,
-            source: 'friends_page',
-            shortMessage: result.exception.toString(),
-            stackTrace: StackTrace.current.toString());
-        throw result.exception;
-      }
-      options = MutationOptions(
-        documentNode: gql(removeUserFriends),
-        variables: <String, dynamic>{
-          'to': graphQLAuth.getCurrentUserId(),
-          'from': friendId,
-        },
-      );
-
-      await graphQLClient.mutate(options);
-
-      allMyFriendRequests = await _getAllMyFriendRequests(context);
-      allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
-      _refetchQuery();
-    }
-  }
-
   QueryOptions getQueryOptions() {
     String gqlString;
     _skip = 0;
@@ -299,32 +170,9 @@ class _TagFriendsState extends State<TagFriends> {
       default:
         staggeredViewSize = 2;
     }
-    return FutureBuilder(
-      future: Future.wait([
-        _getAllMyFriendRequests(context),
-        _getAllNewFriendRequestsToMe(context),
-      ]),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          logger.createMessage(
-              userEmail: graphQLAuth.getUser().email,
-              source: 'friends_page',
-              shortMessage: snapshot.error.toString(),
-              stackTrace: StackTrace.current.toString());
 
-          return Text('\nErrors: \n  ' + snapshot.error.toString());
-        } else if (!snapshot.hasData) {
-          return _progressIndicator();
-        }
-        allMyFriendRequests = snapshot.data[0];
-        allNewFriendRequestsToMe = snapshot.data[1];
-        return _build();
-      },
-    );
-  }
-
-  Widget _build() {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
@@ -343,6 +191,9 @@ class _TagFriendsState extends State<TagFriends> {
               ],
             ),
             Divider(),
+            TaggedFriends(
+              title: 'Tagged Friends',
+            ),
             Query(
               options: getQueryOptions(),
               builder: (
@@ -364,7 +215,7 @@ class _TagFriendsState extends State<TagFriends> {
                       stackTrace: StackTrace.current.toString());
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
-                _refetchQuery = refetch;
+
                 final List<dynamic> friends = List<dynamic>.from(
                     result.data[searchResultsName[_typeUser.index]]);
 
@@ -440,115 +291,6 @@ class _TagFriendsState extends State<TagFriends> {
           );
           fetchMore(opts);
         },
-      ),
-    );
-  }
-
-  Widget getMessageButton(
-    dynamic allFriendRequestsToMe,
-    dynamic allMyFriendRequests,
-    dynamic friends,
-    int index,
-  ) {
-    MessageButton button;
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    double _fontSize = 20;
-    switch (deviceType) {
-      case DeviceScreenType.watch:
-        _fontSize = 12;
-        break;
-      default:
-        _fontSize = 20;
-    }
-    if (_typeUser == TypeUser.me) {
-      return Container();
-    }
-    if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {
-      button = MessageButton(
-        key: Key('${Keys.newFriendsButton}-$index'),
-        text: Strings.quitFriend.i18n,
-        onPressed: () => _quitFriendRequest(friends[index]['id']),
-        fontSize: _fontSize,
-        icon: Icon(
-          MdiIcons.accountRemove,
-          color: Colors.white,
-        ),
-      );
-    } else {
-      if (allMyFriendRequests != null) {
-        for (var friend in allMyFriendRequests) {
-          if (friend['User']['id'] == friends[index]['id']) {
-            switch (friend['status']) {
-              case 'reject':
-                button = MessageButton(
-                  key: Key('${Keys.newFriendsButton}-$index'),
-                  text: Strings.pending.i18n,
-                  onPressed: null,
-                  fontSize: _fontSize,
-                  icon: Icon(
-                    MdiIcons.accountClockOutline,
-                    color: Colors.white,
-                  ),
-                );
-                break;
-              case 'new':
-                button = MessageButton(
-                  key: Key('${Keys.newFriendsButton}-$index'),
-                  text: Strings.pending.i18n,
-                  onPressed: null,
-                  fontSize: _fontSize,
-                  icon: Icon(
-                    MdiIcons.accountClockOutline,
-                    color: Colors.white,
-                  ),
-                );
-                break;
-              default:
-            }
-          }
-        }
-      }
-      if (button == null) {
-        if (allFriendRequestsToMe != null) {
-          for (var friendRequestToMe in allFriendRequestsToMe) {
-            if (friendRequestToMe['User']['id'] == friends[index]['id']) {
-              button = MessageButton(
-                key: Key('${Keys.newFriendsButton}-$index'),
-                text: Strings.pending.i18n,
-                onPressed: null,
-                fontSize: _fontSize,
-                icon: Icon(
-                  MdiIcons.accountClockOutline,
-                  color: Colors.white,
-                ),
-              );
-            }
-          }
-        }
-      }
-      button ??= MessageButton(
-        key: Key('${Keys.newFriendsButton}-$index'),
-        text: Strings.newFriend.i18n,
-        onPressed: () => _newFriendRequest(friends[index]['id']),
-        fontSize: _fontSize,
-        icon: Icon(
-          MdiIcons.accountPlusOutline,
-          color: Colors.white,
-        ),
-      );
-    }
-    return button;
-  }
-
-  Widget _progressIndicator() {
-    return SizedBox(
-      width: 200.0,
-      height: 300.0,
-      child: Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
       ),
     );
   }

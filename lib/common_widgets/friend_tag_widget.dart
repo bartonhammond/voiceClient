@@ -1,20 +1,9 @@
-import 'dart:io' as io;
-import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
-import 'package:MyFamilyVoice/constants/strings.dart';
-import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/mutation_service.dart';
-import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
-import 'package:MyFamilyVoice/constants/globals.dart' as globals;
-import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 // ignore: must_be_immutable
 class FriendTagWidget extends StatefulWidget {
@@ -58,7 +47,7 @@ class _FriendTagWidgetState extends State<FriendTagWidget> {
       default:
         _width = _height = 100;
     }
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
     return Card(
       shadowColor: Colors.transparent,
       child: Column(mainAxisSize: MainAxisSize.min, children: [

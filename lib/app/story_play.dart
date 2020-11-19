@@ -6,6 +6,7 @@ import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/tag_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
@@ -38,7 +39,7 @@ class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
   bool _showComments = false;
   Map<String, dynamic> _story;
-
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _image;
   io.File _storyAudio;
   io.File _commentAudio;
@@ -106,17 +107,14 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = audio;
       _uploadInProgress = true;
     });
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
-    final GraphQLClient graphQLClientApolloServer =
-        GraphQLProvider.of(context).value;
     await doCommentUploads(
       graphQLAuth,
       graphQLClientFileServer,
-      graphQLClientApolloServer,
+      GraphQLProvider.of(context).value,
       _commentAudio,
       _story,
     );
@@ -230,7 +228,6 @@ class _StoryPlayState extends State<StoryPlay>
       return null;
     }
 
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryByIdQL),
       variables: <String, dynamic>{
@@ -238,8 +235,8 @@ class _StoryPlayState extends State<StoryPlay>
         'email': graphQLAuth.getUserMap()['email']
       },
     );
-    final GraphQLClient graphQLClient =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
@@ -253,8 +250,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> doImageUpload() async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
@@ -279,8 +274,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> doAudioUpload() async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
@@ -305,15 +298,11 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> doStoryUpload() async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
-    final GraphQLClient graphQLClientApolloServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
-
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     if (_story == null) {
       if (_imageFilePath != null && _audioFilePath != null) {
         await addStory(
-          graphQLClientApolloServer,
+          graphQLClient,
           graphQLAuth.getCurrentUserId(),
           _id,
           _imageFilePath,
@@ -336,7 +325,7 @@ class _StoryPlayState extends State<StoryPlay>
         _imageFilePath ??= _story['image'];
         _audioFilePath ??= _story['audio'];
         await updateStory(
-          graphQLClientApolloServer,
+          graphQLClient,
           _story['id'],
           _imageFilePath,
           _audioFilePath,
@@ -517,10 +506,8 @@ class _StoryPlayState extends State<StoryPlay>
                 defaultActionText: Strings.yes.i18n,
               ).show(context);
               if (_deleteStory == true) {
-                final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
-                final GraphQLClient graphQLClient = graphQLAuth
-                    .getGraphQLClient(GraphQLClientType.ApolloServer);
+                final GraphQLClient graphQLClient =
+                    GraphQLProvider.of(context).value;
 
                 final String id = _story['id'];
                 await deleteStory(
@@ -563,6 +550,33 @@ class _StoryPlayState extends State<StoryPlay>
         endIndent: 50,
         height: _spacer.toDouble(),
         thickness: 5,
+      ),
+      SizedBox(height: _spacer.toDouble()),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.group_add,
+            size: 20,
+          ),
+          const SizedBox(width: 5),
+          InkWell(
+            child: Text('Attention'),
+            onTap: () async {
+              //setState(() {});
+              Navigator.push<dynamic>(
+                context,
+                MaterialPageRoute<dynamic>(
+                  builder: (BuildContext context) => TagFriends(
+                    key: Key('tagFriendsFromStoryPlay'),
+                    story: _story,
+                  ),
+                  fullscreenDialog: true,
+                ),
+              );
+            },
+          ),
+        ],
       ),
     ]);
   }

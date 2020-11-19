@@ -85,7 +85,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _build(BuildContext context) {
+  @override
+  Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
         final isFirstRouteInCurrentTab =
@@ -144,11 +145,6 @@ class _HomePageState extends State<HomePage> {
         floatingActionButton: _buildFab(context), // This trailin
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _build(context);
   }
 
   Widget buildOffStageNavigatorStories(TabItem item) {

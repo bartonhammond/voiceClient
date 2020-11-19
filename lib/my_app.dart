@@ -1,7 +1,10 @@
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:i18n_extension/i18n_widget.dart';
@@ -86,30 +89,35 @@ class MyApp extends StatelessWidget {
         if (isTesting) {
           return testing(context, locale);
         }
-        return MaterialApp(
-          theme: ThemeData(
-            primarySwatch: myColorSwatch,
-          ),
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en'),
-            Locale('es'),
-          ],
-          debugShowCheckedModeBanner: false,
-          themeMode: ThemeMode.light,
-          color: Color(0xFFF9EBE8),
-          home: I18n(
+        return GraphQLProvider(
+          client: ValueNotifier(GraphQLAuth(context)
+              .getGraphQLClient(GraphQLClientType.ApolloServer)),
+          child: MaterialApp(
+            theme: ThemeData(
+              primarySwatch: myColorSwatch,
+            ),
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('es'),
+            ],
+            debugShowCheckedModeBanner: false,
+            themeMode: ThemeMode.light,
+            color: Color(0xFFF9EBE8),
+            home: I18n(
               initialLocale: locale,
               child: EmailLinkErrorPresenter.create(
                 context,
                 child: AuthWidget(
                   userSnapshot: userSnapshot,
                 ),
-              )),
+              ),
+            ),
+          ),
         );
       }),
     );

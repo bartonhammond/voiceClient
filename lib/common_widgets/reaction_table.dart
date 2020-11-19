@@ -31,9 +31,9 @@ class _State extends State<ReactionTable> {
   }
 
   ReactionType _filter;
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   Future<List> getReactions() async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryReactionsByIdQL),
       variables: <String, dynamic>{
@@ -53,7 +53,6 @@ class _State extends State<ReactionTable> {
 
   @override
   Widget build(BuildContext context) {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return FutureBuilder(
         future: getReactions(),
         builder: (context, snapshot) {
@@ -113,7 +112,6 @@ class _State extends State<ReactionTable> {
   }
 
   Widget getSingleScrollView(List reactions) {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(

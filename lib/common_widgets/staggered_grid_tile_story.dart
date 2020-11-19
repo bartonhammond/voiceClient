@@ -25,7 +25,6 @@ import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/common_widgets/reactions.dart' as react;
 import 'package:uuid/uuid.dart';
 import 'comments.dart';
-import 'friend_message_page.dart';
 
 // ignore: must_be_immutable
 class StaggeredGridTileStory extends StatefulWidget {
@@ -54,7 +53,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showReactionTotals = false;
   bool _uploadInProgress = false;
   final GlobalKey _key = GlobalKey();
-
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _commentAudio;
 
   @override
@@ -64,7 +63,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   Future<void> callBack() async {
     try {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final QueryOptions _queryOptions = QueryOptions(
         documentNode: gql(getStoryByIdQL),
         variables: <String, dynamic>{
@@ -93,18 +91,16 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       _commentAudio = audio;
       _uploadInProgress = true;
     });
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
-    final GraphQLClient graphQLClientApolloServer =
-        GraphQLProvider.of(context).value;
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     await doCommentUploads(
       graphQLAuth,
       graphQLClientFileServer,
-      graphQLClientApolloServer,
+      graphQLClient,
       _commentAudio,
       widget.story,
     );
@@ -342,8 +338,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                         onReactionChanged: (reaction, isChecked) async {
                           final GraphQLClient graphQLClient =
                               GraphQLProvider.of(context).value;
-                          final GraphQLAuth graphQLAuth =
-                              locator<GraphQLAuth>();
+
                           final uuid = Uuid();
 
                           final String _reactionId = uuid.v1();
@@ -409,6 +404,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                             context,
                             MaterialPageRoute<dynamic>(
                               builder: (BuildContext context) => TagFriends(
+                                key: Key('tagFriendsFromTileStory'),
                                 story: widget.story,
                               ),
                               fullscreenDialog: false,

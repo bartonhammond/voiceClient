@@ -1,5 +1,4 @@
 import 'package:MyFamilyVoice/common_widgets/friend_tag_widget.dart';
-import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:flutter/material.dart';
 
