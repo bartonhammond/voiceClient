@@ -1,5 +1,5 @@
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
-import 'package:MyFamilyVoice/common_widgets/full_screen_dialog.dart';
+import 'package:MyFamilyVoice/common_widgets/friend_message_page.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
@@ -31,9 +31,9 @@ class _State extends State<ReactionTable> {
   }
 
   ReactionType _filter;
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   Future<List> getReactions() async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getStoryReactionsByIdQL),
       variables: <String, dynamic>{
@@ -53,7 +53,6 @@ class _State extends State<ReactionTable> {
 
   @override
   Widget build(BuildContext context) {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return FutureBuilder(
         future: getReactions(),
         builder: (context, snapshot) {
@@ -113,7 +112,6 @@ class _State extends State<ReactionTable> {
   }
 
   Widget getSingleScrollView(List reactions) {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
@@ -227,7 +225,7 @@ class _State extends State<ReactionTable> {
                                           context,
                                           MaterialPageRoute<dynamic>(
                                             builder: (BuildContext context) =>
-                                                FullScreenDialog(
+                                                FriendMessagePage(
                                               user: reaction,
                                             ),
                                             fullscreenDialog: false,

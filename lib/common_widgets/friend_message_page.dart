@@ -3,16 +3,16 @@ import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
-class FullScreenDialog extends StatefulWidget {
-  const FullScreenDialog({
+class FriendMessagePage extends StatefulWidget {
+  const FriendMessagePage({
     this.user,
   });
   final Map<String, dynamic> user;
   @override
-  FullScreenDialogState createState() => FullScreenDialogState();
+  FriendMessagePageState createState() => FriendMessagePageState();
 }
 
-class FullScreenDialogState extends State<FullScreenDialog> {
+class FriendMessagePageState extends State<FriendMessagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

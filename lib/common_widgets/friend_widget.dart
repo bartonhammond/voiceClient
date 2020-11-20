@@ -53,6 +53,7 @@ class _FriendWidgetState extends State<FriendWidget> {
   bool _showMakeMessage = false;
   bool _uploadInProgress = false;
   io.File _messageAudio;
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   Future<void> setCommentAudioFile(io.File audio) async {
     if (audio == null) {
@@ -62,17 +63,15 @@ class _FriendWidgetState extends State<FriendWidget> {
       _messageAudio = audio;
       _uploadInProgress = true;
     });
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
-    final GraphQLClient graphQLClientApolloServer =
-        GraphQLProvider.of(context).value;
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     await doMessageUploads(
       graphQLAuth,
       graphQLClientFileServer,
-      graphQLClientApolloServer,
+      graphQLClient,
       widget.user['id'],
       _messageAudio,
     );
@@ -87,7 +86,6 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   Future<void> callBack() async {
     try {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final QueryOptions _queryOptions = QueryOptions(
         documentNode: gql(getUserByEmailQL),
         variables: <String, dynamic>{
@@ -109,7 +107,6 @@ class _FriendWidgetState extends State<FriendWidget> {
   }
 
   bool checkIfIsFamily() {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     if (widget.user.containsKey('friends') &&
         widget.user['friends'].containsKey('from') &&
         widget.user['friends']['from'].length > 0) {
@@ -172,7 +169,6 @@ class _FriendWidgetState extends State<FriendWidget> {
       default:
         _width = _height = 100;
     }
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return widget.allowExpandToggle && globals.collapseFriendWidget
         ? Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

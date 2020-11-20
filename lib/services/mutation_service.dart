@@ -644,3 +644,128 @@ Future<void> updateUserIsFamily(
   }
   return;
 }
+
+Future<void> addStoryTag(
+  String currentUserId,
+  GraphQLClient graphQLClient,
+  Map<String, dynamic> _story,
+  Map<String, dynamic> _tag,
+) async {
+  final _uuid = Uuid();
+  final String _tagId = _uuid.v1();
+
+  await createTag(
+    graphQLClient,
+    _tagId,
+    _story['id'],
+  );
+
+  await addStoryTags(
+    graphQLClient,
+    _story['id'],
+    _tagId,
+  );
+
+  await addUserTags(
+    graphQLClient,
+    _tag['user']['id'],
+    _tagId,
+  );
+
+  await addUserMessages(
+    graphQLClient,
+    currentUserId,
+    _tag['user']['id'],
+    _uuid.v1(),
+    'new',
+    'Attention',
+    'attention',
+    _story['id'],
+  );
+
+  return;
+}
+
+Future<void> createTag(
+  GraphQLClient graphQLClient,
+  String tagId,
+  String storyId,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(createTagQL),
+    variables: <String, dynamic>{
+      'tagId': tagId,
+      'storyId': storyId,
+      'created': now.toIso8601String()
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addStoryTags(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String tagId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addStoryTagsQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
+      'tagId': tagId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addUserTags(
+  GraphQLClient graphQLClient,
+  String userId,
+  String tagId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addUserTagsQL),
+    variables: <String, dynamic>{
+      'userId': userId,
+      'tagId': tagId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> deleteStoryTags(
+  GraphQLClient graphQLClient,
+  String storyId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(deleteStoriesTagsQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}

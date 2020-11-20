@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:MyFamilyVoice/app/sign_in/email_link/email_link_sign_in_page.dart';
@@ -61,12 +60,9 @@ class AuthWidget extends StatelessWidget {
             ),
           );
         }
-        return GraphQLProvider(
-          client: ValueNotifier(snapshot.data[0]),
-          child: I18n(
-            initialLocale: snapshot.data[1],
-            child: HomePage(key: Key(Keys.homePage)),
-          ),
+        return I18n(
+          initialLocale: snapshot.data[1],
+          child: HomePage(key: Key(Keys.homePage)),
         );
       },
     );
