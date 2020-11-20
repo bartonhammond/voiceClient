@@ -128,7 +128,10 @@ class MyApp extends StatelessWidget {
     Locale locale,
   ) {
     setupServiceLocator(context);
-    return MaterialApp(
+    return GraphQLProvider(
+      client: ValueNotifier(GraphQLAuth(context)
+          .getGraphQLClient(GraphQLClientType.ApolloServer)),
+      child: MaterialApp(
         theme: ThemeData(
           primarySwatch: myColorSwatch,
         ),
@@ -149,7 +152,9 @@ class MyApp extends StatelessWidget {
           child: AuthWidget(
               userSnapshot: null, //userSnapshot,
               userEmail: userEmail),
-        ));
+        ),
+      ),
+    );
   }
 
   @override

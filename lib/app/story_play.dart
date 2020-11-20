@@ -7,6 +7,7 @@ import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/tag_friends_page.dart';
+import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
@@ -54,6 +55,7 @@ class _StoryPlayState extends State<StoryPlay>
   bool _storyWasSaved = false;
 
   bool _isCurrentUserAuthor = false;
+  bool _showTaggedFriends = false;
 
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -554,35 +556,59 @@ class _StoryPlayState extends State<StoryPlay>
       SizedBox(height: _spacer.toDouble()),
       _story == null
           ? Container()
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.group_add,
-                  size: 20,
-                ),
-                const SizedBox(width: 5),
-                InkWell(
-                  child: Text('Attention'),
-                  onTap: () async {
-                    //setState(() {});
-                    Navigator.push<dynamic>(
-                      context,
-                      MaterialPageRoute<dynamic>(
-                        builder: (BuildContext context) => TagFriendsPage(
-                          key: Key('tagFriendsFromStoryPlay'),
-                          story: _story,
-                          onSaved: () {
-                            setState(() {});
-                          },
-                        ),
-                        fullscreenDialog: true,
+          : _isCurrentUserAuthor
+              ? Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(width: 5),
+                    CustomRaisedButton(
+                      key: Key('storyPlayAttentionButton'),
+                      text: 'Attention',
+                      icon: Icon(
+                        Icons.group_add,
+                        size: 20,
                       ),
-                    );
-                  },
-                ),
-              ],
-            ),
+                      onPressed: () {
+                        Navigator.push<dynamic>(
+                          context,
+                          MaterialPageRoute<dynamic>(
+                            builder: (BuildContext context) => TagFriendsPage(
+                              key: Key('tagFriendsFromStoryPlay'),
+                              story: _story,
+                              onSaved: () {
+                                setState(() {});
+                              },
+                            ),
+                            fullscreenDialog: true,
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                )
+              : _story['tags'].length > 0
+                  ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                      Icon(
+                        Icons.group_add,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 5),
+                      InkWell(
+                        child: Text('Attention'),
+                        onTap: () {
+                          setState(() {
+                            _showTaggedFriends = !_showTaggedFriends;
+                          });
+                        },
+                      ),
+                    ])
+                  : Container(),
+      _showTaggedFriends
+          ? TaggedFriends(
+              key: Key('tagStoryPlay'),
+              items: _story['tags'],
+            )
+          : Container(),
     ]);
   }
 
