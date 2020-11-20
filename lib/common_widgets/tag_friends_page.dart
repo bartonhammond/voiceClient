@@ -66,6 +66,9 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     _searchString = '*';
     _typeUser = TypeUser.family;
     if (widget.story != null) {
+      if (widget.story['type'] == 'FRIENDS') {
+        _typeUser = TypeUser.friends;
+      }
       widget.story['tags'].forEach((dynamic tag) => _tagItems.add(tag));
     }
     super.initState();
@@ -105,24 +108,33 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     );
   }
 
+  List<DropdownMenuItem<TypeUser>> getDropDownButtons() {
+    final items = <DropdownMenuItem<TypeUser>>[
+      DropdownMenuItem(
+        child: Text(
+          Strings.typeUserButtonFamily.i18n,
+        ),
+        value: TypeUser.family,
+      )
+    ];
+    if (widget.story['type'] == 'FRIENDS' || widget.story['type'] == 'GLOBAL') {
+      items.add(
+        DropdownMenuItem(
+          child: Text(
+            Strings.typeUserButtonFriends.i18n,
+          ),
+          value: TypeUser.friends,
+        ),
+      );
+    }
+    return items;
+  }
+
   Widget getDropDownTypeUserButtons() {
     return DropdownButtonHideUnderline(
       child: DropdownButton<TypeUser>(
         value: _typeUser,
-        items: [
-          DropdownMenuItem(
-            child: Text(
-              Strings.typeUserButtonFamily.i18n,
-            ),
-            value: TypeUser.family,
-          ),
-          DropdownMenuItem(
-            child: Text(
-              Strings.typeUserButtonFriends.i18n,
-            ),
-            value: TypeUser.friends,
-          ),
-        ],
+        items: getDropDownButtons(),
         onChanged: (value) {
           setState(() {
             _typeUser = value;
@@ -254,6 +266,12 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                   tag,
                 );
               }
+              //Sync up so differences can be tested
+              widget.story['tags'] = <Map<String, dynamic>>[];
+              // ignore: avoid_function_literals_in_foreach_calls
+              _tagItems.forEach((tag) {
+                widget.story['tags'].add(tag);
+              });
               setState(() {
                 _tagsHaveChanged = false;
               });
