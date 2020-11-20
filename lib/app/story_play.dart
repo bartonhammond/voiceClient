@@ -6,7 +6,7 @@ import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
-import 'package:MyFamilyVoice/common_widgets/tag_friends.dart';
+import 'package:MyFamilyVoice/common_widgets/tag_friends_page.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
@@ -567,7 +567,7 @@ class _StoryPlayState extends State<StoryPlay>
               Navigator.push<dynamic>(
                 context,
                 MaterialPageRoute<dynamic>(
-                  builder: (BuildContext context) => TagFriends(
+                  builder: (BuildContext context) => TagFriendsPage(
                     key: Key('tagFriendsFromStoryPlay'),
                     story: _story,
                   ),

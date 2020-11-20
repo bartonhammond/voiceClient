@@ -68,6 +68,7 @@ Future<List> getStoriesQuery(
     documentNode: gql(gqlString),
     variables: <String, dynamic>{
       'email': email,
+      'currentUserEmail': email,
       'limit': count.toString(),
       'cursor': cursor
     },

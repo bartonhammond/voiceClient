@@ -908,3 +908,63 @@ mutation updateUserIsFamily($emailFrom: String!, $emailTo: String!, $isFamily: B
   }
 }
 ''';
+
+const String createTagQL = r'''
+mutation createTag($tagId: ID!, $storyId: ID!, $created: String!, ) {
+  CreateTag(
+    id: $tagId
+    story: $storyId
+    created: { 
+      formatted: $created 
+      }
+  ) {
+    __typename
+    id
+    story
+    created {
+      formatted
+    }
+  }
+}
+''';
+
+const String addStoryTagsQL = r'''
+mutation addStoryTags($storyId: ID!, $tagId: ID!) {
+  AddStoryTags(
+    from: {
+      id: $storyId,
+    }
+    to: {
+      id: $tagId
+    }
+  ) {
+    from {    
+      id
+    }
+    to {
+      id
+    }
+    
+  }
+}
+''';
+
+const String addUserTagsQL = r'''
+mutation addUserTags($userId: ID!, $tagId: ID!) {
+  AddUserTags(
+    from: {
+      id: $userId
+    }
+    to: {
+      id: $tagId
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+			id
+    }
+  }
+}
+''';

@@ -10,9 +10,11 @@ class FriendTagWidget extends StatefulWidget {
   FriendTagWidget({
     @required this.user,
     @required this.typeUser,
+    this.onSelect,
   });
   Map<String, dynamic> user;
   TypeUser typeUser;
+  void Function(Map<String, dynamic>) onSelect;
 
   @override
   State<StatefulWidget> createState() => _FriendTagWidgetState();
@@ -88,7 +90,11 @@ class _FriendTagWidgetState extends State<FriendTagWidget> {
           ),
           trailing: Checkbox(
             value: false,
-            onChanged: (bool newValue) {},
+            onChanged: (bool newValue) {
+              if (widget.onSelect != null) {
+                widget.onSelect(widget.user);
+              }
+            },
           ),
         )
       ]),

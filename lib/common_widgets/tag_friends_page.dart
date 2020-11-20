@@ -14,17 +14,17 @@ import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
-class TagFriends extends StatefulWidget {
-  const TagFriends({
+class TagFriendsPage extends StatefulWidget {
+  const TagFriendsPage({
     Key key,
     this.story,
   }) : super(key: key);
   final Map<String, dynamic> story;
   @override
-  _TagFriendsState createState() => _TagFriendsState();
+  _TagFriendsPageState createState() => _TagFriendsPageState();
 }
 
-class _TagFriendsState extends State<TagFriends> {
+class _TagFriendsPageState extends State<TagFriendsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _nFriends = 20;
   int _skip = 0;
@@ -54,6 +54,8 @@ class _TagFriendsState extends State<TagFriends> {
     3: 'User'
   };
 
+  final List<Map<String, dynamic>> _tagItems = [];
+
   @override
   void initState() {
     _searchString = '*';
@@ -64,6 +66,7 @@ class _TagFriendsState extends State<TagFriends> {
   @override
   void dispose() {
     _debouncer.stop();
+    print('tags length: ${_tagItems.length}');
     super.dispose();
   }
 
@@ -156,6 +159,34 @@ class _TagFriendsState extends State<TagFriends> {
     );
   }
 
+  void onSelect(Map<String, dynamic> user) {
+    setState(() {
+      _tagItems.add(user);
+    });
+  }
+
+  void onDelete(Map<String, dynamic> user) {
+    for (var tag in _tagItems) {
+      if (tag['id'] == user['id']) {
+        _tagItems.remove(tag);
+        setState(() {});
+        return;
+      }
+    }
+  }
+
+  bool contains(Map<String, dynamic> user) {
+    if (_tagItems.isEmpty) {
+      return false;
+    }
+    for (var tag in _tagItems) {
+      if (tag['id'] == user['id']) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final DeviceScreenType deviceType =
@@ -192,7 +223,9 @@ class _TagFriendsState extends State<TagFriends> {
             ),
             Divider(),
             TaggedFriends(
-              title: 'Tagged Friends',
+              key: Key('tagFriendsKey'),
+              items: _tagItems,
+              onDelete: onDelete,
             ),
             Query(
               options: getQueryOptions(),
@@ -235,10 +268,13 @@ class _TagFriendsState extends State<TagFriends> {
                           crossAxisSpacing: 4.0,
                           itemBuilder: (context, index) {
                             return index < friends.length
-                                ? StaggeredGridTileTag(
-                                    typeUser: _typeUser,
-                                    friend: friends[index],
-                                  )
+                                ? contains(friends[index])
+                                    ? Container()
+                                    : StaggeredGridTileTag(
+                                        typeUser: _typeUser,
+                                        friend: friends[index],
+                                        onSelect: onSelect,
+                                      )
                                 : moreSearchResults[_typeUser.index]
                                     ? getLoadMoreButton(fetchMore, friends)
                                     : Container();
