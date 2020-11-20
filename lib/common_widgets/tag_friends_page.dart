@@ -28,6 +28,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _nFriends = 20;
   int _skip = 0;
+  bool _tagsHaveChanged = false;
 
   final ScrollController _scrollController = ScrollController();
   String _searchString;
@@ -60,6 +61,11 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   void initState() {
     _searchString = '*';
     _typeUser = TypeUser.family;
+    if (widget.story != null) {
+      for (var _tag in widget.story['tags']) {
+        _tagItems.add(_tag['user']);
+      }
+    }
     super.initState();
   }
 
@@ -159,20 +165,52 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     );
   }
 
+  bool haveTagsChanged() {
+    if (_tagItems.length != widget.story['tags'].length) {
+      return true;
+    }
+    //Are all the tags already in the story
+    for (var tag in _tagItems) {
+      for (var storyTag in widget.story['tags']) {
+        if (tag['id'] == storyTag['user']['id']) {
+          break;
+        }
+        return true;
+      }
+    }
+
+    for (var storyTag in widget.story['tags']) {
+      for (var tag in _tagItems) {
+        if (tag['id'] == storyTag['user']['id']) {
+          break;
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
   void onSelect(Map<String, dynamic> user) {
-    setState(() {
-      _tagItems.add(user);
-    });
+    _tagItems.add(user);
+    if (widget.story == null) {
+      _tagsHaveChanged = true;
+    } else {
+      _tagsHaveChanged = haveTagsChanged();
+    }
+
+    setState(() {});
   }
 
   void onDelete(Map<String, dynamic> user) {
     for (var tag in _tagItems) {
       if (tag['id'] == user['id']) {
         _tagItems.remove(tag);
-        setState(() {});
-        return;
+        break;
       }
     }
+    setState(() {
+      _tagsHaveChanged = haveTagsChanged();
+    });
   }
 
   bool contains(Map<String, dynamic> user) {
@@ -185,6 +223,24 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
       }
     }
     return false;
+  }
+
+  Widget getSaveButton({bool showIcon = true}) {
+    return CustomRaisedButton(
+      key: Key('tagFreindsPageSave'),
+      text: 'Save',
+      icon: showIcon
+          ? Icon(
+              Icons.save,
+              color: Colors.white,
+            )
+          : null,
+      onPressed: _tagsHaveChanged
+          ? () {
+              print('saveButton pressed');
+            }
+          : null,
+    );
   }
 
   @override
@@ -219,6 +275,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
               children: <Widget>[
                 getDropDownTypeUserButtons(),
                 buildSearchField(),
+                getSaveButton(),
               ],
             ),
             Divider(),

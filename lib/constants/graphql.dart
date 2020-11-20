@@ -103,6 +103,17 @@ const _story_ = r'''
     totalHahas
     totalSads
     totalLoves
+    tags {
+      id
+      created {
+        formatted
+      }
+      user {
+        id
+        name
+        email
+      }
+    }
   }
 
 ''';
