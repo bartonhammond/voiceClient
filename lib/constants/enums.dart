@@ -69,11 +69,13 @@ final List messageTypes = <String>[
   'all',
   'message',
   'comment',
-  'friend-request'
+  'friend-request',
+  'attention'
 ];
 enum MessageType {
   ALL,
   MESSAGE,
   COMMENT,
   FRIEND_REQUEST,
+  ATTENTION,
 }
