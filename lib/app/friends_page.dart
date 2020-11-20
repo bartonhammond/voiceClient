@@ -79,8 +79,6 @@ class _FriendsPageState extends State<FriendsPage> {
 
   Future<List<dynamic>> _getAllNewFriendRequestsToMe(
       BuildContext context) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     final QueryOptions _queryOptions = QueryOptions(
@@ -98,7 +96,6 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<List<dynamic>> _getAllMyFriendRequests(BuildContext context) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getAllMyFriendRequests),
@@ -193,7 +190,7 @@ class _FriendsPageState extends State<FriendsPage> {
       try {
         await addUserMessages(
           GraphQLProvider.of(context).value,
-          locator<GraphQLAuth>().getCurrentUserId(),
+          graphQLAuth.getCurrentUserId(),
           _friendId,
           _uuid.v1(),
           'new',

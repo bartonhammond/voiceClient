@@ -56,6 +56,7 @@ class _MessagesPageState extends State<MessagesPage> {
     1: 'userMessagesByType',
     2: 'userMessagesByType',
     3: 'userMessagesByType',
+    4: 'userMessagesByType',
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
@@ -74,9 +75,7 @@ class _MessagesPageState extends State<MessagesPage> {
     ).show(context);
     if (rejectFriendRequest == true) {
       try {
-        final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-        final GraphQLClient graphQLClient =
-            graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer);
+        final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
         await updateUserMessageStatusById(
           graphQLClient,
@@ -263,8 +262,46 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         );
         break;
+
+      case 'attention':
+        return StaggeredGridTileMessage(
+          title: 'Attention',
+          key: Key('${Keys.messageGridTile}_$index'),
+          message: message,
+          approveButton: MessageButton(
+            key: Key('viewAttention-$index'),
+            text: 'View Story',
+            fontSize: 16,
+            onPressed: () {
+              widget.onPush(
+                <String, dynamic>{
+                  'id': message['key1'],
+                  'onFinish': () {
+                    callBack(_message);
+                  },
+                },
+              );
+            },
+            icon: Icon(
+              Icons.group_add,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+          rejectButton: MessageButton(
+            key: Key('${Keys.clearCommentButton}-$index'),
+            text: Strings.clearCommentButton.i18n,
+            fontSize: 16,
+            onPressed: () => callBack(message),
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+        );
+        break;
       default:
-        return Container();
+        return Text('invalid message type ${message['type']}');
     }
   }
 
@@ -341,6 +378,10 @@ class _MessagesPageState extends State<MessagesPage> {
             value: MessageType.ALL,
           ),
           DropdownMenuItem(
+            child: Text('Attention'),
+            value: MessageType.ATTENTION,
+          ),
+          DropdownMenuItem(
             child: Text(Strings.messagesPageMessage.i18n),
             value: MessageType.MESSAGE,
           ),
@@ -374,6 +415,10 @@ class _MessagesPageState extends State<MessagesPage> {
     switch (_messageType) {
       case MessageType.ALL:
         gqlString = getUserMessagesQL;
+        break;
+      case MessageType.ATTENTION:
+        gqlString = getUserMessagesByTypeQL;
+        _variables['type'] = 'attention';
         break;
       case MessageType.COMMENT:
         gqlString = getUserMessagesByTypeQL;

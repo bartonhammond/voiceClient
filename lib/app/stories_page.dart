@@ -45,7 +45,7 @@ class StoriesPage extends StatefulWidget {
 class _StoriesPageState extends State<StoriesPage> {
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
-
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   Map<String, dynamic> user;
 
   //Who is the audiance?
@@ -106,7 +106,6 @@ class _StoriesPageState extends State<StoriesPage> {
     if (getId() == null) {
       _typeStoryView = TypeStoriesView.allFriends;
     } else {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       if (getId() == graphQLAuth.getUserMap()['id']) {
         _typeStoryView = TypeStoriesView.me;
       } else {
@@ -359,7 +358,6 @@ class _StoriesPageState extends State<StoriesPage> {
         _crossAxisCount = 1;
     }
 
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     return FutureBuilder(
       future: getUserFromUserId(),
       builder: (context, snapshot) {

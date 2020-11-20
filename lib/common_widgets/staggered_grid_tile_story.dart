@@ -3,10 +3,12 @@ import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/reaction_table.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_reaction_button/flutter_reaction_button.dart';
@@ -51,8 +53,9 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   bool _showMakeComments = false;
   bool _showReactionTotals = false;
   bool _uploadInProgress = false;
+  bool _showAttentions = false;
   final GlobalKey _key = GlobalKey();
-
+  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _commentAudio;
 
   @override
@@ -62,7 +65,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   Future<void> callBack() async {
     try {
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
       final QueryOptions _queryOptions = QueryOptions(
         documentNode: gql(getStoryByIdQL),
         variables: <String, dynamic>{
@@ -91,18 +93,16 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       _commentAudio = audio;
       _uploadInProgress = true;
     });
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
-    final GraphQLClient graphQLClientApolloServer =
-        GraphQLProvider.of(context).value;
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
     await doCommentUploads(
       graphQLAuth,
       graphQLClientFileServer,
-      graphQLClientApolloServer,
+      graphQLClient,
       _commentAudio,
       widget.story,
     );
@@ -251,6 +251,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       _showReactionTotals = !_showReactionTotals;
                       _showComments = false;
                       _showMakeComments = false;
+                      _showAttentions = false;
                     });
                   },
                   child: Row(
@@ -303,7 +304,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                 ),
                 commentsLength > 0
                     ? InkWell(
-                        child: Text(
+                        child: AutoSizeText(
                           Strings.gridStoryShowCommentsText
                               .plural(commentsLength),
                           style: TextStyle(
@@ -316,9 +317,10 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                             _showComments = !_showComments;
                             _showMakeComments = false;
                             _showReactionTotals = false;
+                            _showAttentions = false;
                           });
                         })
-                    : Container(),
+                    : Text(''),
               ],
             ),
           ),
@@ -340,8 +342,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                         onReactionChanged: (reaction, isChecked) async {
                           final GraphQLClient graphQLClient =
                               GraphQLProvider.of(context).value;
-                          final GraphQLAuth graphQLAuth =
-                              locator<GraphQLAuth>();
+
                           final uuid = Uuid();
 
                           final String _reactionId = uuid.v1();
@@ -388,32 +389,58 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       );
                     },
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Icon(
-                        Icons.comment,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 5),
-                      InkWell(
-                          child: Text(Strings.commentRequest.i18n),
-                          onTap: () {
-                            setState(() {
-                              _showMakeComments = !_showMakeComments;
-                              _showComments = false;
-                              _showReactionTotals = false;
-                            });
-                          })
-                    ],
-                  ),
+                  widget.story['tags'].length > 0
+                      ? Row(
+                          children: [
+                            Icon(
+                              Icons.group_add,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 5),
+                            InkWell(
+                              child: AutoSizeText('Attention'),
+                              onTap: () async {
+                                setState(() {
+                                  _showMakeComments = false;
+                                  _showComments = false;
+                                  _showReactionTotals = false;
+                                  _showAttentions = !_showAttentions;
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                      : Container(),
+                  Row(children: [
+                    Icon(
+                      Icons.comment,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 5),
+                    InkWell(
+                        child: Text(Strings.commentRequest.i18n),
+                        onTap: () {
+                          setState(() {
+                            _showMakeComments = !_showMakeComments;
+                            _showComments = false;
+                            _showReactionTotals = false;
+                            _showAttentions = false;
+                          });
+                        }),
+                  ]),
                 ]),
           ),
-          _showComments
+          _showComments || _showAttentions
               ? Container(
                   margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
                   height: 1,
                   color: Colors.grey[300],
+                )
+              : Container(),
+          _showAttentions
+              ? TaggedFriends(
+                  key: Key('tagFriendsTileStory'),
+                  items: widget.story['tags'],
                 )
               : Container(),
           _showComments
@@ -438,6 +465,13 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       callBack();
                     }
                   },
+                )
+              : Container(),
+          _showComments || _showAttentions
+              ? Container(
+                  margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+                  height: 1,
+                  color: Colors.grey[300],
                 )
               : Container(),
           _showReactionTotals
