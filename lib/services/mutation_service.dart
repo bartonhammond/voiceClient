@@ -649,7 +649,7 @@ Future<void> addStoryTag(
   String currentUserId,
   GraphQLClient graphQLClient,
   Map<String, dynamic> _story,
-  Map<String, dynamic> _user,
+  Map<String, dynamic> _tag,
 ) async {
   final _uuid = Uuid();
   final String _tagId = _uuid.v1();
@@ -668,14 +668,14 @@ Future<void> addStoryTag(
 
   await addUserTags(
     graphQLClient,
-    _user['id'],
+    _tag['user']['id'],
     _tagId,
   );
 
   await addUserMessages(
     graphQLClient,
     currentUserId,
-    _user['id'],
+    _tag['user']['id'],
     _uuid.v1(),
     'new',
     'Attention',
@@ -740,6 +740,25 @@ Future<void> addUserTags(
     variables: <String, dynamic>{
       'userId': userId,
       'tagId': tagId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> deleteStoryTags(
+  GraphQLClient graphQLClient,
+  String storyId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(deleteStoriesTagsQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
     },
   );
 

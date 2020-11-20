@@ -1,6 +1,8 @@
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
+import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -18,8 +20,10 @@ class TagFriendsPage extends StatefulWidget {
   const TagFriendsPage({
     Key key,
     this.story,
+    this.onSaved,
   }) : super(key: key);
   final Map<String, dynamic> story;
+  final VoidCallback onSaved;
   @override
   _TagFriendsPageState createState() => _TagFriendsPageState();
 }
@@ -62,9 +66,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     _searchString = '*';
     _typeUser = TypeUser.family;
     if (widget.story != null) {
-      for (var _tag in widget.story['tags']) {
-        _tagItems.add(_tag['user']);
-      }
+      widget.story['tags'].forEach((dynamic tag) => _tagItems.add(tag));
     }
     super.initState();
   }
@@ -72,7 +74,6 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   @override
   void dispose() {
     _debouncer.stop();
-    print('tags length: ${_tagItems.length}');
     super.dispose();
   }
 
@@ -172,7 +173,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     //Are all the tags already in the story
     for (var tag in _tagItems) {
       for (var storyTag in widget.story['tags']) {
-        if (tag['id'] == storyTag['user']['id']) {
+        if (tag['user']['id'] == storyTag['user']['id']) {
           break;
         }
         return true;
@@ -181,7 +182,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
 
     for (var storyTag in widget.story['tags']) {
       for (var tag in _tagItems) {
-        if (tag['id'] == storyTag['user']['id']) {
+        if (tag['user']['id'] == storyTag['user']['id']) {
           break;
         }
         return true;
@@ -191,7 +192,11 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   }
 
   void onSelect(Map<String, dynamic> user) {
-    _tagItems.add(user);
+    final dynamic tag = {
+      'id': '',
+      'user': user,
+    };
+    _tagItems.add(tag);
     if (widget.story == null) {
       _tagsHaveChanged = true;
     } else {
@@ -218,7 +223,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
       return false;
     }
     for (var tag in _tagItems) {
-      if (tag['id'] == user['id']) {
+      if (tag['user']['id'] == user['id']) {
         return true;
       }
     }
@@ -236,8 +241,25 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
             )
           : null,
       onPressed: _tagsHaveChanged
-          ? () {
-              print('saveButton pressed');
+          ? () async {
+              await deleteStoryTags(
+                GraphQLProvider.of(context).value,
+                widget.story['id'],
+              );
+              for (var tag in _tagItems) {
+                await addStoryTag(
+                  graphQLAuth.currentUserId,
+                  GraphQLProvider.of(context).value,
+                  widget.story,
+                  tag,
+                );
+              }
+              setState(() {
+                _tagsHaveChanged = false;
+              });
+              if (widget.onSaved != null) {
+                widget.onSaved();
+              }
             }
           : null,
     );
@@ -258,91 +280,108 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         staggeredViewSize = 2;
     }
 
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        backgroundColor: Color(0xff00bcd4),
-        title: Text(Strings.MFV.i18n),
-      ),
-      body: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                getDropDownTypeUserButtons(),
-                buildSearchField(),
-                getSaveButton(),
-              ],
-            ),
-            Divider(),
-            TaggedFriends(
-              key: Key('tagFriendsKey'),
-              items: _tagItems,
-              onDelete: onDelete,
-            ),
-            Query(
-              options: getQueryOptions(),
-              builder: (
-                QueryResult result, {
-                VoidCallback refetch,
-                FetchMore fetchMore,
-              }) {
-                if (result.loading && result.data == null) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+    return WillPopScope(
+      onWillPop: () async {
+        if (_tagsHaveChanged) {
+          final bool saveChanges = await PlatformAlertDialog(
+                  title: 'There are pending changes',
+                  content: 'Stay on page to save changes?',
+                  cancelActionText: 'No',
+                  defaultActionText: 'Stay')
+              .show(context);
+          if (saveChanges == true) {
+            return false;
+          }
+          return true;
+        }
+        return true;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          backgroundColor: Color(0xff00bcd4),
+          title: Text(Strings.MFV.i18n),
+        ),
+        body: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: <Widget>[
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  getDropDownTypeUserButtons(),
+                  buildSearchField(),
+                  getSaveButton(),
+                ],
+              ),
+              Divider(),
+              TaggedFriends(
+                key: Key('tagFriendsKey'),
+                items: _tagItems,
+                onDelete: onDelete,
+              ),
+              Query(
+                options: getQueryOptions(),
+                builder: (
+                  QueryResult result, {
+                  VoidCallback refetch,
+                  FetchMore fetchMore,
+                }) {
+                  if (result.loading && result.data == null) {
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  }
+
+                  if (result.hasException) {
+                    logger.createMessage(
+                        userEmail: graphQLAuth.getUser().email,
+                        source: 'friends_page',
+                        shortMessage: result.exception.toString(),
+                        stackTrace: StackTrace.current.toString());
+                    return Text('\nErrors: \n  ' + result.exception.toString());
+                  }
+
+                  final List<dynamic> friends = List<dynamic>.from(
+                      result.data[searchResultsName[_typeUser.index]]);
+
+                  if (friends.isEmpty || friends.length < _nFriends) {
+                    moreSearchResults[_typeUser.index] = false;
+                  }
+
+                  return Expanded(
+                    child: friends == null || friends.isEmpty
+                        ? Text(Strings.noResults.i18n)
+                        : StaggeredGridView.countBuilder(
+                            controller: _scrollController,
+                            itemCount: friends.length + 1,
+                            primary: false,
+                            crossAxisCount: 1,
+                            mainAxisSpacing: 1.0,
+                            crossAxisSpacing: 4.0,
+                            itemBuilder: (context, index) {
+                              return index < friends.length
+                                  ? contains(friends[index])
+                                      ? Container()
+                                      : StaggeredGridTileTag(
+                                          typeUser: _typeUser,
+                                          friend: friends[index],
+                                          onSelect: onSelect,
+                                        )
+                                  : moreSearchResults[_typeUser.index]
+                                      ? getLoadMoreButton(fetchMore, friends)
+                                      : Container();
+                            },
+                            staggeredTileBuilder: (index) =>
+                                StaggeredTile.fit(staggeredViewSize),
+                          ),
                   );
-                }
-
-                if (result.hasException) {
-                  logger.createMessage(
-                      userEmail: graphQLAuth.getUser().email,
-                      source: 'friends_page',
-                      shortMessage: result.exception.toString(),
-                      stackTrace: StackTrace.current.toString());
-                  return Text('\nErrors: \n  ' + result.exception.toString());
-                }
-
-                final List<dynamic> friends = List<dynamic>.from(
-                    result.data[searchResultsName[_typeUser.index]]);
-
-                if (friends.isEmpty || friends.length < _nFriends) {
-                  moreSearchResults[_typeUser.index] = false;
-                }
-
-                return Expanded(
-                  child: friends == null || friends.isEmpty
-                      ? Text(Strings.noResults.i18n)
-                      : StaggeredGridView.countBuilder(
-                          controller: _scrollController,
-                          itemCount: friends.length + 1,
-                          primary: false,
-                          crossAxisCount: 1,
-                          mainAxisSpacing: 1.0,
-                          crossAxisSpacing: 4.0,
-                          itemBuilder: (context, index) {
-                            return index < friends.length
-                                ? contains(friends[index])
-                                    ? Container()
-                                    : StaggeredGridTileTag(
-                                        typeUser: _typeUser,
-                                        friend: friends[index],
-                                        onSelect: onSelect,
-                                      )
-                                : moreSearchResults[_typeUser.index]
-                                    ? getLoadMoreButton(fetchMore, friends)
-                                    : Container();
-                          },
-                          staggeredTileBuilder: (index) =>
-                              StaggeredTile.fit(staggeredViewSize),
-                        ),
-                );
-              },
-            )
-          ],
+                },
+              )
+            ],
+          ),
         ),
       ),
     );

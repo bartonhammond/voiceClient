@@ -979,3 +979,11 @@ mutation addUserTags($userId: ID!, $tagId: ID!) {
   }
 }
 ''';
+
+const String deleteStoriesTagsQL = r'''
+mutation deleteStoryTags($storyId: String!) {
+  deleteStoryTags(storyId: $storyId){
+    id
+  }
+}
+''';

@@ -10,7 +10,7 @@ class TaggedFriends extends StatefulWidget {
     this.items,
   }) : super(key: key);
   final void Function(Map<String, dynamic>) onDelete;
-  final List<Map<String, dynamic>> items;
+  final List<dynamic> items;
 
   @override
   _TaggedFriendsState createState() => _TaggedFriendsState();
@@ -37,13 +37,13 @@ class _TaggedFriendsState extends State<TaggedFriends> {
                 heightHorizontalScroll: 60 * (_fontSize / 14),
                 itemCount: widget.items.length,
                 itemBuilder: (index) {
-                  final item = widget.items[index];
+                  final dynamic item = widget.items[index];
 
                   return GestureDetector(
                       child: ItemTags(
                         key: Key(index.toString()),
                         index: index,
-                        title: item['name'],
+                        title: item['user']['name'],
                         pressEnabled: false,
                         activeColor: Color(0xff00bcd4),
                         textColor: Colors.black,
@@ -58,10 +58,13 @@ class _TaggedFriendsState extends State<TaggedFriends> {
                                   return true;
                                 },
                               ),
-                        textScaleFactor:
-                            utf8.encode(item['name'].substring(0, 1)).length > 2
-                                ? 0.8
-                                : 1,
+                        textScaleFactor: utf8
+                                    .encode(
+                                        item['user']['name'].substring(0, 1))
+                                    .length >
+                                2
+                            ? 0.8
+                            : 1,
                         textStyle: TextStyle(
                           fontSize: _fontSize,
                           color: Colors.black,

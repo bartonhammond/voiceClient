@@ -57,10 +57,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   final GlobalKey _key = GlobalKey();
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _commentAudio;
-  List taggedFriends = <Map<String, String>>[
-    {'name': 'Barton Hammond', 'id': 'lkajsdflkjaskj'},
-    {'name': 'Charles Hammond', 'id': 'lkajsdflkjaskj'}
-  ];
+
   @override
   void dispose() {
     super.dispose();
@@ -392,26 +389,28 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       );
                     },
                   ),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.group_add,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 5),
-                      InkWell(
-                        child: AutoSizeText('Attention'),
-                        onTap: () async {
-                          setState(() {
-                            _showMakeComments = false;
-                            _showComments = false;
-                            _showReactionTotals = false;
-                            _showAttentions = !_showAttentions;
-                          });
-                        },
-                      ),
-                    ],
-                  ),
+                  widget.story['tags'].length > 0
+                      ? Row(
+                          children: [
+                            Icon(
+                              Icons.group_add,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 5),
+                            InkWell(
+                              child: AutoSizeText('Attention'),
+                              onTap: () async {
+                                setState(() {
+                                  _showMakeComments = false;
+                                  _showComments = false;
+                                  _showReactionTotals = false;
+                                  _showAttentions = !_showAttentions;
+                                });
+                              },
+                            ),
+                          ],
+                        )
+                      : Container(),
                   Row(children: [
                     Icon(
                       Icons.comment,
@@ -441,7 +440,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
           _showAttentions
               ? TaggedFriends(
                   key: Key('tagFriendsTileStory'),
-                  items: taggedFriends,
+                  items: widget.story['tags'],
                 )
               : Container(),
           _showComments

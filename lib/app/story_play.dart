@@ -552,32 +552,37 @@ class _StoryPlayState extends State<StoryPlay>
         thickness: 5,
       ),
       SizedBox(height: _spacer.toDouble()),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.group_add,
-            size: 20,
-          ),
-          const SizedBox(width: 5),
-          InkWell(
-            child: Text('Attention'),
-            onTap: () async {
-              //setState(() {});
-              Navigator.push<dynamic>(
-                context,
-                MaterialPageRoute<dynamic>(
-                  builder: (BuildContext context) => TagFriendsPage(
-                    key: Key('tagFriendsFromStoryPlay'),
-                    story: _story,
-                  ),
-                  fullscreenDialog: true,
+      _story == null
+          ? Container()
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.group_add,
+                  size: 20,
                 ),
-              );
-            },
-          ),
-        ],
-      ),
+                const SizedBox(width: 5),
+                InkWell(
+                  child: Text('Attention'),
+                  onTap: () async {
+                    //setState(() {});
+                    Navigator.push<dynamic>(
+                      context,
+                      MaterialPageRoute<dynamic>(
+                        builder: (BuildContext context) => TagFriendsPage(
+                          key: Key('tagFriendsFromStoryPlay'),
+                          story: _story,
+                          onSaved: () {
+                            setState(() {});
+                          },
+                        ),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
     ]);
   }
 
