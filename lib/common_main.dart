@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:shake_flutter/shake_flutter.dart';
 
 void setup() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,8 +11,4 @@ void setup() {
     tablet: 600,
     watch: 325,
   ));
-  Shake.setShowFloatingReportButton(true);
-  Shake.setInvokeShakeOnShakeDeviceEvent(true);
-  Shake.setInvokeShakeOnScreenshot(true);
-  Shake.start();
 }

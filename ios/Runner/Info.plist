@@ -2,13 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>Shake</key>
-    <dict>
-        <key>APIClientID</key>
-        <string>ZAKN2OjFCV9AtMKuGCXiupvs894cbZOBHuCG2BQu</string>
-        <key>APIClientSecret</key>
-        <string>fXf9bkFScK6dMoPdhlvGJ4lFdlnfgTwqJhndrpVmq01VHHFWfHrhOgj</string>
-    </dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>

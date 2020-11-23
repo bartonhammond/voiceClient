@@ -61,7 +61,6 @@ dependencies:
   random_string: ^2.0.0
   responsive_builder: ^0.2.0+2
   rxdart: ^0.24.1
-  shake_flutter: ^10.0.0
   simple_timer: ^1.0.1
   uuid: ^2.1.0
 
