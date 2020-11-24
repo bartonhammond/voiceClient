@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
@@ -69,7 +68,7 @@ class GraphQLAuth {
     if (config.isSecured) {
       final AuthService auth = Provider.of<AuthService>(context, listen: false);
       final AuthLink authLink = AuthLink(getToken: () async {
-        final IdTokenResult tokenResult = await auth.currentUserIdToken();
+        final dynamic tokenResult = await auth.currentUserIdToken();
         token = tokenResult.token;
         return 'Bearer $token';
       });

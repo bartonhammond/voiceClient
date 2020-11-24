@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:flutter/foundation.dart';
 
 class FirebaseAuthService implements AuthService {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  final auth.FirebaseAuth _firebaseAuth = auth.FirebaseAuth.instance;
 
-  User _userFromFirebase(FirebaseUser user) {
+  User _userFromFirebase(auth.User user) {
     if (user == null) {
       return null;
     }
@@ -14,25 +14,26 @@ class FirebaseAuthService implements AuthService {
       uid: user.uid,
       email: user.email,
       displayName: user.displayName,
-      photoUrl: user.photoUrl,
+      photoUrl: user.photoURL,
     );
   }
 
   @override
   Stream<User> get onAuthStateChanged {
-    return _firebaseAuth.onAuthStateChanged.map(_userFromFirebase);
+    return _firebaseAuth.authStateChanges().map(_userFromFirebase);
   }
 
   @override
   Future<User> signInWithEmailAndLink({String email, String link}) async {
-    final AuthResult authResult =
-        await _firebaseAuth.signInWithEmailAndLink(email: email, link: link);
-    return _userFromFirebase(authResult.user);
+    final auth.UserCredential userCredentials =
+        await _firebaseAuth.signInWithEmailLink(email: email, emailLink: link);
+
+    return _userFromFirebase(userCredentials.user);
   }
 
   @override
   Future<bool> isSignInWithEmailLink(String link) async {
-    return await _firebaseAuth.isSignInWithEmailLink(link);
+    return _firebaseAuth.isSignInWithEmailLink(link);
   }
 
   @override
@@ -45,26 +46,31 @@ class FirebaseAuthService implements AuthService {
     @required bool androidInstallIfNotAvailable,
     @required String androidMinimumVersion,
   }) async {
-    return await _firebaseAuth.sendSignInWithEmailLink(
+    final acs = auth.ActionCodeSettings(
+        // URL you want to redirect back to. The domain (www.example.com) for this
+        // URL must be whitelisted in the Firebase Console.
+        url: url,
+        // This must be true
+        handleCodeInApp: true,
+        iOSBundleId: iOSBundleID,
+        androidPackageName: androidPackageName,
+        androidInstallApp: true,
+        androidMinimumVersion: androidMinimumVersion);
+    return await _firebaseAuth.sendSignInLinkToEmail(
       email: email,
-      url: url,
-      handleCodeInApp: handleCodeInApp,
-      iOSBundleID: iOSBundleID,
-      androidPackageName: androidPackageName,
-      androidInstallIfNotAvailable: androidInstallIfNotAvailable,
-      androidMinimumVersion: androidMinimumVersion,
+      actionCodeSettings: acs,
     );
   }
 
   @override
   Future<User> currentUser() async {
-    final FirebaseUser user = await _firebaseAuth.currentUser();
+    final auth.User user = _firebaseAuth.currentUser;
     return _userFromFirebase(user);
   }
 
   @override
-  Future<IdTokenResult> currentUserIdToken() async {
-    final FirebaseUser user = await _firebaseAuth.currentUser();
+  Future<String> currentUserIdToken() async {
+    final auth.User user = _firebaseAuth.currentUser;
     final idTokenResult = await user.getIdToken();
     return idTokenResult;
   }

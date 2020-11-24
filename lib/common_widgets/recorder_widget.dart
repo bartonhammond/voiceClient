@@ -142,8 +142,10 @@ class _RecorderWidgetState extends State<RecorderWidget>
           _localAudioPath = '';
         });
       } else {
-        Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text(Strings.mustAcceptPermissions.i18n)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(Strings.mustAcceptPermissions.i18n),
+          duration: const Duration(seconds: 3),
+        ));
       }
     } catch (e) {
       print(e);
