@@ -1,6 +1,7 @@
 import 'package:MyFamilyVoice/app/home_page.dart';
-import 'package:MyFamilyVoice/web/webauthentication.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AuthDialog extends StatefulWidget {
   @override
@@ -64,6 +65,8 @@ class _AuthDialogState extends State<AuthDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final AuthService _authService =
+        Provider.of<AuthService>(context, listen: false);
     return Dialog(
       backgroundColor: Theme.of(context).backgroundColor,
       shape: RoundedRectangleBorder(
@@ -244,29 +247,13 @@ class _AuthDialogState extends State<AuthDialog> {
                                   _validatePassword(
                                           textControllerPassword.text) ==
                                       null) {
-                                await signInWithEmailPassword(
+                                await _authService
+                                    .signInWithEmailPassword(
                                         textControllerEmail.text,
                                         textControllerPassword.text)
                                     .then((result) {
-                                  if (result != null) {
-                                    print(result);
-                                    setState(() {
-                                      loginStatus =
-                                          'You have successfully logged in';
-                                      loginStringColor = Colors.green;
-                                    });
-                                    Future.delayed(Duration(milliseconds: 500),
-                                        () {
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).pushReplacement(
-                                          MaterialPageRoute<void>(
-                                        fullscreenDialog: true,
-                                        builder: (context) => HomePage(),
-                                      ));
-                                    });
-                                  }
+                                  //no problem
                                 }).catchError((dynamic error) {
-                                  print('Login Error: $error');
                                   setState(() {
                                     loginStatus =
                                         'Error occured while logging in';
@@ -340,7 +327,8 @@ class _AuthDialogState extends State<AuthDialog> {
                                 setState(() {
                                   _isRegistering = true;
                                 });
-                                await registerWithEmailPassword(
+                                await _authService
+                                    .registerWithEmailPassword(
                                         textControllerEmail.text,
                                         textControllerPassword.text)
                                     .then((result) {

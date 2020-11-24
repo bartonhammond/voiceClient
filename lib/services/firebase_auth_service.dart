@@ -82,4 +82,24 @@ class FirebaseAuthService implements AuthService {
 
   @override
   void dispose() {}
+
+  @override
+  Future<User> registerWithEmailPassword(String email, String password) async {
+    final auth.UserCredential userCredentials =
+        await _firebaseAuth.createUserWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return _userFromFirebase(userCredentials.user);
+  }
+
+  @override
+  Future<User> signInWithEmailPassword(String email, String password) async {
+    final auth.UserCredential userCredentials =
+        await _firebaseAuth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+    return _userFromFirebase(userCredentials.user);
+  }
 }

@@ -1,11 +1,33 @@
+import 'package:MyFamilyVoice/app/auth_widget.dart';
+import 'package:MyFamilyVoice/app/auth_widget_builder.dart';
+import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/web/web_home_page.dart';
 import 'package:MyFamilyVoice/web/webauthentication.dart';
-import 'package:dynamic_theme/dynamic_theme.dart';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:i18n_extension/i18n_widget.dart';
+import 'package:provider/provider.dart';
 
 void main() {
-  runApp(MyApp());
+  HttpLink getHttpLink(String uri) {
+    return HttpLink(uri: uri);
+  }
+
+  final configuredApp = AppConfig(
+    flavorName: 'Dev',
+    apiBaseUrl: 'http://192.168.1.13', //'http://dev-myfamilyvoice.com',
+    getHttpLink: getHttpLink,
+    isSecured: false,
+    child: MyApp(),
+  );
+
+  runApp(configuredApp);
 }
 
 class MyApp extends StatefulWidget {
@@ -14,10 +36,21 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final MaterialColor myColorSwatch = MaterialColor(0xff00bcd4, const {
+    50: Color.fromRGBO(4, 131, 184, .1),
+    100: Color.fromRGBO(4, 131, 184, .2),
+    200: Color.fromRGBO(4, 131, 184, .3),
+    300: Color.fromRGBO(4, 131, 184, .4),
+    400: Color.fromRGBO(4, 131, 184, .5),
+    500: Color.fromRGBO(4, 131, 184, .6),
+    600: Color.fromRGBO(4, 131, 184, .7),
+    700: Color.fromRGBO(4, 131, 184, .8),
+    800: Color.fromRGBO(4, 131, 184, .9),
+    900: Color.fromRGBO(4, 131, 184, 1),
+  });
   Future getUserInfo() async {
     await getUser();
     setState(() {});
-    print(uid);
   }
 
   @override
@@ -28,60 +61,51 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicTheme(
-      defaultBrightness: Brightness.light,
-      data: (brightness) {
-        return brightness == Brightness.light
-            ? ThemeData(
-                primarySwatch: Colors.blueGrey,
-                backgroundColor: Colors.white,
-                cardColor: Colors.blueGrey[50],
-                primaryTextTheme: TextTheme(
-                  button: TextStyle(
-                    color: Colors.blueGrey,
-                    decorationColor: Colors.blueGrey[300],
-                  ),
-                  subtitle2: TextStyle(
-                    color: Colors.blueGrey[900],
-                  ),
-                  subtitle1: TextStyle(
-                    color: Colors.black,
-                  ),
-                  headline1: TextStyle(color: Colors.blueGrey[800]),
+    return MultiProvider(
+      providers: [
+        Provider<AuthService>(
+          create: (_) => AuthServiceAdapter(
+            initialAuthServiceType: AuthServiceType.firebase,
+          ),
+          dispose: (_, AuthService authService) => authService.dispose(),
+        ),
+      ],
+      child: AuthWidgetBuilder(
+        builder: (
+          BuildContext context,
+          AsyncSnapshot<User> userSnapshot,
+        ) {
+          setupServiceLocator(context);
+          return GraphQLProvider(
+            client: ValueNotifier(
+              GraphQLAuth(context)
+                  .getGraphQLClient(GraphQLClientType.ApolloServer),
+            ),
+            child: MaterialApp(
+              theme: ThemeData(
+                primarySwatch: myColorSwatch,
+              ),
+              localizationsDelegates: [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'),
+                Locale('es'),
+              ],
+              debugShowCheckedModeBanner: false,
+              themeMode: ThemeMode.light,
+              color: Color(0xFFF9EBE8),
+              home: I18n(
+                initialLocale: Locale('en'),
+                child: AuthWidget(
+                  userSnapshot: userSnapshot,
                 ),
-                bottomAppBarColor: Colors.blueGrey[900],
-                iconTheme: IconThemeData(color: Colors.blueGrey),
-                brightness: brightness,
-              )
-            : ThemeData(
-                primarySwatch: Colors.blueGrey,
-                backgroundColor: Colors.blueGrey[900],
-                cardColor: Colors.black,
-                primaryTextTheme: TextTheme(
-                  button: TextStyle(
-                    color: Colors.blueGrey[200],
-                    decorationColor: Colors.blueGrey[50],
-                  ),
-                  subtitle2: TextStyle(
-                    color: Colors.white,
-                  ),
-                  subtitle1: TextStyle(
-                    color: Colors.blueGrey[300],
-                  ),
-                  headline1: TextStyle(
-                    color: Colors.white70,
-                  ),
-                ),
-                bottomAppBarColor: Colors.black,
-                iconTheme: IconThemeData(color: Colors.blueGrey[200]),
-                brightness: brightness,
-              );
-      },
-      themedWidgetBuilder: (context, data) => MaterialApp(
-        title: 'Explore',
-        theme: data,
-        debugShowCheckedModeBanner: false,
-        home: WebHomePage(),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

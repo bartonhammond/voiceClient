@@ -59,26 +59,22 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<AuthService>(
-          lazy: false,
           create: (_) => AuthServiceAdapter(
             initialAuthServiceType: initialAuthServiceType,
           ),
           dispose: (_, AuthService authService) => authService.dispose(),
         ),
         Provider<EmailSecureStore>(
-          lazy: false,
           create: (_) => EmailSecureStore(
             flutterSecureStorage: FlutterSecureStorage(),
           ),
         ),
         Provider<LocaleSecureStore>(
-          lazy: false,
           create: (_) => LocaleSecureStore(
             flutterSecureStorage: FlutterSecureStorage(),
           ),
         ),
         ProxyProvider2<AuthService, EmailSecureStore, FirebaseEmailLinkHandler>(
-          lazy: false,
           update: (_, AuthService authService, EmailSecureStore storage, __) =>
               FirebaseEmailLinkHandler(
             auth: authService,

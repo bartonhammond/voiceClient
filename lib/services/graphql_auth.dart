@@ -69,7 +69,9 @@ class GraphQLAuth {
       final AuthService auth = Provider.of<AuthService>(context, listen: false);
       final AuthLink authLink = AuthLink(getToken: () async {
         final dynamic tokenResult = await auth.currentUserIdToken();
-        token = tokenResult.token;
+        token = tokenResult;
+
+        ///   web ? .token;
         return 'Bearer $token';
       });
       link = authLink.concat(httpLink);

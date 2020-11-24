@@ -33,4 +33,6 @@ abstract class AuthService {
   Future<void> signOut();
   Stream<User> get onAuthStateChanged;
   void dispose();
+  Future<User> registerWithEmailPassword(String email, String password);
+  Future<User> signInWithEmailPassword(String email, String password);
 }

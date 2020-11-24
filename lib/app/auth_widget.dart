@@ -1,3 +1,4 @@
+import 'package:MyFamilyVoice/web/web_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:provider/provider.dart';
@@ -9,7 +10,7 @@ import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/service_locator.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/home_page.dart';
 
 /// Builds the signed-in or non signed-in UI, depending on the user snapshot.
@@ -27,6 +28,9 @@ class AuthWidget extends StatelessWidget {
   final String userEmail;
 
   Future<Locale> getLocaleFromStorage(BuildContext context) async {
+    if (kIsWeb) {
+      return Locale('en');
+    }
     final LocaleSecureStore localeSecureStore =
         Provider.of<LocaleSecureStore>(context, listen: false);
     final Locale locale = await localeSecureStore.getLocale();
@@ -84,17 +88,20 @@ class AuthWidget extends StatelessWidget {
       if (userSnapshot.hasData) {
         return setupHomePage(context, userSnapshot.data);
       }
+      if (kIsWeb) {
+        return WebHomePage();
+      } else {
+        final AuthService authService =
+            Provider.of<AuthService>(context, listen: false);
+        final FirebaseEmailLinkHandler linkHandler =
+            Provider.of<FirebaseEmailLinkHandler>(context, listen: false);
 
-      final AuthService authService =
-          Provider.of<AuthService>(context, listen: false);
-      final FirebaseEmailLinkHandler linkHandler =
-          Provider.of<FirebaseEmailLinkHandler>(context, listen: false);
-
-      return EmailLinkSignInPage(
-        authService: authService,
-        linkHandler: linkHandler,
-        onSignedIn: null,
-      );
+        return EmailLinkSignInPage(
+          authService: authService,
+          linkHandler: linkHandler,
+          onSignedIn: null,
+        );
+      }
     }
     return Scaffold(
       body: Center(

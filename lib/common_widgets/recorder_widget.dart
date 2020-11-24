@@ -14,6 +14,7 @@ import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class RecorderWidget extends StatefulWidget {
   RecorderWidget({
@@ -63,7 +64,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
     _timerController = TimerController(this);
     _stopButtonEnabled = false;
     _localAudioPath = '';
-    _init();
+    if (!kIsWeb) {
+      _init();
+    }
   }
 
   Widget getRecordButton(bool _showIcon) {
@@ -112,11 +115,10 @@ class _RecorderWidgetState extends State<RecorderWidget>
         String customPath = '/flutter_audio_recorder_';
         io.Directory appDocDirectory;
         if (io.Platform.isIOS) {
-          appDocDirectory = await getApplicationDocumentsDirectory();
+         // appDocDirectory = await getApplicationDocumentsDirectory();
         } else {
-          appDocDirectory = await getExternalStorageDirectory();
+         // appDocDirectory = await getExternalStorageDirectory();
         }
-
         // can add extension like ".mp3" ".wav" ".m4a" ".aac"
         customPath = appDocDirectory.path +
             customPath +

@@ -87,4 +87,12 @@ class AuthServiceAdapter implements AuthService {
 
   @override
   Future<void> signOut() => authService.signOut();
+
+  @override
+  Future<User> registerWithEmailPassword(String email, String password) =>
+      authService.registerWithEmailPassword(email, password);
+
+  @override
+  Future<User> signInWithEmailPassword(String email, String password) =>
+      authService.signInWithEmailPassword(email, password);
 }

@@ -389,11 +389,13 @@ class _StoryPlayState extends State<StoryPlay>
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              Text('recorder widget'),
+              /*
               RecorderWidget(
                 isCurrentUserAuthor: _isCurrentUserAuthor,
                 setAudioFile: setStoryAudioFile,
                 width: width,
-              )
+              )*/
             ],
           )
         : Column(
@@ -404,13 +406,15 @@ class _StoryPlayState extends State<StoryPlay>
                   ? SizedBox(
                       height: 8,
                     )
-                  : Container(),
+                    : Container(),
+                    Text('recorder widget'),
+                    /*
               RecorderWidget(
                 isCurrentUserAuthor: _isCurrentUserAuthor,
                 setAudioFile: setStoryAudioFile,
                 width: width,
                 url: host(_story['audio']),
-              )
+              )*/
             ],
           );
   }
