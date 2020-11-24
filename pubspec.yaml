@@ -24,6 +24,7 @@ dependencies:
   convert: ^2.1.1
   crypto: ^2.1.4
   cupertino_icons: ^0.1.2
+  dynamic_theme: ^1.0.1
   event_bus: ^1.1.1
   file: ^5.0.4
   firebase_auth: ^0.18.3
@@ -56,7 +57,7 @@ dependencies:
   material_design_icons_flutter: 4.0.5755
   package_info: ^0.4.0+13
   path_provider: ^1.6.11
-  provider: ^4.0.1
+  provider: ^4.3.2+2
   random_string: ^2.0.0
   responsive_builder: ^0.2.0+2
   rxdart: ^0.24.1

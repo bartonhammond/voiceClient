@@ -20,9 +20,7 @@ void registerPlugins(PluginRegistry registry) {
   ConnectivityPlugin.registerWith(registry.registrarFor(ConnectivityPlugin));
   FirebaseAuthWeb.registerWith(registry.registrarFor(FirebaseAuthWeb));
   FirebaseCoreWeb.registerWith(registry.registrarFor(FirebaseCoreWeb));
-  FlutterDeviceLocaleWebPlugin.registerWith(
-      registry.registrarFor(FlutterDeviceLocaleWebPlugin));
-  SharedPreferencesPlugin.registerWith(
-      registry.registrarFor(SharedPreferencesPlugin));
+  FlutterDeviceLocaleWebPlugin.registerWith(registry.registrarFor(FlutterDeviceLocaleWebPlugin));
+  SharedPreferencesPlugin.registerWith(registry.registrarFor(SharedPreferencesPlugin));
   registry.registerMessageHandler();
 }

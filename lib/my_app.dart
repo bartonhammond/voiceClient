@@ -19,6 +19,7 @@ import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
 import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class MyApp extends StatelessWidget {
   // [initialAuthServiceType] is made configurable for testing
@@ -45,6 +46,9 @@ class MyApp extends StatelessWidget {
   });
 
   Future<Locale> getDeviceLocal(BuildContext context) async {
+    if (kIsWeb) {
+      return Locale('en');
+    }
     final LocaleSecureStore localeSecureStore =
         LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
 
@@ -55,22 +59,26 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider<AuthService>(
+          lazy: false,
           create: (_) => AuthServiceAdapter(
             initialAuthServiceType: initialAuthServiceType,
           ),
           dispose: (_, AuthService authService) => authService.dispose(),
         ),
         Provider<EmailSecureStore>(
+          lazy: false,
           create: (_) => EmailSecureStore(
             flutterSecureStorage: FlutterSecureStorage(),
           ),
         ),
         Provider<LocaleSecureStore>(
+          lazy: false,
           create: (_) => LocaleSecureStore(
             flutterSecureStorage: FlutterSecureStorage(),
           ),
         ),
         ProxyProvider2<AuthService, EmailSecureStore, FirebaseEmailLinkHandler>(
+          lazy: false,
           update: (_, AuthService authService, EmailSecureStore storage, __) =>
               FirebaseEmailLinkHandler(
             auth: authService,

@@ -1,15 +1,36 @@
-import 'package:firebase_core/firebase_core.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 
-bool authSignedIn;
 String uid;
+String name;
 String userEmail;
+String imageUrl;
+
+/// For checking if the user is already signed into the
+/// app using Google Sign In
+Future getUser() async {
+  await Firebase.initializeApp();
+
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final bool authSignedIn = prefs.getBool('auth') ?? false;
+
+  final User user = _auth.currentUser;
+
+  if (authSignedIn == true) {
+    if (user != null) {
+      uid = user.uid;
+      name = user.displayName;
+      userEmail = user.email;
+      imageUrl = user.photoURL;
+    }
+  }
+}
 
 Future<String> registerWithEmailPassword(String email, String password) async {
-  // Initialize Firebase
   await Firebase.initializeApp();
 
   final UserCredential userCredential =
@@ -38,7 +59,6 @@ Future<String> registerWithEmailPassword(String email, String password) async {
 }
 
 Future<String> signInWithEmailPassword(String email, String password) async {
-  // Initialize Firebase
   await Firebase.initializeApp();
 
   final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
@@ -62,7 +82,7 @@ Future<String> signInWithEmailPassword(String email, String password) async {
     final User currentUser = _auth.currentUser;
     assert(user.uid == currentUser.uid);
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('auth', true);
 
     return 'Successfully logged in, User UID: ${user.uid}';
@@ -74,7 +94,7 @@ Future<String> signInWithEmailPassword(String email, String password) async {
 Future<String> signOut() async {
   await _auth.signOut();
 
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
   prefs.setBool('auth', false);
 
   uid = null;

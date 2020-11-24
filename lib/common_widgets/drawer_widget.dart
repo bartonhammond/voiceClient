@@ -1,12 +1,11 @@
 import 'package:MyFamilyVoice/app/legal/legal_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:MyFamilyVoice/app_config.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
@@ -40,10 +39,13 @@ Future<void> _confirmSignOut(BuildContext context) async {
 }
 
 Future<String> getVersionAndBuild(AppConfig config) async {
-  final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  final String version = packageInfo.version;
-  final String buildNumber = packageInfo.buildNumber;
-
+  String version = 'web';
+  String buildNumber = '';
+  if (!kIsWeb) {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    version = packageInfo.version;
+    buildNumber = packageInfo.buildNumber;
+  }
   return '${config.flavorName} $version+$buildNumber';
 }
 

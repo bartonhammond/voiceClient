@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:package_info/package_info.dart';
 import 'package:MyFamilyVoice/app/sign_in/validator.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/form_submit_button.dart';
@@ -68,13 +67,12 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
 
   Future<void> _sendEmailLink() async {
     try {
-      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
       // Send link
       await widget.linkHandler.sendSignInWithEmailLink(
         email: _email,
         url: Constants.firebaseProjectURL,
         handleCodeInApp: true,
-        packageName: packageInfo.packageName,
+        packageName: 'MyFamilyVoice',
         androidInstallIfNotAvailable: true,
         androidMinimumVersion: '21',
       );
