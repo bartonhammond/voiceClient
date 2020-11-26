@@ -506,13 +506,11 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       SizedBox(
                         height: 20,
                       ),
-                      Text('recorder widget'),
-                      /*
                       RecorderWidget(
                         isCurrentUserAuthor: true,
                         setAudioFile: setCommentAudioFile,
                         timerDuration: 90,
-                      ),*/
+                      ),
                       _uploadInProgress
                           ? CircularProgressIndicator()
                           : Container(),

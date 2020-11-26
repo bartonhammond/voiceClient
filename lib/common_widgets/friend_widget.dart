@@ -373,15 +373,14 @@ class _FriendWidgetState extends State<FriendWidget> {
                             SizedBox(
                               height: 20,
                             ),
-                            Text('recorder widget'),
-                            /*RecorderWidget(
+                            RecorderWidget(
                               showStacked: true,
                               showIcon: true,
                               isCurrentUserAuthor: true,
                               setAudioFile: setCommentAudioFile,
                               timerDuration: 90,
                               showPlayerWidget: false,
-                            ),*/
+                            ),
                             _uploadInProgress
                                 ? CircularProgressIndicator()
                                 : Container(),

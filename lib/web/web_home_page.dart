@@ -46,13 +46,7 @@ class _WebHomePageState extends State<WebHomePage> {
           children: [
             Stack(
               children: [
-                Container(
-                  child: SizedBox(
-                    height: screenSize.height * 0.45,
-                    width: screenSize.width,
-                    child: Text('Yahoooooooo'),
-                  ),
-                ),
+                Container(),
               ],
             ),
           ],

@@ -6,7 +6,6 @@ import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:MyFamilyVoice/web/web_home_page.dart';
 import 'package:MyFamilyVoice/web/webauthentication.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';

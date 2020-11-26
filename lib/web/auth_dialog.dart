@@ -1,4 +1,3 @@
-import 'package:MyFamilyVoice/app/home_page.dart';
 import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -56,8 +55,8 @@ class _AuthDialogState extends State<AuthDialog> {
   void initState() {
     textControllerEmail = TextEditingController();
     textControllerPassword = TextEditingController();
-    textControllerEmail.text = 'admin@myfamilyvoice.com';
-    textControllerPassword.text = 'Parkl1fe!';
+    textControllerEmail.text = '';
+    textControllerPassword.text = '';
     textFocusNodeEmail = FocusNode();
     textFocusNodePassword = FocusNode();
     super.initState();

@@ -115,9 +115,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
         String customPath = '/flutter_audio_recorder_';
         io.Directory appDocDirectory;
         if (io.Platform.isIOS) {
-         // appDocDirectory = await getApplicationDocumentsDirectory();
+          appDocDirectory = await getApplicationDocumentsDirectory();
         } else {
-         // appDocDirectory = await getExternalStorageDirectory();
+          appDocDirectory = await getExternalStorageDirectory();
         }
         // can add extension like ".mp3" ".wav" ".m4a" ".aac"
         customPath = appDocDirectory.path +
