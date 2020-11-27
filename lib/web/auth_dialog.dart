@@ -55,8 +55,8 @@ class _AuthDialogState extends State<AuthDialog> {
   void initState() {
     textControllerEmail = TextEditingController();
     textControllerPassword = TextEditingController();
-    textControllerEmail.text = '';
-    textControllerPassword.text = '';
+    textControllerEmail.text = 'admin@myfamilyvoice.com';
+    textControllerPassword.text = 'Passw0rd';
     textFocusNodeEmail = FocusNode();
     textFocusNodePassword = FocusNode();
     super.initState();

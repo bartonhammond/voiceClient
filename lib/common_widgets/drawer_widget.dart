@@ -27,6 +27,9 @@ Future<void> _signOut(BuildContext context) async {
 }
 
 Future<void> _confirmSignOut(BuildContext context) async {
+  if (kIsWeb) {
+    return _signOut(context);
+  }
   final bool didRequestSignOut = await PlatformAlertDialog(
     title: Strings.logout.i18n,
     content: Strings.logoutAreYouSure.i18n,

@@ -111,6 +111,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
 
   Future<void> _init() async {
     try {
+      if (kIsWeb) {
+        return;
+      }
       if (await FlutterAudioRecorder.hasPermissions) {
         String customPath = '/flutter_audio_recorder_';
         io.Directory appDocDirectory;

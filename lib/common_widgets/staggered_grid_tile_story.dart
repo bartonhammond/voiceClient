@@ -198,11 +198,12 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               borderRadius: BorderRadius.circular(25.0),
               child: FadeInImage.memoryNetwork(
                 placeholder: kTransparentImage,
-                image: host(
-                  widget.story['image'],
-                  width: _width,
-                  height: _height,
-                ),
+                image: 'https://cors-anywhere.herokuapp.com/' +
+                    host(
+                      widget.story['image'],
+                      width: _width,
+                      height: _height,
+                    ),
               ),
             ),
           ),
