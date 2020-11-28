@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/reaction_table.dart';
@@ -131,6 +132,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   @override
   Widget build(BuildContext context) {
+    final bool withCors = AppConfig.of(context).withCors;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;
@@ -197,14 +199,19 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25.0),
               child: FadeInImage.memoryNetwork(
-                placeholder: kTransparentImage,
-                image: 'https://cors-anywhere.herokuapp.com/' +
-                    host(
-                      widget.story['image'],
-                      width: _width,
-                      height: _height,
-                    ),
-              ),
+                  placeholder: kTransparentImage,
+                  image: withCors
+                      ? 'https://cors-anywhere.herokuapp.com/' +
+                          host(
+                            widget.story['image'],
+                            width: _width,
+                            height: _height,
+                          )
+                      : host(
+                          widget.story['image'],
+                          width: _width,
+                          height: _height,
+                        )),
             ),
           ),
           Padding(

@@ -18,6 +18,7 @@ void main() {
     getHttpLink: getHttpLink,
     isSecured: false,
     isWeb: false,
+    withCors: true,
     child: MyApp(
       isTesting: true,
       userEmail: 'brucefreeman@gmail.com',

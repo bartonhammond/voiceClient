@@ -1,7 +1,6 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
-import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:MyFamilyVoice/web/crop_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flushbar/flushbar.dart';
@@ -12,7 +11,6 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
@@ -28,6 +26,7 @@ import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:uuid/uuid.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -82,8 +81,11 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void callBack(ByteData imageBytes) {
     setState(() {
+      imageUpdated = true;
       _webImageBytes = imageBytes;
+      print(_webImageBytes.buffer.asUint8List(0, _webImageBytes.lengthInBytes));
     });
+    _formReady();
   }
 
   @override
@@ -220,8 +222,9 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _formReady() {
+    final bool isWeb = AppConfig.of(context).isWeb;
     if (shouldCreateUser) {
-      if (_image != null &&
+      if (((isWeb && _webImageBytes != null) || (!isWeb && _image != null)) &&
           name != null &&
           name.length > 5 &&
           cityState != null &&
@@ -235,8 +238,8 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } else {
-      if (_image != null ||
-          (name != null && name.length > 5 && name != user['name']) ||
+      if (((isWeb && _webImageBytes != null) || (!isWeb && _image != null)) &&
+              (name != null && name.length > 5 && name != user['name']) ||
           (cityState != null &&
               cityState.length > 1 &&
               cityState != user['home'])) {
@@ -382,6 +385,8 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> doUploads(BuildContext context) async {
+    final bool isWeb = AppConfig.of(context).isWeb;
+
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
@@ -393,12 +398,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
     try {
       if (imageUpdated) {
-        final MultipartFile multipartFile = getMultipartFile(
-          _image,
-          '$userId.jpg',
-          'image',
-          'jpeg',
-        );
+        MultipartFile multipartFile;
+        if (isWeb && _webImageBytes != null) {
+          multipartFile = MultipartFile.fromBytes(
+              'image',
+              _webImageBytes.buffer
+                  .asUint8List(0, _webImageBytes.lengthInBytes),
+              filename: '$userId.jpg',
+              contentType: MediaType('image', 'jpeg'));
+        } else {
+          multipartFile = getMultipartFile(
+            _image,
+            '$userId.jpg',
+            'image',
+            'jpeg',
+          );
+        }
 
         jpegPathUrl = await performMutation(
           graphQLClientFileServer,
@@ -406,10 +421,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'jpeg',
         );
       }
-      final EmailSecureStore emailSecureStore =
-          Provider.of<EmailSecureStore>(context, listen: false);
       final QueryResult queryResult = await createOrUpdateUserInfo(
-        emailSecureStore,
         shouldCreateUser,
         graphQLClientFileServer,
         graphQLClient,
@@ -698,8 +710,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final config = AppConfig.of(context);
-    final bool isWeb = config.isWeb;
+    final isWeb = AppConfig.of(context).isWeb;
     return Scaffold(
       key: _scaffoldKey,
       drawer: getDrawer(context),

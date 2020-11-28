@@ -56,10 +56,94 @@ class _AuthDialogState extends State<AuthDialog> {
     textControllerEmail = TextEditingController();
     textControllerPassword = TextEditingController();
     textControllerEmail.text = 'admin@myfamilyvoice.com';
-    textControllerPassword.text = 'Passw0rd';
+    textControllerPassword.text = '';
     textFocusNodeEmail = FocusNode();
     textFocusNodePassword = FocusNode();
     super.initState();
+  }
+
+  Widget getSignupButton(AuthService _authService) {
+    return Flexible(
+      flex: 1,
+      child: Container(
+        width: double.maxFinite,
+        child: FlatButton(
+          color: Colors.blueGrey[800],
+          hoverColor: Colors.blueGrey[900],
+          highlightColor: Colors.black,
+          onPressed: () async {
+            setState(() {
+              textFocusNodeEmail.unfocus();
+              textFocusNodePassword.unfocus();
+            });
+            if (_validateEmail(textControllerEmail.text) == null &&
+                _validatePassword(textControllerPassword.text) == null) {
+              setState(() {
+                _isRegistering = true;
+              });
+              await _authService
+                  .registerWithEmailPassword(
+                      textControllerEmail.text, textControllerPassword.text)
+                  .then((result) {
+                if (result != null) {
+                  setState(() {
+                    loginStatus = 'You have registered successfully';
+                    loginStringColor = Colors.green;
+                  });
+                  print(result);
+                }
+              }).catchError((dynamic error) {
+                print('Registration Error: $error');
+                setState(() {
+                  loginStatus = 'Error occured while registering';
+                  loginStringColor = Colors.red;
+                });
+              });
+            } else {
+              setState(() {
+                loginStatus = 'Please enter email & password';
+                loginStringColor = Colors.red;
+              });
+            }
+            setState(() {
+              _isRegistering = false;
+
+              textControllerEmail.text = '';
+              textControllerPassword.text = '';
+              _isEditingEmail = false;
+              _isEditingPassword = false;
+            });
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 15.0,
+              bottom: 15.0,
+            ),
+            child: _isRegistering
+                ? SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                  )
+                : Text(
+                    'Sign up',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -305,94 +389,7 @@ class _AuthDialogState extends State<AuthDialog> {
                         ),
                       ),
                       SizedBox(width: 20),
-                      Flexible(
-                        flex: 1,
-                        child: Container(
-                          width: double.maxFinite,
-                          child: FlatButton(
-                            color: Colors.blueGrey[800],
-                            hoverColor: Colors.blueGrey[900],
-                            highlightColor: Colors.black,
-                            onPressed: () async {
-                              setState(() {
-                                textFocusNodeEmail.unfocus();
-                                textFocusNodePassword.unfocus();
-                              });
-                              if (_validateEmail(textControllerEmail.text) ==
-                                      null &&
-                                  _validatePassword(
-                                          textControllerPassword.text) ==
-                                      null) {
-                                setState(() {
-                                  _isRegistering = true;
-                                });
-                                await _authService
-                                    .registerWithEmailPassword(
-                                        textControllerEmail.text,
-                                        textControllerPassword.text)
-                                    .then((result) {
-                                  if (result != null) {
-                                    setState(() {
-                                      loginStatus =
-                                          'You have registered successfully';
-                                      loginStringColor = Colors.green;
-                                    });
-                                    print(result);
-                                  }
-                                }).catchError((dynamic error) {
-                                  print('Registration Error: $error');
-                                  setState(() {
-                                    loginStatus =
-                                        'Error occured while registering';
-                                    loginStringColor = Colors.red;
-                                  });
-                                });
-                              } else {
-                                setState(() {
-                                  loginStatus = 'Please enter email & password';
-                                  loginStringColor = Colors.red;
-                                });
-                              }
-                              setState(() {
-                                _isRegistering = false;
-
-                                textControllerEmail.text = '';
-                                textControllerPassword.text = '';
-                                _isEditingEmail = false;
-                                _isEditingPassword = false;
-                              });
-                            },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                top: 15.0,
-                                bottom: 15.0,
-                              ),
-                              child: _isRegistering
-                                  ? SizedBox(
-                                      height: 16,
-                                      width: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
-                                      ),
-                                    )
-                                  : Text(
-                                      'Sign up',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      getSignupButton(_authService),
                     ],
                   ),
                 ),

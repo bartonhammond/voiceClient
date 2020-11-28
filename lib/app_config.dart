@@ -9,6 +9,7 @@ class AppConfig extends InheritedWidget {
     @required this.getHttpLink,
     @required this.isSecured,
     @required this.isWeb,
+    @required this.withCors,
     @required Widget child,
   }) : super(child: child);
 
@@ -17,6 +18,7 @@ class AppConfig extends InheritedWidget {
   final HttpLink Function(String) getHttpLink;
   final bool isSecured;
   final bool isWeb;
+  final bool withCors;
 
   static AppConfig of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<AppConfig>();

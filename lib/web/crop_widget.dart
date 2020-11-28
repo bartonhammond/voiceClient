@@ -26,35 +26,11 @@ class _CropWidgetPageState extends State<CropWidget> {
     final pixelRatio = MediaQuery.of(context).devicePixelRatio;
     final cropped = await controller.crop(pixelRatio: pixelRatio);
 
-    Navigator.of(context).push<dynamic>(
-      MaterialPageRoute<dynamic>(
-        builder: (context) => Scaffold(
-          appBar: AppBar(
-            title: Text('Crop Result'),
-            centerTitle: true,
-            actions: [
-              Builder(
-                builder: (context) => IconButton(
-                  icon: Icon(Icons.save),
-                  onPressed: () async {
-                    final ByteData byteData = await cropped.toByteData(
-                        format: ui.ImageByteFormat.png);
-                    widget.onCropped(byteData);
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ),
-            ],
-          ),
-          body: Center(
-            child: RawImage(
-              image: cropped,
-            ),
-          ),
-        ),
-        fullscreenDialog: true,
-      ),
-    );
+    final ByteData byteData =
+        await cropped.toByteData(format: ui.ImageByteFormat.png);
+    widget.onCropped(byteData);
+    Navigator.of(context).pop();
+
     return;
   }
 
@@ -183,8 +159,16 @@ class _CropWidgetPageState extends State<CropWidget> {
                     value: 4.0 / 3.0,
                   ),
                   PopupMenuItem(
+                    child: Text('3:2'),
+                    value: 3.0 / 2.0,
+                  ),
+                  PopupMenuItem(
                     child: Text('1:1'),
                     value: 1,
+                  ),
+                  PopupMenuItem(
+                    child: Text('2:3'),
+                    value: 2.0 / 3.0,
                   ),
                   PopupMenuItem(
                     child: Text('3:4'),

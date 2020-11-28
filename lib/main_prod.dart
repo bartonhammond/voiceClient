@@ -35,6 +35,7 @@ void main() {
     getHttpLink: getHttpLink,
     isSecured: true,
     isWeb: false,
+    withCors: true,
     child: MyApp(),
   );
 /*start app

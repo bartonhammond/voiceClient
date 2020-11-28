@@ -1,5 +1,4 @@
 import 'dart:io' as io;
-import 'package:MyFamilyVoice/services/email_secure_store.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
@@ -259,11 +258,8 @@ Future<void> addUserMessages(
   return;
 }
 
-Future<QueryResult> createOrUpdateUserInfo(
-    EmailSecureStore emailSecureStore,
-    bool shouldCreateUser,
-    GraphQLClient graphQLClientFileServer,
-    GraphQLClient graphQLClient,
+Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
+    GraphQLClient graphQLClientFileServer, GraphQLClient graphQLClient,
     {String jpegPathUrl,
     String id,
     String email,
