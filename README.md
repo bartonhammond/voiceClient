@@ -16,7 +16,7 @@
 
 When testing locally web, be sure to source `setupChromeCorsOverride.sh` so that Chrome startups w/o supporting CORS
 
-For testing locally: 
+For testing locally (use target: Chrome SKIA)
 ```
 final configuredApp = AppConfig(
     flavorName: 'Dev',

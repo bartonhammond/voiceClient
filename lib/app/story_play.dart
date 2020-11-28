@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/comments.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
@@ -21,12 +22,14 @@ import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:uuid/uuid.dart';
+import 'package:http_parser/http_parser.dart';
 
 class StoryPlay extends StatefulWidget {
   const StoryPlay({Key key, this.params}) : super(key: key);
@@ -44,11 +47,13 @@ class _StoryPlayState extends State<StoryPlay>
   io.File _image;
   io.File _storyAudio;
   io.File _commentAudio;
+  ByteData _webImageBytes;
 
   String _imageFilePath;
   String _audioFilePath;
   StoryType _storyType = StoryType.FAMILY;
   bool _uploadInProgress = false;
+  bool _isWeb = false;
 
   final _uuid = Uuid();
   String _id;
@@ -149,6 +154,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   @override
   Widget build(BuildContext context) {
+    _isWeb = AppConfig.of(context).isWeb;
     return FutureBuilder(
         future: Future.wait([
           getStory(),
@@ -270,8 +276,22 @@ class _StoryPlayState extends State<StoryPlay>
         multipartFile,
         'jpeg',
       );
+    } else if (_isWeb && _webImageBytes != null) {
+      multipartFile = MultipartFile.fromBytes(
+        'image',
+        _webImageBytes.buffer.asUint8List(0, _webImageBytes.lengthInBytes),
+        filename: '$_id.jpg',
+        contentType: MediaType('image', 'jpeg'),
+      );
+
+      _imageFilePath = await performMutation(
+        graphQLClientFileServer,
+        multipartFile,
+        'jpeg',
+      );
     }
     await doStoryUpload();
+
     return;
   }
 
@@ -348,19 +368,6 @@ class _StoryPlayState extends State<StoryPlay>
     if (!_isCurrentUserAuthor) {
       return Container();
     }
-    final ImageControls _imageControls =
-        ImageControls(onImageSelected: (io.File croppedFile) async {
-      setState(() {
-        _image = croppedFile;
-        _uploadInProgress = true;
-      });
-
-      await doImageUpload();
-
-      setState(() {
-        _uploadInProgress = false;
-      });
-    });
 
     return Card(
       margin: EdgeInsets.all(0),
@@ -374,7 +381,38 @@ class _StoryPlayState extends State<StoryPlay>
           SizedBox(
             height: 8,
           ),
-          _imageControls.buildImageControls(showIcons: _showIcons),
+          ImageControls(
+              showIcons: _showIcons,
+              isWeb: _isWeb,
+              onOpenFileExplorer: (bool opening) {
+                setState(() {
+                  _uploadInProgress = opening;
+                });
+              },
+              onWebCroppedCallback: (ByteData imageBytes) async {
+                setState(() {
+                  _webImageBytes = imageBytes;
+                  _uploadInProgress = true;
+                });
+
+                await doImageUpload();
+
+                setState(() {
+                  _uploadInProgress = false;
+                });
+              },
+              onImageSelected: (io.File croppedFile) async {
+                setState(() {
+                  _image = croppedFile;
+                  _uploadInProgress = true;
+                });
+
+                await doImageUpload();
+
+                setState(() {
+                  _uploadInProgress = false;
+                });
+              }),
           SizedBox(
             height: 8,
           ),
@@ -427,6 +465,16 @@ class _StoryPlayState extends State<StoryPlay>
             width: _width.toDouble(),
             height: _height.toDouble(),
           ),
+        ),
+      );
+    else if (_webImageBytes != null)
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(40.0),
+        child: Image.memory(
+          _webImageBytes.buffer.asUint8List(
+              _webImageBytes.offsetInBytes, _webImageBytes.lengthInBytes),
+          width: _width.toDouble(),
+          height: _height.toDouble(),
         ),
       );
     else if (_story != null)

@@ -1,15 +1,13 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
-import 'package:MyFamilyVoice/web/crop_widget.dart';
-import 'package:file_picker/file_picker.dart';
+import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
@@ -50,8 +48,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String cityState = '';
   String userImage = '';
   bool shouldCreateUser = false;
-  bool _loadingFilePickerWeb = false;
-
+  bool _isWeb = false;
   Map<String, dynamic> user;
   io.File _image;
   bool imageUpdated = false;
@@ -83,7 +80,6 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() {
       imageUpdated = true;
       _webImageBytes = imageBytes;
-      print(_webImageBytes.buffer.asUint8List(0, _webImageBytes.lengthInBytes));
     });
     _formReady();
   }
@@ -132,99 +128,9 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  Future<void> _openFileExplorer() async {
-    List<PlatformFile> _paths;
-
-    setState(() => _loadingFilePickerWeb = true);
-    try {
-      _paths = (await FilePicker.platform.pickFiles(
-        type: FileType.image,
-        allowMultiple: false,
-      ))
-          ?.files;
-    } on PlatformException catch (e) {
-      print('Unsupported operation' + e.toString());
-    } catch (ex) {
-      print(ex);
-    }
-    if (!mounted) {
-      return;
-    }
-    //print('bytes: ${_paths[0].bytes}');
-    setState(() {
-      _loadingFilePickerWeb = false;
-    });
-    if (_paths != null) {
-      Navigator.push<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => CropWidget(
-              imageBytes: _paths[0].bytes,
-              onCropped: callBack,
-            ),
-            fullscreenDialog: false,
-          ));
-    }
-    return;
-  }
-
-  Future selectImage(ImageSource source) async {
-    io.File image;
-    final PickedFile pickedFile = await picker.getImage(source: source);
-    if (pickedFile != null) {
-      image = io.File(pickedFile.path);
-    }
-
-    if (image != null && pickedFile != null) {
-      final io.File croppedFile = await ImageCropper.cropImage(
-        sourcePath: image.path,
-        compressQuality: 50,
-        maxWidth: 700,
-        maxHeight: 700,
-        compressFormat: ImageCompressFormat.jpg,
-        aspectRatioPresets: io.Platform.isAndroid
-            ? [
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
-              ]
-            : [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio5x3,
-                CropAspectRatioPreset.ratio5x4,
-                CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
-              ],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: 'Cropper',
-        ),
-      );
-
-      if (croppedFile != null) {
-        setState(() {
-          imageUpdated = true;
-          _image = croppedFile;
-        });
-        _formReady();
-      }
-    }
-  }
-
   void _formReady() {
-    final bool isWeb = AppConfig.of(context).isWeb;
     if (shouldCreateUser) {
-      if (((isWeb && _webImageBytes != null) || (!isWeb && _image != null)) &&
+      if (((_isWeb && _webImageBytes != null) || (!_isWeb && _image != null)) &&
           name != null &&
           name.length > 5 &&
           cityState != null &&
@@ -238,8 +144,8 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } else {
-      if (((isWeb && _webImageBytes != null) || (!isWeb && _image != null)) &&
-              (name != null && name.length > 5 && name != user['name']) ||
+      if (((_isWeb && _webImageBytes != null) || (!_isWeb && _image != null)) ||
+          (name != null && name.length > 5 && name != user['name']) ||
           (cityState != null &&
               cityState.length > 1 &&
               cityState != user['home'])) {
@@ -252,61 +158,6 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     }
-  }
-
-  Widget _buildImageControls(bool isWeb) {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _fontSize = 16;
-    int _size = 15;
-    int _width = 8;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-      case DeviceScreenType.mobile:
-        break;
-      case DeviceScreenType.watch:
-        _size = 15;
-        _width = 8;
-        _fontSize = 12;
-        break;
-
-      default:
-    }
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      mainAxisSize: MainAxisSize.max,
-      children: <Widget>[
-        CustomRaisedButton(
-          fontSize: _fontSize.toDouble(),
-          key: Key(Keys.storyPageGalleryButton),
-          text: Strings.galleryImageButton.i18n,
-          icon: Icon(
-            Icons.photo_library,
-            color: Colors.white,
-            size: _size.toDouble(),
-          ),
-          onPressed: () =>
-              isWeb ? _openFileExplorer() : selectImage(ImageSource.gallery),
-        ),
-        SizedBox(
-          width: _width.toDouble(),
-        ),
-        isWeb
-            ? Container()
-            : CustomRaisedButton(
-                fontSize: _fontSize.toDouble(),
-                key: Key(Keys.storyPageCameraButton),
-                text: Strings.cameraImageButton.i18n,
-                icon: Icon(
-                  Icons.camera,
-                  color: Colors.white,
-                  size: _size.toDouble(),
-                ),
-                onPressed: () => selectImage(ImageSource.camera),
-              ),
-      ],
-    );
   }
 
   Widget _buildUploadButton(BuildContext context) {
@@ -385,8 +236,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> doUploads(BuildContext context) async {
-    final bool isWeb = AppConfig.of(context).isWeb;
-
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     final GraphQLClient graphQLClientFileServer =
@@ -399,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       if (imageUpdated) {
         MultipartFile multipartFile;
-        if (isWeb && _webImageBytes != null) {
+        if (_isWeb && _webImageBytes != null) {
           multipartFile = MultipartFile.fromBytes(
               'image',
               _webImageBytes.buffer
@@ -460,7 +309,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return;
   }
 
-  Widget getForm(bool isWeb) {
+  Widget getForm() {
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;
@@ -481,7 +330,7 @@ class _ProfilePageState extends State<ProfilePage> {
         _formFieldWidth = 400;
         break;
       default:
-        if (isWeb) {
+        if (_isWeb) {
           _width = _height = 250;
         } else {
           _width = _height = 100;
@@ -585,18 +434,47 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           SizedBox(
-            height: 5,
+            height: 15,
           ),
           Text(
             Strings.yourPictureSelection.i18n,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           SizedBox(
-            height: 5,
+            height: 15,
           ),
-          _buildImageControls(isWeb),
+          ImageControls(
+              showIcons: true,
+              isWeb: _isWeb,
+              onOpenFileExplorer: (bool opening) {
+                setState(() {
+                  _uploadInProgress = opening;
+                });
+              },
+              onWebCroppedCallback: (ByteData imageBytes) async {
+                setState(() {
+                  _webImageBytes = imageBytes;
+                  _uploadInProgress = true;
+                });
+                await doUploads(context);
+                setState(() {
+                  _uploadInProgress = false;
+                });
+              },
+              onImageSelected: (io.File croppedFile) async {
+                setState(() {
+                  _image = croppedFile;
+                  _uploadInProgress = true;
+                });
+
+                await doUploads(context);
+
+                setState(() {
+                  _uploadInProgress = false;
+                });
+              }),
           SizedBox(
-            height: 5,
+            height: 15,
           ),
           Container(
             width: _formFieldWidth.toDouble(),
@@ -710,7 +588,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final isWeb = AppConfig.of(context).isWeb;
+    _isWeb = AppConfig.of(context).isWeb;
     return Scaffold(
       key: _scaffoldKey,
       drawer: getDrawer(context),
@@ -718,11 +596,7 @@ class _ProfilePageState extends State<ProfilePage> {
         title: Text(Strings.profilePageName.i18n),
         backgroundColor: Color(0xff00bcd4),
       ),
-      body: isWeb && _loadingFilePickerWeb
-          ? Center(
-              child: const CircularProgressIndicator(),
-            )
-          : getForm(isWeb),
+      body: getForm(),
     );
   }
 }
