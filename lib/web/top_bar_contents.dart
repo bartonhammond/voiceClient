@@ -185,7 +185,6 @@ class _TopBarContentsState extends State<TopBarContents> {
                                       _isProcessing = true;
                                     });
                                     await signOut().then((result) {
-                                      print(result);
                                       Navigator.of(context).pushReplacement(
                                         MaterialPageRoute<void>(
                                           fullscreenDialog: true,

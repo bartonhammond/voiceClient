@@ -35,4 +35,5 @@ abstract class AuthService {
   void dispose();
   Future<User> registerWithEmailPassword(String email, String password);
   Future<User> signInWithEmailPassword(String email, String password);
+  Future<void> sendPasswordReset(String email);
 }

@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'dart:typed_data';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
@@ -513,21 +514,33 @@ Future<void> addStoryReaction(
 }
 
 Future<void> doCommentUploads(
-  GraphQLAuth graphQLAuth,
-  GraphQLClient graphQLClientFileServer,
-  GraphQLClient graphQLClientApolloServer,
-  io.File _commentAudio,
-  Map<String, dynamic> _story,
-) async {
+    GraphQLAuth graphQLAuth,
+    GraphQLClient graphQLClientFileServer,
+    GraphQLClient graphQLClientApolloServer,
+    Map<String, dynamic> _story,
+    {io.File commentAudio,
+    Uint8List commentAudioWeb}) async {
   final _uuid = Uuid();
   final String _commentId = _uuid.v1();
 
-  final MultipartFile multipartFile = getMultipartFile(
-    _commentAudio,
-    '$_commentId.mp3',
-    'audio',
-    'mp3',
-  );
+  MultipartFile multipartFile;
+
+  if (commentAudio != null) {
+    multipartFile = getMultipartFile(
+      commentAudio,
+      '$_commentId.mp3',
+      'audio',
+      'mp3',
+    );
+  }
+  if (commentAudioWeb != null) {
+    multipartFile = MultipartFile.fromBytes(
+      'audio',
+      commentAudioWeb,
+      filename: '$_commentId.mp3',
+      contentType: MediaType('audio', 'mp3'),
+    );
+  }
 
   final String _audioFilePath = await performMutation(
     graphQLClientFileServer,

@@ -1,4 +1,5 @@
 import 'dart:io' as io;
+import 'dart:typed_data';
 
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
@@ -7,6 +8,7 @@ import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/common_widgets/tag_friends_page.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
@@ -49,6 +51,9 @@ class _StoryPlayState extends State<StoryPlay>
   io.File _commentAudio;
   ByteData _webImageBytes;
 
+  Uint8List _storyAudioWeb;
+  Uint8List _commentAudioWeb;
+
   String _imageFilePath;
   String _audioFilePath;
   StoryType _storyType = StoryType.FAMILY;
@@ -84,7 +89,7 @@ class _StoryPlayState extends State<StoryPlay>
     switch (deviceType) {
       case DeviceScreenType.desktop:
       case DeviceScreenType.tablet:
-        _width = _height = 750;
+        _width = _height = 400;
         _showIcons = true;
         break;
       case DeviceScreenType.watch:
@@ -122,13 +127,45 @@ class _StoryPlayState extends State<StoryPlay>
       graphQLAuth,
       graphQLClientFileServer,
       GraphQLProvider.of(context).value,
-      _commentAudio,
       _story,
+      commentAudio: _commentAudio,
     );
     setState(() {
       _commentAudio = null;
       _uploadInProgress = false;
     });
+    Flushbar<dynamic>(
+      message: Strings.saved.i18n,
+      duration: Duration(seconds: 3),
+    )..show(_scaffoldKey.currentContext);
+    return;
+  }
+
+  Future<void> setCommentAudioWeb(Uint8List bytes) async {
+    if (bytes == null) {
+      return;
+    }
+    setState(() {
+      _commentAudioWeb = bytes;
+      _uploadInProgress = true;
+    });
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    await doCommentUploads(
+      graphQLAuth,
+      graphQLClientFileServer,
+      GraphQLProvider.of(context).value,
+      _story,
+      commentAudioWeb: _commentAudioWeb,
+    );
+
+    setState(() {
+      _commentAudio = null;
+      _uploadInProgress = false;
+    });
+
     Flushbar<dynamic>(
       message: Strings.saved.i18n,
       duration: Duration(seconds: 3),
@@ -142,6 +179,22 @@ class _StoryPlayState extends State<StoryPlay>
     }
     setState(() {
       _storyAudio = audio;
+      _uploadInProgress = true;
+    });
+
+    await doAudioUpload();
+
+    setState(() {
+      _uploadInProgress = false;
+    });
+  }
+
+  Future<void> setStoryAudioWeb(Uint8List bytes) async {
+    if (bytes == null) {
+      return;
+    }
+    setState(() {
+      _storyAudioWeb = bytes;
       _uploadInProgress = true;
     });
 
@@ -301,6 +354,15 @@ class _StoryPlayState extends State<StoryPlay>
 
     MultipartFile multipartFile;
 
+    if (_storyAudioWeb != null) {
+      multipartFile = MultipartFile.fromBytes(
+        'audio',
+        _storyAudioWeb,
+        filename: '$_id.mp3',
+        contentType: MediaType('audio', 'mp3'),
+      );
+    }
+
     if (_storyAudio != null) {
       multipartFile = getMultipartFile(
         _storyAudio,
@@ -308,12 +370,17 @@ class _StoryPlayState extends State<StoryPlay>
         'audio',
         'mp3',
       );
-
+    }
+    if (multipartFile != null) {
       _audioFilePath = await performMutation(
         graphQLClientFileServer,
         multipartFile,
         'mp3',
       );
+      Flushbar<dynamic>(
+        message: Strings.saved.i18n,
+        duration: Duration(seconds: 3),
+      )..show(_scaffoldKey.currentContext);
     }
     await doStoryUpload();
     return;
@@ -427,11 +494,17 @@ class _StoryPlayState extends State<StoryPlay>
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              RecorderWidget(
-                isCurrentUserAuthor: _isCurrentUserAuthor,
-                setAudioFile: setStoryAudioFile,
-                width: width,
-              )
+              _isWeb
+                  ? RecorderWidgetWeb(
+                      isCurrentUserAuthor: _isCurrentUserAuthor,
+                      setAudioWeb: setStoryAudioWeb,
+                      width: width,
+                    )
+                  : RecorderWidget(
+                      isCurrentUserAuthor: _isCurrentUserAuthor,
+                      setAudioFile: setStoryAudioFile,
+                      width: width,
+                    )
             ],
           )
         : Column(
@@ -443,14 +516,18 @@ class _StoryPlayState extends State<StoryPlay>
                       height: 8,
                     )
                   : Container(),
-              Text('recorder widget'),
-              /*
-              RecorderWidget(
-                isCurrentUserAuthor: _isCurrentUserAuthor,
-                setAudioFile: setStoryAudioFile,
-                width: width,
-                url: host(_story['audio']),
-              )*/
+              _isWeb
+                  ? RecorderWidgetWeb(
+                      isCurrentUserAuthor: _isCurrentUserAuthor,
+                      setAudioWeb: setStoryAudioWeb,
+                      width: width,
+                      url: host(_story['audio']))
+                  : RecorderWidget(
+                      isCurrentUserAuthor: _isCurrentUserAuthor,
+                      setAudioFile: setStoryAudioFile,
+                      width: width,
+                      url: host(_story['audio']),
+                    )
             ],
           );
   }
@@ -787,11 +864,19 @@ class _StoryPlayState extends State<StoryPlay>
                                 SizedBox(
                                   height: _spacer.toDouble(),
                                 ),
-                                RecorderWidget(
-                                  isCurrentUserAuthor: _isCurrentUserAuthor,
-                                  setAudioFile: setCommentAudioFile,
-                                  timerDuration: 90,
-                                ),
+                                _isWeb
+                                    ? RecorderWidgetWeb(
+                                        isCurrentUserAuthor:
+                                            _isCurrentUserAuthor,
+                                        setAudioWeb: setCommentAudioWeb,
+                                        timerDuration: 90,
+                                      )
+                                    : RecorderWidget(
+                                        isCurrentUserAuthor:
+                                            _isCurrentUserAuthor,
+                                        setAudioFile: setCommentAudioFile,
+                                        timerDuration: 90,
+                                      ),
                                 _uploadInProgress
                                     ? CircularProgressIndicator()
                                     : Divider(
@@ -805,6 +890,7 @@ class _StoryPlayState extends State<StoryPlay>
                                   story: _story,
                                   fontSize: 16,
                                   showExpand: true,
+                                  isWeb: _isWeb,
                                   onClickDelete:
                                       (Map<String, dynamic> _comment) async {
                                     final bool _deleteComment =

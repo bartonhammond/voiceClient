@@ -17,8 +17,9 @@ class Comments extends StatelessWidget {
     this.fontSize = 10,
     this.showExpand = false,
     this.onClickDelete,
+    this.isWeb,
   }) : super(key: key);
-
+  final bool isWeb;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   final Map<String, dynamic> story;
@@ -36,7 +37,7 @@ class Comments extends StatelessWidget {
         PlayerWidget(
           key: Key("playWidget${comment['id']}"),
           url: host(comment['audio']),
-          showSlider: true,
+          showSlider: isWeb ? false : true,
         ),
         Text(
           comment['from']['name'],

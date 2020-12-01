@@ -8,9 +8,11 @@ class AuthDialog extends StatefulWidget {
 }
 
 class _AuthDialogState extends State<AuthDialog> {
+  AuthService _authService;
   TextEditingController textControllerEmail;
   FocusNode textFocusNodeEmail;
   bool _isEditingEmail = false;
+  bool _forgotPassword = false;
 
   TextEditingController textControllerPassword;
   FocusNode textFocusNodePassword;
@@ -56,7 +58,7 @@ class _AuthDialogState extends State<AuthDialog> {
     textControllerEmail = TextEditingController();
     textControllerPassword = TextEditingController();
     textControllerEmail.text = 'admin@myfamilyvoice.com';
-    textControllerPassword.text = '';
+    textControllerPassword.text = 'Passw0rd';
     textFocusNodeEmail = FocusNode();
     textFocusNodePassword = FocusNode();
     super.initState();
@@ -146,10 +148,260 @@ class _AuthDialogState extends State<AuthDialog> {
     );
   }
 
+  Widget getResetPasswordButton(AuthService _authService) {
+    return Flexible(
+      flex: 1,
+      child: Container(
+        width: double.maxFinite,
+        child: FlatButton(
+          color: Colors.blueGrey[800],
+          hoverColor: Colors.blueGrey[900],
+          highlightColor: Colors.black,
+          onPressed: () async {
+            setState(() {
+              textFocusNodeEmail.unfocus();
+              textFocusNodePassword.unfocus();
+            });
+            if (_validateEmail(textControllerEmail.text) == null &&
+                _validatePassword(textControllerPassword.text) == null) {
+              setState(() {
+                _isRegistering = true;
+              });
+              await _authService
+                  .registerWithEmailPassword(
+                      textControllerEmail.text, textControllerPassword.text)
+                  .then((result) {
+                if (result != null) {
+                  setState(() {
+                    loginStatus = 'You have registered successfully';
+                    loginStringColor = Colors.green;
+                  });
+                  print(result);
+                }
+              }).catchError((dynamic error) {
+                print('Registration Error: $error');
+                setState(() {
+                  loginStatus = 'Error occured while registering';
+                  loginStringColor = Colors.red;
+                });
+              });
+            } else {
+              setState(() {
+                loginStatus = 'Please enter email & password';
+                loginStringColor = Colors.red;
+              });
+            }
+            setState(() {
+              _isRegistering = false;
+
+              textControllerEmail.text = '';
+              textControllerPassword.text = '';
+              _isEditingEmail = false;
+              _isEditingPassword = false;
+            });
+          },
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Padding(
+            padding: EdgeInsets.only(
+              top: 15.0,
+              bottom: 15.0,
+            ),
+            child: _isRegistering
+                ? SizedBox(
+                    height: 16,
+                    width: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.white,
+                      ),
+                    ),
+                  )
+                : Text(
+                    'Sign up',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                  ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget getForgotPasswordButton() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Flexible(
+            flex: 1,
+            child: Container(
+              width: double.maxFinite,
+              child: FlatButton(
+                color: Colors.blueGrey[800],
+                hoverColor: Colors.blueGrey[900],
+                highlightColor: Colors.black,
+                onPressed: () async {
+                  setState(() {
+                    _isLoggingIn = true;
+                    textFocusNodeEmail.unfocus();
+                    textFocusNodePassword.unfocus();
+                  });
+                  if (_validateEmail(textControllerEmail.text) == null) {
+                    await _authService
+                        .sendPasswordReset(textControllerEmail.text)
+                        .then((result) {
+                      //no problem
+                    }).catchError((dynamic error) {
+                      setState(() {
+                        loginStatus = 'Error occured while sending email';
+                        loginStringColor = Colors.red;
+                      });
+                    });
+                  } else {
+                    setState(() {
+                      loginStatus = 'Please enter email';
+                      loginStringColor = Colors.red;
+                    });
+                  }
+                  setState(() {
+                    _isLoggingIn = false;
+                    _isEditingEmail = false;
+                    _isEditingPassword = false;
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: 15.0,
+                    bottom: 15.0,
+                  ),
+                  child: _isLoggingIn
+                      ? SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget getLoginButton() {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Flexible(
+            flex: 1,
+            child: Container(
+              width: double.maxFinite,
+              child: FlatButton(
+                color: Colors.blueGrey[800],
+                hoverColor: Colors.blueGrey[900],
+                highlightColor: Colors.black,
+                onPressed: () async {
+                  setState(() {
+                    _isLoggingIn = true;
+                    textFocusNodeEmail.unfocus();
+                    textFocusNodePassword.unfocus();
+                  });
+                  if (_validateEmail(textControllerEmail.text) == null &&
+                      _validatePassword(textControllerPassword.text) == null) {
+                    await _authService
+                        .signInWithEmailPassword(textControllerEmail.text,
+                            textControllerPassword.text)
+                        .then((result) {
+                      //no problem
+                    }).catchError((dynamic error) {
+                      if (error.code == 'wrong-password') {
+                        _authService
+                            .sendPasswordReset(textControllerEmail.text);
+                      }
+                      setState(() {
+                        loginStatus = 'Error occured while logging in';
+                        loginStringColor = Colors.red;
+                      });
+                    });
+                  } else {
+                    setState(() {
+                      loginStatus = 'Please enter email & password';
+                      loginStringColor = Colors.red;
+                    });
+                  }
+                  setState(() {
+                    _isLoggingIn = false;
+                    textControllerPassword.text = '';
+                    _isEditingEmail = false;
+                    _isEditingPassword = false;
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: 15.0,
+                    bottom: 15.0,
+                  ),
+                  child: _isLoggingIn
+                      ? SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          'Log in',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: 20),
+          getSignupButton(_authService),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final AuthService _authService =
-        Provider.of<AuthService>(context, listen: false);
+    _authService = Provider.of<AuthService>(context, listen: false);
     return Dialog(
       backgroundColor: Theme.of(context).backgroundColor,
       shape: RoundedRectangleBorder(
@@ -242,157 +494,74 @@ class _AuthDialogState extends State<AuthDialog> {
                   ),
                 ),
                 SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 20.0,
-                    bottom: 8,
-                  ),
-                  child: Text(
-                    'Password',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: Theme.of(context).textTheme.subtitle2.color,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      // letterSpacing: 3,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 20.0,
-                    right: 20,
-                  ),
-                  child: TextField(
-                    focusNode: textFocusNodePassword,
-                    keyboardType: TextInputType.text,
-                    textInputAction: TextInputAction.done,
-                    controller: textControllerPassword,
-                    obscureText: true,
-                    autofocus: false,
-                    onChanged: (value) {
-                      setState(() {
-                        _isEditingPassword = true;
-                      });
-                    },
-                    onSubmitted: (value) {
-                      textFocusNodePassword.unfocus();
-                      FocusScope.of(context)
-                          .requestFocus(textFocusNodePassword);
-                    },
-                    style: TextStyle(color: Colors.black),
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide(
-                          color: Colors.blueGrey[800],
-                          width: 3,
+                _forgotPassword
+                    ? Container()
+                    : Padding(
+                        padding: const EdgeInsets.only(
+                          left: 20.0,
+                          bottom: 8,
+                        ),
+                        child: Text(
+                          'Password',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Theme.of(context).textTheme.subtitle2.color,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            // letterSpacing: 3,
+                          ),
                         ),
                       ),
-                      filled: true,
-                      hintStyle: TextStyle(
-                        color: Colors.blueGrey[300],
-                      ),
-                      hintText: 'Password',
-                      fillColor: Colors.white,
-                      errorText: _isEditingPassword
-                          ? _validatePassword(textControllerPassword.text)
-                          : null,
-                      errorStyle: TextStyle(
-                        fontSize: 12,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Flexible(
-                        flex: 1,
-                        child: Container(
-                          width: double.maxFinite,
-                          child: FlatButton(
-                            color: Colors.blueGrey[800],
-                            hoverColor: Colors.blueGrey[900],
-                            highlightColor: Colors.black,
-                            onPressed: () async {
-                              setState(() {
-                                _isLoggingIn = true;
-                                textFocusNodeEmail.unfocus();
-                                textFocusNodePassword.unfocus();
-                              });
-                              if (_validateEmail(textControllerEmail.text) ==
-                                      null &&
-                                  _validatePassword(
-                                          textControllerPassword.text) ==
-                                      null) {
-                                await _authService
-                                    .signInWithEmailPassword(
-                                        textControllerEmail.text,
-                                        textControllerPassword.text)
-                                    .then((result) {
-                                  //no problem
-                                }).catchError((dynamic error) {
-                                  setState(() {
-                                    loginStatus =
-                                        'Error occured while logging in';
-                                    loginStringColor = Colors.red;
-                                  });
-                                });
-                              } else {
-                                setState(() {
-                                  loginStatus = 'Please enter email & password';
-                                  loginStringColor = Colors.red;
-                                });
-                              }
-                              setState(() {
-                                _isLoggingIn = false;
-                                textControllerEmail.text = '';
-                                textControllerPassword.text = '';
-                                _isEditingEmail = false;
-                                _isEditingPassword = false;
-                              });
-                            },
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                top: 15.0,
-                                bottom: 15.0,
+                _forgotPassword
+                    ? Container()
+                    : Padding(
+                        padding: const EdgeInsets.only(
+                          left: 20.0,
+                          right: 20,
+                        ),
+                        child: TextField(
+                          focusNode: textFocusNodePassword,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.done,
+                          controller: textControllerPassword,
+                          obscureText: true,
+                          autofocus: false,
+                          onChanged: (value) {
+                            setState(() {
+                              _isEditingPassword = true;
+                            });
+                          },
+                          onSubmitted: (value) {
+                            textFocusNodePassword.unfocus();
+                            FocusScope.of(context)
+                                .requestFocus(textFocusNodePassword);
+                          },
+                          style: TextStyle(color: Colors.black),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Colors.blueGrey[800],
+                                width: 3,
                               ),
-                              child: _isLoggingIn
-                                  ? SizedBox(
-                                      height: 16,
-                                      width: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          Colors.white,
-                                        ),
-                                      ),
-                                    )
-                                  : Text(
-                                      'Log in',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.white,
-                                      ),
-                                    ),
+                            ),
+                            filled: true,
+                            hintStyle: TextStyle(
+                              color: Colors.blueGrey[300],
+                            ),
+                            hintText: 'Password',
+                            fillColor: Colors.white,
+                            errorText: _isEditingPassword
+                                ? _validatePassword(textControllerPassword.text)
+                                : null,
+                            errorStyle: TextStyle(
+                              fontSize: 12,
+                              color: Colors.redAccent,
                             ),
                           ),
                         ),
                       ),
-                      SizedBox(width: 20),
-                      getSignupButton(_authService),
-                    ],
-                  ),
-                ),
+                _forgotPassword ? getForgotPasswordButton() : getLoginButton(),
                 loginStatus != null
                     ? Center(
                         child: Padding(
@@ -422,6 +591,26 @@ class _AuthDialogState extends State<AuthDialog> {
                   ),
                 ),
                 SizedBox(height: 30),
+                Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          InkWell(
+                            child: Text(
+                              'Forgot password?',
+                              style: TextStyle(
+                                color: Color(0xff00bcd4),
+                                fontSize: 16.0,
+                              ),
+                            ),
+                            onTap: () {
+                              setState(() {
+                                _forgotPassword = !_forgotPassword;
+                              });
+                            },
+                          ),
+                        ])),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text(

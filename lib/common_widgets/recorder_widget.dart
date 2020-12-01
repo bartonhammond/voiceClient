@@ -8,7 +8,6 @@ import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.da
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_timer/simple_timer.dart';
-
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
@@ -250,8 +249,8 @@ class _RecorderWidgetState extends State<RecorderWidget>
     return {'icon': iconData, 'text': text};
   }
 
-  void handleTimerOnEnd() {
-    _stop();
+  Future<void> handleTimerOnEnd() async {
+    await _stop();
   }
 
   Widget getCountdownTimer() {
