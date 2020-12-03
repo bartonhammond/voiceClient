@@ -82,7 +82,7 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<void> signOut() async {
-    return _firebaseAuth.signOut();
+    return await _firebaseAuth.signOut();
   }
 
   @override

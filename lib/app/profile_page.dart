@@ -2,6 +2,7 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
+import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -338,6 +339,7 @@ class _ProfilePageState extends State<ProfilePage> {
     }
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.always,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -537,6 +539,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (value.isEmpty) {
                   return Strings.nameEmptyMessage.i18n;
                 }
+                if (value.length < 5) {
+                  return 'Name length should be greater than 5';
+                }
                 return null;
               },
             ),
@@ -573,6 +578,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (value.isEmpty) {
                   return Strings.homeEmptyMessage.i18n;
                 }
+                if (!(value.length > 1)) {
+                  return 'Home length must be greater than 1';
+                }
                 return null;
               },
             ),
@@ -594,7 +602,7 @@ class _ProfilePageState extends State<ProfilePage> {
       drawer: getDrawer(context),
       appBar: AppBar(
         title: Text(Strings.profilePageName.i18n),
-        backgroundColor: Color(0xff00bcd4),
+        backgroundColor: Constants.backgroundColor,
       ),
       body: getForm(),
     );

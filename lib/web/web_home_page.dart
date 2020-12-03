@@ -1,5 +1,5 @@
-import 'package:MyFamilyVoice/web/top_bar_contents.dart';
-
+import 'package:MyFamilyVoice/constants/constants.dart';
+import 'package:MyFamilyVoice/web/auth_dialog.dart';
 import 'package:flutter/material.dart';
 
 class WebHomePage extends StatefulWidget {
@@ -11,34 +11,22 @@ class WebHomePage extends StatefulWidget {
 
 class _WebHomePageState extends State<WebHomePage> {
   ScrollController _scrollController;
-  double _scrollPosition = 0;
-  double _opacity = 0;
-
-  void _scrollListener() {
-    setState(() {
-      _scrollPosition = _scrollController.position.pixels;
-    });
-  }
 
   @override
   void initState() {
     _scrollController = ScrollController();
-    _scrollController.addListener(_scrollListener);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    _opacity = _scrollPosition < screenSize.height * 0.40
-        ? _scrollPosition / (screenSize.height * 0.40)
-        : 1;
     return Scaffold(
-      backgroundColor: Theme.of(context).backgroundColor,
+      backgroundColor: Constants.backgroundColor,
       extendBodyBehindAppBar: true,
       appBar: PreferredSize(
         preferredSize: Size(screenSize.width, 1000),
-        child: TopBarContents(_opacity),
+        child: Container(),
       ),
       body: SingleChildScrollView(
         controller: _scrollController,
@@ -46,7 +34,7 @@ class _WebHomePageState extends State<WebHomePage> {
           children: [
             Stack(
               children: [
-                Container(),
+                AuthDialog(),
               ],
             ),
           ],

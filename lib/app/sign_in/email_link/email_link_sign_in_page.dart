@@ -72,7 +72,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
         email: _email,
         url: Constants.firebaseProjectURL,
         handleCodeInApp: true,
-        packageName: 'MyFamilyVoice',
+        packageName: 'online.myfamilyvoice.mobile',
         androidInstallIfNotAvailable: true,
         androidMinimumVersion: '21',
       );

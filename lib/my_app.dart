@@ -1,5 +1,6 @@
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
@@ -169,10 +170,13 @@ class MyApp extends StatelessWidget {
     ]);
     Locale locale;
     return FutureBuilder(
-      future: getDeviceLocal(context),
+      future: Future.wait([
+        Firebase.initializeApp(),
+        getDeviceLocal(context),
+      ]),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          locale = snapshot.data;
+          locale = snapshot.data[1];
           return getMultiProvider(context, locale);
         } else if (snapshot.hasError) {
           logger.createMessage(
