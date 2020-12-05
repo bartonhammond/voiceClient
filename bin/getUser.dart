@@ -23,7 +23,7 @@ Future<void> main(List<String> arguments) async {
     final GraphQLClient graphQLClient =
         getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
 
-    QueryResult queryResult =
+    final QueryResult queryResult =
         await getUserByEmail(graphQLClient, 'admin@myfamilyvoice.com');
     print(queryResult.hasException);
   }

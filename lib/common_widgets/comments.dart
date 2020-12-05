@@ -113,9 +113,9 @@ class Comments extends StatelessWidget {
       _comments.add(_getCommentDetail(comments[i], fontSize));
       if (i < comments.length - 1) {
         _comments.add(Container(
-          margin: EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+          margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
           height: 1,
-          color: Colors.grey[300],
+          color: Colors.black,
         ));
       }
     }

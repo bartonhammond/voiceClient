@@ -1,5 +1,8 @@
 import 'dart:io' as io;
+import 'dart:typed_data';
+import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
@@ -52,8 +55,38 @@ class FriendWidget extends StatefulWidget {
 class _FriendWidgetState extends State<FriendWidget> {
   bool _showMakeMessage = false;
   bool _uploadInProgress = false;
+  bool _isWeb = false;
+  Uint8List _messageAudioWeb;
   io.File _messageAudio;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+  Future<void> setStoryAudioWeb(Uint8List bytes) async {
+    if (bytes == null) {
+      return;
+    }
+    setState(() {
+      _messageAudioWeb = bytes;
+      _uploadInProgress = true;
+    });
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    await doMessageUploads(
+      graphQLAuth,
+      graphQLClientFileServer,
+      graphQLClient,
+      widget.user['id'],
+      messageAudioWeb: _messageAudioWeb,
+    );
+
+    setState(() {
+      _showMakeMessage = false;
+      _messageAudioWeb = null;
+      _uploadInProgress = false;
+    });
+  }
 
   Future<void> setCommentAudioFile(io.File audio) async {
     if (audio == null) {
@@ -73,7 +106,7 @@ class _FriendWidgetState extends State<FriendWidget> {
       graphQLClientFileServer,
       graphQLClient,
       widget.user['id'],
-      _messageAudio,
+      messageAudio: _messageAudio,
     );
     setState(() {
       _showMakeMessage = false;
@@ -131,6 +164,7 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   @override
   Widget build(BuildContext context) {
+    _isWeb = AppConfig.of(context).isWeb;
     DateTime dt;
     DateFormat df;
     if (widget.story != null) {
@@ -373,14 +407,23 @@ class _FriendWidgetState extends State<FriendWidget> {
                             SizedBox(
                               height: 20,
                             ),
-                            RecorderWidget(
-                              showStacked: true,
-                              showIcon: true,
-                              isCurrentUserAuthor: true,
-                              setAudioFile: setCommentAudioFile,
-                              timerDuration: 90,
-                              showPlayerWidget: false,
-                            ),
+                            _isWeb
+                                ? RecorderWidgetWeb(
+                                    showStacked: true,
+                                    showIcon: true,
+                                    isCurrentUserAuthor: true,
+                                    setAudioWeb: setStoryAudioWeb,
+                                    timerDuration: 90,
+                                    showPlayerWidget: false,
+                                  )
+                                : RecorderWidget(
+                                    showStacked: true,
+                                    showIcon: true,
+                                    isCurrentUserAuthor: true,
+                                    setAudioFile: setCommentAudioFile,
+                                    timerDuration: 90,
+                                    showPlayerWidget: false,
+                                  ),
                             _uploadInProgress
                                 ? CircularProgressIndicator()
                                 : Container(),

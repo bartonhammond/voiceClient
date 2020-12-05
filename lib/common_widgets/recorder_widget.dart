@@ -19,6 +19,7 @@ class RecorderWidget extends StatefulWidget {
   RecorderWidget({
     Key key,
     this.isCurrentUserAuthor = false,
+    this.isForComment = false,
     this.setAudioFile,
     this.timerDuration = 180,
     this.showIcon = true,
@@ -29,6 +30,7 @@ class RecorderWidget extends StatefulWidget {
   }) : super(key: key);
   final ValueChanged<io.File> setAudioFile;
   final bool isCurrentUserAuthor;
+  final bool isForComment;
   final int timerDuration;
   final bool showIcon;
   final int width;
@@ -273,7 +275,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
   }
 
   Widget getRecordWidget() {
-    if (widget.isCurrentUserAuthor) {
+    if (widget.isCurrentUserAuthor || widget.isForComment) {
       double level = _current?.metering?.averagePower;
       if (level != null) {
         level += 120;
@@ -383,7 +385,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
                 )
               : Container(),
           getRecordWidget(),
-          widget.isCurrentUserAuthor
+          widget.isCurrentUserAuthor || widget.isForComment
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,

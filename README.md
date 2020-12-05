@@ -1,6 +1,8 @@
 # Family Voice Client
 
 *  Web
+- from command line, execute `./setupChromeCorsOverride.sh`
+   this allows the app to run w/o CORS - otherwise your images won't display
 -  use flutter channel master
 -  update lib/main_web.dart w/
    -  isSecured=true

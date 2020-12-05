@@ -870,12 +870,14 @@ class _StoryPlayState extends State<StoryPlay>
                                             _isCurrentUserAuthor,
                                         setAudioWeb: setCommentAudioWeb,
                                         timerDuration: 90,
+                                        isForComment: true,
                                       )
                                     : RecorderWidget(
                                         isCurrentUserAuthor:
                                             _isCurrentUserAuthor,
                                         setAudioFile: setCommentAudioFile,
                                         timerDuration: 90,
+                                        isForComment: true,
                                       ),
                                 _uploadInProgress
                                     ? CircularProgressIndicator()

@@ -78,7 +78,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       children: <Widget>[
         widget.showSlider
             ? Container(
-                margin: EdgeInsets.all(10),
+                margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
                 width: widget.width.toDouble(),
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(

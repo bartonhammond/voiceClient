@@ -14,6 +14,7 @@ class RecorderWidgetWeb extends StatefulWidget {
   const RecorderWidgetWeb({
     Key key,
     this.isCurrentUserAuthor = false,
+    this.isForComment = false,
     this.setAudioWeb,
     this.timerDuration = 180,
     this.showIcon = true,
@@ -25,6 +26,7 @@ class RecorderWidgetWeb extends StatefulWidget {
 
   final ValueChanged<Uint8List> setAudioWeb;
   final bool isCurrentUserAuthor;
+  final bool isForComment;
   final int timerDuration;
   final bool showIcon;
   final int width;
@@ -52,7 +54,9 @@ class _RecorderWidgetWebState extends State<RecorderWidgetWeb>
   void initState() {
     super.initState();
     _timerController = TimerController(this);
-    _recorder = MicrophoneRecorder()..init();
+    if (widget.isCurrentUserAuthor || widget.isForComment) {
+      _recorder = MicrophoneRecorder()..init();
+    }
   }
 
   @override
@@ -166,30 +170,32 @@ class _RecorderWidgetWebState extends State<RecorderWidgetWeb>
                   ],
                 )
               : Container(),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedContainer(
-                duration: Duration(milliseconds: 300),
-                padding: EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: handleAudioColour(),
-                ),
-                child: RawMaterialButton(
-                  fillColor: Colors.white,
-                  shape: CircleBorder(),
-                  padding: EdgeInsets.all(5),
-                  onPressed: () => setState(() {
-                    handleAudioState(audioState);
-                  }),
-                  child: getIcon(audioState),
-                ),
-              ),
-              SizedBox(width: 20),
-              getCountdownTimer(),
-            ],
-          )
+          widget.isCurrentUserAuthor || widget.isForComment
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AnimatedContainer(
+                      duration: Duration(milliseconds: 300),
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: handleAudioColour(),
+                      ),
+                      child: RawMaterialButton(
+                        fillColor: Colors.white,
+                        shape: CircleBorder(),
+                        padding: EdgeInsets.all(5),
+                        onPressed: () => setState(() {
+                          handleAudioState(audioState);
+                        }),
+                        child: getIcon(audioState),
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    getCountdownTimer(),
+                  ],
+                )
+              : Container(),
         ],
       ),
     );

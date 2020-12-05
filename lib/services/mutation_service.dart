@@ -597,21 +597,35 @@ Future<void> doCommentUploads(
 }
 
 Future<void> doMessageUploads(
-  GraphQLAuth graphQLAuth,
-  GraphQLClient graphQLClientFileServer,
-  GraphQLClient graphQLClientApolloServer,
-  String userId,
-  io.File _messageAudio,
-) async {
+    GraphQLAuth graphQLAuth,
+    GraphQLClient graphQLClientFileServer,
+    GraphQLClient graphQLClientApolloServer,
+    String userId,
+    {io.File messageAudio,
+    Uint8List messageAudioWeb}) async {
   final _uuid = Uuid();
   final String _messageId = _uuid.v1();
 
-  final MultipartFile multipartFile = getMultipartFile(
-    _messageAudio,
-    '$_messageId.mp3',
-    'audio',
-    'mp3',
-  );
+  MultipartFile multipartFile;
+  if (messageAudio != null) {
+    multipartFile = getMultipartFile(
+      messageAudio,
+      '$_messageId.mp3',
+      'audio',
+      'mp3',
+    );
+  }
+  if (messageAudioWeb != null) {
+    multipartFile = MultipartFile.fromBytes(
+      'audio',
+      messageAudioWeb,
+      filename: '$_messageId.mp3',
+      contentType: MediaType(
+        'audio',
+        'mp3',
+      ),
+    );
+  }
 
   final String _audioFilePath = await performMutation(
     graphQLClientFileServer,
