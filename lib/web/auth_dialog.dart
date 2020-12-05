@@ -15,12 +15,12 @@ class _AuthDialogState extends State<AuthDialog> {
   AuthService _authService;
   final _formKey = GlobalKey<FormState>();
   TextEditingController textControllerEmail;
-  FocusNode textFocusNodeEmail;
+  //FocusNode textFocusNodeEmail;
   bool _forgotPassword = false;
   bool formReady = false;
   bool _showPassword = false;
   TextEditingController textControllerPassword;
-  FocusNode textFocusNodePassword;
+  //FocusNode textFocusNodePassword;
   final int _fontSize = 16;
   final int _size = 20;
   final int _formFieldWidth = 500;
@@ -67,8 +67,8 @@ class _AuthDialogState extends State<AuthDialog> {
     textControllerEmail = TextEditingController();
     textControllerPassword = TextEditingController();
 
-    textFocusNodeEmail = FocusNode();
-    textFocusNodePassword = FocusNode();
+    //textFocusNodeEmail = FocusNode();
+    //textFocusNodePassword = FocusNode();
 
     textControllerEmail.addListener(() {
       setState(() {
@@ -82,14 +82,12 @@ class _AuthDialogState extends State<AuthDialog> {
       });
       _formReady();
     });
-    textControllerEmail.text = '';
-    textControllerPassword.text = '';
+    textControllerEmail.text = 'admin@myfamilyvoice.com';
+    textControllerPassword.text = 'Passw0rd';
     super.initState();
   }
 
   void _formReady() {
-    print(
-        '_formReady email: $email password: $password forgotPassword: $_forgotPassword');
     formReady = false;
     if (_forgotPassword) {
       if (_validateEmail(email) == null) {
@@ -101,7 +99,6 @@ class _AuthDialogState extends State<AuthDialog> {
         formReady = true;
       }
     }
-    print('_formReady $formReady');
   }
 
   Widget getSignupButton() {
@@ -121,8 +118,8 @@ class _AuthDialogState extends State<AuthDialog> {
 
   Future<void> doSignup() async {
     setState(() {
-      textFocusNodeEmail.unfocus();
-      textFocusNodePassword.unfocus();
+      //textFocusNodeEmail.unfocus();
+      //textFocusNodePassword.unfocus();
     });
     if (_validateEmail(textControllerEmail.text) == null &&
         _validatePassword(textControllerPassword.text) == null) {
@@ -138,10 +135,8 @@ class _AuthDialogState extends State<AuthDialog> {
             loginStatus = 'You have registered successfully';
             loginStringColor = Colors.green;
           });
-          print(result);
         }
       }).catchError((dynamic error) {
-        print('Registration Error: $error');
         setState(() {
           loginStatus = 'Error occured while registering';
           loginStringColor = Colors.red;
@@ -173,8 +168,8 @@ class _AuthDialogState extends State<AuthDialog> {
           highlightColor: Colors.black,
           onPressed: () async {
             setState(() {
-              textFocusNodeEmail.unfocus();
-              textFocusNodePassword.unfocus();
+              // textFocusNodeEmail.unfocus();
+              // textFocusNodePassword.unfocus();
             });
             if (_validateEmail(textControllerEmail.text) == null &&
                 _validatePassword(textControllerPassword.text) == null) {
@@ -190,10 +185,8 @@ class _AuthDialogState extends State<AuthDialog> {
                     loginStatus = 'You have registered successfully';
                     loginStringColor = Colors.green;
                   });
-                  print(result);
                 }
               }).catchError((dynamic error) {
-                print('Registration Error: $error');
                 setState(() {
                   loginStatus = 'Error occured while registering';
                   loginStringColor = Colors.red;
@@ -268,8 +261,8 @@ class _AuthDialogState extends State<AuthDialog> {
                           _formKey.currentState.save();
                           setState(() {
                             _isLoggingIn = true;
-                            textFocusNodeEmail.unfocus();
-                            textFocusNodePassword.unfocus();
+                            // textFocusNodeEmail.unfocus();
+                            // textFocusNodePassword.unfocus();
                           });
                           if (_validateEmail(textControllerEmail.text) ==
                               null) {
@@ -320,8 +313,8 @@ class _AuthDialogState extends State<AuthDialog> {
                 _formKey.currentState.save();
                 setState(() {
                   _isLoggingIn = true;
-                  textFocusNodeEmail.unfocus();
-                  textFocusNodePassword.unfocus();
+                  // textFocusNodeEmail.unfocus();
+                  // textFocusNodePassword.unfocus();
                 });
                 await _authService
                     .signInWithEmailPassword(
@@ -373,6 +366,7 @@ class _AuthDialogState extends State<AuthDialog> {
   Widget build(BuildContext context) {
     _authService = Provider.of<AuthService>(context, listen: false);
     return Dialog(
+      key: Key('dialogkey'),
       backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
@@ -403,7 +397,7 @@ class _AuthDialogState extends State<AuthDialog> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                letterSpacing: 2,
+                letterSpacing: 3,
               ),
             ),
           ),
@@ -412,7 +406,7 @@ class _AuthDialogState extends State<AuthDialog> {
             width: _formFieldWidth.toDouble(),
             margin: const EdgeInsets.only(right: 10, left: 10),
             child: TextFormField(
-              focusNode: textFocusNodeEmail,
+              // focusNode: textFocusNodeEmail,
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
               controller: textControllerEmail,
@@ -450,7 +444,7 @@ class _AuthDialogState extends State<AuthDialog> {
                   width: _formFieldWidth.toDouble(),
                   margin: const EdgeInsets.only(right: 10, left: 10),
                   child: TextFormField(
-                    focusNode: textFocusNodePassword,
+                    //focusNode: textFocusNodePassword,
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.done,
                     controller: textControllerPassword,
@@ -550,7 +544,6 @@ class _AuthDialogState extends State<AuthDialog> {
                           ),
                         ),
                   onTap: () {
-                    print('forgot password? $_forgotPassword');
                     setState(() {
                       _forgotPassword = !_forgotPassword;
                       loginStatus = '';

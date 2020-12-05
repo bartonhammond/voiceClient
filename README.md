@@ -8,7 +8,7 @@
    -  withCors = true //at least until the USE_SKIA is used
    -  apiBaseUrl= 'https://myfamilyvoice.com'
 -  flutter clean
--  flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true -t lib/main_web.dart
+-  flutter build web --dart-define=FLUTTER_WEB_USE_SKIA=true -t lib/main_web_prod.dart
 -  copy files from `build/web' to `voiceClientWeb` and commit
 -  go to 192.168.1.44 and `pull` 
 -  change `nginx/sites` change the `web_server` to port 3004

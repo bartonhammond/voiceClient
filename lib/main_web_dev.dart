@@ -13,19 +13,18 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main(List<String> args) {
   HttpLink getHttpLink(String uri) {
     return HttpLink(uri: uri);
   }
 
   final configuredApp = AppConfig(
     flavorName: 'Web',
-    apiBaseUrl:
-        'https://myfamilyvoice.com', //https://myfamilyvoice.com', //http://192.168.1.13', //'http://dev-myfamilyvoice.com',
+    apiBaseUrl: 'http://192.168.1.13',
     getHttpLink: getHttpLink,
-    isSecured: true,
+    isSecured: false,
     isWeb: true,
-    withCors: true,
+    withCors: false,
     child: MyApp(),
   );
 

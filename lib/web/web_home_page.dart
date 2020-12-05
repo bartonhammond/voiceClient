@@ -1,44 +1,66 @@
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/web/auth_dialog.dart';
+import 'package:MyFamilyVoice/web/landing_page.dart';
 import 'package:flutter/material.dart';
 
 class WebHomePage extends StatefulWidget {
-  static const String route = '/';
-
   @override
   _WebHomePageState createState() => _WebHomePageState();
 }
 
 class _WebHomePageState extends State<WebHomePage> {
-  ScrollController _scrollController;
-
+  bool _editing = false;
   @override
   void initState() {
-    _scrollController = ScrollController();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.of(context).size;
-    return Scaffold(
-      backgroundColor: Constants.backgroundColor,
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: Size(screenSize.width, 1000),
-        child: Container(),
-      ),
-      body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(
-          children: [
-            Stack(
-              children: [
-                AuthDialog(),
-              ],
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          stops: const [0.1, 0.5, 0.7, 0.9],
+          colors: [
+            Colors.red[100],
+            Colors.red[500],
+            Colors.purple[100],
+            Colors.purple[500],
           ],
         ),
+      ),
+      child: Scaffold(
+        key: GlobalKey<ScaffoldState>(),
+        backgroundColor: Colors.transparent,
+        extendBodyBehindAppBar: false,
+        appBar: AppBar(
+          title: Text(
+            'My Family Voice',
+            style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 3),
+          ),
+          actions: <Widget>[
+            Builder(builder: (context) {
+              return IconButton(
+                icon: Icon(_editing ? Icons.close : Icons.login),
+                onPressed: () {
+                  if (mounted)
+                    setState(() {
+                      _editing = !_editing;
+                    });
+                },
+              );
+            }),
+          ],
+        ),
+        body: _editing
+            ? AuthDialog()
+            : Stack(
+                children: <Widget>[
+                  LandingPage(),
+                ],
+              ),
       ),
     );
   }
