@@ -1,3 +1,4 @@
+import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/web/auth_dialog.dart';
 import 'package:MyFamilyVoice/web/landing_page.dart';
@@ -33,6 +34,7 @@ class _WebHomePageState extends State<WebHomePage> {
         ),
       ),
       child: Scaffold(
+        drawer: getDrawer(context, showLogout: false),
         key: GlobalKey<ScaffoldState>(),
         backgroundColor: Colors.transparent,
         extendBodyBehindAppBar: false,
