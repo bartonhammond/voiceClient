@@ -1,6 +1,8 @@
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/web/auth_dialog.dart';
 import 'package:MyFamilyVoice/web/landing_page.dart';
 import 'package:flutter/material.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 class WebHomePage extends StatefulWidget {
   @override
@@ -36,7 +38,7 @@ class _WebHomePageState extends State<WebHomePage> {
         extendBodyBehindAppBar: false,
         appBar: AppBar(
           title: Text(
-            'My Family Voice',
+            Strings.MFV.i18n,
             style: TextStyle(fontWeight: FontWeight.bold, letterSpacing: 3),
           ),
           actions: <Widget>[

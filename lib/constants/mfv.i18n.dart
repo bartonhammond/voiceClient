@@ -530,7 +530,81 @@ extension Localization on String {
       {
         'en': Strings.reactionTableMessage,
         'es': '¿Mensaje?',
+      }
+      {
+        'en': Strings.authDialogEmailEmpty,
+        'es': 'El correo no puede estar vacío',
+      },
+      {
+        'en': Strings.authDialogCorrectEmailAddress,
+        'es': 'Ingrese una dirección de correo correcta',
+      },
+      {
+        'en': Strings.authDialogPasswordEmpty,
+        'es': 'La contraseña no puede estar vacía',
+      },
+      
+      {
+        'en': Strings.logPasswordLength,
+        'es': 'La contraseña debe tener más de 6 y menos de 10',
+      },
+      {
+        'en': Strings.authDialogRegister,
+        'es': 'Registrarse',
+      },
+      {
+        'en': Strings.authDialogRegisterSuccess,
+        'es': 'Te has registrado exitosamente',
+      },
+      {
+        'en': Strings.authDialogRegisterFailure,
+        'es': 'Ocurrió un error al registrarse ',
+      },
+      {
+        'en': Strings.authDialogEnterEmailPassword,
+        'es': 'Ingrese correo electrónico y contraseña',
+      },
+      {
+        'en': Strings.authDialogSubmit,
+        'es': 'Enviar',
+      },
+      {
+        'en': Strings.authDialogErrorSendingEmail ,
+        'es': 'Ocurrió un error al enviar el correo',
+      },
+      {
+        'en': Strings.authDialogPleaseEnterEmail,
+        'es': 'Por favor ingrese su correo',
+      },
+      {
+        'en': Strings.authDialogLogin,
+        'es': 'Iniciar sesión',
+      },
+      {
+        'en': Strings.authDialogLoginError,
+        'es': 'Ocurrió un error al iniciar sesión',
+      },
+      {
+        'en': Strings.authDialogPassword,
+        'es': 'Contraseña',
+      },
+      {
+        'en': Strings.authDialogShowPassword,
+        'es': 'Mostrar contraseña',
+      },
+      {
+        'en': Strings.authDialogLoginOrRegister,
+        'es': '¿Iniciar sesión o registrarse?',
+      },
+      {
+        'en': Strings.authDialogForgotPassword,
+        'es': '¿Se te olvidó tu contraseña?',
+      },
+      {
+        'en': Strings.authDialogTermAndPrivacy,
+        'es': 'Al continuar, acepta nuestros Términos de uso y confirma que ha leído nuestra Política de privacidad.',
       };
+
 
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);

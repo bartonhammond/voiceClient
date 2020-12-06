@@ -175,7 +175,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
         }
 
         final current = await _recorder.current(channel: 0);
-        // print(current.status);
         setState(() {
           _current = current;
           _currentStatus = _current.status;

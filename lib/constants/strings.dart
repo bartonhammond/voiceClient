@@ -177,4 +177,30 @@ class Strings {
   static const String friendWidgetRecordMessage = 'Record Message';
 
   static const String reactionTableMessage = 'Message?';
+
+  static const String authDialogEmailEmpty = 'Email can not be empty';
+  static const String authDialogCorrectEmailAddress =
+      'Enter a correct email address';
+  static const String authDialogPasswordEmpty = 'Password can not be empty';
+  static const String authDialogPasswordLength =
+      'Password should be greater than 6 and less than 10 in length';
+  static const String authDialogRegister = 'Register';
+  static const String authDialogRegisterSuccess =
+      'You have registered successfully';
+  static const String authDialogRegisterFailure =
+      'Error occured while registering';
+  static const String authDialogEnterEmailPassword =
+      'Please enter email & password';
+  static const String authDialogSubmit = 'Submit';
+  static const String authDialogErrorSendingEmail =
+      'Error occured while sending email';
+  static const String authDialogPleaseEnterEmail = 'Please enter email';
+  static const String authDialogLogin = 'Log in';
+  static const String authDialogLoginError = 'Error occured while logging in';
+  static const String authDialogPassword = 'Password';
+  static const String authDialogShowPassword = 'Show password';
+  static const String authDialogLoginOrRegister = 'Login or Register?';
+  static const String authDialogForgotPassword = 'Forgot password?';
+  static const String authDialogTermAndPrivacy =
+      'By proceeding, you agree to our Terms of Use and confirm you have read our Privacy Policy.';
 }

@@ -57,8 +57,7 @@ class _CropWidgetPageState extends State<CropWidget> {
               padding: EdgeInsets.all(8),
               child: Crop(
                 onChanged: (decomposition) {
-                  print(
-                      'Scale : ${decomposition.scale}, Rotation: ${decomposition.rotation}, translation: ${decomposition.translation}');
+
                 },
                 controller: controller,
                 shape: shape,

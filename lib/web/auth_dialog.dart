@@ -15,12 +15,11 @@ class _AuthDialogState extends State<AuthDialog> {
   AuthService _authService;
   final _formKey = GlobalKey<FormState>();
   TextEditingController textControllerEmail;
-  //FocusNode textFocusNodeEmail;
   bool _forgotPassword = false;
   bool formReady = false;
   bool _showPassword = false;
   TextEditingController textControllerPassword;
-  //FocusNode textFocusNodePassword;
+
   final int _fontSize = 16;
   final int _size = 20;
   final int _formFieldWidth = 500;
@@ -38,10 +37,10 @@ class _AuthDialogState extends State<AuthDialog> {
 
     if (textControllerEmail.text != null) {
       if (value.isEmpty) {
-        return 'Email can\'t be empty';
+        return Strings.authDialogEmailEmpty.i18n;
       } else if (!value.contains(RegExp(
           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+"))) {
-        return 'Enter a correct email address';
+        return Strings.authDialogCorrectEmailAddress.i18n;
       }
     }
 
@@ -53,9 +52,9 @@ class _AuthDialogState extends State<AuthDialog> {
 
     if (textControllerEmail.text != null) {
       if (value.isEmpty) {
-        return 'Password can\'t be empty';
+        return Strings.authDialogPasswordEmpty.i18n;
       } else if (value.length < 6 || value.length > 10) {
-        return 'Length of password should be greater than 6 and less than 10';
+        return Strings.authDialogPasswordLength.i18n;
       }
     }
 
@@ -66,9 +65,6 @@ class _AuthDialogState extends State<AuthDialog> {
   void initState() {
     textControllerEmail = TextEditingController();
     textControllerPassword = TextEditingController();
-
-    //textFocusNodeEmail = FocusNode();
-    //textFocusNodePassword = FocusNode();
 
     textControllerEmail.addListener(() {
       setState(() {
@@ -82,8 +78,8 @@ class _AuthDialogState extends State<AuthDialog> {
       });
       _formReady();
     });
-    textControllerEmail.text = 'admin@myfamilyvoice.com';
-    textControllerPassword.text = 'Passw0rd';
+    textControllerEmail.text = '';
+    textControllerPassword.text = '';
     super.initState();
   }
 
@@ -110,17 +106,14 @@ class _AuthDialogState extends State<AuthDialog> {
           color: Colors.white,
           size: _size.toDouble(),
         ),
-        text: 'Sign Up',
+        text: Strings.authDialogRegister.i18n,
         onPressed: !formReady ? null : null // doSignup()
 
         );
   }
 
   Future<void> doSignup() async {
-    setState(() {
-      //textFocusNodeEmail.unfocus();
-      //textFocusNodePassword.unfocus();
-    });
+    setState(() {});
     if (_validateEmail(textControllerEmail.text) == null &&
         _validatePassword(textControllerPassword.text) == null) {
       setState(() {
@@ -132,19 +125,19 @@ class _AuthDialogState extends State<AuthDialog> {
           .then((result) {
         if (result != null) {
           setState(() {
-            loginStatus = 'You have registered successfully';
+            loginStatus = Strings.authDialogRegisterSuccess.i18n;
             loginStringColor = Colors.green;
           });
         }
       }).catchError((dynamic error) {
         setState(() {
-          loginStatus = 'Error occured while registering';
+          loginStatus = Strings.authDialogRegisterFailure.i18n;
           loginStringColor = Colors.red;
         });
       });
     } else {
       setState(() {
-        loginStatus = 'Please enter email & password';
+        loginStatus = Strings.authDialogEnterEmailPassword.i18n;
         loginStringColor = Colors.red;
       });
     }
@@ -167,10 +160,7 @@ class _AuthDialogState extends State<AuthDialog> {
           hoverColor: Colors.blueGrey[900],
           highlightColor: Colors.black,
           onPressed: () async {
-            setState(() {
-              // textFocusNodeEmail.unfocus();
-              // textFocusNodePassword.unfocus();
-            });
+            setState(() {});
             if (_validateEmail(textControllerEmail.text) == null &&
                 _validatePassword(textControllerPassword.text) == null) {
               setState(() {
@@ -182,19 +172,19 @@ class _AuthDialogState extends State<AuthDialog> {
                   .then((result) {
                 if (result != null) {
                   setState(() {
-                    loginStatus = 'You have registered successfully';
+                    loginStatus = Strings.authDialogRegisterSuccess.i18n;
                     loginStringColor = Colors.green;
                   });
                 }
               }).catchError((dynamic error) {
                 setState(() {
-                  loginStatus = 'Error occured while registering';
+                  loginStatus = Strings.authDialogRegisterFailure.i18n;
                   loginStringColor = Colors.red;
                 });
               });
             } else {
               setState(() {
-                loginStatus = 'Please enter email & password';
+                loginStatus = Strings.authDialogEnterEmailPassword.i18n;
                 loginStringColor = Colors.red;
               });
             }
@@ -225,7 +215,7 @@ class _AuthDialogState extends State<AuthDialog> {
                     ),
                   )
                 : Text(
-                    'Sign up',
+                    Strings.authDialogRegister,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white,
@@ -253,7 +243,7 @@ class _AuthDialogState extends State<AuthDialog> {
                   color: Colors.white,
                   size: _size.toDouble(),
                 ),
-                text: 'Submit',
+                text: Strings.authDialogSubmit.i18n,
                 onPressed: !formReady
                     ? null
                     : () async {
@@ -261,8 +251,6 @@ class _AuthDialogState extends State<AuthDialog> {
                           _formKey.currentState.save();
                           setState(() {
                             _isLoggingIn = true;
-                            // textFocusNodeEmail.unfocus();
-                            // textFocusNodePassword.unfocus();
                           });
                           if (_validateEmail(textControllerEmail.text) ==
                               null) {
@@ -273,13 +261,14 @@ class _AuthDialogState extends State<AuthDialog> {
                             }).catchError((dynamic error) {
                               setState(() {
                                 loginStatus =
-                                    'Error occured while sending email';
+                                    Strings.authDialogErrorSendingEmail.i18n;
                                 loginStringColor = Colors.red;
                               });
                             });
                           } else {
                             setState(() {
-                              loginStatus = 'Please enter email';
+                              loginStatus =
+                                  Strings.authDialogPleaseEnterEmail.i18n;
                               loginStringColor = Colors.red;
                             });
                           }
@@ -305,7 +294,7 @@ class _AuthDialogState extends State<AuthDialog> {
         color: Colors.white,
         size: _size.toDouble(),
       ),
-      text: 'Log In',
+      text: Strings.authDialogLogin.i18n,
       onPressed: !formReady
           ? null
           : () async {
@@ -313,8 +302,6 @@ class _AuthDialogState extends State<AuthDialog> {
                 _formKey.currentState.save();
                 setState(() {
                   _isLoggingIn = true;
-                  // textFocusNodeEmail.unfocus();
-                  // textFocusNodePassword.unfocus();
                 });
                 await _authService
                     .signInWithEmailPassword(
@@ -323,13 +310,13 @@ class _AuthDialogState extends State<AuthDialog> {
                   //no problem
                 }).catchError((dynamic error) {
                   setState(() {
-                    loginStatus = 'Error occured while logging in';
+                    loginStatus = Strings.authDialogLoginError.i18n;
                     loginStringColor = Colors.red;
                   });
                 });
               } else {
                 setState(() {
-                  loginStatus = 'Please enter email & password';
+                  loginStatus = Strings.authDialogEnterEmailPassword.i18n;
                   loginStringColor = Colors.red;
                 });
               }
@@ -444,7 +431,6 @@ class _AuthDialogState extends State<AuthDialog> {
                   width: _formFieldWidth.toDouble(),
                   margin: const EdgeInsets.only(right: 10, left: 10),
                   child: TextFormField(
-                    //focusNode: textFocusNodePassword,
                     keyboardType: TextInputType.text,
                     textInputAction: TextInputAction.done,
                     controller: textControllerPassword,
@@ -467,9 +453,8 @@ class _AuthDialogState extends State<AuthDialog> {
                       hintStyle: TextStyle(color: Constants.backgroundColor),
                       border: const OutlineInputBorder(),
                       filled: true,
-                      labelText: 'Password',
-                      hintText:
-                          'Enter password, minimum length of 6, maximum of 10',
+                      labelText: Strings.authDialogPassword.i18n,
+                      hintText: Strings.authDialogPasswordLength.i18n,
                       labelStyle: TextStyle(
                         color: Constants.backgroundColor,
                       ),
@@ -491,7 +476,8 @@ class _AuthDialogState extends State<AuthDialog> {
                       });
                     },
                   ),
-                  Text('Show password', style: TextStyle(fontSize: 12)),
+                  Text(Strings.authDialogShowPassword.i18n,
+                      style: TextStyle(fontSize: 12)),
                 ]),
           _forgotPassword ? getForgotPasswordButton() : getButtons(),
           loginStatus != null
@@ -530,14 +516,14 @@ class _AuthDialogState extends State<AuthDialog> {
                 InkWell(
                   child: _forgotPassword
                       ? Text(
-                          'Login or Signup?',
+                          Strings.authDialogLoginOrRegister.i18n,
                           style: TextStyle(
                             color: Color(0xff00bcd4),
                             fontSize: 16.0,
                           ),
                         )
                       : Text(
-                          'Forgot password?',
+                          Strings.authDialogForgotPassword.i18n,
                           style: TextStyle(
                             color: Color(0xff00bcd4),
                             fontSize: 16.0,
@@ -555,13 +541,12 @@ class _AuthDialogState extends State<AuthDialog> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Text(
-              'By proceeding, you agree to our Terms of Use and confirm you have read our Privacy Policy.',
+              Strings.authDialogTermAndPrivacy.i18n,
               maxLines: 2,
               style: TextStyle(
                 color: Theme.of(context).textTheme.subtitle2.color,
                 fontSize: 14,
                 fontWeight: FontWeight.w300,
-                // letterSpacing: 3,
               ),
             ),
           ),
