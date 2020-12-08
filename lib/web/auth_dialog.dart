@@ -78,7 +78,7 @@ class _AuthDialogState extends State<AuthDialog> {
       _formReady();
     });
     textControllerEmail.text = '';
-    textControllerPassword.text = '';
+    textControllerPassword.text = 'j';
     super.initState();
   }
 
