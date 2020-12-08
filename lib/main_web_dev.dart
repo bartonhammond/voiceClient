@@ -24,7 +24,6 @@ void main(List<String> args) {
     getHttpLink: getHttpLink,
     isSecured: false,
     isWeb: true,
-    withCors: false,
     child: MyApp(),
   );
 

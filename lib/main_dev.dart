@@ -20,7 +20,6 @@ void main() {
     getHttpLink: getHttpLink,
     isSecured: true,
     isWeb: false,
-    withCors: false,
     child: MyApp(),
   );
 

@@ -39,14 +39,13 @@ Future<void> _confirmSignOut(BuildContext context) async {
 }
 
 Future<String> getVersionAndBuild(AppConfig config) async {
-  String version = 'web';
-  String buildNumber = '';
   if (!kIsWeb) {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    version = packageInfo.version;
-    buildNumber = packageInfo.buildNumber;
+    final String version = packageInfo.version;
+    final String buildNumber = packageInfo.buildNumber;
+    return '${config.flavorName} $version+$buildNumber';
   }
-  return '${config.flavorName} $version+$buildNumber';
+  return '';
 }
 
 Widget drawer(

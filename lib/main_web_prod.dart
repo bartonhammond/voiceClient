@@ -20,12 +20,10 @@ void main() {
 
   final configuredApp = AppConfig(
     flavorName: 'Web',
-    apiBaseUrl:
-        'https://myfamilyvoice.com', //https://myfamilyvoice.com', //http://192.168.1.13', //'http://dev-myfamilyvoice.com',
+    apiBaseUrl: 'https://myfamilyvoice.com',
     getHttpLink: getHttpLink,
     isSecured: true,
     isWeb: true,
-    withCors: false,
     child: MyApp(),
   );
 

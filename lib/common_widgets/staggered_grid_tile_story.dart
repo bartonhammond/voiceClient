@@ -165,7 +165,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   @override
   Widget build(BuildContext context) {
-    final bool withCors = AppConfig.of(context).withCors;
     _isWeb = AppConfig.of(context).isWeb;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
@@ -234,18 +233,11 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               borderRadius: BorderRadius.circular(25.0),
               child: FadeInImage.memoryNetwork(
                   placeholder: kTransparentImage,
-                  image: withCors
-                      ? 'https://cors-anywhere.herokuapp.com/' +
-                          host(
-                            widget.story['image'],
-                            width: _width,
-                            height: _height,
-                          )
-                      : host(
-                          widget.story['image'],
-                          width: _width,
-                          height: _height,
-                        )),
+                  image: host(
+                    widget.story['image'],
+                    width: _width,
+                    height: _height,
+                  )),
             ),
           ),
           Padding(
