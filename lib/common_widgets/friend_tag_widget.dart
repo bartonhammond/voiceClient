@@ -56,7 +56,7 @@ class _FriendTagWidgetState extends State<FriendTagWidget> {
         ListTile(
           leading: GestureDetector(
             onTap: () {
-              print('friendTagWidget onTap');
+
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25.0),

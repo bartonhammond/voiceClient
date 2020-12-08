@@ -4,6 +4,7 @@ import 'package:MyFamilyVoice/common_widgets/platform_widget.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class PlatformAlertDialog extends PlatformWidget {
   PlatformAlertDialog({
@@ -21,6 +22,13 @@ class PlatformAlertDialog extends PlatformWidget {
   final String defaultActionText;
 
   Future<bool> show(BuildContext context) async {
+    if (kIsWeb) {
+      return await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) => this,
+      );
+    }
     return Platform.isIOS
         ? await showCupertinoDialog<bool>(
             context: context,

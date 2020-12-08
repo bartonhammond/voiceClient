@@ -1,9 +1,9 @@
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -45,82 +45,79 @@ class MyApp extends StatelessWidget {
   });
 
   Future<Locale> getDeviceLocal(BuildContext context) async {
-    final LocaleSecureStore localeSecureStore =
-        LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
-
+    final LocaleSecureStore localeSecureStore = LocaleSecureStore();
     return localeSecureStore.getLocale();
   }
 
   MultiProvider getMultiProvider(BuildContext context, Locale locale) {
     return MultiProvider(
-      providers: [
-        Provider<AuthService>(
-          create: (_) => AuthServiceAdapter(
-            initialAuthServiceType: initialAuthServiceType,
-          ),
-          dispose: (_, AuthService authService) => authService.dispose(),
-        ),
-        Provider<EmailSecureStore>(
-          create: (_) => EmailSecureStore(
-            flutterSecureStorage: FlutterSecureStorage(),
-          ),
-        ),
-        Provider<LocaleSecureStore>(
-          create: (_) => LocaleSecureStore(
-            flutterSecureStorage: FlutterSecureStorage(),
-          ),
-        ),
-        ProxyProvider2<AuthService, EmailSecureStore, FirebaseEmailLinkHandler>(
-          update: (_, AuthService authService, EmailSecureStore storage, __) =>
-              FirebaseEmailLinkHandler(
-            auth: authService,
-            emailStore: storage,
-            firebaseDynamicLinks: FirebaseDynamicLinks.instance,
-          )..init(),
-          dispose: (_, linkHandler) => linkHandler.dispose(),
-        ),
-      ],
-      child: AuthWidgetBuilder(builder: (
-        BuildContext context,
-        AsyncSnapshot<User> userSnapshot,
-      ) {
-        setupServiceLocator(context);
-
-        if (isTesting) {
-          return testing(context, locale);
-        }
-        return GraphQLProvider(
-          client: ValueNotifier(GraphQLAuth(context)
-              .getGraphQLClient(GraphQLClientType.ApolloServer)),
-          child: MaterialApp(
-            theme: ThemeData(
-              primarySwatch: myColorSwatch,
+        providers: [
+          Provider<AuthService>(
+            create: (_) => AuthServiceAdapter(
+              initialAuthServiceType: initialAuthServiceType,
             ),
-            localizationsDelegates: [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en'),
-              Locale('es'),
-            ],
-            debugShowCheckedModeBanner: false,
-            themeMode: ThemeMode.light,
-            color: Color(0xFFF9EBE8),
-            home: I18n(
-              initialLocale: locale,
-              child: EmailLinkErrorPresenter.create(
-                context,
-                child: AuthWidget(
-                  userSnapshot: userSnapshot,
+            dispose: (_, AuthService authService) => authService.dispose(),
+          ),
+          Provider<EmailSecureStore>(
+            create: (_) => EmailSecureStore(),
+          ),
+          Provider<LocaleSecureStore>(
+            create: (_) => LocaleSecureStore(),
+          ),
+          ProxyProvider2<AuthService, EmailSecureStore,
+              FirebaseEmailLinkHandler>(
+            update:
+                (_, AuthService authService, EmailSecureStore storage, __) =>
+                    FirebaseEmailLinkHandler(
+              auth: authService,
+              emailStore: storage,
+              firebaseDynamicLinks: FirebaseDynamicLinks.instance,
+            )..init(),
+            dispose: (_, linkHandler) => linkHandler.dispose(),
+          ),
+        ],
+        builder: (context, child) {
+          return AuthWidgetBuilder(builder: (
+            BuildContext context,
+            AsyncSnapshot<User> userSnapshot,
+          ) {
+            setupServiceLocator(context);
+
+            if (isTesting) {
+              return testing(context, locale);
+            }
+            return GraphQLProvider(
+              client: ValueNotifier(GraphQLAuth(context)
+                  .getGraphQLClient(GraphQLClientType.ApolloServer)),
+              child: MaterialApp(
+                theme: ThemeData(
+                  primarySwatch: myColorSwatch,
+                ),
+                localizationsDelegates: [
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('en'),
+                  Locale('es'),
+                ],
+                debugShowCheckedModeBanner: false,
+                themeMode: ThemeMode.light,
+                color: Color(0xFFF9EBE8),
+                home: I18n(
+                  initialLocale: locale,
+                  child: EmailLinkErrorPresenter.create(
+                    context,
+                    child: AuthWidget(
+                      userSnapshot: userSnapshot,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        );
-      }),
-    );
+            );
+          });
+        });
   }
 
   Widget testing(
@@ -165,10 +162,13 @@ class MyApp extends StatelessWidget {
     ]);
     Locale locale;
     return FutureBuilder(
-      future: getDeviceLocal(context),
+      future: Future.wait([
+        Firebase.initializeApp(),
+        getDeviceLocal(context),
+      ]),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          locale = snapshot.data;
+          locale = snapshot.data[1];
           return getMultiProvider(context, locale);
         } else if (snapshot.hasError) {
           logger.createMessage(

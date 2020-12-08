@@ -1,5 +1,5 @@
 import 'dart:io' as io;
-import 'package:MyFamilyVoice/services/email_secure_store.dart';
+import 'dart:typed_data';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
@@ -259,11 +259,8 @@ Future<void> addUserMessages(
   return;
 }
 
-Future<QueryResult> createOrUpdateUserInfo(
-    EmailSecureStore emailSecureStore,
-    bool shouldCreateUser,
-    GraphQLClient graphQLClientFileServer,
-    GraphQLClient graphQLClient,
+Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
+    GraphQLClient graphQLClientFileServer, GraphQLClient graphQLClient,
     {String jpegPathUrl,
     String id,
     String email,
@@ -517,21 +514,33 @@ Future<void> addStoryReaction(
 }
 
 Future<void> doCommentUploads(
-  GraphQLAuth graphQLAuth,
-  GraphQLClient graphQLClientFileServer,
-  GraphQLClient graphQLClientApolloServer,
-  io.File _commentAudio,
-  Map<String, dynamic> _story,
-) async {
+    GraphQLAuth graphQLAuth,
+    GraphQLClient graphQLClientFileServer,
+    GraphQLClient graphQLClientApolloServer,
+    Map<String, dynamic> _story,
+    {io.File commentAudio,
+    Uint8List commentAudioWeb}) async {
   final _uuid = Uuid();
   final String _commentId = _uuid.v1();
 
-  final MultipartFile multipartFile = getMultipartFile(
-    _commentAudio,
-    '$_commentId.mp3',
-    'audio',
-    'mp3',
-  );
+  MultipartFile multipartFile;
+
+  if (commentAudio != null) {
+    multipartFile = getMultipartFile(
+      commentAudio,
+      '$_commentId.mp3',
+      'audio',
+      'mp3',
+    );
+  }
+  if (commentAudioWeb != null) {
+    multipartFile = MultipartFile.fromBytes(
+      'audio',
+      commentAudioWeb,
+      filename: '$_commentId.mp3',
+      contentType: MediaType('audio', 'mp3'),
+    );
+  }
 
   final String _audioFilePath = await performMutation(
     graphQLClientFileServer,
@@ -588,21 +597,35 @@ Future<void> doCommentUploads(
 }
 
 Future<void> doMessageUploads(
-  GraphQLAuth graphQLAuth,
-  GraphQLClient graphQLClientFileServer,
-  GraphQLClient graphQLClientApolloServer,
-  String userId,
-  io.File _messageAudio,
-) async {
+    GraphQLAuth graphQLAuth,
+    GraphQLClient graphQLClientFileServer,
+    GraphQLClient graphQLClientApolloServer,
+    String userId,
+    {io.File messageAudio,
+    Uint8List messageAudioWeb}) async {
   final _uuid = Uuid();
   final String _messageId = _uuid.v1();
 
-  final MultipartFile multipartFile = getMultipartFile(
-    _messageAudio,
-    '$_messageId.mp3',
-    'audio',
-    'mp3',
-  );
+  MultipartFile multipartFile;
+  if (messageAudio != null) {
+    multipartFile = getMultipartFile(
+      messageAudio,
+      '$_messageId.mp3',
+      'audio',
+      'mp3',
+    );
+  }
+  if (messageAudioWeb != null) {
+    multipartFile = MultipartFile.fromBytes(
+      'audio',
+      messageAudioWeb,
+      filename: '$_messageId.mp3',
+      contentType: MediaType(
+        'audio',
+        'mp3',
+      ),
+    );
+  }
 
   final String _audioFilePath = await performMutation(
     graphQLClientFileServer,

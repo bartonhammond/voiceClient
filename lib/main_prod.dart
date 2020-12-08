@@ -34,6 +34,7 @@ void main() {
     apiBaseUrl: 'https://myfamilyvoice.com',
     getHttpLink: getHttpLink,
     isSecured: true,
+    isWeb: false,
     child: MyApp(),
   );
 /*start app

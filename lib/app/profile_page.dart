@@ -1,13 +1,15 @@
 import 'dart:io' as io;
-import 'package:MyFamilyVoice/services/email_secure_store.dart';
+import 'dart:typed_data';
+import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
+import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
@@ -23,6 +25,7 @@ import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:uuid/uuid.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({
@@ -46,7 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String cityState = '';
   String userImage = '';
   bool shouldCreateUser = false;
-
+  bool _isWeb = false;
   Map<String, dynamic> user;
   io.File _image;
   bool imageUpdated = false;
@@ -54,6 +57,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final picker = ImagePicker();
   bool _uploadInProgress = false;
   bool formReady = false;
+  ByteData _webImageBytes;
 
   TextEditingController emailFormFieldController;
   TextEditingController nameFormFieldController;
@@ -71,6 +75,14 @@ class _ProfilePageState extends State<ProfilePage> {
       };
     }
     return graphQLAuth.getUserMap();
+  }
+
+  void callBack(ByteData imageBytes) {
+    setState(() {
+      imageUpdated = true;
+      _webImageBytes = imageBytes;
+    });
+    _formReady();
   }
 
   @override
@@ -117,62 +129,9 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  Future selectImage(ImageSource source) async {
-    io.File image;
-    final PickedFile pickedFile = await picker.getImage(source: source);
-    if (pickedFile != null) {
-      image = io.File(pickedFile.path);
-    }
-
-    if (image != null && pickedFile != null) {
-      final io.File croppedFile = await ImageCropper.cropImage(
-        sourcePath: image.path,
-        compressQuality: 50,
-        maxWidth: 700,
-        maxHeight: 700,
-        compressFormat: ImageCompressFormat.jpg,
-        aspectRatioPresets: io.Platform.isAndroid
-            ? [
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
-              ]
-            : [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio5x3,
-                CropAspectRatioPreset.ratio5x4,
-                CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
-              ],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: 'Cropper',
-        ),
-      );
-
-      if (croppedFile != null) {
-        setState(() {
-          imageUpdated = true;
-          _image = croppedFile;
-        });
-        _formReady();
-      }
-    }
-  }
-
   void _formReady() {
     if (shouldCreateUser) {
-      if (_image != null &&
+      if (((_isWeb && _webImageBytes != null) || (!_isWeb && _image != null)) &&
           name != null &&
           name.length > 5 &&
           cityState != null &&
@@ -186,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } else {
-      if (_image != null ||
+      if (((_isWeb && _webImageBytes != null) || (!_isWeb && _image != null)) ||
           (name != null && name.length > 5 && name != user['name']) ||
           (cityState != null &&
               cityState.length > 1 &&
@@ -200,60 +159,6 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     }
-  }
-
-  Widget _buildImageControls() {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    int _fontSize = 16;
-    int _size = 15;
-    int _width = 8;
-    switch (deviceType) {
-      case DeviceScreenType.desktop:
-      case DeviceScreenType.tablet:
-      case DeviceScreenType.mobile:
-        break;
-      case DeviceScreenType.watch:
-        _size = 15;
-        _width = 8;
-        _fontSize = 12;
-        break;
-
-      default:
-    }
-    return Flexible(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          CustomRaisedButton(
-            fontSize: _fontSize.toDouble(),
-            key: Key(Keys.storyPageGalleryButton),
-            text: Strings.galleryImageButton.i18n,
-            icon: Icon(
-              Icons.photo_library,
-              color: Colors.white,
-              size: _size.toDouble(),
-            ),
-            onPressed: () => selectImage(ImageSource.gallery),
-          ),
-          SizedBox(
-            width: _width.toDouble(),
-          ),
-          CustomRaisedButton(
-            fontSize: _fontSize.toDouble(),
-            key: Key(Keys.storyPageCameraButton),
-            text: Strings.cameraImageButton.i18n,
-            icon: Icon(
-              Icons.camera,
-              color: Colors.white,
-              size: _size.toDouble(),
-            ),
-            onPressed: () => selectImage(ImageSource.camera),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildUploadButton(BuildContext context) {
@@ -343,12 +248,22 @@ class _ProfilePageState extends State<ProfilePage> {
 
     try {
       if (imageUpdated) {
-        final MultipartFile multipartFile = getMultipartFile(
-          _image,
-          '$userId.jpg',
-          'image',
-          'jpeg',
-        );
+        MultipartFile multipartFile;
+        if (_isWeb && _webImageBytes != null) {
+          multipartFile = MultipartFile.fromBytes(
+              'image',
+              _webImageBytes.buffer
+                  .asUint8List(0, _webImageBytes.lengthInBytes),
+              filename: '$userId.jpg',
+              contentType: MediaType('image', 'jpeg'));
+        } else {
+          multipartFile = getMultipartFile(
+            _image,
+            '$userId.jpg',
+            'image',
+            'jpeg',
+          );
+        }
 
         jpegPathUrl = await performMutation(
           graphQLClientFileServer,
@@ -356,10 +271,7 @@ class _ProfilePageState extends State<ProfilePage> {
           'jpeg',
         );
       }
-      final EmailSecureStore emailSecureStore =
-          Provider.of<EmailSecureStore>(context, listen: false);
       final QueryResult queryResult = await createOrUpdateUserInfo(
-        emailSecureStore,
         shouldCreateUser,
         graphQLClientFileServer,
         graphQLClient,
@@ -407,7 +319,7 @@ class _ProfilePageState extends State<ProfilePage> {
     switch (deviceType) {
       case DeviceScreenType.desktop:
       case DeviceScreenType.tablet:
-        _width = _height = 50;
+        _width = _height = 250;
         _formFieldWidth = 500;
         break;
       case DeviceScreenType.watch:
@@ -419,12 +331,18 @@ class _ProfilePageState extends State<ProfilePage> {
         _formFieldWidth = 400;
         break;
       default:
-        _width = _height = 100;
+        if (_isWeb) {
+          _width = _height = 250;
+        } else {
+          _width = _height = 100;
+        }
     }
     return Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.always,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           SizedBox(
             height: 7.0,
@@ -434,6 +352,16 @@ class _ProfilePageState extends State<ProfilePage> {
               borderRadius: BorderRadius.circular(40.0),
               child: Image.file(
                 _image,
+                width: _width.toDouble(),
+                height: _height.toDouble(),
+              ),
+            )
+          else if (_webImageBytes != null)
+            ClipRRect(
+              borderRadius: BorderRadius.circular(40.0),
+              child: Image.memory(
+                _webImageBytes.buffer.asUint8List(
+                    _webImageBytes.offsetInBytes, _webImageBytes.lengthInBytes),
                 width: _width.toDouble(),
                 height: _height.toDouble(),
               ),
@@ -508,18 +436,47 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
             ),
           SizedBox(
-            height: 5,
+            height: 15,
           ),
           Text(
             Strings.yourPictureSelection.i18n,
             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
           ),
           SizedBox(
-            height: 5,
+            height: 15,
           ),
-          _buildImageControls(),
+          ImageControls(
+              showIcons: true,
+              isWeb: _isWeb,
+              onOpenFileExplorer: (bool opening) {
+                setState(() {
+                  _uploadInProgress = opening;
+                });
+              },
+              onWebCroppedCallback: (ByteData imageBytes) async {
+                setState(() {
+                  _webImageBytes = imageBytes;
+                  _uploadInProgress = true;
+                });
+                await doUploads(context);
+                setState(() {
+                  _uploadInProgress = false;
+                });
+              },
+              onImageSelected: (io.File croppedFile) async {
+                setState(() {
+                  _image = croppedFile;
+                  _uploadInProgress = true;
+                });
+
+                await doUploads(context);
+
+                setState(() {
+                  _uploadInProgress = false;
+                });
+              }),
           SizedBox(
-            height: 5,
+            height: 15,
           ),
           Container(
             width: _formFieldWidth.toDouble(),
@@ -582,6 +539,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (value.isEmpty) {
                   return Strings.nameEmptyMessage.i18n;
                 }
+                if (value.length < 5) {
+                  return 'Name length should be greater than 5';
+                }
                 return null;
               },
             ),
@@ -618,6 +578,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 if (value.isEmpty) {
                   return Strings.homeEmptyMessage.i18n;
                 }
+                if (!(value.length > 1)) {
+                  return 'Home length must be greater than 1';
+                }
                 return null;
               },
             ),
@@ -633,12 +596,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    _isWeb = AppConfig.of(context).isWeb;
     return Scaffold(
       key: _scaffoldKey,
       drawer: getDrawer(context),
       appBar: AppBar(
         title: Text(Strings.profilePageName.i18n),
-        backgroundColor: Color(0xff00bcd4),
+        backgroundColor: Constants.backgroundColor,
       ),
       body: getForm(),
     );

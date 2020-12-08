@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:MyFamilyVoice/services/firebase_auth_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/foundation.dart';
 
@@ -56,8 +55,7 @@ class AuthServiceAdapter implements AuthService {
   Future<User> currentUser() => authService.currentUser();
 
   @override
-  Future<IdTokenResult> currentUserIdToken() =>
-      authService.currentUserIdToken();
+  Future<String> currentUserIdToken() => authService.currentUserIdToken();
 
   @override
   Future<User> signInWithEmailAndLink({String email, String link}) =>
@@ -89,4 +87,16 @@ class AuthServiceAdapter implements AuthService {
 
   @override
   Future<void> signOut() => authService.signOut();
+
+  @override
+  Future<User> registerWithEmailPassword(String email, String password) =>
+      authService.registerWithEmailPassword(email, password);
+
+  @override
+  Future<User> signInWithEmailPassword(String email, String password) =>
+      authService.signInWithEmailPassword(email, password);
+
+  @override
+  Future<void> sendPasswordReset(String email) =>
+      authService.sendPasswordReset(email);
 }

@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,18 +9,18 @@ enum PlayingRouteState { speakers, earpiece }
 
 // ignore: must_be_immutable
 class PlayerWidget extends StatefulWidget {
-  PlayerWidget(
-      {Key key,
-      this.mode = PlayerMode.MEDIA_PLAYER,
-      this.showSlider = true,
-      this.width = 500,
-      this.path = '',
-      this.isLocal = false,
-      this.resetPosition = false,
-      this.url = '',
-      this.duration,
-      this.position})
-      : super(key: key);
+  PlayerWidget({
+    Key key,
+    this.mode = PlayerMode.MEDIA_PLAYER,
+    this.showSlider = true,
+    this.width = 500,
+    this.path = '',
+    this.isLocal = false,
+    this.resetPosition = false,
+    this.url = '',
+    this.duration,
+    this.position,
+  }) : super(key: key);
 
   final PlayerMode mode;
   final bool showSlider;
@@ -32,6 +32,7 @@ class PlayerWidget extends StatefulWidget {
 
   Duration duration;
   Duration position;
+  Uint8List byteData;
 
   @override
   State<StatefulWidget> createState() {
@@ -41,7 +42,6 @@ class PlayerWidget extends StatefulWidget {
 
 class _PlayerWidgetState extends State<PlayerWidget> {
   _PlayerWidgetState();
-
   AudioPlayer _audioPlayer;
 
   PlayerState _playerState = PlayerState.stopped;
@@ -78,7 +78,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
       children: <Widget>[
         widget.showSlider
             ? Container(
-                margin: EdgeInsets.all(10),
+                margin: EdgeInsets.fromLTRB(25, 10, 25, 10),
                 width: widget.width.toDouble(),
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
