@@ -1,6 +1,9 @@
 import 'dart:io' as io;
 
+import 'package:MyFamilyVoice/web/crop_widget.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -9,10 +12,62 @@ import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 
-class ImageControls {
-  ImageControls({@required this.onImageSelected});
+class ImageControls extends StatefulWidget {
+  const ImageControls({
+    @required this.onImageSelected,
+    @required this.onOpenFileExplorer,
+    @required this.onWebCroppedCallback,
+    this.showIcons = true,
+    this.isWeb = false,
+  });
   final Function(io.File) onImageSelected;
+  final Function(bool) onOpenFileExplorer;
+  final Function(ByteData) onWebCroppedCallback;
+  final bool showIcons;
+  final bool isWeb;
+
+  @override
+  _ImageControlsState createState() => _ImageControlsState();
+}
+
+class _ImageControlsState extends State<ImageControls> {
   final picker = ImagePicker();
+//this is for web
+  Future<void> _openFileExplorer() async {
+    List<PlatformFile> _paths;
+
+    widget.onOpenFileExplorer(true);
+
+    try {
+      _paths = (await FilePicker.platform.pickFiles(
+        type: FileType.image,
+        allowMultiple: false,
+      ))
+          ?.files;
+    } on PlatformException catch (e) {
+      print('Unsupported operation' + e.toString());
+    } catch (ex) {
+      print(ex);
+    }
+    widget.onOpenFileExplorer(false);
+
+    if (!mounted) {
+      return;
+    }
+
+    if (_paths != null) {
+      Navigator.push<dynamic>(
+          context,
+          MaterialPageRoute<dynamic>(
+            builder: (BuildContext context) => CropWidget(
+              imageBytes: _paths[0].bytes,
+              onCropped: widget.onWebCroppedCallback,
+            ),
+            fullscreenDialog: false,
+          ));
+    }
+    return;
+  }
 
   Future selectImage(ImageSource source) async {
     io.File image;
@@ -58,44 +113,49 @@ class ImageControls {
       );
 
       if (croppedFile != null) {
-        onImageSelected(croppedFile);
+        widget.onImageSelected(croppedFile);
       }
     }
   }
 
-  Widget buildImageControls({bool showIcons = true}) {
-    return Flexible(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: <Widget>[
-          CustomRaisedButton(
-            key: Key(Keys.storyPageGalleryButton),
-            text: Strings.pictureGallery.i18n,
-            icon: showIcons
-                ? Icon(
-                    Icons.photo_library,
-                    color: Colors.white,
-                  )
-                : null,
-            onPressed: () => selectImage(ImageSource.gallery),
-          ),
-          SizedBox(
-            width: 8,
-          ),
-          CustomRaisedButton(
-            key: Key(Keys.storyPageCameraButton),
-            text: Strings.pictureCamera.i18n,
-            icon: showIcons
-                ? Icon(
-                    Icons.camera,
-                    color: Colors.white,
-                  )
-                : null,
-            onPressed: () => selectImage(ImageSource.camera),
-          ),
-        ],
-      ),
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: <Widget>[
+        CustomRaisedButton(
+          key: Key(Keys.storyPageGalleryButton),
+          text: Strings.pictureGallery.i18n,
+          icon: widget.showIcons
+              ? Icon(
+                  Icons.photo_library,
+                  color: Colors.white,
+                  size: 15.0,
+                )
+              : null,
+          onPressed: () => widget.isWeb
+              ? _openFileExplorer()
+              : selectImage(ImageSource.gallery),
+        ),
+        SizedBox(
+          width: 8,
+        ),
+        widget.isWeb
+            ? Container()
+            : CustomRaisedButton(
+                key: Key(Keys.storyPageCameraButton),
+                text: Strings.pictureCamera.i18n,
+                icon: widget.showIcons
+                    ? Icon(
+                        Icons.camera,
+                        color: Colors.white,
+                        size: 15.0,
+                      )
+                    : null,
+                onPressed: () => selectImage(ImageSource.camera),
+              ),
+      ],
     );
   }
 }

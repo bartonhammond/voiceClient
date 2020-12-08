@@ -1,3 +1,5 @@
+import 'package:MyFamilyVoice/services/locale_secure_store.dart';
+import 'package:MyFamilyVoice/web/web_home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:provider/provider.dart';
@@ -6,10 +8,9 @@ import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/service_locator.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/home_page.dart';
 
 /// Builds the signed-in or non signed-in UI, depending on the user snapshot.
@@ -27,9 +28,7 @@ class AuthWidget extends StatelessWidget {
   final String userEmail;
 
   Future<Locale> getLocaleFromStorage(BuildContext context) async {
-    final LocaleSecureStore localeSecureStore =
-        Provider.of<LocaleSecureStore>(context, listen: false);
-    final Locale locale = await localeSecureStore.getLocale();
+    final Locale locale = await LocaleSecureStore().getLocale();
     I18n.of(context).locale = locale;
 
     return locale;
@@ -68,6 +67,34 @@ class AuthWidget extends StatelessWidget {
     );
   }
 
+  FutureBuilder setupWebHomePage(BuildContext context) {
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    return FutureBuilder<dynamic>(
+      future: getLocaleFromStorage(context),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          logger.createMessage(
+            userEmail: graphQLAuth.getUser().email,
+            source: 'auth_widget',
+            shortMessage: snapshot.error.toString(),
+            stackTrace: StackTrace.current.toString(),
+          );
+          return Text('\nErrors: \n  ' + snapshot.error.toString());
+        } else if (!snapshot.hasData) {
+          return Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+        return I18n(
+          initialLocale: snapshot.data,
+          child: WebHomePage(),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (userSnapshot != null &&
@@ -84,17 +111,20 @@ class AuthWidget extends StatelessWidget {
       if (userSnapshot.hasData) {
         return setupHomePage(context, userSnapshot.data);
       }
+      if (kIsWeb) {
+        return setupWebHomePage(context);
+      } else {
+        final AuthService authService =
+            Provider.of<AuthService>(context, listen: false);
+        final FirebaseEmailLinkHandler linkHandler =
+            Provider.of<FirebaseEmailLinkHandler>(context, listen: false);
 
-      final AuthService authService =
-          Provider.of<AuthService>(context, listen: false);
-      final FirebaseEmailLinkHandler linkHandler =
-          Provider.of<FirebaseEmailLinkHandler>(context, listen: false);
-
-      return EmailLinkSignInPage(
-        authService: authService,
-        linkHandler: linkHandler,
-        onSignedIn: null,
-      );
+        return EmailLinkSignInPage(
+          authService: authService,
+          linkHandler: linkHandler,
+          onSignedIn: null,
+        );
+      }
     }
     return Scaffold(
       body: Center(

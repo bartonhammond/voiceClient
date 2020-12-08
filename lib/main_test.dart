@@ -17,6 +17,7 @@ void main() {
     apiBaseUrl: 'http://dev-myfamilyvoice.com',
     getHttpLink: getHttpLink,
     isSecured: false,
+    isWeb: false,
     child: MyApp(
       isTesting: true,
       userEmail: 'brucefreeman@gmail.com',

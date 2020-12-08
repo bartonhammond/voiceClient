@@ -1,12 +1,11 @@
 import 'package:MyFamilyVoice/app/legal/legal_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:MyFamilyVoice/app_config.dart';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_exception_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
@@ -40,11 +39,13 @@ Future<void> _confirmSignOut(BuildContext context) async {
 }
 
 Future<String> getVersionAndBuild(AppConfig config) async {
-  final PackageInfo packageInfo = await PackageInfo.fromPlatform();
-  final String version = packageInfo.version;
-  final String buildNumber = packageInfo.buildNumber;
-
-  return '${config.flavorName} $version+$buildNumber';
+  if (!kIsWeb) {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final String version = packageInfo.version;
+    final String buildNumber = packageInfo.buildNumber;
+    return '${config.flavorName} $version+$buildNumber';
+  }
+  return 'Prod';
 }
 
 Widget drawer(
@@ -110,9 +111,7 @@ Widget drawer(
                 title: Text(Strings.usLocale.i18n),
                 onTap: () async {
                   I18n.of(context).locale = Locale('en');
-                  final LocaleSecureStore localeSecureStore =
-                      Provider.of<LocaleSecureStore>(context, listen: false);
-                  await localeSecureStore.setLocale('en');
+                  await LocaleSecureStore().setLocale('en');
                 },
               ),
             ),
@@ -126,9 +125,7 @@ Widget drawer(
                 title: Text(Strings.esLocale.i18n),
                 onTap: () async {
                   I18n.of(context).locale = Locale('es');
-                  final LocaleSecureStore localeSecureStore =
-                      Provider.of<LocaleSecureStore>(context, listen: false);
-                  await localeSecureStore.setLocale('es');
+                  await LocaleSecureStore().setLocale('es');
                 },
               ),
             ),
@@ -155,9 +152,9 @@ Widget drawer(
             ),
             Card(
               child: ListTile(
-                title: Text('Policy'),
+                title: Text('Privacy'),
                 onTap: () async {
-                  await getDialog(context, 'Policy', 'policy.html');
+                  await getDialog(context, 'Privacy', 'policy.html');
                 },
               ),
             ),
@@ -188,10 +185,11 @@ Future<Widget> getDialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(20.0))),
         content: Container(
-          height: 200,
-          width: 300,
+          height: MediaQuery.of(context).size.height * .5,
+          width: MediaQuery.of(context).size.width * .5,
           child: SingleChildScrollView(
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 SizedBox(

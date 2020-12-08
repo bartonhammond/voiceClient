@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 
 @immutable
@@ -19,7 +18,7 @@ class User {
 
 abstract class AuthService {
   Future<User> currentUser();
-  Future<IdTokenResult> currentUserIdToken();
+  Future<dynamic> currentUserIdToken();
   Future<User> signInWithEmailAndLink({String email, String link});
   Future<bool> isSignInWithEmailLink(String link);
   Future<void> sendSignInWithEmailLink({
@@ -34,4 +33,7 @@ abstract class AuthService {
   Future<void> signOut();
   Stream<User> get onAuthStateChanged;
   void dispose();
+  Future<User> registerWithEmailPassword(String email, String password);
+  Future<User> signInWithEmailPassword(String email, String password);
+  Future<void> sendPasswordReset(String email);
 }

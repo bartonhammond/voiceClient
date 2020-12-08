@@ -22,7 +22,10 @@ class LegalPage extends StatelessWidget {
           }
           final String html = snapshot.data;
 
-          return HtmlWidget(html);
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: HtmlWidget(html),
+          );
         });
   }
 }

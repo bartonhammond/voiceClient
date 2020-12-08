@@ -4,6 +4,7 @@ class Keys {
   static const String alertDefault = 'alertDefault';
   static const String alertCancel = 'alertCancel';
   static const String homePage = 'homePage';
+  static const String webHomePage = 'webHomePage';
   static const String storiesPage = 'storiesPage';
   static const String storyPage = 'storyPage';
   static const String friendsPage = 'friendsPage';

@@ -530,6 +530,146 @@ extension Localization on String {
       {
         'en': Strings.reactionTableMessage,
         'es': '¿Mensaje?',
+      } +
+      {
+        'en': Strings.authDialogEmailEmpty,
+        'es': 'El correo no puede estar vacío',
+      } +
+      {
+        'en': Strings.authDialogCorrectEmailAddress,
+        'es': 'Ingrese una dirección de correo correcta',
+      } +
+      {
+        'en': Strings.authDialogPasswordEmpty,
+        'es': 'La contraseña no puede estar vacía',
+      } +
+      {
+        'en': Strings.authDialogPasswordLength,
+        'es': 'La contraseña debe tener más de 6 y menos de 10',
+      } +
+      {
+        'en': Strings.authDialogRegister,
+        'es': 'Registrarse',
+      } +
+      {
+        'en': Strings.authDialogRegisterSuccess,
+        'es': 'Te has registrado exitosamente',
+      } +
+      {
+        'en': Strings.authDialogRegisterFailure,
+        'es': 'Ocurrió un error al registrarse ',
+      } +
+      {
+        'en': Strings.authDialogEnterEmailPassword,
+        'es': 'Ingrese correo electrónico y contraseña',
+      } +
+      {
+        'en': Strings.authDialogSubmit,
+        'es': 'Enviar',
+      } +
+      {
+        'en': Strings.authDialogErrorSendingEmail,
+        'es': 'Ocurrió un error al enviar el correo',
+      } +
+      {
+        'en': Strings.authDialogPleaseEnterEmail,
+        'es': 'Por favor ingrese su correo',
+      } +
+      {
+        'en': Strings.authDialogLogin,
+        'es': 'Iniciar sesión',
+      } +
+      {
+        'en': Strings.authDialogLoginError,
+        'es': 'Ocurrió un error al iniciar sesión',
+      } +
+      {
+        'en': Strings.authDialogPassword,
+        'es': 'Contraseña',
+      } +
+      {
+        'en': Strings.authDialogShowPassword,
+        'es': 'Mostrar contraseña',
+      } +
+      {
+        'en': Strings.authDialogLoginOrRegister,
+        'es': '¿Iniciar sesión o registrarse?',
+      } +
+      {
+        'en': Strings.authDialogForgotPassword,
+        'es': '¿Se te olvidó tu contraseña?',
+      } +
+      {
+        'en': Strings.authDialogTermAndPrivacy,
+        'es':
+            'Al continuar, acepta nuestros Términos de uso y confirma que ha leído nuestra Política de privacidad.',
+      } +
+      {
+        'en': Strings.landingUltimate,
+        'es': 'La mejor experiencia familiar',
+      } +
+      {
+        'en': Strings.landingUltimateSub,
+        'es':
+            'Mi Voz Familiar es una aplicación para que su familia grabe sus historias de audio para compartir con su familia para siempre',
+      } +
+      {
+        'en': Strings.landingUltimateExplain,
+        'es':
+            'Descubre historias interesantes, algunas de las que nunca has oído hablar, contadas por tu propia familia.',
+      } +
+      {
+        'en': Strings.landingFeatureOne,
+        'es': 'ESCUCHA SUS HISTORIAS',
+      } +
+      {
+        'en': Strings.landingFeatureOneSub,
+        'es': 'Historias sobre imágenes que cuentan la historia familiar',
+      } +
+      {
+        'en': Strings.landingFeatureOneExplain,
+        'es':
+            'Haga que el abuelo y el Grammy graben su historia para que los nietos la escuchen',
+      } +
+      {
+        'en': Strings.landingFeatureTwo,
+        'es': 'Toda la familia está invitada',
+      } +
+      {
+        'en': Strings.landingFeatureTwoSub,
+        'es': 'Todos pueden grabar, todas pueden escuchar.',
+      } +
+      {
+        'en': Strings.landingFeatureTwoExplain,
+        'es':
+            'Todas las historias son de audio para que nadie tenga que escribir. Los comentarios también están en audio. ¡Y los mensajes también son de audio!',
+      } +
+      {
+        'en': Strings.landingFeatureThree,
+        'es': 'ENCUENTRA AMIGOS Y FAMILIA',
+      } +
+      {
+        'en': Strings.landingFeatureThreeSub,
+        'es': 'Distinguir a la familia por historias personales',
+      } +
+      {
+        'en': Strings.landingFeatureThreeExplain,
+        'es':
+            'Puede buscar nuevos amigos utilizando sus nombres y su casa. Algunos amigos también pueden ser familiares',
+      } +
+      {
+        'en': Strings.landingFeatureFour,
+        'es': 'SELECCIONE RÁPIDAMENTE LAS FOTOS EXISTENTES O TOME UNA',
+      } +
+      {
+        'en': Strings.landingFeatureFourSub,
+        'es':
+            'Puede usar las imágenes de la galería o usar la cámara para tomar una foto',
+      } +
+      {
+        'en': Strings.landingFeatureFourExplain,
+        'es':
+            'Cuando selecciona su imagen, puede recortarla, ajustar su posición y volver a enmarcarla. Fácilmente también',
       };
 
   String get i18n => localize(this, _t);

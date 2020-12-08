@@ -19,6 +19,7 @@ void main() {
     apiBaseUrl: 'http://192.168.1.13', //'http://dev-myfamilyvoice.com',
     getHttpLink: getHttpLink,
     isSecured: true,
+    isWeb: false,
     child: MyApp(),
   );
 

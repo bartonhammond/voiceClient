@@ -8,17 +8,18 @@ import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.da
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_timer/simple_timer.dart';
-
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class RecorderWidget extends StatefulWidget {
   RecorderWidget({
     Key key,
     this.isCurrentUserAuthor = false,
+    this.isForComment = false,
     this.setAudioFile,
     this.timerDuration = 180,
     this.showIcon = true,
@@ -29,6 +30,7 @@ class RecorderWidget extends StatefulWidget {
   }) : super(key: key);
   final ValueChanged<io.File> setAudioFile;
   final bool isCurrentUserAuthor;
+  final bool isForComment;
   final int timerDuration;
   final bool showIcon;
   final int width;
@@ -63,7 +65,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
     _timerController = TimerController(this);
     _stopButtonEnabled = false;
     _localAudioPath = '';
-    _init();
+    if (!kIsWeb) {
+      _init();
+    }
   }
 
   Widget getRecordButton(bool _showIcon) {
@@ -108,6 +112,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
 
   Future<void> _init() async {
     try {
+      if (kIsWeb) {
+        return;
+      }
       if (await FlutterAudioRecorder.hasPermissions) {
         String customPath = '/flutter_audio_recorder_';
         io.Directory appDocDirectory;
@@ -116,7 +123,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
         } else {
           appDocDirectory = await getExternalStorageDirectory();
         }
-
         // can add extension like ".mp3" ".wav" ".m4a" ".aac"
         customPath = appDocDirectory.path +
             customPath +
@@ -142,8 +148,10 @@ class _RecorderWidgetState extends State<RecorderWidget>
           _localAudioPath = '';
         });
       } else {
-        Scaffold.of(context).showSnackBar(
-            SnackBar(content: Text(Strings.mustAcceptPermissions.i18n)));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(Strings.mustAcceptPermissions.i18n),
+          duration: const Duration(seconds: 3),
+        ));
       }
     } catch (e) {
       print(e);
@@ -167,7 +175,6 @@ class _RecorderWidgetState extends State<RecorderWidget>
         }
 
         final current = await _recorder.current(channel: 0);
-        // print(current.status);
         setState(() {
           _current = current;
           _currentStatus = _current.status;
@@ -243,8 +250,8 @@ class _RecorderWidgetState extends State<RecorderWidget>
     return {'icon': iconData, 'text': text};
   }
 
-  void handleTimerOnEnd() {
-    _stop();
+  Future<void> handleTimerOnEnd() async {
+    await _stop();
   }
 
   Widget getCountdownTimer() {
@@ -267,7 +274,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
   }
 
   Widget getRecordWidget() {
-    if (widget.isCurrentUserAuthor) {
+    if (widget.isCurrentUserAuthor || widget.isForComment) {
       double level = _current?.metering?.averagePower;
       if (level != null) {
         level += 120;
@@ -377,7 +384,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
                 )
               : Container(),
           getRecordWidget(),
-          widget.isCurrentUserAuthor
+          widget.isCurrentUserAuthor || widget.isForComment
               ? Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   mainAxisSize: MainAxisSize.max,

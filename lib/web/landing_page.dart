@@ -1,0 +1,633 @@
+import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:flutter/material.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+
+class LandingPage extends StatefulWidget {
+  @override
+  _LandingPageState createState() => _LandingPageState();
+}
+
+class _LandingPageState extends State<LandingPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+          stops: const [0.1, 0.5, 0.7, 0.9],
+          colors: [
+            Colors.red[100],
+            Colors.red[500],
+            Colors.purple[100],
+            Colors.purple[500],
+          ],
+        ),
+      ),
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: Colors.transparent,
+        body: OrientationBuilder(
+          builder: (context, orientation) {
+            return ListView(
+              children: <Widget>[
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runAlignment: WrapAlignment.center,
+                  alignment: WrapAlignment.center,
+                  runSpacing: 10.0,
+                  spacing: 10.0,
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: <Widget>[
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.1,
+                          ),
+                          Image.asset(
+                            'mfv-500x500.png',
+                            height: 200.0,
+                            width: 200.0,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              Strings.MFV.i18n,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline6
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 60.0,
+                                  ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text(
+                              Strings.landingUltimate.i18n,
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.headline6,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 10.0,
+                              bottom: 10.0,
+                              left: 20.0,
+                              right: 20.0,
+                            ),
+                            child: Text(
+                              Strings.landingUltimateSub.i18n,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  ),
+                            ),
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Image.asset(
+                                'googleComing.png',
+                                height: 100.0,
+                                width: 170.0,
+                              ),
+                              Image.asset(
+                                'comingApple.png',
+                                height: 100.0,
+                                width: 170.0,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                _buildFeatureOne(
+                  Strings.landingFeatureOne.i18n,
+                  Strings.landingFeatureOneSub.i18n,
+                  Strings.landingFeatureOneExplain.i18n,
+                  'GrandadHS.png',
+                ),
+                _buildFeatureTwo(
+                    orientation,
+                    Strings.landingFeatureTwo.i18n,
+                    Strings.landingFeatureTwoSub.i18n,
+                    Strings.landingFeatureTwoExplain.i18n,
+                    'joanAndWade.png'),
+                _buildFeatureThree(
+                    Strings.landingFeatureThree.i18n,
+                    Strings.landingFeatureThreeSub.i18n,
+                    Strings.landingFeatureThreeExplain.i18n,
+                    'FindFriends.png'),
+                _buildFeatureFour(
+                  orientation,
+                  Strings.landingFeatureFour.i18n,
+                  Strings.landingFeatureFourSub.i18n,
+                  Strings.landingFeatureFourExplain.i18n,
+                  'momHS.png',
+                ),
+                Container(
+                  color: Colors.white,
+                  width: MediaQuery.of(context).size.height * 0.5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Column(
+                      children: <Widget>[
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.2,
+                        ),
+                        Image.asset(
+                          'mfv-500x500.png',
+                          height: 200.0,
+                          width: 200.0,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            Strings.MFV.i18n,
+                            style:
+                                Theme.of(context).textTheme.headline6.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 60.0,
+                                    ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            Strings.landingUltimateExplain.i18n,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline6
+                                .copyWith(color: Colors.grey),
+                          ),
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Image.asset(
+                              'googleComing.png',
+                              height: 100.0,
+                            ),
+                            Image.asset(
+                              'comingApple.png',
+                              height: 100.0,
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.2,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  color: Colors.grey.withOpacity(0.1),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Row(
+                          children: <Widget>[
+                            Text(
+                              DateTime.now().year.toString(),
+                            ),
+                            Icon(
+                              Icons.copyright,
+                              size: 16.0,
+                            ),
+                            Text(
+                              Strings.MFV.i18n,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            FlatButton(
+                              onPressed: () {
+                                getDialog(context, 'Terms', 'terms.html');
+                              },
+                              child: Text(
+                                'Terms',
+                              ),
+                            ),
+                            FlatButton(
+                              onPressed: () {
+                                getDialog(context, 'Privacy', 'policy.html');
+                              },
+                              child: Text(
+                                'Privacy',
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureOne(
+      String title, String sub, String explain, String image) {
+    return Container(
+      color: Colors.blue.shade100,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
+        alignment: WrapAlignment.center,
+        runSpacing: 10.0,
+        spacing: 10.0,
+        children: <Widget>[
+          Container(
+            width: MediaQuery.of(context).size.height * 0.5,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          .copyWith(fontSize: 15.0, color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      sub,
+                      style: Theme.of(context).textTheme.headline3.copyWith(
+                          fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      explain,
+                      style: Theme.of(context).textTheme.bodyText1.copyWith(
+                            fontSize: 18.0,
+                            height: 1.8,
+                            fontWeight: FontWeight.w300,
+                          ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              image,
+              fit: BoxFit.cover,
+              height: MediaQuery.of(context).size.height * 0.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureTwo(
+    Orientation orientation,
+    String title,
+    String sub,
+    String explain,
+    String image,
+  ) {
+    return orientation == Orientation.portrait
+        ? Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runAlignment: WrapAlignment.center,
+            alignment: WrapAlignment.center,
+            runSpacing: 10.0,
+            spacing: 10.0,
+            children: <Widget>[
+              Container(
+                width: MediaQuery.of(context).size.height * 0.5,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1
+                              .copyWith(fontSize: 15.0, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          sub,
+                          style: Theme.of(context).textTheme.headline3.copyWith(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          explain,
+                          style: Theme.of(context).textTheme.bodyText1.copyWith(
+                                fontSize: 18.0,
+                                height: 1.8,
+                                fontWeight: FontWeight.w300,
+                              ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  height: MediaQuery.of(context).size.height * 0.6,
+                ),
+              ),
+            ],
+          )
+        : Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runAlignment: WrapAlignment.center,
+            alignment: WrapAlignment.center,
+            runSpacing: 10.0,
+            spacing: 10.0,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  height: MediaQuery.of(context).size.height * 0.6,
+                ),
+              ),
+              Container(
+                width: MediaQuery.of(context).size.height * 0.5,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1
+                              .copyWith(fontSize: 15.0, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          sub,
+                          style: Theme.of(context).textTheme.headline3.copyWith(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          explain,
+                          style: Theme.of(context).textTheme.bodyText1.copyWith(
+                                fontSize: 18.0,
+                                height: 1.8,
+                                fontWeight: FontWeight.w300,
+                              ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+  }
+
+  Widget _buildFeatureThree(
+      String title, String sub, String explain, String image) {
+    return Container(
+      color: Colors.blue.shade100,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
+        alignment: WrapAlignment.center,
+        runSpacing: 10.0,
+        spacing: 10.0,
+        children: <Widget>[
+          Container(
+            width: MediaQuery.of(context).size.height * 0.5,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          .copyWith(fontSize: 15.0, color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      sub,
+                      style: Theme.of(context).textTheme.headline3.copyWith(
+                          fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      explain,
+                      style: Theme.of(context).textTheme.bodyText1.copyWith(
+                            fontSize: 18.0,
+                            height: 1.8,
+                            fontWeight: FontWeight.w300,
+                          ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              image,
+              fit: BoxFit.cover,
+              height: MediaQuery.of(context).size.height * 0.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureFour(
+    Orientation orientation,
+    String title,
+    String sub,
+    String explain,
+    String image,
+  ) {
+    return orientation == Orientation.portrait
+        ? Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runAlignment: WrapAlignment.center,
+            alignment: WrapAlignment.center,
+            runSpacing: 10.0,
+            spacing: 10.0,
+            children: <Widget>[
+              Container(
+                width: MediaQuery.of(context).size.height * 0.5,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1
+                              .copyWith(fontSize: 15.0, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          sub,
+                          style: Theme.of(context).textTheme.headline3.copyWith(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          explain,
+                          style: Theme.of(context).textTheme.bodyText1.copyWith(
+                                fontSize: 18.0,
+                                height: 1.8,
+                                fontWeight: FontWeight.w300,
+                              ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  height: MediaQuery.of(context).size.height * 0.6,
+                ),
+              ),
+            ],
+          )
+        : Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runAlignment: WrapAlignment.center,
+            alignment: WrapAlignment.center,
+            runSpacing: 10.0,
+            spacing: 10.0,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  height: MediaQuery.of(context).size.height * 0.6,
+                ),
+              ),
+              Container(
+                width: MediaQuery.of(context).size.height * 0.5,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyText1
+                              .copyWith(fontSize: 15.0, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          sub,
+                          style: Theme.of(context).textTheme.headline3.copyWith(
+                              fontWeight: FontWeight.bold, color: Colors.black),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          explain,
+                          style: Theme.of(context).textTheme.bodyText1.copyWith(
+                                fontSize: 18.0,
+                                height: 1.8,
+                                fontWeight: FontWeight.w300,
+                              ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+  }
+}

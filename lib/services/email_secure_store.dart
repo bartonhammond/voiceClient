@@ -1,32 +1,26 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:meta/meta.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Used to store and retrieve the user email address
 class EmailSecureStore {
-  EmailSecureStore({@required this.flutterSecureStorage})
-      : assert(flutterSecureStorage != null);
-  final FlutterSecureStorage flutterSecureStorage;
+  EmailSecureStore();
 
   static const String storageUserEmailAddressKey = 'userEmailAddress';
 
   // email
   Future<void> setEmail(String email) async {
-    await flutterSecureStorage.write(
-        key: storageUserEmailAddressKey, value: email);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(storageUserEmailAddressKey, email);
+    return;
   }
 
   Future<void> clearEmail() async {
-    await flutterSecureStorage.delete(key: storageUserEmailAddressKey);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(storageUserEmailAddressKey);
+    return;
   }
 
   Future<String> getEmail() async {
-    String rtn;
-    try {
-      rtn = await flutterSecureStorage.read(key: storageUserEmailAddressKey);
-    } catch (e) {
-      //https://github.com/mogol/flutter_secure_storage/issues/43
-      flutterSecureStorage.deleteAll();
-    }
-    return rtn;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(storageUserEmailAddressKey);
   }
 }

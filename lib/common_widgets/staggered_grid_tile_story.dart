@@ -1,8 +1,11 @@
 import 'dart:io' as io;
+import 'dart:typed_data';
+import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/reaction_table.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
@@ -57,7 +60,8 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   final GlobalKey _key = GlobalKey();
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _commentAudio;
-
+  Uint8List _commentAudioWeb;
+  bool _isWeb = false;
   @override
   void dispose() {
     super.dispose();
@@ -103,11 +107,41 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       graphQLAuth,
       graphQLClientFileServer,
       graphQLClient,
-      _commentAudio,
       widget.story,
+      commentAudio: _commentAudio,
     );
     setState(() {
       _commentAudio = null;
+      _uploadInProgress = false;
+      _showMakeComments = false;
+    });
+    callBack();
+    return;
+  }
+
+  Future<void> setCommentAudioWeb(Uint8List bytes) async {
+    if (bytes == null) {
+      return;
+    }
+    setState(() {
+      _commentAudioWeb = bytes;
+      _uploadInProgress = true;
+    });
+
+    final GraphQLClient graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+
+    await doCommentUploads(
+      graphQLAuth,
+      graphQLClientFileServer,
+      graphQLClient,
+      widget.story,
+      commentAudioWeb: _commentAudioWeb,
+    );
+    setState(() {
+      _commentAudioWeb = null;
       _uploadInProgress = false;
       _showMakeComments = false;
     });
@@ -131,6 +165,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   @override
   Widget build(BuildContext context) {
+    _isWeb = AppConfig.of(context).isWeb;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;
@@ -197,13 +232,12 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25.0),
               child: FadeInImage.memoryNetwork(
-                placeholder: kTransparentImage,
-                image: host(
-                  widget.story['image'],
-                  width: _width,
-                  height: _height,
-                ),
-              ),
+                  placeholder: kTransparentImage,
+                  image: host(
+                    widget.story['image'],
+                    width: _width,
+                    height: _height,
+                  )),
             ),
           ),
           Padding(
@@ -215,6 +249,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                   url: host(
                     widget.story['audio'],
                   ),
+                  showSlider: _isWeb ? false : true,
                   width: _width,
                 ),
               ],
@@ -450,6 +485,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       '${Keys.commentsWidgetExpansionTile}-${widget.story["id"]}'),
                   story: widget.story,
                   fontSize: 12,
+                  isWeb: _isWeb,
                   onClickDelete: (Map<String, dynamic> _comment) async {
                     final bool _deleteComment = await PlatformAlertDialog(
                       title: Strings.deleteComment.i18n,
@@ -506,11 +542,18 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       SizedBox(
                         height: 20,
                       ),
-                      RecorderWidget(
-                        isCurrentUserAuthor: true,
-                        setAudioFile: setCommentAudioFile,
-                        timerDuration: 90,
-                      ),
+                      _isWeb
+                          ? RecorderWidgetWeb(
+                              isCurrentUserAuthor: true,
+                              setAudioWeb: setCommentAudioWeb,
+                              timerDuration: 90,
+                              showPlayerWidget: false,
+                            )
+                          : RecorderWidget(
+                              isCurrentUserAuthor: true,
+                              setAudioFile: setCommentAudioFile,
+                              timerDuration: 90,
+                            ),
                       _uploadInProgress
                           ? CircularProgressIndicator()
                           : Container(),

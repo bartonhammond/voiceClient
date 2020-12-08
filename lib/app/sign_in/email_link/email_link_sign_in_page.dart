@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:i18n_extension/i18n_widget.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
-import 'package:package_info/package_info.dart';
 import 'package:MyFamilyVoice/app/sign_in/validator.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/form_submit_button.dart';
@@ -15,7 +12,7 @@ import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
-import 'package:MyFamilyVoice/services/locale_secure_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class EmailLinkSignInPage extends StatefulWidget {
   const EmailLinkSignInPage({
@@ -68,13 +65,12 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
 
   Future<void> _sendEmailLink() async {
     try {
-      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
       // Send link
       await widget.linkHandler.sendSignInWithEmailLink(
         email: _email,
         url: Constants.firebaseProjectURL,
         handleCodeInApp: true,
-        packageName: packageInfo.packageName,
+        packageName: 'online.myfamilyvoice.mobile',
         androidInstallIfNotAvailable: true,
         androidMinimumVersion: '21',
       );
@@ -100,11 +96,12 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
   }
 
   Future<Locale> getDeviceLocal(BuildContext context) async {
-    final LocaleSecureStore localeSecureStore =
-        LocaleSecureStore(flutterSecureStorage: FlutterSecureStorage());
-    final Locale locale = await localeSecureStore.getLocale();
-    I18n.of(context).locale = locale;
-    return locale;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String locale = prefs.getString('locale');
+    if (locale != null) {
+      return Locale(locale);
+    }
+    return Locale('en');
   }
 
   @override

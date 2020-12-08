@@ -1,36 +1,30 @@
 import 'dart:ui';
 import 'package:flutter_device_locale/flutter_device_locale.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:meta/meta.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Used to store and retrieve the user locale between
 /// activiation link and homepage
 class LocaleSecureStore {
-  LocaleSecureStore({@required this.flutterSecureStorage})
-      : assert(flutterSecureStorage != null);
-  final FlutterSecureStorage flutterSecureStorage;
-
   static const String storageUserLocaleAddressKey = 'userLocale';
 
   // email
   Future<void> setLocale(String languageCode) async {
-    await flutterSecureStorage.write(
-        key: storageUserLocaleAddressKey, value: languageCode);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString(storageUserLocaleAddressKey, languageCode);
+    return;
   }
 
   Future<void> clearLocale() async {
-    await flutterSecureStorage.delete(key: storageUserLocaleAddressKey);
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove(storageUserLocaleAddressKey);
   }
 
   Future<Locale> getLocale() async {
     String languageCode;
-    try {
-      languageCode =
-          await flutterSecureStorage.read(key: storageUserLocaleAddressKey);
-    } catch (e) {
-      //https://github.com/mogol/flutter_secure_storage/issues/43
-      flutterSecureStorage.deleteAll();
-    }
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    languageCode = prefs.getString(storageUserLocaleAddressKey);
+
     if (languageCode == null) {
       final Locale locale = await DeviceLocale.getCurrentLocale();
       languageCode = locale.languageCode;
