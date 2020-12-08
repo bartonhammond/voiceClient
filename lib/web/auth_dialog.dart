@@ -26,15 +26,14 @@ class _AuthDialogState extends State<AuthDialog> {
   bool _isRegistering = false;
   bool _isLoggingIn = false;
 
-  String email = '';
-  String password = '';
+  String email;
+  String password;
 
   String loginStatus;
   Color loginStringColor = Colors.green;
 
   String _validateEmail(String value) {
-    value = value.trim();
-
+    value = value?.trim();
     if (textControllerEmail.text != null) {
       if (value.isEmpty) {
         return Strings.authDialogEmailEmpty.i18n;
@@ -48,7 +47,7 @@ class _AuthDialogState extends State<AuthDialog> {
   }
 
   String _validatePassword(String value) {
-    value = value.trim();
+    value = value?.trim();
 
     if (textControllerEmail.text != null) {
       if (value.isEmpty) {

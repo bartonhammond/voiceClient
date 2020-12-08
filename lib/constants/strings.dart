@@ -203,4 +203,31 @@ class Strings {
   static const String authDialogForgotPassword = 'Forgot password?';
   static const String authDialogTermAndPrivacy =
       'By proceeding, you agree to our Terms of Use and confirm you have read our Privacy Policy.';
+
+  static const String landingUltimate = 'The Ultimate Family Experience';
+  static const String landingUltimateSub =
+      'My Family Voice is an app for your family to record their audio stories to share with your family forever';
+  static const String landingUltimateExplain =
+      'Discover interesting stories, some you never heard of, told by your own family.';
+  static const String landingFeatureOne = 'LISTEN TO THEIR STORIES';
+  static const String landingFeatureOneSub =
+      'Stories about pictures telling the family history';
+  static const String landingFeatureOneExplain =
+      'Have Grandad and Grammy record their history for the grandkids to listen to';
+  static const String landingFeatureTwo = 'The Whole Family is invited';
+  static const String landingFeatureTwoSub =
+      'Every one can record, everyone can listen';
+  static const String landingFeatureTwoExplain =
+      'All the stories are audio so that no one has to type.  The comments are also in audio.  And messages are audio too!';
+  static const String landingFeatureThree = 'FIND FRIENDS AND FAMILY';
+  static const String landingFeatureThreeSub =
+      'Distinquish Family for personal stories';
+  static const String landingFeatureThreeExplain =
+      'You can search for new Friends using their names and home.  Some Friends might also be Family';
+  static const String landingFeatureFour =
+      'QUICKLY SELECT EXISTING PICTURES OR TAKE ONE';
+  static const String landingFeatureFourSub =
+      'You can use the gallery images or use the camera to take a picture';
+  static const String landingFeatureFourExplain =
+      'When you select your picture, you can crop it, adjust its position, and reframe it.  Easily too.';
 }

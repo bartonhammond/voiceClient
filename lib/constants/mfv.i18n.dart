@@ -603,6 +603,73 @@ extension Localization on String {
         'en': Strings.authDialogTermAndPrivacy,
         'es':
             'Al continuar, acepta nuestros Términos de uso y confirma que ha leído nuestra Política de privacidad.',
+      } +
+      {
+        'en': Strings.landingUltimate,
+        'es': 'La mejor experiencia familiar',
+      } +
+      {
+        'en': Strings.landingUltimateSub,
+        'es':
+            'Mi Voz Familiar es una aplicación para que su familia grabe sus historias de audio para compartir con su familia para siempre',
+      } +
+      {
+        'en': Strings.landingUltimateExplain,
+        'es':
+            'Descubre historias interesantes, algunas de las que nunca has oído hablar, contadas por tu propia familia.',
+      } +
+      {
+        'en': Strings.landingFeatureOne,
+        'es': 'ESCUCHA SUS HISTORIAS',
+      } +
+      {
+        'en': Strings.landingFeatureOneSub,
+        'es': 'Historias sobre imágenes que cuentan la historia familiar',
+      } +
+      {
+        'en': Strings.landingFeatureOneExplain,
+        'es':
+            'Haga que el abuelo y el Grammy graben su historia para que los nietos la escuchen',
+      } +
+      {
+        'en': Strings.landingFeatureTwo,
+        'es': 'Toda la familia está invitada',
+      } +
+      {
+        'en': Strings.landingFeatureTwoSub,
+        'es': 'Todos pueden grabar, todas pueden escuchar.',
+      } +
+      {
+        'en': Strings.landingFeatureTwoExplain,
+        'es':
+            'Todas las historias son de audio para que nadie tenga que escribir. Los comentarios también están en audio. ¡Y los mensajes también son de audio!',
+      } +
+      {
+        'en': Strings.landingFeatureThree,
+        'es': 'ENCUENTRA AMIGOS Y FAMILIA',
+      } +
+      {
+        'en': Strings.landingFeatureThreeSub,
+        'es': 'Distinguir a la familia por historias personales',
+      } +
+      {
+        'en': Strings.landingFeatureThreeExplain,
+        'es':
+            'Puede buscar nuevos amigos utilizando sus nombres y su casa. Algunos amigos también pueden ser familiares',
+      } +
+      {
+        'en': Strings.landingFeatureFour,
+        'es': 'SELECCIONE RÁPIDAMENTE LAS FOTOS EXISTENTES O TOME UNA',
+      } +
+      {
+        'en': Strings.landingFeatureFourSub,
+        'es':
+            'Puede usar las imágenes de la galería o usar la cámara para tomar una foto',
+      } +
+      {
+        'en': Strings.landingFeatureFourExplain,
+        'es':
+            'Cuando selecciona su imagen, puede recortarla, ajustar su posición y volver a enmarcarla. Fácilmente también',
       };
 
   String get i18n => localize(this, _t);

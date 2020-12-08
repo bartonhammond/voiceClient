@@ -1,5 +1,7 @@
+import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -54,22 +56,20 @@ class _LandingPageState extends State<LandingPage> {
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'My Family Voice',
-                              style: GoogleFonts.quicksand(
-                                textStyle: Theme.of(context)
-                                    .textTheme
-                                    .headline6
-                                    .copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 60.0,
-                                    ),
-                              ),
+                              Strings.MFV.i18n,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headline6
+                                  .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 60.0,
+                                  ),
                             ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
                             child: Text(
-                              'The Ultimate Family Experience',
+                              Strings.landingUltimate.i18n,
                               textAlign: TextAlign.center,
                               style: Theme.of(context).textTheme.headline6,
                             ),
@@ -82,8 +82,7 @@ class _LandingPageState extends State<LandingPage> {
                               right: 20.0,
                             ),
                             child: Text(
-                              'My Family Voice is an app for your family to record their audio stories to share with your family forever',
-                              textAlign: TextAlign.center,
+                              Strings.landingUltimateSub.i18n,
                               style: Theme.of(context)
                                   .textTheme
                                   .bodyText1
@@ -115,10 +114,30 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ],
                 ),
-                _buildFeatureOne(),
-                _buildFeatureTwo(orientation),
-                _buildFeatureThree(),
-                _buildFeatureFour(orientation),
+                _buildFeatureOne(
+                  Strings.landingFeatureOne.i18n,
+                  Strings.landingFeatureOneSub.i18n,
+                  Strings.landingFeatureOneExplain.i18n,
+                  'GrandadHS.png',
+                ),
+                _buildFeatureTwo(
+                    orientation,
+                    Strings.landingFeatureTwo.i18n,
+                    Strings.landingFeatureTwoSub.i18n,
+                    Strings.landingFeatureTwoExplain.i18n,
+                    'joanAndWade.png'),
+                _buildFeatureThree(
+                    Strings.landingFeatureThree.i18n,
+                    Strings.landingFeatureThreeSub.i18n,
+                    Strings.landingFeatureThreeExplain.i18n,
+                    'FindFriends.png'),
+                _buildFeatureFour(
+                  orientation,
+                  Strings.landingFeatureFour.i18n,
+                  Strings.landingFeatureFourSub.i18n,
+                  Strings.landingFeatureFourExplain.i18n,
+                  'momHS.png',
+                ),
                 Container(
                   color: Colors.white,
                   width: MediaQuery.of(context).size.height * 0.5,
@@ -137,22 +156,18 @@ class _LandingPageState extends State<LandingPage> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'Try My Family Voice',
-                            style: GoogleFonts.quicksand(
-                              textStyle: Theme.of(context)
-                                  .textTheme
-                                  .headline6
-                                  .copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 60.0,
-                                  ),
-                            ),
+                            Strings.MFV.i18n,
+                            style:
+                                Theme.of(context).textTheme.headline6.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 60.0,
+                                    ),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Text(
-                            'Discover interesting stories, some you never heard of, told by your own family.',
+                            Strings.landingUltimateExplain.i18n,
                             textAlign: TextAlign.center,
                             style: Theme.of(context)
                                 .textTheme
@@ -191,33 +206,33 @@ class _LandingPageState extends State<LandingPage> {
                         Row(
                           children: <Widget>[
                             Text(
-                              '2020 ',
-//                            style: Theme.of(context).textTheme.headline6,
+                              DateTime.now().year.toString(),
                             ),
                             Icon(
                               Icons.copyright,
                               size: 16.0,
                             ),
                             Text(
-                              ' My Family Voice',
-//                            style: Theme.of(context).textTheme.headline6,
+                              Strings.MFV.i18n,
                             ),
                           ],
                         ),
                         Row(
                           children: [
                             FlatButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                getDialog(context, 'Terms', 'terms.html');
+                              },
                               child: Text(
                                 'Terms',
-//                              style: Theme.of(context).textTheme.headline6,
                               ),
                             ),
                             FlatButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                getDialog(context, 'Privacy', 'policy.html');
+                              },
                               child: Text(
                                 'Privacy',
-//                              style: Theme.of(context).textTheme.headline6,
                               ),
                             ),
                           ],
@@ -234,7 +249,8 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _buildFeatureOne() {
+  Widget _buildFeatureOne(
+      String title, String sub, String explain, String image) {
     return Container(
       color: Colors.blue.shade100,
       child: Wrap(
@@ -254,18 +270,18 @@ class _LandingPageState extends State<LandingPage> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'LISTEN TO THEIR STORIES',
+                      title,
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText1
-                          .copyWith(fontSize: 15.0, color: Colors.grey),
+                          .copyWith(fontSize: 15.0, color: Colors.black),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Stories about pictures telling the family history',
+                      sub,
                       style: Theme.of(context).textTheme.headline3.copyWith(
                           fontWeight: FontWeight.bold, color: Colors.black),
                     ),
@@ -273,7 +289,7 @@ class _LandingPageState extends State<LandingPage> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Have Grandad and Grammy record their history for the grandkids to listen to',
+                      explain,
                       style: Theme.of(context).textTheme.bodyText1.copyWith(
                             fontSize: 18.0,
                             height: 1.8,
@@ -288,7 +304,7 @@ class _LandingPageState extends State<LandingPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Image.asset(
-              'GrandadHS.png',
+              image,
               fit: BoxFit.cover,
               height: MediaQuery.of(context).size.height * 0.6,
             ),
@@ -298,7 +314,13 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _buildFeatureTwo(Orientation orientation) {
+  Widget _buildFeatureTwo(
+    Orientation orientation,
+    String title,
+    String sub,
+    String explain,
+    String image,
+  ) {
     return orientation == Orientation.portrait
         ? Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -317,18 +339,18 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'The Whole Family is invited',
+                          title,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
                               .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.grey),
+                              .copyWith(fontSize: 15.0, color: Colors.black),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'Every one can record, everyone can listen',
+                          sub,
                           style: Theme.of(context).textTheme.headline3.copyWith(
                               fontWeight: FontWeight.bold, color: Colors.black),
                         ),
@@ -336,7 +358,7 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'All the stories are audio so that no one has to type.  The comments are also in audio.  And messages are audio too!',
+                          explain,
                           style: Theme.of(context).textTheme.bodyText1.copyWith(
                                 fontSize: 18.0,
                                 height: 1.8,
@@ -351,7 +373,7 @@ class _LandingPageState extends State<LandingPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset(
-                  'joanAndWade.png',
+                  image,
                   fit: BoxFit.cover,
                   height: MediaQuery.of(context).size.height * 0.6,
                 ),
@@ -368,7 +390,7 @@ class _LandingPageState extends State<LandingPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset(
-                  'joanAndWade.png',
+                  image,
                   fit: BoxFit.cover,
                   height: MediaQuery.of(context).size.height * 0.6,
                 ),
@@ -383,18 +405,18 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'The Whole Family is Invited',
+                          title,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
                               .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.grey),
+                              .copyWith(fontSize: 15.0, color: Colors.black),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'Every one can record, everyone can listen',
+                          sub,
                           style: Theme.of(context).textTheme.headline3.copyWith(
                               fontWeight: FontWeight.bold, color: Colors.black),
                         ),
@@ -402,7 +424,7 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'All the stories are audio so that no one has to type.  The comments are also in audio.  And messages are audio too!',
+                          explain,
                           style: Theme.of(context).textTheme.bodyText1.copyWith(
                                 fontSize: 18.0,
                                 height: 1.8,
@@ -418,7 +440,8 @@ class _LandingPageState extends State<LandingPage> {
           );
   }
 
-  Widget _buildFeatureThree() {
+  Widget _buildFeatureThree(
+      String title, String sub, String explain, String image) {
     return Container(
       color: Colors.blue.shade100,
       child: Wrap(
@@ -438,18 +461,18 @@ class _LandingPageState extends State<LandingPage> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'FIND FRIENDS AND FAMILY',
+                      title,
                       textAlign: TextAlign.center,
                       style: Theme.of(context)
                           .textTheme
                           .bodyText1
-                          .copyWith(fontSize: 15.0, color: Colors.grey),
+                          .copyWith(fontSize: 15.0, color: Colors.black),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'Distinquish Family for personal stories',
+                      sub,
                       style: Theme.of(context).textTheme.headline3.copyWith(
                           fontWeight: FontWeight.bold, color: Colors.black),
                     ),
@@ -457,7 +480,7 @@ class _LandingPageState extends State<LandingPage> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
-                      'You can search for new Friends using their names and home.  Some Friends might also be Family',
+                      explain,
                       style: Theme.of(context).textTheme.bodyText1.copyWith(
                             fontSize: 18.0,
                             height: 1.8,
@@ -472,7 +495,7 @@ class _LandingPageState extends State<LandingPage> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Image.asset(
-              'FindFriends.png',
+              image,
               fit: BoxFit.cover,
               height: MediaQuery.of(context).size.height * 0.6,
             ),
@@ -482,7 +505,13 @@ class _LandingPageState extends State<LandingPage> {
     );
   }
 
-  Widget _buildFeatureFour(Orientation orientation) {
+  Widget _buildFeatureFour(
+    Orientation orientation,
+    String title,
+    String sub,
+    String explain,
+    String image,
+  ) {
     return orientation == Orientation.portrait
         ? Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
@@ -501,18 +530,18 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'QUICKLY SELECT EXISTING PICTURES OR TAKE ONE',
+                          title,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
                               .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.grey),
+                              .copyWith(fontSize: 15.0, color: Colors.black),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'You can use the gallery images or use the camera to take a picture',
+                          sub,
                           style: Theme.of(context).textTheme.headline3.copyWith(
                               fontWeight: FontWeight.bold, color: Colors.black),
                         ),
@@ -520,7 +549,7 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'When you select your picture, you can crop it, adjust its position, and reframe it.  Easily too.',
+                          explain,
                           style: Theme.of(context).textTheme.bodyText1.copyWith(
                                 fontSize: 18.0,
                                 height: 1.8,
@@ -535,7 +564,7 @@ class _LandingPageState extends State<LandingPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset(
-                  'momHS.png',
+                  image,
                   fit: BoxFit.cover,
                   height: MediaQuery.of(context).size.height * 0.6,
                 ),
@@ -552,7 +581,7 @@ class _LandingPageState extends State<LandingPage> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Image.asset(
-                  'momHS.png',
+                  image,
                   fit: BoxFit.cover,
                   height: MediaQuery.of(context).size.height * 0.6,
                 ),
@@ -567,18 +596,18 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'QUICKLY SELECT EXISTING PICTURES OR TAKE ONE',
+                          title,
                           textAlign: TextAlign.center,
                           style: Theme.of(context)
                               .textTheme
                               .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.grey),
+                              .copyWith(fontSize: 15.0, color: Colors.black),
                         ),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'You can use the gallery images or use the camera to take a picture',
+                          sub,
                           style: Theme.of(context).textTheme.headline3.copyWith(
                               fontWeight: FontWeight.bold, color: Colors.black),
                         ),
@@ -586,7 +615,7 @@ class _LandingPageState extends State<LandingPage> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          'When you select your picture, you can crop it, adjust its position, and reframe it.  Easily too.',
+                          explain,
                           style: Theme.of(context).textTheme.bodyText1.copyWith(
                                 fontSize: 18.0,
                                 height: 1.8,
