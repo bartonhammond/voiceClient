@@ -599,7 +599,7 @@ class _ProfilePageState extends State<ProfilePage> {
     _isWeb = AppConfig.of(context).isWeb;
     return Scaffold(
       key: _scaffoldKey,
-      drawer: getDrawer(context),
+      //drawer: getDrawer(context),
       appBar: AppBar(
         title: Text(Strings.profilePageName.i18n),
         backgroundColor: Constants.backgroundColor,
