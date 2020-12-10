@@ -35,7 +35,7 @@ class _AuthDialogState extends State<AuthDialog> {
   String _validateEmail(String value) {
     value = value?.trim();
     if (textControllerEmail.text != null) {
-      if (value.isEmpty) {
+      if (value == null || value.isEmpty) {
         return Strings.authDialogEmailEmpty.i18n;
       } else if (!value.contains(RegExp(
           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+"))) {
@@ -50,7 +50,7 @@ class _AuthDialogState extends State<AuthDialog> {
     value = value?.trim();
 
     if (textControllerEmail.text != null) {
-      if (value.isEmpty) {
+      if (value == null || value.isEmpty) {
         return Strings.authDialogPasswordEmpty.i18n;
       } else if (value.length < 6 || value.length > 10) {
         return Strings.authDialogPasswordLength.i18n;

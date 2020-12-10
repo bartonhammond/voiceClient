@@ -22,9 +22,9 @@ import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
@@ -45,6 +45,7 @@ class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
   bool _showComments = false;
   Map<String, dynamic> _story;
+  List<dynamic> _books;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _image;
   io.File _storyAudio;
@@ -111,6 +112,30 @@ class _StoryPlayState extends State<StoryPlay>
     super.dispose();
   }
 
+  Future<void> setBook(String id) async {
+    await changeStoriesUser(
+      GraphQLProvider.of(context).value,
+      _story['user']['id'],
+      id,
+      _story['id'],
+    );
+    setState(() {});
+  }
+
+  Future<String> getUserIdByEmail(
+    GraphQLClient graphQLClient,
+    String email,
+  ) async {
+    final QueryOptions _queryOptions = QueryOptions(
+      documentNode: gql(getUserByEmailQL),
+      variables: <String, dynamic>{
+        'email': email,
+      },
+    );
+    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    return queryResult.data['User'][0]['id'];
+  }
+
   Future<void> setCommentAudioFile(io.File audio) async {
     if (audio == null) {
       return;
@@ -134,10 +159,15 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = null;
       _uploadInProgress = false;
     });
-    Flushbar<dynamic>(
-      message: Strings.saved.i18n,
-      duration: Duration(seconds: 3),
-    )..show(_scaffoldKey.currentContext);
+
+    Fluttertoast.showToast(
+        msg: Strings.saved.i18n,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
     return;
   }
 
@@ -165,11 +195,14 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = null;
       _uploadInProgress = false;
     });
-
-    Flushbar<dynamic>(
-      message: Strings.saved.i18n,
-      duration: Duration(seconds: 3),
-    )..show(_scaffoldKey.currentContext);
+    Fluttertoast.showToast(
+        msg: Strings.saved.i18n,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
     return;
   }
 
@@ -211,6 +244,7 @@ class _StoryPlayState extends State<StoryPlay>
     return FutureBuilder(
         future: Future.wait([
           getStory(),
+          getBooksOfMine(),
         ]),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -229,6 +263,8 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
+          _books = snapshot.data[1];
+
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;
           } else {
@@ -248,7 +284,10 @@ class _StoryPlayState extends State<StoryPlay>
           if (_story == null ||
               (_story != null &&
                   _story['user'] != null &&
-                  _story['user']['id'] == graphQLAuth.getUserMap()['id'])) {
+                  (_story['user']['id'] == graphQLAuth.getUserMap()['id'] ||
+                      _story['user']['isBook'] == true &&
+                          _story['user']['bookAuthorEmail'] ==
+                              graphQLAuth.getUserMap()['email']))) {
             _isCurrentUserAuthor = true;
           } else {
             _isCurrentUserAuthor = false;
@@ -306,6 +345,25 @@ class _StoryPlayState extends State<StoryPlay>
 
     if (queryResult.data['Story'].length > 0) {
       return queryResult.data['Story'][0];
+    }
+    return null;
+  }
+
+  Future<List> getBooksOfMine() async {
+    final QueryOptions _queryOptions = QueryOptions(
+      documentNode: gql(getBooksOfMineQL),
+      variables: <String, dynamic>{'email': graphQLAuth.getUserMap()['email']},
+    );
+
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+
+    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    if (queryResult.hasException) {
+      throw queryResult.exception;
+    }
+
+    if (queryResult.data['books'].length > 0) {
+      return queryResult.data['books'];
     }
     return null;
   }
@@ -377,10 +435,15 @@ class _StoryPlayState extends State<StoryPlay>
         multipartFile,
         'mp3',
       );
-      Flushbar<dynamic>(
-        message: Strings.saved.i18n,
-        duration: Duration(seconds: 3),
-      )..show(_scaffoldKey.currentContext);
+      Fluttertoast.showToast(
+          msg: Strings.saved.i18n,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+      return;
     }
     await doStoryUpload();
     return;
@@ -398,10 +461,15 @@ class _StoryPlayState extends State<StoryPlay>
           _audioFilePath,
           storyTypes[_storyType.index],
         );
-        Flushbar<dynamic>(
-          message: Strings.saved.i18n,
-          duration: Duration(seconds: 3),
-        )..show(_scaffoldKey.currentContext);
+        Fluttertoast.showToast(
+            msg: Strings.saved.i18n,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
         setState(() {
           _storyWasSaved = true;
         });
@@ -421,10 +489,14 @@ class _StoryPlayState extends State<StoryPlay>
           _story['created']['formatted'],
           storyTypes[_storyType.index],
         );
-        Flushbar<dynamic>(
-          message: Strings.saved.i18n,
-          duration: Duration(seconds: 3),
-        )..show(_scaffoldKey.currentContext);
+        Fluttertoast.showToast(
+            msg: Strings.saved.i18n,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
     }
 
@@ -496,11 +568,13 @@ class _StoryPlayState extends State<StoryPlay>
             children: [
               _isWeb
                   ? RecorderWidgetWeb(
+                      key: Key('storyPlayRecorderWidgetWeb'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioWeb: setStoryAudioWeb,
                       width: width,
                     )
                   : RecorderWidget(
+                      key: Key('storyPlayRecorderWidget'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioFile: setStoryAudioFile,
                       width: width,
@@ -518,11 +592,13 @@ class _StoryPlayState extends State<StoryPlay>
                   : Container(),
               _isWeb
                   ? RecorderWidgetWeb(
+                      key: Key('storyPlayRecorderWidgetWeb'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioWeb: setStoryAudioWeb,
                       width: width,
                       url: host(_story['audio']))
                   : RecorderWidget(
+                      key: Key('storyPlayRecorderWidget'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioFile: setStoryAudioFile,
                       width: width,
@@ -656,7 +732,50 @@ class _StoryPlayState extends State<StoryPlay>
                 Navigator.of(context).pop();
               }
             },
-          )
+          ),
+          _story['user']['isBook']
+              ? SizedBox(
+                  width: 10,
+                )
+              : Container(),
+          _story['user']['isBook']
+              ? CustomRaisedButton(
+                  key: Key('deleteBook'),
+                  text: 'Remove book?',
+                  icon: _showIcons
+                      ? Icon(
+                          Icons.collections_bookmark,
+                          color: Colors.white,
+                        )
+                      : null,
+                  onPressed: () async {
+                    final bool _removeBook = await PlatformAlertDialog(
+                      title: 'Remove book?',
+                      content: Strings.areYouSure.i18n,
+                      cancelActionText: Strings.cancel.i18n,
+                      defaultActionText: Strings.yes.i18n,
+                    ).show(context);
+                    if (_removeBook == true) {
+                      final GraphQLClient graphQLClient =
+                          GraphQLProvider.of(context).value;
+
+                      final String currentUserId = await getUserIdByEmail(
+                        graphQLClient,
+                        _story['user']['bookAuthorEmail'],
+                      );
+                      print('StoryPlay storyId ${_story["id"]}');
+                      await changeStoriesUser(
+                        GraphQLProvider.of(context).value,
+                        _story['user']['id'],
+                        currentUserId,
+                        _story['id'],
+                      );
+
+                      setState(() {});
+                    }
+                  },
+                )
+              : Container(),
         ],
       ),
     );
@@ -730,6 +849,51 @@ class _StoryPlayState extends State<StoryPlay>
                       ),
                     ])
                   : Container(),
+      _isCurrentUserAuthor
+          ? const SizedBox(
+              height: 10,
+            )
+          : Container(),
+      _isCurrentUserAuthor
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 5),
+                CustomRaisedButton(
+                  key: Key('storyPlayBookButton'),
+                  text: 'Book?',
+                  icon: Icon(
+                    Icons.collections_bookmark,
+                    size: 20,
+                  ),
+                  onPressed: () async {
+                    if (_story['type'] != 'FRIENDS') {
+                      await PlatformAlertDialog(
+                        title: 'Select Book',
+                        content: 'Please change audiance to FRIENDS',
+                        defaultActionText: Strings.ok.i18n,
+                      ).show(context);
+                      return;
+                    }
+                    Navigator.push<dynamic>(
+                      context,
+                      MaterialPageRoute<dynamic>(
+                        builder: (BuildContext context) => TagFriendsPage(
+                            key: Key('selectBookFromStoryPlay'),
+                            story: _story,
+                            onSaved: () {
+                              setState(() {});
+                            },
+                            isBook: true,
+                            onBookSave: setBook),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                  },
+                )
+              ],
+            )
+          : Container(),
       _showTaggedFriends
           ? TaggedFriends(
               key: Key('tagStoryPlay'),
@@ -866,6 +1030,7 @@ class _StoryPlayState extends State<StoryPlay>
                                 ),
                                 _isWeb
                                     ? RecorderWidgetWeb(
+                                        key: Key('storyPlayRecorderWidgetWeb'),
                                         isCurrentUserAuthor:
                                             _isCurrentUserAuthor,
                                         setAudioWeb: setCommentAudioWeb,
@@ -873,6 +1038,7 @@ class _StoryPlayState extends State<StoryPlay>
                                         isForComment: true,
                                       )
                                     : RecorderWidget(
+                                        key: Key('storyPlayRecorderWidget'),
                                         isCurrentUserAuthor:
                                             _isCurrentUserAuthor,
                                         setAudioFile: setCommentAudioFile,

@@ -149,6 +149,51 @@ Future<void> deleteStory(
   return;
 }
 
+Future<void> changeStoriesUser(
+  GraphQLClient graphQLClientApolloServer,
+  String currentUserId,
+  String newUserId,
+  String storyId,
+) async {
+  var userInput = {'id': currentUserId};
+  final to = {'id': storyId};
+
+  //Remove  Story w/ User
+  MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(removeUserStories),
+    variables: <String, dynamic>{
+      'from': userInput,
+      'to': to,
+    },
+  );
+  print('changeStoriesUser removing $currentUserId');
+
+  QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  //Merge Story w/ new user
+  userInput = {'id': newUserId};
+
+  _mutationOptions = MutationOptions(
+    documentNode: gql(mergeUserStories),
+    variables: <String, dynamic>{
+      'from': userInput,
+      'to': to,
+    },
+  );
+  print('changeStoriesUser adding $newUserId');
+
+  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  return;
+}
+
 Future<void> deleteMessage(
   GraphQLClient graphQLClientApolloServer,
   String storyId,
@@ -259,13 +304,15 @@ Future<void> addUserMessages(
   return;
 }
 
-Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
-    GraphQLClient graphQLClientFileServer, GraphQLClient graphQLClient,
+Future<QueryResult> createOrUpdateUserInfo(
+    bool shouldCreateUser, GraphQLClient graphQLClient,
     {String jpegPathUrl,
     String id,
     String email,
     String name,
-    String home}) async {
+    String home,
+    bool isBook,
+    String bookAuthorEmail}) async {
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   final String formattedDate = formatter.format(now);
@@ -279,6 +326,8 @@ Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
               'home': home,
               'image': jpegPathUrl,
               'created': formattedDate,
+              'isBook': isBook,
+              'bookAuthorEmail': bookAuthorEmail,
             })
       : MutationOptions(
           documentNode: gql(updateUserQL),
@@ -288,6 +337,7 @@ Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
               'home': home,
               'image': jpegPathUrl,
               'updated': formattedDate,
+              'isBook': isBook,
             });
 
   return await graphQLClient.mutate(_mutationOptions);

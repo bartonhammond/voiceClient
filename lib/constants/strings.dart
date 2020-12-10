@@ -68,6 +68,7 @@ class Strings {
   static const String typeUserButtonFamily = 'Family';
   static const String typeUserButtonFriends = 'Friends';
   static const String typeUserButtonUsers = 'Others';
+  static const String typeUserButtonBooks = 'Books';
   static const String typeUserButtonMe = 'Me';
   static const String requestFriendship = 'Request Friendship?';
   static const String cancelFriendship = 'End Friendship?';

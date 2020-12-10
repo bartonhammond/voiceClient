@@ -3,9 +3,10 @@ import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
-import 'package:flushbar/flushbar.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
@@ -32,9 +33,11 @@ class ProfilePage extends StatefulWidget {
     Key key,
     this.id,
     this.onPush,
+    this.isBook = false,
   }) : super(key: key);
   final ValueChanged<String> onPush;
   final String id;
+  final bool isBook;
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -65,7 +68,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Map getUser() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    if (graphQLAuth.getUserMap() == null) {
+    if (widget.isBook) {
+      return <String, dynamic>{
+        'id': '',
+        'email': '',
+        'image': '',
+        'audio': '',
+        'home': '',
+      };
+    } else if (graphQLAuth.getUserMap() == null) {
       return <String, dynamic>{
         'id': '',
         'email': graphQLAuth.user.email,
@@ -75,14 +86,6 @@ class _ProfilePageState extends State<ProfilePage> {
       };
     }
     return graphQLAuth.getUserMap();
-  }
-
-  void callBack(ByteData imageBytes) {
-    setState(() {
-      imageUpdated = true;
-      _webImageBytes = imageBytes;
-    });
-    _formReady();
   }
 
   @override
@@ -97,6 +100,9 @@ class _ProfilePageState extends State<ProfilePage> {
     //if user is new, id will be empty
     if (userId == null || userId.isEmpty) {
       userId = Uuid().v1();
+      if (widget.isBook) {
+        userEmail = userId;
+      }
       shouldCreateUser = true;
     }
 
@@ -271,15 +277,22 @@ class _ProfilePageState extends State<ProfilePage> {
           'jpeg',
         );
       }
+      if (!(name != null &&
+          name.isNotEmpty &&
+          cityState != null &&
+          cityState.isNotEmpty)) {
+        return;
+      }
       final QueryResult queryResult = await createOrUpdateUserInfo(
         shouldCreateUser,
-        graphQLClientFileServer,
         graphQLClient,
         jpegPathUrl: jpegPathUrl == null ? userImage : jpegPathUrl,
         id: userId,
         email: userEmail,
         name: name,
         home: cityState,
+        isBook: widget.isBook,
+        bookAuthorEmail: graphQLAuth.getUser().email,
       );
       if (queryResult.hasException) {
         logger.createMessage(
@@ -290,15 +303,34 @@ class _ProfilePageState extends State<ProfilePage> {
         );
         throw queryResult.exception;
       }
+      if (widget.isBook) {
+        //make friends
+        await addUserFriend(
+          graphQLClient,
+          userId,
+          graphQLAuth.getCurrentUserId(),
+        );
+
+        await addUserFriend(
+          graphQLClient,
+          graphQLAuth.getCurrentUserId(),
+          userId,
+        );
+      }
+      shouldCreateUser = false;
       await graphQLAuth.setupEnvironment();
 
       //This enables the other tabs
       eventBus.fire(ProfileEvent(true));
 
-      Flushbar<dynamic>(
-        message: Strings.saved.i18n,
-        duration: Duration(seconds: 3),
-      )..show(_scaffoldKey.currentContext);
+      Fluttertoast.showToast(
+          msg: Strings.saved.i18n,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
     } catch (e) {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
@@ -457,6 +489,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 setState(() {
                   _webImageBytes = imageBytes;
                   _uploadInProgress = true;
+                  imageUpdated = true;
                 });
                 await doUploads(context);
                 setState(() {
@@ -467,6 +500,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 setState(() {
                   _image = croppedFile;
                   _uploadInProgress = true;
+                  imageUpdated = true;
                 });
 
                 await doUploads(context);
@@ -478,34 +512,36 @@ class _ProfilePageState extends State<ProfilePage> {
           SizedBox(
             height: 15,
           ),
-          Container(
-            width: _formFieldWidth.toDouble(),
-            margin: const EdgeInsets.only(right: 10, left: 10),
-            child: TextFormField(
-              controller: emailFormFieldController,
-              readOnly: true,
-              decoration: InputDecoration(
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25.0),
-                  borderSide: BorderSide(
-                    color: Color(0xff00bcd4),
+          widget.isBook
+              ? Container()
+              : Container(
+                  width: _formFieldWidth.toDouble(),
+                  margin: const EdgeInsets.only(right: 10, left: 10),
+                  child: TextFormField(
+                    controller: emailFormFieldController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Color(0xff00bcd4),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Color(0xff00bcd4),
+                          width: 2.0,
+                        ),
+                      ),
+                      hintStyle: TextStyle(color: Color(0xff00bcd4)),
+                      border: const OutlineInputBorder(),
+                      filled: true,
+                      labelText: Strings.emailLabel.i18n,
+                      labelStyle: TextStyle(color: Color(0xff00bcd4)),
+                    ),
                   ),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25.0),
-                  borderSide: BorderSide(
-                    color: Color(0xff00bcd4),
-                    width: 2.0,
-                  ),
-                ),
-                hintStyle: TextStyle(color: Color(0xff00bcd4)),
-                border: const OutlineInputBorder(),
-                filled: true,
-                labelText: Strings.emailLabel.i18n,
-                labelStyle: TextStyle(color: Color(0xff00bcd4)),
-              ),
-            ),
-          ),
           SizedBox(
             height: 15,
           ),
@@ -599,9 +635,10 @@ class _ProfilePageState extends State<ProfilePage> {
     _isWeb = AppConfig.of(context).isWeb;
     return Scaffold(
       key: _scaffoldKey,
-      //drawer: getDrawer(context),
+      drawer: widget.isBook ? null : getDrawer(context),
       appBar: AppBar(
-        title: Text(Strings.profilePageName.i18n),
+        title:
+            widget.isBook ? Text('Book') : Text(Strings.profilePageName.i18n),
         backgroundColor: Constants.backgroundColor,
       ),
       body: getForm(),

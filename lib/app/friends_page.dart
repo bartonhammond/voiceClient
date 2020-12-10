@@ -48,6 +48,8 @@ class _FriendsPageState extends State<FriendsPage> {
 
   dynamic allMyFriendRequests;
   dynamic allNewFriendRequestsToMe;
+  dynamic allMyFriends;
+
   int staggeredViewSize = 2;
 
   Map<int, bool> moreSearchResults = {
@@ -55,13 +57,15 @@ class _FriendsPageState extends State<FriendsPage> {
     1: true,
     2: true,
     3: true,
+    4: true,
   };
 
   Map<int, String> searchResultsName = {
     0: 'userSearchFamily',
     1: 'userSearchFriends',
     2: 'userSearchNotFriends',
-    3: 'User'
+    3: 'userSearchBooks',
+    4: 'User'
   };
 
   @override
@@ -75,6 +79,21 @@ class _FriendsPageState extends State<FriendsPage> {
   void dispose() {
     _debouncer.stop();
     super.dispose();
+  }
+
+  Future<List> _getFriendsOfMineByEmail(BuildContext context) async {
+    final QueryOptions _queryOptions = QueryOptions(
+      documentNode: gql(getFriendsOfMineQL),
+      variables: <String, dynamic>{
+        'email': graphQLAuth.getUserMap()['email'],
+      },
+    );
+    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    if (queryResult.hasException) {
+      throw queryResult.exception;
+    }
+    return queryResult.data['friendsOfMine'];
   }
 
   Future<List<dynamic>> _getAllNewFriendRequestsToMe(
@@ -155,6 +174,10 @@ class _FriendsPageState extends State<FriendsPage> {
               Strings.typeUserButtonFriends.i18n,
             ),
             value: TypeUser.friends,
+          ),
+          DropdownMenuItem(
+            child: Text('Books'),
+            value: TypeUser.books,
           ),
           DropdownMenuItem(
             child: Text(
@@ -278,6 +301,9 @@ class _FriendsPageState extends State<FriendsPage> {
       case TypeUser.users:
         gqlString = userSearchNotFriendsQL;
         break;
+      case TypeUser.books:
+        gqlString = userSearchBooksQL;
+        break;
       case TypeUser.me:
         gqlString = userSearchMeQL;
         _variables = <String, dynamic>{
@@ -311,6 +337,7 @@ class _FriendsPageState extends State<FriendsPage> {
       future: Future.wait([
         _getAllMyFriendRequests(context),
         _getAllNewFriendRequestsToMe(context),
+        _getFriendsOfMineByEmail(context),
       ]),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -326,6 +353,7 @@ class _FriendsPageState extends State<FriendsPage> {
         }
         allMyFriendRequests = snapshot.data[0];
         allNewFriendRequestsToMe = snapshot.data[1];
+        allMyFriends = snapshot.data[2];
         return _build();
       },
     );
@@ -404,6 +432,7 @@ class _FriendsPageState extends State<FriendsPage> {
                                     friendButton: getMessageButton(
                                       allNewFriendRequestsToMe,
                                       allMyFriendRequests,
+                                      allMyFriends,
                                       friends,
                                       index,
                                     ),
@@ -464,9 +493,89 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
+  MessageButton checkMyFriendRequests(
+    dynamic allMyFriendRequests,
+    dynamic friends,
+    int index,
+    double _fontSize,
+  ) {
+    //Are there friend requests to others
+    if (allMyFriendRequests != null) {
+      for (var friend in allMyFriendRequests) {
+        if (friend['User']['id'] == friends[index]['id']) {
+          switch (friend['status']) {
+            case 'reject': //don't hurt feelings, ...
+            case 'new':
+              return MessageButton(
+                key: Key('${Keys.newFriendsButton}-$index'),
+                text: Strings.pending.i18n,
+                onPressed: null,
+                fontSize: _fontSize,
+                icon: Icon(
+                  MdiIcons.accountClockOutline,
+                  color: Colors.white,
+                ),
+              );
+              break;
+            default:
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+  MessageButton pendingFriendRequestsToMe(dynamic allFriendRequestsToMe,
+      dynamic friends, int index, double _fontSize) {
+    //Do I have pending friend requests?
+    if (allFriendRequestsToMe != null) {
+      for (var friendRequestToMe in allFriendRequestsToMe) {
+        if (friendRequestToMe['User']['id'] == friends[index]['id']) {
+          return MessageButton(
+            key: Key('${Keys.newFriendsButton}-$index'),
+            text: Strings.pending.i18n,
+            onPressed: null,
+            fontSize: _fontSize,
+            icon: Icon(
+              MdiIcons.accountClockOutline,
+              color: Colors.white,
+            ),
+          );
+        }
+      }
+    }
+    return null;
+  }
+
+  MessageButton alreadyFriends(
+    dynamic allMyFriends,
+    dynamic friends,
+    int index,
+    double _fontSize,
+  ) {
+    if (allMyFriends != null) {
+      for (var friendToMe in allMyFriends) {
+        if (friendToMe['id'] == friends[index]['id']) {
+          return MessageButton(
+            key: Key('${Keys.newFriendsButton}-$index'),
+            text: Strings.quitFriend.i18n,
+            onPressed: () => _quitFriendRequest(friends[index]['id']),
+            fontSize: _fontSize,
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          );
+        }
+      }
+    }
+    return null;
+  }
+
   Widget getMessageButton(
     dynamic allFriendRequestsToMe,
     dynamic allMyFriendRequests,
+    dynamic allMyFriends,
     dynamic friends,
     int index,
   ) {
@@ -484,6 +593,7 @@ class _FriendsPageState extends State<FriendsPage> {
     if (_typeUser == TypeUser.me) {
       return Container();
     }
+
     if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {
       button = MessageButton(
         key: Key('${Keys.newFriendsButton}-$index'),
@@ -496,57 +606,14 @@ class _FriendsPageState extends State<FriendsPage> {
         ),
       );
     } else {
-      if (allMyFriendRequests != null) {
-        for (var friend in allMyFriendRequests) {
-          if (friend['User']['id'] == friends[index]['id']) {
-            switch (friend['status']) {
-              case 'reject':
-                button = MessageButton(
-                  key: Key('${Keys.newFriendsButton}-$index'),
-                  text: Strings.pending.i18n,
-                  onPressed: null,
-                  fontSize: _fontSize,
-                  icon: Icon(
-                    MdiIcons.accountClockOutline,
-                    color: Colors.white,
-                  ),
-                );
-                break;
-              case 'new':
-                button = MessageButton(
-                  key: Key('${Keys.newFriendsButton}-$index'),
-                  text: Strings.pending.i18n,
-                  onPressed: null,
-                  fontSize: _fontSize,
-                  icon: Icon(
-                    MdiIcons.accountClockOutline,
-                    color: Colors.white,
-                  ),
-                );
-                break;
-              default:
-            }
-          }
-        }
-      }
-      if (button == null) {
-        if (allFriendRequestsToMe != null) {
-          for (var friendRequestToMe in allFriendRequestsToMe) {
-            if (friendRequestToMe['User']['id'] == friends[index]['id']) {
-              button = MessageButton(
-                key: Key('${Keys.newFriendsButton}-$index'),
-                text: Strings.pending.i18n,
-                onPressed: null,
-                fontSize: _fontSize,
-                icon: Icon(
-                  MdiIcons.accountClockOutline,
-                  color: Colors.white,
-                ),
-              );
-            }
-          }
-        }
-      }
+      button =
+          checkMyFriendRequests(allMyFriendRequests, friends, index, _fontSize);
+
+      button ??= pendingFriendRequestsToMe(
+          allFriendRequestsToMe, friends, index, _fontSize);
+
+      button ??= alreadyFriends(allMyFriends, friends, index, _fontSize);
+
       button ??= MessageButton(
         key: Key('${Keys.newFriendsButton}-$index'),
         text: Strings.newFriend.i18n,

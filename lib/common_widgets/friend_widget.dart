@@ -343,7 +343,9 @@ class _FriendWidgetState extends State<FriendWidget> {
                           )
                     : checkIfIsFamily()
                         ? Text(Strings.storiesPageFamily.i18n)
-                        : Container(),
+                        : widget.user['isBook']
+                            ? Text('Book')
+                            : Container(),
                 widget.message == null
                     ? Container()
                     : Text(
@@ -409,6 +411,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                             ),
                             _isWeb
                                 ? RecorderWidgetWeb(
+                                    key: Key('friendWidgetRecorderWeb'),
                                     showStacked: true,
                                     showIcon: true,
                                     isCurrentUserAuthor: true,
@@ -417,6 +420,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                                     showPlayerWidget: false,
                                   )
                                 : RecorderWidget(
+                                    key: Key('friendWidgetRecorder'),
                                     showStacked: true,
                                     showIcon: true,
                                     isCurrentUserAuthor: true,

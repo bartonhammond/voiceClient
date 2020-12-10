@@ -200,6 +200,10 @@ extension Localization on String {
         'es': 'Otros',
       } +
       {
+        'en': Strings.typeUserButtonBooks,
+        'es': 'Libros',
+      } +
+      {
         'en': Strings.typeUserButtonMe,
         'es': 'Yo',
       } +

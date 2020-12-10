@@ -1,5 +1,6 @@
 import 'package:MyFamilyVoice/app/profile_page.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/unicorn_dialer.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/app/story_play.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/fab_bottom_app_bar.dart';
@@ -105,7 +106,10 @@ class _HomePageState extends State<HomePage> {
                     Navigator.push<dynamic>(
                       context,
                       MaterialPageRoute<dynamic>(
-                          builder: (context) => ProfilePage()),
+                          builder: (context) => ProfilePage(
+                                key: Key(Keys.profilePage),
+                                isBook: true,
+                              )),
                     );
                   }
                 : null,
