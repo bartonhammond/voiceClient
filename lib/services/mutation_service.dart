@@ -609,7 +609,7 @@ Future<void> doCommentUploads(
 
   await mergeCommentFrom(
     graphQLClientApolloServer,
-    graphQLAuth.getCurrentUserId(),
+    graphQLAuth.getUserMap()['id'],
     _commentId,
   );
 
@@ -630,13 +630,13 @@ Future<void> doCommentUploads(
   );
 
   //don't create message if it's your story
-  if (graphQLAuth.getCurrentUserId() == _story['user']['id']) {
+  if (graphQLAuth.getUserMap()['id'] == _story['user']['id']) {
     return;
   }
 
   await addUserMessages(
     graphQLClientApolloServer,
-    graphQLAuth.getCurrentUserId(),
+    graphQLAuth.getUserMap()['id'],
     _story['user']['id'],
     _uuid.v1(),
     'new',
@@ -686,7 +686,7 @@ Future<void> doMessageUploads(
 
   await addUserMessages(
     graphQLClientApolloServer,
-    graphQLAuth.getCurrentUserId(),
+    graphQLAuth.getUserMap()['id'],
     userId,
     _messageId,
     'new',
@@ -841,5 +841,26 @@ Future<void> deleteStoryTags(
     throw result.exception;
   }
 
+  return;
+}
+
+Future<void> deleteBook(
+  GraphQLClient graphQLClientApolloServer,
+  String id,
+) async {
+  //Create the Story
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(deleteBookQL),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
   return;
 }

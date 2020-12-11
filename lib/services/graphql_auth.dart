@@ -13,6 +13,7 @@ class GraphQLAuth {
   User originalUser;
   String token;
   String currentUserId;
+  String originalUserId;
   bool isProxy = false;
 
   String getHttpLinkUri(
@@ -46,30 +47,28 @@ class GraphQLAuth {
   Future<void> removeProxy() async {
     isProxy = false;
     user = originalUser;
+    currentUserId = originalUserId;
     await setupEnvironment();
   }
 
   Map<String, dynamic> _userMap;
+  Map<String, dynamic> _originalUserMap;
 
   Map<String, dynamic> getUserMap() {
     return _userMap;
   }
 
+  Map<String, dynamic> getOriginalUserMap() {
+    return _originalUserMap;
+  }
+
   void setUser(User _user) {
+    originalUser ??= _user;
     user = _user;
-    originalUser = user;
   }
 
   User getUser() {
     return user;
-  }
-
-  void setCurrentUserId(String id) {
-    currentUserId = id;
-  }
-
-  String getCurrentUserId() {
-    return currentUserId;
   }
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
@@ -129,7 +128,7 @@ class GraphQLAuth {
         queryResult.data['User'].length > 0 &&
         queryResult.data['User'][0]['id'] != null) {
       _userMap = queryResult.data['User'][0];
-      setCurrentUserId(queryResult.data['User'][0]['id']);
+      _originalUserMap ??= <String, dynamic>{..._userMap};
     }
     return graphQLClient;
   }

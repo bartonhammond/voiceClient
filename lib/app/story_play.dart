@@ -262,7 +262,7 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
-
+          print('storyPlay.build story is null is ${_story == null}');
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;
           } else {
@@ -322,10 +322,13 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<Map> getStory() async {
+    print('storyPlay.getStory start _storyWasSaved: $_storyWasSaved');
     if (!(_storyWasSaved ||
         (widget.params != null &&
             widget.params.isNotEmpty &&
             widget.params.containsKey('id')))) {
+      print(
+          'storyPlay.getStory widget.params.containsKey is ${widget.params.containsKey("id")}');
       return null;
     }
 
@@ -345,6 +348,7 @@ class _StoryPlayState extends State<StoryPlay>
     }
 
     if (queryResult.data['Story'].length > 0) {
+      print('storyPlay.getStory return story');
       return queryResult.data['Story'][0];
     }
     return null;
@@ -389,12 +393,14 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> doAudioUpload() async {
+    print('storyplay.doAudioUpload start');
     final GraphQLClient graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     MultipartFile multipartFile;
 
     if (_storyAudioWeb != null) {
+      print('storyplay.doAudioUpload  _storyAudioWeb not null');
       multipartFile = MultipartFile.fromBytes(
         'audio',
         _storyAudioWeb,
@@ -404,6 +410,7 @@ class _StoryPlayState extends State<StoryPlay>
     }
 
     if (_storyAudio != null) {
+      print('storyplay.doAudioUpload  _storyAudio not null');
       multipartFile = getMultipartFile(
         _storyAudio,
         '$_id.mp3',
@@ -412,6 +419,7 @@ class _StoryPlayState extends State<StoryPlay>
       );
     }
     if (multipartFile != null) {
+      print('storyplay.doAudioUpload multipartFile  not null');
       _audioFilePath = await performMutation(
         graphQLClientFileServer,
         multipartFile,
@@ -425,19 +433,25 @@ class _StoryPlayState extends State<StoryPlay>
           backgroundColor: Colors.black,
           textColor: Colors.white,
           fontSize: 16.0);
-      return;
+
+      await doStoryUpload();
     }
-    await doStoryUpload();
+
     return;
   }
 
   Future<void> doStoryUpload() async {
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    print('storyPlay.doStoryUpload _story is null: ${_story == null}');
     if (_story == null) {
+      print(
+          'storyPlay.doStoryUpload _imageFilePath is null: ${_imageFilePath == null}');
+      print(
+          'storyPlay.doStoryUpload _audioFilePath is null: ${_audioFilePath == null}');
       if (_imageFilePath != null && _audioFilePath != null) {
         await addStory(
           graphQLClient,
-          graphQLAuth.getCurrentUserId(),
+          graphQLAuth.getUserMap()['id'],
           _id,
           _imageFilePath,
           _audioFilePath,
@@ -458,9 +472,12 @@ class _StoryPlayState extends State<StoryPlay>
       }
     } else {
       //don't update unnecessarily
+      print('storyPlay.doStoryUpload story not null');
       if (_imageFilePath != null ||
           _audioFilePath != null ||
           _storyType != _story['type']) {
+        print('storyPlay.doStoryUpload image, audio or storyType');
+
         _imageFilePath ??= _story['image'];
         _audioFilePath ??= _story['audio'];
         await updateStory(
@@ -479,6 +496,13 @@ class _StoryPlayState extends State<StoryPlay>
             backgroundColor: Colors.black,
             textColor: Colors.white,
             fontSize: 16.0);
+      } else {
+        print(
+            'storyplay.doStoryUpload _imageFilePath == null ${_imageFilePath == null}');
+        print(
+            'storyplay.doStoryUpload _audioFilePath == null ${_audioFilePath == null}');
+        print(
+            'storyplay.doStoryUpload _storyType != _story[type= ${_storyType != _story["type"]}');
       }
     }
 
@@ -836,7 +860,7 @@ class _StoryPlayState extends State<StoryPlay>
               height: 10,
             )
           : Container(),
-      _isCurrentUserAuthor
+      _isCurrentUserAuthor && _story != null
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -849,14 +873,6 @@ class _StoryPlayState extends State<StoryPlay>
                     size: 20,
                   ),
                   onPressed: () async {
-                    if (_story['type'] != 'FRIENDS') {
-                      await PlatformAlertDialog(
-                        title: 'Select Book',
-                        content: 'Please change audiance to FRIENDS',
-                        defaultActionText: Strings.ok.i18n,
-                      ).show(context);
-                      return;
-                    }
                     Navigator.push<dynamic>(
                       context,
                       MaterialPageRoute<dynamic>(

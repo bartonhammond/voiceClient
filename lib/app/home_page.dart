@@ -79,14 +79,16 @@ class _HomePageState extends State<HomePage> {
           onPressed: _areTabsEnabled
               ? () {
                   print('story pressed');
-                  Navigator.push<dynamic>(
-                    context,
-                    MaterialPageRoute<dynamic>(
-                        builder: (context) => StoryPlay(
-                              key: Key('storyPlay'),
-                              params: params,
-                            )),
-                  );
+                  Navigator.push<dynamic>(context,
+                      MaterialPageRoute<dynamic>(builder: (context) {
+                    params['onFinish'] = () {
+                      setState(() {});
+                    };
+                    return StoryPlay(
+                      key: Key('storyPlay'),
+                      params: params,
+                    );
+                  }));
                 }
               : null,
         )));

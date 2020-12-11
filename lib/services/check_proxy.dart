@@ -27,7 +27,6 @@ List<Widget> checkProxy(
           if (quitProxy) {
             await graphQLAuth.removeProxy();
             onRemoveProxy();
-            // setState(() {});
           }
         },
       )

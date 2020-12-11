@@ -68,7 +68,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   };
 
   Map<int, String> searchResultsNameBooks = {
-    0: 'userSearchFamily',
+    0: 'userSearchFamilyBooks',
     1: 'userSearchFriendsBooks',
     2: 'userSearchNotFriends',
     3: 'userSearchBooks',
@@ -139,6 +139,12 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     if (widget.isBook) {
       items.add(DropdownMenuItem(
         child: Text(
+          Strings.typeUserButtonFamily.i18n,
+        ),
+        value: TypeUser.family,
+      ));
+      items.add(DropdownMenuItem(
+        child: Text(
           Strings.typeUserButtonFriends.i18n,
         ),
         value: TypeUser.friends,
@@ -190,7 +196,11 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     };
     switch (_typeUser) {
       case TypeUser.family:
-        gqlString = userSearchFamilyQL;
+        if (widget.isBook) {
+          gqlString = userSearchFamilyBooksQL;
+        } else {
+          gqlString = userSearchFamilyQL;
+        }
         break;
       case TypeUser.friends:
         if (widget.isBook) {

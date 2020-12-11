@@ -109,12 +109,12 @@ class _MessagesPageState extends State<MessagesPage> {
         await addUserFriend(
           graphQLClient,
           message['User']['id'],
-          graphQLAuth.getCurrentUserId(),
+          graphQLAuth.getUserMap()['id'],
         );
 
         await addUserFriend(
           graphQLClient,
-          graphQLAuth.getCurrentUserId(),
+          graphQLAuth.getUserMap()['id'],
           message['User']['id'],
         );
 

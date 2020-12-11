@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
@@ -62,7 +64,28 @@ class _FriendWidgetState extends State<FriendWidget> {
   bool _isWeb = false;
   Uint8List _messageAudioWeb;
   io.File _messageAudio;
+  bool _showDeleteButton = false;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+  GraphQLClient graphQLClient;
+  GraphQLClient graphQLClientFileServer;
+  StreamSubscription bookHasNoStories;
+  @override
+  void initState() {
+    super.initState();
+    bookHasNoStories = eventBus.on<BookHasNoStories>().listen((event) {
+      if (event.id == widget.user['id']) {
+        setState(() {
+          _showDeleteButton = true;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    bookHasNoStories.cancel();
+  }
 
   Future<void> setStoryAudioWeb(Uint8List bytes) async {
     if (bytes == null) {
@@ -73,10 +96,6 @@ class _FriendWidgetState extends State<FriendWidget> {
       _uploadInProgress = true;
     });
 
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     await doMessageUploads(
       graphQLAuth,
       graphQLClientFileServer,
@@ -101,10 +120,6 @@ class _FriendWidgetState extends State<FriendWidget> {
       _uploadInProgress = true;
     });
 
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     await doMessageUploads(
       graphQLAuth,
       graphQLClientFileServer,
@@ -130,8 +145,6 @@ class _FriendWidgetState extends State<FriendWidget> {
           'friendEmail': graphQLAuth.getUserMap()['email'],
         },
       );
-
-      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
       final QueryResult queryResult = await graphQLClient.query(_queryOptions);
 
@@ -164,6 +177,45 @@ class _FriendWidgetState extends State<FriendWidget> {
     }
 
     return false;
+  }
+
+  Widget getDeleteButton() {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    double _fontSize = 20;
+    switch (deviceType) {
+      case DeviceScreenType.watch:
+        _fontSize = 12;
+        break;
+      default:
+        _fontSize = 20;
+    }
+
+    return MessageButton(
+      key: Key('messageButton-${widget.user["id"]}'),
+      text: 'Delete?',
+      onPressed: () async {
+        final bool delete = await PlatformAlertDialog(
+          title: 'Delete Book?',
+          content: Strings.areYouSure.i18n,
+          cancelActionText: Strings.cancel.i18n,
+          defaultActionText: Strings.yes.i18n,
+        ).show(context);
+        if (delete) {
+          await deleteBook(graphQLClient, widget.user['id']);
+          //fire event so FriendsPage can setState
+          eventBus.fire(BookWasDeleted());
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          }
+        }
+      },
+      fontSize: _fontSize,
+      icon: Icon(
+        Icons.collections_bookmark,
+        color: Colors.white,
+      ),
+    );
   }
 
   Widget getProxyButton() {
@@ -201,6 +253,9 @@ class _FriendWidgetState extends State<FriendWidget> {
   @override
   Widget build(BuildContext context) {
     _isWeb = AppConfig.of(context).isWeb;
+    graphQLClient = GraphQLProvider.of(context).value;
+    graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
     DateTime dt;
     DateFormat df;
     if (widget.story != null) {
@@ -355,6 +410,11 @@ class _FriendWidgetState extends State<FriendWidget> {
                           fontSize: 10.0,
                         ),
                       ),
+                widget.user['isBook']
+                    ? Padding(
+                        padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                        child: Text('Book'))
+                    : Container(),
                 widget.showFamilyCheckbox
                     ? widget.user['email'] == graphQLAuth.getUserMap()['email']
                         ? Container()
@@ -364,8 +424,6 @@ class _FriendWidgetState extends State<FriendWidget> {
                               Checkbox(
                                   value: checkIfIsFamily(),
                                   onChanged: (bool newValue) async {
-                                    final GraphQLClient graphQLClient =
-                                        GraphQLProvider.of(context).value;
                                     await updateUserIsFamily(
                                       graphQLClient,
                                       graphQLAuth.getUserMap()['email'],
@@ -379,9 +437,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                           )
                     : checkIfIsFamily()
                         ? Text(Strings.storiesPageFamily.i18n)
-                        : widget.user['isBook']
-                            ? Text('Book')
-                            : Container(),
+                        : Container(),
                 widget.message == null
                     ? Container()
                     : Text(
@@ -436,6 +492,22 @@ class _FriendWidgetState extends State<FriendWidget> {
                         : getProxyButton()
                     : Container(),
                 widget.user['isBook'] &&
+                        widget.user['bookAuthorEmail'] ==
+                            graphQLAuth.getUserMap()['email']
+                    ? SizedBox(
+                        height: 7.toDouble(),
+                      )
+                    : Container(),
+                widget.user['isBook'] &&
+                        _showDeleteButton &&
+                        widget.user['bookAuthorEmail'] ==
+                            graphQLAuth.getUserMap()['email']
+                    ? graphQLAuth.isProxy
+                        ? Container()
+                        : getDeleteButton()
+                    : Container(),
+                widget.user['isBook'] &&
+                        _showDeleteButton &&
                         widget.user['bookAuthorEmail'] ==
                             graphQLAuth.getUserMap()['email']
                     ? SizedBox(

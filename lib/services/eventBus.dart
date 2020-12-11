@@ -10,6 +10,16 @@ class MessagesEvent {
 
 class GetUserMessagesEvent {}
 
+//id no stories, book can be deleted
+class BookHasNoStories {
+  BookHasNoStories(this.id);
+  String id;
+}
+
+class BookWasAdded {}
+
+class BookWasDeleted {}
+
 class ProfileEvent {
   ProfileEvent(this.isComplete);
   bool isComplete;

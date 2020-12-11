@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -341,6 +342,7 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('storiesPage.build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -431,6 +433,10 @@ class _StoriesPageState extends State<StoriesPage> {
                       if (stories.isEmpty || stories.length < nStories) {
                         moreSearchResults[_typeStoryView][_storyFeedType] =
                             false;
+                      }
+
+                      if (stories.isEmpty) {
+                        eventBus.fire(BookHasNoStories(user['id']));
                       }
 
                       return Expanded(

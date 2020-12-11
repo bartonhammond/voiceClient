@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -43,7 +44,8 @@ class _FriendsPageState extends State<FriendsPage> {
   String _searchString;
   final _debouncer = Debouncer(milliseconds: 500);
   TypeUser _typeUser;
-
+  StreamSubscription bookWasDeletedSubscription;
+  StreamSubscription bookWasAddedSubscription;
   VoidCallback _refetchQuery;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
@@ -73,12 +75,24 @@ class _FriendsPageState extends State<FriendsPage> {
   void initState() {
     _searchString = '*';
     _typeUser = TypeUser.family;
+    bookWasDeletedSubscription = eventBus.on<BookWasDeleted>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
+    bookWasAddedSubscription = eventBus.on<BookWasAdded>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
     _debouncer.stop();
+    bookWasDeletedSubscription.cancel();
+    bookWasAddedSubscription.cancel();
     super.dispose();
   }
 
@@ -214,7 +228,7 @@ class _FriendsPageState extends State<FriendsPage> {
       try {
         await addUserMessages(
           GraphQLProvider.of(context).value,
-          graphQLAuth.getCurrentUserId(),
+          graphQLAuth.getUserMap()['id'],
           _friendId,
           _uuid.v1(),
           'new',
@@ -253,7 +267,7 @@ class _FriendsPageState extends State<FriendsPage> {
       MutationOptions options = MutationOptions(
         documentNode: gql(removeUserFriends),
         variables: <String, dynamic>{
-          'from': graphQLAuth.getCurrentUserId(),
+          'from': graphQLAuth.getUserMap()['id'],
           'to': friendId,
         },
       );
@@ -271,7 +285,7 @@ class _FriendsPageState extends State<FriendsPage> {
       options = MutationOptions(
         documentNode: gql(removeUserFriends),
         variables: <String, dynamic>{
-          'to': graphQLAuth.getCurrentUserId(),
+          'to': graphQLAuth.getUserMap()['id'],
           'from': friendId,
         },
       );
@@ -437,6 +451,10 @@ class _FriendsPageState extends State<FriendsPage> {
                                         : null,
                                     friend: friends[index],
                                     onProxySelected: () {
+                                      setState(() {});
+                                    },
+                                    onBookDeleted: () {
+                                      print('friendsPage onBookDeleted');
                                       setState(() {});
                                     },
                                     friendButton: getMessageButton(

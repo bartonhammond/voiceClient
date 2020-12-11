@@ -514,6 +514,14 @@ query userSearchFamily($searchString: String!, $email: String!, $skip: String!, 
 }
 ''';
 
+const String userSearchFamilyBooksQL = r'''
+query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+   userSearchFamilyBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''
+}
+''';
+
 const String userSearchBooksQL = r'''
 query userSearchBooks($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
    userSearchBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
@@ -1053,5 +1061,11 @@ mutation deleteStoryTags($storyId: String!) {
   deleteStoryTags(storyId: $storyId){
     id
   }
+}
+''';
+
+const String deleteBookQL = r'''
+mutation deleteBook($id: String!) {
+  deleteBook(id: $id)
 }
 ''';
