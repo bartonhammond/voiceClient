@@ -1,11 +1,13 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
+import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
@@ -34,12 +36,14 @@ class FriendWidget extends StatefulWidget {
     this.message,
     this.showFamilyCheckbox = true,
     this.allowExpandToggle = true,
+    this.onProxySelected,
   });
   Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map<String, dynamic> story;
   final VoidCallback onDelete;
   final VoidCallback callBack;
+  final VoidCallback onProxySelected;
   final Widget friendButton;
   final ValueChanged<Map<String, dynamic>> onFriendPush;
   final bool showBorder;
@@ -160,6 +164,38 @@ class _FriendWidgetState extends State<FriendWidget> {
     }
 
     return false;
+  }
+
+  Widget getProxyButton() {
+    final DeviceScreenType deviceType =
+        getDeviceType(MediaQuery.of(context).size);
+    double _fontSize = 20;
+    switch (deviceType) {
+      case DeviceScreenType.watch:
+        _fontSize = 12;
+        break;
+      default:
+        _fontSize = 20;
+    }
+
+    return MessageButton(
+      key: Key('messageButton-${widget.user["id"]}'),
+      text: 'Proxy?',
+      onPressed: () async {
+        await graphQLAuth.setProxy(widget.user['email']);
+        setState(() {});
+        if (widget.onProxySelected != null) {
+          widget.onProxySelected();
+        }
+        //Check if there are pending messages
+        eventBus.fire(GetUserMessagesEvent());
+      },
+      fontSize: _fontSize,
+      icon: Icon(
+        Icons.collections_bookmark,
+        color: Colors.white,
+      ),
+    );
   }
 
   @override
@@ -392,6 +428,20 @@ class _FriendWidgetState extends State<FriendWidget> {
                 SizedBox(
                   height: 7.toDouble(),
                 ),
+                widget.user['isBook'] &&
+                        widget.user['bookAuthorEmail'] ==
+                            graphQLAuth.getUserMap()['email']
+                    ? graphQLAuth.isProxy
+                        ? Container()
+                        : getProxyButton()
+                    : Container(),
+                widget.user['isBook'] &&
+                        widget.user['bookAuthorEmail'] ==
+                            graphQLAuth.getUserMap()['email']
+                    ? SizedBox(
+                        height: 7.toDouble(),
+                      )
+                    : Container(),
                 _showMakeMessage
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.start,

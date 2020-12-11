@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
-
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -61,15 +61,17 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _uploadInProgress = false;
   bool formReady = false;
   ByteData _webImageBytes;
+  TextEditingController emailFormFieldController = TextEditingController();
+  TextEditingController nameFormFieldController = TextEditingController();
+  TextEditingController homeFormFieldController = TextEditingController();
 
-  TextEditingController emailFormFieldController;
-  TextEditingController nameFormFieldController;
-  TextEditingController homeFormFieldController;
-
-  Map getUser() {
+  Future<Map<String, dynamic>> getUser() async {
+    print('profilepage.getUser');
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    Map<String, dynamic> user;
     if (widget.isBook) {
-      return <String, dynamic>{
+      print('profilePage.getUser isBook');
+      user = <String, dynamic>{
         'id': '',
         'email': '',
         'image': '',
@@ -77,52 +79,31 @@ class _ProfilePageState extends State<ProfilePage> {
         'home': '',
       };
     } else if (graphQLAuth.getUserMap() == null) {
-      return <String, dynamic>{
+      print('profilePage.getUser null');
+      user = <String, dynamic>{
         'id': '',
         'email': graphQLAuth.user.email,
         'image': '',
         'audio': '',
         'home': '',
       };
+    } else {
+      print('profilePage.getUser getUserMap');
+      user = graphQLAuth.getUserMap();
     }
-    return graphQLAuth.getUserMap();
+    return await Future.sync(() => user);
   }
 
   @override
   void initState() {
-    user = getUser();
-    userEmail = user['email'];
-    userId = user['id'];
-    name = user['name'];
-    cityState = user['home'];
-    userImage = user['image'];
-
-    //if user is new, id will be empty
-    if (userId == null || userId.isEmpty) {
-      userId = Uuid().v1();
-      if (widget.isBook) {
-        userEmail = userId;
-      }
-      shouldCreateUser = true;
-    }
-
-    emailFormFieldController = TextEditingController(text: userEmail);
-    nameFormFieldController = TextEditingController(text: name);
-    homeFormFieldController = TextEditingController(text: cityState);
-
     nameFormFieldController.addListener(() {
-      setState(() {
-        name = nameFormFieldController.text;
-      });
-      _formReady();
+      name = nameFormFieldController.text;
+      //_formReady();
     });
     homeFormFieldController.addListener(() {
-      setState(() {
-        cityState = homeFormFieldController.text;
-      });
-      _formReady();
+      cityState = homeFormFieldController.text;
+      //_formReady();
     });
-
     super.initState();
   }
 
@@ -131,7 +112,6 @@ class _ProfilePageState extends State<ProfilePage> {
     emailFormFieldController.dispose();
     nameFormFieldController.dispose();
     homeFormFieldController.dispose();
-
     super.dispose();
   }
 
@@ -202,8 +182,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? null
                     : () async {
                         setState(() {
-                          nameFormFieldController.text = name;
-                          homeFormFieldController.text = cityState;
                           _image = null;
                           formReady = false;
                           _uploadInProgress = false;
@@ -332,6 +310,7 @@ class _ProfilePageState extends State<ProfilePage> {
           textColor: Colors.white,
           fontSize: 16.0);
     } catch (e) {
+      print(e.toString());
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
           source: 'profile_page',
@@ -519,6 +498,11 @@ class _ProfilePageState extends State<ProfilePage> {
                   margin: const EdgeInsets.only(right: 10, left: 10),
                   child: TextFormField(
                     controller: emailFormFieldController,
+                    onChanged: (value) {
+                      setState(() {
+                        _formReady();
+                      });
+                    },
                     readOnly: true,
                     decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
@@ -537,7 +521,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       hintStyle: TextStyle(color: Color(0xff00bcd4)),
                       border: const OutlineInputBorder(),
                       filled: true,
-                      labelText: Strings.emailLabel.i18n,
+                      labelText: widget.isBook ? 'Id' : Strings.emailLabel.i18n,
                       labelStyle: TextStyle(color: Color(0xff00bcd4)),
                     ),
                   ),
@@ -550,6 +534,11 @@ class _ProfilePageState extends State<ProfilePage> {
             margin: const EdgeInsets.only(right: 10, left: 10),
             child: TextFormField(
               controller: nameFormFieldController,
+              onChanged: (value) {
+                setState(() {
+                  _formReady();
+                });
+              },
               decoration: InputDecoration(
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(25.0),
@@ -590,6 +579,11 @@ class _ProfilePageState extends State<ProfilePage> {
             margin: const EdgeInsets.only(right: 10, left: 10),
             child: TextFormField(
               controller: homeFormFieldController,
+              onChanged: (value) {
+                setState(() {
+                  _formReady();
+                });
+              },
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(25.0),
@@ -630,18 +624,72 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _progressIndicator() {
+    return SizedBox(
+      width: 200.0,
+      height: 300.0,
+      child: Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _isWeb = AppConfig.of(context).isWeb;
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: widget.isBook ? null : getDrawer(context),
-      appBar: AppBar(
-        title:
-            widget.isBook ? Text('Book') : Text(Strings.profilePageName.i18n),
-        backgroundColor: Constants.backgroundColor,
-      ),
-      body: getForm(),
-    );
+    return FutureBuilder(
+        future: Future.wait([getUser()]),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            logger.createMessage(
+                userEmail: graphQLAuth.getUser().email,
+                source: 'profile_page',
+                shortMessage: snapshot.error.toString(),
+                stackTrace: StackTrace.current.toString());
+
+            return Text('\nErrors: \n  ' + snapshot.error.toString());
+          } else if (!snapshot.hasData) {
+            return _progressIndicator();
+          }
+          user = snapshot.data[0];
+          print('profilePage build userId: $userId user["id"]: ${user["id"]}');
+          if (userId == null || userId != user['id']) {
+            userEmail = user['email'];
+            userId = user['id'];
+            name = user['name'];
+            cityState = user['home'];
+            userImage = user['image'];
+            emailFormFieldController.text = userEmail;
+            nameFormFieldController.text = name;
+            homeFormFieldController.text = cityState;
+          }
+
+          //if user is new, id will be empty
+          if (userId == null || userId.isEmpty) {
+            userId = Uuid().v1();
+            if (widget.isBook) {
+              userEmail = userId;
+            }
+            shouldCreateUser = true;
+          }
+          return Scaffold(
+            key: _scaffoldKey,
+            drawer: widget.isBook ? null : getDrawer(context),
+            appBar: AppBar(
+              title: widget.isBook
+                  ? Text('Book')
+                  : Text(Strings.profilePageName.i18n),
+              backgroundColor: Constants.backgroundColor,
+              actions: checkProxy(graphQLAuth, context, () {
+                setState(() {
+                  print('profilePage onRemoveProxy');
+                });
+              }),
+            ),
+            body: getForm(),
+          );
+        });
   }
 }

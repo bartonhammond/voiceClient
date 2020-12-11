@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:flutter/material.dart';
 
@@ -224,8 +225,9 @@ class _FriendsPageState extends State<FriendsPage> {
 
         allMyFriendRequests = await _getAllMyFriendRequests(context);
         allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
-
-        _refetchQuery();
+        setState(() {
+          _refetchQuery();
+        });
       } catch (e) {
         logger.createMessage(
             userEmail: graphQLAuth.getUser().email,
@@ -278,7 +280,9 @@ class _FriendsPageState extends State<FriendsPage> {
 
       allMyFriendRequests = await _getAllMyFriendRequests(context);
       allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
-      _refetchQuery();
+      setState(() {
+        _refetchQuery();
+      });
     }
   }
 
@@ -364,6 +368,9 @@ class _FriendsPageState extends State<FriendsPage> {
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
+        actions: checkProxy(graphQLAuth, context, () {
+          setState(() {});
+        }),
       ),
       drawer: getDrawer(context),
       body: Container(
@@ -429,6 +436,9 @@ class _FriendsPageState extends State<FriendsPage> {
                                         ? widget.onPush
                                         : null,
                                     friend: friends[index],
+                                    onProxySelected: () {
+                                      setState(() {});
+                                    },
                                     friendButton: getMessageButton(
                                       allNewFriendRequestsToMe,
                                       allMyFriendRequests,

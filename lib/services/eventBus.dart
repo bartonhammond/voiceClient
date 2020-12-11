@@ -8,6 +8,8 @@ class MessagesEvent {
   bool empty;
 }
 
+class GetUserMessagesEvent {}
+
 class ProfileEvent {
   ProfileEvent(this.isComplete);
   bool isComplete;

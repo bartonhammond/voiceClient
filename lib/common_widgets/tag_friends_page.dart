@@ -1,6 +1,7 @@
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:flutter/material.dart';
@@ -380,6 +381,9 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         appBar: AppBar(
           backgroundColor: Color(0xff00bcd4),
           title: Text(Strings.MFV.i18n),
+          actions: checkProxy(graphQLAuth, context, () {
+            setState(() {});
+          }),
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),

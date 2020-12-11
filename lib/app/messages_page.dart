@@ -1,3 +1,4 @@
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -176,6 +177,8 @@ class _MessagesPageState extends State<MessagesPage> {
     message['User']['name'] = _message['userName'];
     message['User']['home'] = _message['userHome'];
     message['User']['image'] = _message['userImage'];
+    message['User']['isBook'] = _message['userIsBook'];
+    message['User']['bookAuthorEmail'] = _message['userBookAuthorEmail'];
 
     switch (message['type']) {
       case 'friend-request':
@@ -462,6 +465,9 @@ class _MessagesPageState extends State<MessagesPage> {
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
+        actions: checkProxy(graphQLAuth, context, () {
+          setState(() {});
+        }),
       ),
       drawer: getDrawer(context),
       body: Container(

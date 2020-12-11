@@ -8,11 +8,13 @@ class StaggeredGridTileFriend extends StatelessWidget {
     @required this.friend,
     @required this.friendButton,
     @required this.typeUser,
+    @required this.onProxySelected,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map friend;
   final Widget friendButton;
   final TypeUser typeUser;
+  final VoidCallback onProxySelected;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ class StaggeredGridTileFriend extends StatelessWidget {
           ? false
           : typeUser == TypeUser.friends || typeUser == TypeUser.family,
       allowExpandToggle: false,
+      onProxySelected: onProxySelected,
     );
   }
 }

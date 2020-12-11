@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -382,6 +383,9 @@ class _StoriesPageState extends State<StoriesPage> {
             title: Text(
               Strings.MFV.i18n,
             ),
+            actions: checkProxy(graphQLAuth, context, () {
+              setState(() {});
+            }),
           ),
           drawer: getId() == null ? getDrawer(context) : null,
           body: Container(
@@ -455,6 +459,9 @@ class _StoriesPageState extends State<StoriesPage> {
                                           onPush: widget.onPush,
                                           showFriend: getId() == null,
                                           onDelete: () {
+                                            setState(() {});
+                                          },
+                                          onProxySelected: () {
                                             setState(() {});
                                           },
                                           story: Map<String, dynamic>.from(

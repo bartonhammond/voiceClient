@@ -39,8 +39,10 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.onDelete,
     this.index,
     this.crossAxisCount,
+    this.onProxySelected,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
+  final VoidCallback onProxySelected;
   Map story;
   final bool showFriend;
   final VoidCallback onDelete;
@@ -265,6 +267,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                   showBorder: false,
                   showMessage: false,
                   showFamilyCheckbox: false,
+                  onProxySelected: widget.onProxySelected,
                 )
               : Text(
                   df.format(dt),

@@ -338,6 +338,7 @@ Future<QueryResult> createOrUpdateUserInfo(
               'image': jpegPathUrl,
               'updated': formattedDate,
               'isBook': isBook,
+              'bookAuthorEmail': bookAuthorEmail,
             });
 
   return await graphQLClient.mutate(_mutationOptions);

@@ -17,6 +17,7 @@ import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
@@ -45,7 +46,6 @@ class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
   bool _showComments = false;
   Map<String, dynamic> _story;
-  List<dynamic> _books;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   io.File _image;
   io.File _storyAudio;
@@ -244,7 +244,6 @@ class _StoryPlayState extends State<StoryPlay>
     return FutureBuilder(
         future: Future.wait([
           getStory(),
-          getBooksOfMine(),
         ]),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -263,7 +262,6 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
-          _books = snapshot.data[1];
 
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;
@@ -301,6 +299,9 @@ class _StoryPlayState extends State<StoryPlay>
                 title: Text(
                   Strings.MFV.i18n,
                 ),
+                actions: checkProxy(graphQLAuth, context, () {
+                  setState(() {});
+                }),
                 backgroundColor: Color(0xff00bcd4),
                 leading: IconButton(
                     icon: Icon(MdiIcons.lessThan),
@@ -345,25 +346,6 @@ class _StoryPlayState extends State<StoryPlay>
 
     if (queryResult.data['Story'].length > 0) {
       return queryResult.data['Story'][0];
-    }
-    return null;
-  }
-
-  Future<List> getBooksOfMine() async {
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getBooksOfMineQL),
-      variables: <String, dynamic>{'email': graphQLAuth.getUserMap()['email']},
-    );
-
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-
-    if (queryResult.data['books'].length > 0) {
-      return queryResult.data['books'];
     }
     return null;
   }

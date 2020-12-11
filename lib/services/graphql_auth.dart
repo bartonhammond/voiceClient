@@ -10,8 +10,10 @@ class GraphQLAuth {
   GraphQLAuth(this.context);
   final BuildContext context;
   User user;
+  User originalUser;
   String token;
   String currentUserId;
+  bool isProxy = false;
 
   String getHttpLinkUri(
     GraphQLClientType type,
@@ -35,14 +37,27 @@ class GraphQLAuth {
     }
   }
 
+  Future<void> setProxy(String email) async {
+    user = User(uid: 'ignore', email: email);
+    isProxy = true;
+    await setupEnvironment();
+  }
+
+  Future<void> removeProxy() async {
+    isProxy = false;
+    user = originalUser;
+    await setupEnvironment();
+  }
+
   Map<String, dynamic> _userMap;
 
   Map<String, dynamic> getUserMap() {
     return _userMap;
   }
 
-  void setUser(User user) {
-    this.user = user;
+  void setUser(User _user) {
+    user = _user;
+    originalUser = user;
   }
 
   User getUser() {

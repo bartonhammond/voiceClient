@@ -605,6 +605,8 @@ const String _message_ = r'''
     userName
     userHome
     userImage
+    userIsBook
+    userBookAuthorEmail
   }
 ''';
 
