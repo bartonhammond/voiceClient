@@ -10,8 +10,9 @@ class GraphQLAuth {
   GraphQLAuth(this.context);
   final BuildContext context;
   User user;
+  User originalUser;
   String token;
-  String currentUserId;
+  bool isProxy = false;
 
   String getHttpLinkUri(
     GraphQLClientType type,
@@ -35,26 +36,40 @@ class GraphQLAuth {
     }
   }
 
+  Future<void> setProxy(String email) async {
+    user = User(uid: 'ignore', email: email);
+    isProxy = true;
+    await setupEnvironment();
+  }
+
+  Future<void> removeProxy() async {
+    isProxy = false;
+    user = originalUser;
+    await setupEnvironment();
+  }
+
   Map<String, dynamic> _userMap;
+  Map<String, dynamic> _originalUserMap;
 
   Map<String, dynamic> getUserMap() {
     return _userMap;
   }
 
-  void setUser(User user) {
-    this.user = user;
+  Map<String, dynamic> getOriginalUserMap() {
+    return _originalUserMap;
+  }
+
+//Only called after someone logs in either
+//web or device
+  void setUser(User _user) {
+    originalUser = _user;
+    user = _user;
+    //this gets set in setupEnvironment
+    _originalUserMap = null;
   }
 
   User getUser() {
     return user;
-  }
-
-  void setCurrentUserId(String id) {
-    currentUserId = id;
-  }
-
-  String getCurrentUserId() {
-    return currentUserId;
   }
 
   GraphQLClient getGraphQLClient(GraphQLClientType type) {
@@ -114,7 +129,7 @@ class GraphQLAuth {
         queryResult.data['User'].length > 0 &&
         queryResult.data['User'][0]['id'] != null) {
       _userMap = queryResult.data['User'][0];
-      setCurrentUserId(queryResult.data['User'][0]['id']);
+      _originalUserMap ??= <String, dynamic>{..._userMap};
     }
     return graphQLClient;
   }

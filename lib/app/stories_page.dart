@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:MyFamilyVoice/services/check_proxy.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -45,6 +47,8 @@ class StoriesPage extends StatefulWidget {
 class _StoriesPageState extends State<StoriesPage> {
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   Map<String, dynamic> user;
 
@@ -102,7 +106,12 @@ class _StoriesPageState extends State<StoriesPage> {
   @override
   void initState() {
     super.initState();
-
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {});
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {});
+    });
     if (getId() == null) {
       _typeStoryView = TypeStoriesView.allFriends;
     } else {
@@ -112,6 +121,13 @@ class _StoriesPageState extends State<StoriesPage> {
         _typeStoryView = TypeStoriesView.oneFriend;
       }
     }
+  }
+
+  @override
+  void dispose() {
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
+    super.dispose();
   }
 
   String getId() {
@@ -382,6 +398,7 @@ class _StoriesPageState extends State<StoriesPage> {
             title: Text(
               Strings.MFV.i18n,
             ),
+            actions: checkProxy(graphQLAuth, context),
           ),
           drawer: getId() == null ? getDrawer(context) : null,
           body: Container(
@@ -390,7 +407,11 @@ class _StoriesPageState extends State<StoriesPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getId() == null ? Container() : FriendWidget(user: user),
+                getId() == null
+                    ? Container()
+                    : FriendWidget(
+                        user: user,
+                      ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -427,6 +448,10 @@ class _StoriesPageState extends State<StoriesPage> {
                       if (stories.isEmpty || stories.length < nStories) {
                         moreSearchResults[_typeStoryView][_storyFeedType] =
                             false;
+                      }
+
+                      if (stories.isEmpty) {
+                        eventBus.fire(BookHasNoStories(user['id']));
                       }
 
                       return Expanded(

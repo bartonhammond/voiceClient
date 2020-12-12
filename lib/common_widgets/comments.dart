@@ -54,8 +54,10 @@ class Comments extends StatelessWidget {
 
   Widget getExpandedContainer(Map<String, dynamic> comment) {
     if (showExpand) {
-      if (graphQLAuth.currentUserId == story['user']['id'] ||
-          graphQLAuth.currentUserId == comment['from']['id']) {
+      if ((graphQLAuth.getUserMap()['id'] == story['user']['id']) ||
+          (graphQLAuth.getOriginalUserMap()['id'] = story['user']['id']) ||
+          (graphQLAuth.getUserMap()['id'] == comment['from']['id']) ||
+          (graphQLAuth.getOriginalUserMap()['id'] == comment['from']['id'])) {
         return ConfigurableExpansionTile(
           animatedWidgetFollowingHeader: const Icon(
             Icons.expand_more,

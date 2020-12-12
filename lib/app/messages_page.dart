@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -40,7 +43,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
   MessageType _messageType;
 
-  // VoidCallback _refetchQuery;
+  //VoidCallback _refetchQuery;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -59,11 +62,25 @@ class _MessagesPageState extends State<MessagesPage> {
     4: 'userMessagesByType',
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
   @override
   void initState() {
     _messageType = MessageType.ALL;
     super.initState();
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {});
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
+    super.dispose();
   }
 
   Future<void> _rejectFriendRequest(Map<String, dynamic> message) async {
@@ -108,12 +125,12 @@ class _MessagesPageState extends State<MessagesPage> {
         await addUserFriend(
           graphQLClient,
           message['User']['id'],
-          graphQLAuth.getCurrentUserId(),
+          graphQLAuth.getUserMap()['id'],
         );
 
         await addUserFriend(
           graphQLClient,
-          graphQLAuth.getCurrentUserId(),
+          graphQLAuth.getUserMap()['id'],
           message['User']['id'],
         );
 
@@ -176,6 +193,8 @@ class _MessagesPageState extends State<MessagesPage> {
     message['User']['name'] = _message['userName'];
     message['User']['home'] = _message['userHome'];
     message['User']['image'] = _message['userImage'];
+    message['User']['isBook'] = _message['userIsBook'];
+    message['User']['bookAuthorEmail'] = _message['userBookAuthorEmail'];
 
     switch (message['type']) {
       case 'friend-request':
@@ -462,6 +481,10 @@ class _MessagesPageState extends State<MessagesPage> {
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
+        actions: checkProxy(
+          graphQLAuth,
+          context,
+        ),
       ),
       drawer: getDrawer(context),
       body: Container(
@@ -498,7 +521,7 @@ class _MessagesPageState extends State<MessagesPage> {
                       stackTrace: StackTrace.current.toString());
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
-                //_refetchQuery = refetch;
+
                 final List<dynamic> messages = List<dynamic>.from(
                     result.data[searchResultsName[_messageType.index]]);
 

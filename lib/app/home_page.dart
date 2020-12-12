@@ -1,3 +1,6 @@
+import 'package:MyFamilyVoice/app/profile_page.dart';
+import 'package:MyFamilyVoice/common_widgets/fab/unicorn_dialer.dart';
+import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/app/story_play.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/fab_bottom_app_bar.dart';
@@ -61,27 +64,78 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildFab(BuildContext context) {
     final Map<String, dynamic> params = <String, dynamic>{};
-    return FloatingActionButton(
-      backgroundColor: Color(0xff00bcd4),
-      onPressed: _areTabsEnabled
-          ? () {
-              Navigator.push<dynamic>(
-                context,
-                MaterialPageRoute<dynamic>(
-                    builder: (context) => StoryPlay(
-                          key: Key('storyPlay'),
-                          params: params,
-                        )),
-              );
-            }
-          : null,
-      tooltip: Strings.toolTipFAB.i18n,
-      child: Icon(
-        Icons.add,
-        color: _areTabsEnabled ? Colors.white : Colors.grey,
-      ),
-      elevation: 2.0,
-    );
+    final childButtons = <UnicornButton>[];
+
+    childButtons.add(UnicornButton(
+        hasLabel: true,
+        labelText: 'Story',
+        labelHasShadow: true,
+        labelShadowColor: Colors.black38,
+        currentButton: FloatingActionButton(
+          heroTag: 'story',
+          backgroundColor: Color(0xff00bcd4),
+          mini: true,
+          child: Icon(Icons.history),
+          onPressed: _areTabsEnabled
+              ? () {
+                  Navigator.push<dynamic>(context,
+                      MaterialPageRoute<dynamic>(builder: (context) {
+                    params['onFinish'] = () {
+                      setState(() {});
+                    };
+                    return StoryPlay(
+                      key: Key('storyPlay'),
+                      params: params,
+                    );
+                  }));
+                }
+              : null,
+        )));
+
+    childButtons.add(UnicornButton(
+        hasLabel: true,
+        labelText: 'Book',
+        labelHasShadow: true,
+        labelShadowColor: Colors.black38,
+        currentButton: FloatingActionButton(
+            heroTag: 'book',
+            backgroundColor: Color(0xff00bcd4),
+            mini: true,
+            onPressed: _areTabsEnabled
+                ? () {
+                    Navigator.push<dynamic>(
+                      context,
+                      MaterialPageRoute<dynamic>(
+                          builder: (context) => ProfilePage(
+                                key: Key(Keys.profilePage),
+                                isBook: true,
+                              )),
+                    );
+                  }
+                : null,
+            child: Icon(Icons.collections_bookmark))));
+
+    return _areTabsEnabled
+        ? UnicornDialer(
+            parentButtonBackground: Color(0xff00bcd4),
+            backgroundColor: Color(0xff00bcd4),
+            orientation: UnicornOrientation.VERTICAL,
+            parentButton: Icon(Icons.add),
+            hasBackground: false,
+            hasNotch: true,
+            childPadding: 0,
+            childButtons: childButtons,
+          )
+        : FloatingActionButton(
+            backgroundColor: Color(0xff00bcd4),
+            onPressed: () {},
+            tooltip: Strings.toolTipFAB.i18n,
+            child: Icon(
+              Icons.add,
+              color: _areTabsEnabled ? Colors.white : Colors.grey,
+            ),
+            elevation: 2.0,
+          );
   }
 
   @override

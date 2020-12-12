@@ -149,6 +149,49 @@ Future<void> deleteStory(
   return;
 }
 
+Future<void> changeStoriesUser(
+  GraphQLClient graphQLClientApolloServer,
+  String currentUserId,
+  String newUserId,
+  String storyId,
+) async {
+  var userInput = {'id': currentUserId};
+  final to = {'id': storyId};
+
+  //Remove  Story w/ User
+  MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(removeUserStories),
+    variables: <String, dynamic>{
+      'from': userInput,
+      'to': to,
+    },
+  );
+
+  QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  //Merge Story w/ new user
+  userInput = {'id': newUserId};
+
+  _mutationOptions = MutationOptions(
+    documentNode: gql(mergeUserStories),
+    variables: <String, dynamic>{
+      'from': userInput,
+      'to': to,
+    },
+  );
+
+  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  return;
+}
+
 Future<void> deleteMessage(
   GraphQLClient graphQLClientApolloServer,
   String storyId,
@@ -259,13 +302,15 @@ Future<void> addUserMessages(
   return;
 }
 
-Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
-    GraphQLClient graphQLClientFileServer, GraphQLClient graphQLClient,
+Future<QueryResult> createOrUpdateUserInfo(
+    bool shouldCreateUser, GraphQLClient graphQLClient,
     {String jpegPathUrl,
     String id,
     String email,
     String name,
-    String home}) async {
+    String home,
+    bool isBook,
+    String bookAuthorEmail}) async {
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   final String formattedDate = formatter.format(now);
@@ -279,6 +324,8 @@ Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
               'home': home,
               'image': jpegPathUrl,
               'created': formattedDate,
+              'isBook': isBook,
+              'bookAuthorEmail': bookAuthorEmail,
             })
       : MutationOptions(
           documentNode: gql(updateUserQL),
@@ -288,6 +335,8 @@ Future<QueryResult> createOrUpdateUserInfo(bool shouldCreateUser,
               'home': home,
               'image': jpegPathUrl,
               'updated': formattedDate,
+              'isBook': isBook,
+              'bookAuthorEmail': bookAuthorEmail,
             });
 
   return await graphQLClient.mutate(_mutationOptions);
@@ -558,7 +607,7 @@ Future<void> doCommentUploads(
 
   await mergeCommentFrom(
     graphQLClientApolloServer,
-    graphQLAuth.getCurrentUserId(),
+    graphQLAuth.getUserMap()['id'],
     _commentId,
   );
 
@@ -579,13 +628,13 @@ Future<void> doCommentUploads(
   );
 
   //don't create message if it's your story
-  if (graphQLAuth.getCurrentUserId() == _story['user']['id']) {
+  if (graphQLAuth.getUserMap()['id'] == _story['user']['id']) {
     return;
   }
 
   await addUserMessages(
     graphQLClientApolloServer,
-    graphQLAuth.getCurrentUserId(),
+    graphQLAuth.getUserMap()['id'],
     _story['user']['id'],
     _uuid.v1(),
     'new',
@@ -635,7 +684,7 @@ Future<void> doMessageUploads(
 
   await addUserMessages(
     graphQLClientApolloServer,
-    graphQLAuth.getCurrentUserId(),
+    graphQLAuth.getUserMap()['id'],
     userId,
     _messageId,
     'new',
@@ -790,5 +839,26 @@ Future<void> deleteStoryTags(
     throw result.exception;
   }
 
+  return;
+}
+
+Future<void> deleteBook(
+  GraphQLClient graphQLClientApolloServer,
+  String id,
+) async {
+  //Create the Story
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(deleteBookQL),
+    variables: <String, dynamic>{
+      'id': id,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
   return;
 }

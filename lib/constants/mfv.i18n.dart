@@ -200,6 +200,10 @@ extension Localization on String {
         'es': 'Otros',
       } +
       {
+        'en': Strings.typeUserButtonBooks,
+        'es': 'Libros',
+      } +
+      {
         'en': Strings.typeUserButtonMe,
         'es': 'Yo',
       } +
@@ -288,6 +292,14 @@ extension Localization on String {
         'es': 'Por favor, introduzca su nombre',
       } +
       {
+        'en': Strings.homeLengthMessage,
+        'es': 'La longitud de la casa debe ser mayor que 1',
+      } +
+      {
+        'en': Strings.nameLengthMessage,
+        'es': 'La longitud del nombre debe ser superior a 5',
+      } +
+      {
         'en': Strings.homeEmptyMessage,
         'es': 'Por favor, ingrese a su casa',
       } +
@@ -354,6 +366,34 @@ extension Localization on String {
       {
         'en': Strings.deleteStoryButton,
         'es': '¿Eliminar historia?',
+      } +
+      {
+        'en': Strings.deleteBookButton,
+        'es': '¿Eliminar?',
+      } +
+      {
+        'en': Strings.deleteBookTitle,
+        'es': '¿Eliminar Libro?',
+      } +
+      {
+        'en': Strings.manageBook,
+        'es': '¿Gestionar?',
+      } +
+      {
+        'en': Strings.bookName,
+        'es': 'Libro',
+      } +
+      {
+        'en': Strings.selectBookTitle,
+        'es': 'Seleccionar libro',
+      } +
+      {
+        'en': Strings.selectBookDescription,
+        'es': 'Solo se puede seleccionar un libro',
+      } +
+      {
+        'en': Strings.quitManagingTitle,
+        'es': '¿Dejar de administrar?',
       } +
       {
         'en': Strings.incrementToolTip,

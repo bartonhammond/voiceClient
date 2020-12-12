@@ -2,6 +2,8 @@ import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/auth_service.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
@@ -35,7 +37,7 @@ class _AuthDialogState extends State<AuthDialog> {
   String _validateEmail(String value) {
     value = value?.trim();
     if (textControllerEmail.text != null) {
-      if (value.isEmpty) {
+      if (value == null || value.isEmpty) {
         return Strings.authDialogEmailEmpty.i18n;
       } else if (!value.contains(RegExp(
           r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+"))) {
@@ -50,7 +52,7 @@ class _AuthDialogState extends State<AuthDialog> {
     value = value?.trim();
 
     if (textControllerEmail.text != null) {
-      if (value.isEmpty) {
+      if (value == null || value.isEmpty) {
         return Strings.authDialogPasswordEmpty.i18n;
       } else if (value.length < 6 || value.length > 10) {
         return Strings.authDialogPasswordLength.i18n;
@@ -305,7 +307,9 @@ class _AuthDialogState extends State<AuthDialog> {
                 await _authService
                     .signInWithEmailPassword(
                         textControllerEmail.text, textControllerPassword.text)
-                    .then((result) {
+                    .then((user) {
+                  final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+                  graphQLAuth.setUser(user);
                   //no problem
                 }).catchError((dynamic error) {
                   setState(() {

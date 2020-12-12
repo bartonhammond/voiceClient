@@ -69,8 +69,12 @@ class AuthWidget extends StatelessWidget {
 
   FutureBuilder setupWebHomePage(BuildContext context) {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
     return FutureBuilder<dynamic>(
-      future: getLocaleFromStorage(context),
+      future: Future.wait([
+        graphQLAuth.setupEnvironment(), //note User was set in AuthDialog
+        getLocaleFromStorage(context),
+      ]),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           logger.createMessage(

@@ -17,6 +17,7 @@ enum TypeUser {
   family,
   friends,
   users,
+  books,
   me,
 }
 

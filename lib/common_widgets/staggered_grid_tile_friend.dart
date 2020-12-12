@@ -1,4 +1,5 @@
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
+import 'package:MyFamilyVoice/constants/TmpObj.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:flutter/material.dart';
 
@@ -11,18 +12,17 @@ class StaggeredGridTileFriend extends StatelessWidget {
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map friend;
-  final Widget friendButton;
+  final TmpObj friendButton;
   final TypeUser typeUser;
 
   @override
   Widget build(BuildContext context) {
     return FriendWidget(
       user: friend,
-      friendButton: friendButton,
+      friendButton: friendButton.button,
       onFriendPush: onPush,
-      showMessage: typeUser == TypeUser.friends || typeUser == TypeUser.family,
-      showFamilyCheckbox:
-          typeUser == TypeUser.friends || typeUser == TypeUser.family,
+      showMessage: !friendButton.ignore && friendButton.isFriend,
+      showFamilyCheckbox: !friendButton.ignore && friendButton.isFriend,
       allowExpandToggle: false,
     );
   }
