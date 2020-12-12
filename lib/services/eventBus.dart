@@ -8,6 +8,22 @@ class MessagesEvent {
   bool empty;
 }
 
+class GetUserMessagesEvent {}
+
+//id no stories, book can be deleted
+class BookHasNoStories {
+  BookHasNoStories(this.id);
+  String id;
+}
+
+class ProxyStarted {}
+
+class ProxyEnded {}
+
+class BookWasAdded {}
+
+class BookWasDeleted {}
+
 class ProfileEvent {
   ProfileEvent(this.isComplete);
   bool isComplete;

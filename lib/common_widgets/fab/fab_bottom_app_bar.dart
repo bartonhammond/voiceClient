@@ -68,8 +68,12 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
       });
     });
 
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _getUserMessages();
+    eventBus.on<GetUserMessagesEvent>().listen((event) async {
+      await _getUserMessages();
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      await _getUserMessages();
     });
     timer =
         Timer.periodic(Duration(seconds: 60), (Timer t) => _getUserMessages());

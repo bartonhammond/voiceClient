@@ -91,7 +91,7 @@ class _State extends State<ReactionTable> {
       try {
         await addUserMessages(
           GraphQLProvider.of(context).value,
-          locator<GraphQLAuth>().getCurrentUserId(),
+          locator<GraphQLAuth>().getUserMap()['id'],
           _friendId,
           _uuid.v1(),
           'new',

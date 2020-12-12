@@ -544,12 +544,14 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       ),
                       _isWeb
                           ? RecorderWidgetWeb(
+                              key: Key('staggeredGridTile-${widget.index}'),
                               isCurrentUserAuthor: true,
                               setAudioWeb: setCommentAudioWeb,
                               timerDuration: 90,
                               showPlayerWidget: false,
                             )
                           : RecorderWidget(
+                              key: Key('staggeredGridTile-${widget.index}'),
                               isCurrentUserAuthor: true,
                               setAudioFile: setCommentAudioFile,
                               timerDuration: 90,

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
 
@@ -17,14 +18,16 @@ import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/services/check_proxy.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
@@ -76,10 +79,28 @@ class _StoryPlayState extends State<StoryPlay>
   DeviceScreenType deviceType;
   bool _showIcons = false;
 
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
+  GraphQLClient graphQLClient;
+  GraphQLClient graphQLClientFileServer;
+
   @override
   void initState() {
     _id = _uuid.v1();
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {});
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {});
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -106,9 +127,42 @@ class _StoryPlayState extends State<StoryPlay>
     super.didChangeDependencies();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> setBook(String id) async {
+    if (id == null) {
+      //remove the current book
+      final String currentUserId = await getUserIdByEmail(
+        graphQLClient,
+        _story['user']['bookAuthorEmail'],
+      );
+      await changeStoriesUser(
+        graphQLClient,
+        _story['user']['id'],
+        currentUserId,
+        _story['id'],
+      );
+    } else {
+      await changeStoriesUser(
+        graphQLClient,
+        _story['user']['id'],
+        id,
+        _story['id'],
+      );
+    }
+    setState(() {});
+  }
+
+  Future<String> getUserIdByEmail(
+    GraphQLClient graphQLClient,
+    String email,
+  ) async {
+    final QueryOptions _queryOptions = QueryOptions(
+      documentNode: gql(getUserByEmailQL),
+      variables: <String, dynamic>{
+        'email': email,
+      },
+    );
+    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+    return queryResult.data['User'][0]['id'];
   }
 
   Future<void> setCommentAudioFile(io.File audio) async {
@@ -119,9 +173,6 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = audio;
       _uploadInProgress = true;
     });
-
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     await doCommentUploads(
       graphQLAuth,
@@ -134,10 +185,15 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = null;
       _uploadInProgress = false;
     });
-    Flushbar<dynamic>(
-      message: Strings.saved.i18n,
-      duration: Duration(seconds: 3),
-    )..show(_scaffoldKey.currentContext);
+
+    Fluttertoast.showToast(
+        msg: Strings.saved.i18n,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
     return;
   }
 
@@ -149,9 +205,6 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudioWeb = bytes;
       _uploadInProgress = true;
     });
-
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     await doCommentUploads(
       graphQLAuth,
@@ -165,11 +218,14 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = null;
       _uploadInProgress = false;
     });
-
-    Flushbar<dynamic>(
-      message: Strings.saved.i18n,
-      duration: Duration(seconds: 3),
-    )..show(_scaffoldKey.currentContext);
+    Fluttertoast.showToast(
+        msg: Strings.saved.i18n,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 3,
+        backgroundColor: Colors.black,
+        textColor: Colors.white,
+        fontSize: 16.0);
     return;
   }
 
@@ -208,6 +264,10 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   Widget build(BuildContext context) {
     _isWeb = AppConfig.of(context).isWeb;
+    graphQLClient = GraphQLProvider.of(context).value;
+    graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
     return FutureBuilder(
         future: Future.wait([
           getStory(),
@@ -248,7 +308,10 @@ class _StoryPlayState extends State<StoryPlay>
           if (_story == null ||
               (_story != null &&
                   _story['user'] != null &&
-                  _story['user']['id'] == graphQLAuth.getUserMap()['id'])) {
+                  (_story['user']['id'] == graphQLAuth.getUserMap()['id'] ||
+                      _story['user']['isBook'] == true &&
+                          _story['user']['bookAuthorEmail'] ==
+                              graphQLAuth.getUserMap()['email']))) {
             _isCurrentUserAuthor = true;
           } else {
             _isCurrentUserAuthor = false;
@@ -261,6 +324,10 @@ class _StoryPlayState extends State<StoryPlay>
               appBar: AppBar(
                 title: Text(
                   Strings.MFV.i18n,
+                ),
+                actions: checkProxy(
+                  graphQLAuth,
+                  context,
                 ),
                 backgroundColor: Color(0xff00bcd4),
                 leading: IconButton(
@@ -297,8 +364,6 @@ class _StoryPlayState extends State<StoryPlay>
       },
     );
 
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
       throw queryResult.exception;
@@ -311,9 +376,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> doImageUpload() async {
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
     MultipartFile multipartFile;
 
     if (_image != null) {
@@ -349,9 +411,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> doAudioUpload() async {
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
     MultipartFile multipartFile;
 
     if (_storyAudioWeb != null) {
@@ -377,12 +436,18 @@ class _StoryPlayState extends State<StoryPlay>
         multipartFile,
         'mp3',
       );
-      Flushbar<dynamic>(
-        message: Strings.saved.i18n,
-        duration: Duration(seconds: 3),
-      )..show(_scaffoldKey.currentContext);
+      Fluttertoast.showToast(
+          msg: Strings.saved.i18n,
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 3,
+          backgroundColor: Colors.black,
+          textColor: Colors.white,
+          fontSize: 16.0);
+
+      await doStoryUpload();
     }
-    await doStoryUpload();
+
     return;
   }
 
@@ -392,16 +457,21 @@ class _StoryPlayState extends State<StoryPlay>
       if (_imageFilePath != null && _audioFilePath != null) {
         await addStory(
           graphQLClient,
-          graphQLAuth.getCurrentUserId(),
+          graphQLAuth.getUserMap()['id'],
           _id,
           _imageFilePath,
           _audioFilePath,
           storyTypes[_storyType.index],
         );
-        Flushbar<dynamic>(
-          message: Strings.saved.i18n,
-          duration: Duration(seconds: 3),
-        )..show(_scaffoldKey.currentContext);
+        Fluttertoast.showToast(
+            msg: Strings.saved.i18n,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
+
         setState(() {
           _storyWasSaved = true;
         });
@@ -411,6 +481,7 @@ class _StoryPlayState extends State<StoryPlay>
       if (_imageFilePath != null ||
           _audioFilePath != null ||
           _storyType != _story['type']) {
+
         _imageFilePath ??= _story['image'];
         _audioFilePath ??= _story['audio'];
         await updateStory(
@@ -421,10 +492,14 @@ class _StoryPlayState extends State<StoryPlay>
           _story['created']['formatted'],
           storyTypes[_storyType.index],
         );
-        Flushbar<dynamic>(
-          message: Strings.saved.i18n,
-          duration: Duration(seconds: 3),
-        )..show(_scaffoldKey.currentContext);
+        Fluttertoast.showToast(
+            msg: Strings.saved.i18n,
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 3,
+            backgroundColor: Colors.black,
+            textColor: Colors.white,
+            fontSize: 16.0);
       }
     }
 
@@ -496,11 +571,13 @@ class _StoryPlayState extends State<StoryPlay>
             children: [
               _isWeb
                   ? RecorderWidgetWeb(
+                      key: Key('storyPlayRecorderWidgetWeb'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioWeb: setStoryAudioWeb,
                       width: width,
                     )
                   : RecorderWidget(
+                      key: Key('storyPlayRecorderWidget'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioFile: setStoryAudioFile,
                       width: width,
@@ -518,11 +595,13 @@ class _StoryPlayState extends State<StoryPlay>
                   : Container(),
               _isWeb
                   ? RecorderWidgetWeb(
+                      key: Key('storyPlayRecorderWidgetWeb'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioWeb: setStoryAudioWeb,
                       width: width,
                       url: host(_story['audio']))
                   : RecorderWidget(
+                      key: Key('storyPlayRecorderWidget'),
                       isCurrentUserAuthor: _isCurrentUserAuthor,
                       setAudioFile: setStoryAudioFile,
                       width: width,
@@ -656,7 +735,12 @@ class _StoryPlayState extends State<StoryPlay>
                 Navigator.of(context).pop();
               }
             },
-          )
+          ),
+          _story['user']['isBook']
+              ? SizedBox(
+                  width: 10,
+                )
+              : Container(),
         ],
       ),
     );
@@ -730,6 +814,43 @@ class _StoryPlayState extends State<StoryPlay>
                       ),
                     ])
                   : Container(),
+      _isCurrentUserAuthor
+          ? const SizedBox(
+              height: 10,
+            )
+          : Container(),
+      _isCurrentUserAuthor && _story != null
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(width: 5),
+                CustomRaisedButton(
+                  key: Key('storyPlayBookButton'),
+                  text: 'Book?',
+                  icon: Icon(
+                    Icons.collections_bookmark,
+                    size: 20,
+                  ),
+                  onPressed: () async {
+                    Navigator.push<dynamic>(
+                      context,
+                      MaterialPageRoute<dynamic>(
+                        builder: (BuildContext context) => TagFriendsPage(
+                            key: Key('selectBookFromStoryPlay'),
+                            story: _story,
+                            onSaved: () {
+                              setState(() {});
+                            },
+                            isBook: true,
+                            onBookSave: setBook),
+                        fullscreenDialog: true,
+                      ),
+                    );
+                  },
+                )
+              ],
+            )
+          : Container(),
       _showTaggedFriends
           ? TaggedFriends(
               key: Key('tagStoryPlay'),
@@ -866,6 +987,7 @@ class _StoryPlayState extends State<StoryPlay>
                                 ),
                                 _isWeb
                                     ? RecorderWidgetWeb(
+                                        key: Key('storyPlayRecorderWidgetWeb'),
                                         isCurrentUserAuthor:
                                             _isCurrentUserAuthor,
                                         setAudioWeb: setCommentAudioWeb,
@@ -873,6 +995,7 @@ class _StoryPlayState extends State<StoryPlay>
                                         isForComment: true,
                                       )
                                     : RecorderWidget(
+                                        key: Key('storyPlayRecorderWidget'),
                                         isCurrentUserAuthor:
                                             _isCurrentUserAuthor,
                                         setAudioFile: setCommentAudioFile,

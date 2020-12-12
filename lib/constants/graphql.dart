@@ -12,6 +12,8 @@ const String _user_ = r'''
     email
     home
     image
+    isBook
+    bookAuthorEmail
     friends {
       from {
         isFamily
@@ -39,6 +41,8 @@ query getUserByEmail($email: String!) {
     email
     home
     image
+    isBook
+    bookAuthorEmail
   }
 }
 ''';
@@ -69,6 +73,8 @@ const _story_ = r'''
       name
       home
       image
+      isBook
+      bookAuthorEmail
       id
       friends {
         from {
@@ -144,20 +150,24 @@ storyReactions(
     email
     name
     home
+    bookAuthorEmail
     image
+    isBook
     friend
   }
 }
 ''';
 
 const String createUserQL = r'''
-mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, ) {
+mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, $isBook: Boolean!, $bookAuthorEmail: String!) {
   CreateUser(
     id: $id
     name: $name
     email: $email
     home: $home
     image: $image
+    isBook: $isBook
+    bookAuthorEmail: $bookAuthorEmail
     created: { 
       formatted: $created 
     }
@@ -168,6 +178,8 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     email
     home
     image
+    isBook
+    bookAuthorEmail
     created {
       formatted
     }
@@ -244,6 +256,23 @@ MergeStoryUser(
 }
 ''';
 
+const String removeUserStories = r'''
+mutation removeStoryUser($from: _UserInput!, $to: _StoryInput!) {
+RemoveStoryUser(
+    from: $from
+    to: $to
+  ) {
+    from {
+      email
+    }
+    to {
+      audio
+      image
+    }
+  }
+}
+''';
+
 const String mergeUserFriends = r'''
   mutation mergeUserFriends($id: ID!, $from: ID!, $to: ID!, $created: String!) {
   MergeUserFriends(
@@ -291,6 +320,8 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   name
   home
   image
+  isBook
+  bookAuthorEmail
   activities(
     email: $email
     first: $first
@@ -311,6 +342,8 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
         name
         home
         image
+        isBook
+        bookAuthorEmail
       }
     }
   }
@@ -393,14 +426,24 @@ query getUserStoriesMeFamily ($email: String!, $limit: String!, $cursor: String!
 
 const String getFriendsOfMineQL = r'''
 query getFriendsOfMine ($email: String!) {
-  friends(email: $email){
+  friendsOfMine(email: $email)
+  ''' +
+    _user_ +
+    '''
+}
+''';
+
+const String getBooksOfMineQL = r'''
+query getBooksOfMine ($email: String!) {
+  books(email: $email){
     __typename
     id
-    isFriend
 		email
     name
     home
     image
+    isBook
+    bookAuthorEmail
     created{
       formatted
     }
@@ -417,6 +460,8 @@ query userSearch($searchString: String!) {
     email
     home
     image
+    isBook
+    bookAuthorEmail
   }
 }
 ''';
@@ -429,6 +474,8 @@ const String _friend_ = r'''
     email
     home
     image
+    isBook
+    bookAuthorEmail
     created {
       formatted
     }
@@ -451,10 +498,33 @@ query userSearchFriends($searchString: String!, $email: String!, $skip: String!,
     '''
 }
 ''';
+const String userSearchFriendsBooksQL = r'''
+query userSearchFriendsBooks($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+   userSearchFriendsBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''
+}
+''';
 
 const String userSearchFamilyQL = r'''
 query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
    userSearchFamily(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''
+}
+''';
+
+const String userSearchFamilyBooksQL = r'''
+query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+   userSearchFamilyBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''
+}
+''';
+
+const String userSearchBooksQL = r'''
+query userSearchBooks($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+   userSearchBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
     _friend_ +
     '''
 }
@@ -543,6 +613,8 @@ const String _message_ = r'''
     userName
     userHome
     userImage
+    userIsBook
+    userBookAuthorEmail
   }
 ''';
 
@@ -683,13 +755,15 @@ userFriendsStoriesGlobal(
   ''';
 
 const String updateUserQL = r'''
-mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, ){
+mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, $isBook: Boolean!, $bookAuthorEmail: String!){
 UpdateUser(
   id: $id
   name: $name
   home: $home
   updated: {formatted: $updated}
   image: $image
+  isBook: $isBook
+  bookAuthorEmail: $bookAuthorEmail
 ) {
     id
     name
@@ -699,6 +773,8 @@ UpdateUser(
     }
     home
     image
+    isBook
+    bookAuthorEmail
     updated {
       formatted
     }
@@ -985,5 +1061,11 @@ mutation deleteStoryTags($storyId: String!) {
   deleteStoryTags(storyId: $storyId){
     id
   }
+}
+''';
+
+const String deleteBookQL = r'''
+mutation deleteBook($id: String!) {
+  deleteBook(id: $id)
 }
 ''';

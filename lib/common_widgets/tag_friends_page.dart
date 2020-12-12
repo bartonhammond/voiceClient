@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
+import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -21,9 +25,14 @@ class TagFriendsPage extends StatefulWidget {
     Key key,
     this.story,
     this.onSaved,
+    this.isBook = false,
+    this.onBookSave,
   }) : super(key: key);
   final Map<String, dynamic> story;
   final VoidCallback onSaved;
+  final bool isBook;
+  final Future<void> Function(String) onBookSave;
+
   @override
   _TagFriendsPageState createState() => _TagFriendsPageState();
 }
@@ -50,16 +59,29 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     1: true,
     2: true,
     3: true,
+    4: true,
   };
 
   Map<int, String> searchResultsName = {
-    0: 'userSearchFamily',
-    1: 'userSearchFriends',
+    0: 'userSearchFamily', //TypeUser.family
+    1: 'userSearchFriends', //TypeUser.friends
+    2: 'userSearchNotFriends', //TypeUser.users
+    3: 'userSearchBooks', //TypeUser.books
+    4: 'User' //TypeUser.me
+  };
+
+  Map<int, String> searchResultsNameBooks = {
+    0: 'userSearchFamilyBooks',
+    1: 'userSearchFriendsBooks',
     2: 'userSearchNotFriends',
-    3: 'User'
+    3: 'userSearchBooks',
+    4: 'User'
   };
 
   final List<Map<String, dynamic>> _tagItems = [];
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
+  VoidCallback _refetchQuery;
 
   @override
   void initState() {
@@ -69,14 +91,36 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
       if (widget.story['type'] == 'FRIENDS') {
         _typeUser = TypeUser.friends;
       }
-      widget.story['tags'].forEach((dynamic tag) => _tagItems.add(tag));
+      if (!widget.isBook) {
+        widget.story['tags'].forEach((dynamic tag) => _tagItems.add(tag));
+      } else {
+        if (widget.story['user']['isBook']) {
+          final tag = <String, dynamic>{
+            'id': '',
+            'user': widget.story['user'],
+          };
+          _tagItems.add(tag);
+        }
+      }
     }
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
     _debouncer.stop();
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
     super.dispose();
   }
 
@@ -109,23 +153,38 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   }
 
   List<DropdownMenuItem<TypeUser>> getDropDownButtons() {
-    final items = <DropdownMenuItem<TypeUser>>[
-      DropdownMenuItem(
+    final items = <DropdownMenuItem<TypeUser>>[];
+    if (widget.isBook) {
+      items.add(DropdownMenuItem(
         child: Text(
           Strings.typeUserButtonFamily.i18n,
         ),
         value: TypeUser.family,
-      )
-    ];
-    if (widget.story['type'] == 'FRIENDS' || widget.story['type'] == 'GLOBAL') {
-      items.add(
-        DropdownMenuItem(
-          child: Text(
-            Strings.typeUserButtonFriends.i18n,
-          ),
-          value: TypeUser.friends,
+      ));
+      items.add(DropdownMenuItem(
+        child: Text(
+          Strings.typeUserButtonFriends.i18n,
         ),
-      );
+        value: TypeUser.friends,
+      ));
+    } else {
+      items.add(DropdownMenuItem(
+        child: Text(
+          Strings.typeUserButtonFamily.i18n,
+        ),
+        value: TypeUser.family,
+      ));
+      if (widget.story['type'] == 'FRIENDS' ||
+          widget.story['type'] == 'GLOBAL') {
+        items.add(
+          DropdownMenuItem(
+            child: Text(
+              Strings.typeUserButtonFriends.i18n,
+            ),
+            value: TypeUser.friends,
+          ),
+        );
+      }
     }
     return items;
   }
@@ -155,13 +214,25 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     };
     switch (_typeUser) {
       case TypeUser.family:
-        gqlString = userSearchFamilyQL;
+        if (widget.isBook) {
+          gqlString = userSearchFamilyBooksQL;
+        } else {
+          gqlString = userSearchFamilyQL;
+        }
         break;
       case TypeUser.friends:
-        gqlString = userSearchFriendsQL;
+        if (widget.isBook) {
+          //Only books who are friends
+          gqlString = userSearchFriendsBooksQL;
+        } else {
+          gqlString = userSearchFriendsQL;
+        }
         break;
       case TypeUser.users:
         gqlString = userSearchNotFriendsQL;
+        break;
+      case TypeUser.books:
+        gqlString = userSearchBooksQL;
         break;
       case TypeUser.me:
         gqlString = userSearchMeQL;
@@ -203,13 +274,21 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     return false;
   }
 
-  void onSelect(Map<String, dynamic> user) {
+  Future<void> onSelect(Map<String, dynamic> user) async {
+    if (widget.isBook && _tagItems.length == 1) {
+      await PlatformAlertDialog(
+        title: Strings.selectBookTitle.i18n,
+        content: Strings.selectBookDescription.i18n,
+        defaultActionText: Strings.ok.i18n,
+      ).show(context);
+      return;
+    }
     final dynamic tag = {
       'id': '',
       'user': user,
     };
     _tagItems.add(tag);
-    if (widget.story == null) {
+    if (widget.story == null || widget.isBook) {
       _tagsHaveChanged = true;
     } else {
       _tagsHaveChanged = haveTagsChanged();
@@ -219,6 +298,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   }
 
   void onDelete(Map<String, dynamic> user) {
+    _tagsHaveChanged = false;
     for (var tag in _tagItems) {
       if (tag['id'] == user['id']) {
         _tagItems.remove(tag);
@@ -226,7 +306,13 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
       }
     }
     setState(() {
-      _tagsHaveChanged = haveTagsChanged();
+      if (widget.isBook &&
+          widget.story['user']['isBook'] &&
+          _tagItems.isEmpty) {
+        _tagsHaveChanged = true;
+      } else {
+        _tagsHaveChanged = haveTagsChanged();
+      }
     });
   }
 
@@ -254,29 +340,47 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
           : null,
       onPressed: _tagsHaveChanged
           ? () async {
-              await deleteStoryTags(
-                GraphQLProvider.of(context).value,
-                widget.story['id'],
-              );
-              for (var tag in _tagItems) {
-                await addStoryTag(
-                  graphQLAuth.currentUserId,
+              if (widget.isBook) {
+                if (widget.onBookSave != null) {
+                  //assign to book
+                  if (_tagItems.length == 1) {
+                    await widget.onBookSave(_tagItems[0]['user']['id']);
+                    setState(() {
+                      _tagsHaveChanged = false;
+                    });
+                  } else {
+                    //remove current book
+                    await widget.onBookSave(null);
+                    setState(() {
+                      _tagsHaveChanged = false;
+                    });
+                  }
+                }
+              } else {
+                await deleteStoryTags(
                   GraphQLProvider.of(context).value,
-                  widget.story,
-                  tag,
+                  widget.story['id'],
                 );
-              }
-              //Sync up so differences can be tested
-              widget.story['tags'] = <Map<String, dynamic>>[];
-              // ignore: avoid_function_literals_in_foreach_calls
-              _tagItems.forEach((tag) {
-                widget.story['tags'].add(tag);
-              });
-              setState(() {
-                _tagsHaveChanged = false;
-              });
-              if (widget.onSaved != null) {
-                widget.onSaved();
+                for (var tag in _tagItems) {
+                  await addStoryTag(
+                    graphQLAuth.getUserMap()['id'],
+                    GraphQLProvider.of(context).value,
+                    widget.story,
+                    tag,
+                  );
+                }
+                //Sync up so differences can be tested
+                widget.story['tags'] = <Map<String, dynamic>>[];
+                // ignore: avoid_function_literals_in_foreach_calls
+                _tagItems.forEach((tag) {
+                  widget.story['tags'].add(tag);
+                });
+                setState(() {
+                  _tagsHaveChanged = false;
+                });
+                if (widget.onSaved != null) {
+                  widget.onSaved();
+                }
               }
             }
           : null,
@@ -319,6 +423,10 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         appBar: AppBar(
           backgroundColor: Color(0xff00bcd4),
           title: Text(Strings.MFV.i18n),
+          actions: checkProxy(
+            graphQLAuth,
+            context,
+          ),
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -361,10 +469,15 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                         stackTrace: StackTrace.current.toString());
                     return Text('\nErrors: \n  ' + result.exception.toString());
                   }
-
-                  final List<dynamic> friends = List<dynamic>.from(
-                      result.data[searchResultsName[_typeUser.index]]);
-
+                  _refetchQuery = refetch;
+                  List<dynamic> friends;
+                  if (widget.isBook) {
+                    friends = List<dynamic>.from(
+                        result.data[searchResultsNameBooks[_typeUser.index]]);
+                  } else {
+                    friends = List<dynamic>.from(
+                        result.data[searchResultsName[_typeUser.index]]);
+                  }
                   if (friends.isEmpty || friends.length < _nFriends) {
                     moreSearchResults[_typeUser.index] = false;
                   }
