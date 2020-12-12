@@ -166,7 +166,6 @@ Future<void> changeStoriesUser(
       'to': to,
     },
   );
-  print('changeStoriesUser removing $currentUserId');
 
   QueryResult queryResult =
       await graphQLClientApolloServer.mutate(_mutationOptions);
@@ -184,7 +183,6 @@ Future<void> changeStoriesUser(
       'to': to,
     },
   );
-  print('changeStoriesUser adding $newUserId');
 
   queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
   if (queryResult.hasException) {

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:MyFamilyVoice/constants/TmpObj.dart';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
@@ -70,6 +71,8 @@ class _FriendsPageState extends State<FriendsPage> {
     3: 'userSearchBooks',
     4: 'User'
   };
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
 
   @override
   void initState() {
@@ -85,6 +88,16 @@ class _FriendsPageState extends State<FriendsPage> {
         _refetchQuery();
       });
     });
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
     super.initState();
   }
 
@@ -93,6 +106,8 @@ class _FriendsPageState extends State<FriendsPage> {
     _debouncer.stop();
     bookWasDeletedSubscription.cancel();
     bookWasAddedSubscription.cancel();
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
     super.dispose();
   }
 
@@ -382,9 +397,10 @@ class _FriendsPageState extends State<FriendsPage> {
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
-        actions: checkProxy(graphQLAuth, context, () {
-          setState(() {});
-        }),
+        actions: checkProxy(
+          graphQLAuth,
+          context,
+        ),
       ),
       drawer: getDrawer(context),
       body: Container(
@@ -450,13 +466,6 @@ class _FriendsPageState extends State<FriendsPage> {
                                         ? widget.onPush
                                         : null,
                                     friend: friends[index],
-                                    onProxySelected: () {
-                                      setState(() {});
-                                    },
-                                    onBookDeleted: () {
-                                      print('friendsPage onBookDeleted');
-                                      setState(() {});
-                                    },
                                     friendButton: getMessageButton(
                                       allNewFriendRequestsToMe,
                                       allMyFriendRequests,
@@ -521,7 +530,7 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  MessageButton checkMyFriendRequests(
+  TmpObj checkMyFriendRequests(
     dynamic allMyFriendRequests,
     dynamic friends,
     int index,
@@ -534,16 +543,19 @@ class _FriendsPageState extends State<FriendsPage> {
           switch (friend['status']) {
             case 'reject': //don't hurt feelings, ...
             case 'new':
-              return MessageButton(
-                key: Key('${Keys.newFriendsButton}-$index'),
-                text: Strings.pending.i18n,
-                onPressed: null,
-                fontSize: _fontSize,
-                icon: Icon(
-                  MdiIcons.accountClockOutline,
-                  color: Colors.white,
-                ),
-              );
+              return TmpObj(
+                  button: MessageButton(
+                    key: Key('${Keys.newFriendsButton}-$index'),
+                    text: Strings.pending.i18n,
+                    onPressed: null,
+                    fontSize: _fontSize,
+                    icon: Icon(
+                      MdiIcons.accountClockOutline,
+                      color: Colors.white,
+                    ),
+                  ),
+                  isFriend: false,
+                  ignore: false);
               break;
             default:
           }
@@ -553,29 +565,32 @@ class _FriendsPageState extends State<FriendsPage> {
     return null;
   }
 
-  MessageButton pendingFriendRequestsToMe(dynamic allFriendRequestsToMe,
+  TmpObj pendingFriendRequestsToMe(dynamic allFriendRequestsToMe,
       dynamic friends, int index, double _fontSize) {
     //Do I have pending friend requests?
     if (allFriendRequestsToMe != null) {
       for (var friendRequestToMe in allFriendRequestsToMe) {
         if (friendRequestToMe['User']['id'] == friends[index]['id']) {
-          return MessageButton(
-            key: Key('${Keys.newFriendsButton}-$index'),
-            text: Strings.pending.i18n,
-            onPressed: null,
-            fontSize: _fontSize,
-            icon: Icon(
-              MdiIcons.accountClockOutline,
-              color: Colors.white,
-            ),
-          );
+          return TmpObj(
+              button: MessageButton(
+                key: Key('${Keys.newFriendsButton}-$index'),
+                text: Strings.pending.i18n,
+                onPressed: null,
+                fontSize: _fontSize,
+                icon: Icon(
+                  MdiIcons.accountClockOutline,
+                  color: Colors.white,
+                ),
+              ),
+              isFriend: false,
+              ignore: false);
         }
       }
     }
     return null;
   }
 
-  MessageButton alreadyFriends(
+  TmpObj alreadyFriends(
     dynamic allMyFriends,
     dynamic friends,
     int index,
@@ -584,30 +599,33 @@ class _FriendsPageState extends State<FriendsPage> {
     if (allMyFriends != null) {
       for (var friendToMe in allMyFriends) {
         if (friendToMe['id'] == friends[index]['id']) {
-          return MessageButton(
-            key: Key('${Keys.newFriendsButton}-$index'),
-            text: Strings.quitFriend.i18n,
-            onPressed: () => _quitFriendRequest(friends[index]['id']),
-            fontSize: _fontSize,
-            icon: Icon(
-              MdiIcons.accountRemove,
-              color: Colors.white,
-            ),
-          );
+          return TmpObj(
+              button: MessageButton(
+                key: Key('${Keys.newFriendsButton}-$index'),
+                text: Strings.quitFriend.i18n,
+                onPressed: () => _quitFriendRequest(friends[index]['id']),
+                fontSize: _fontSize,
+                icon: Icon(
+                  MdiIcons.accountRemove,
+                  color: Colors.white,
+                ),
+              ),
+              isFriend: true,
+              ignore: false);
         }
       }
     }
     return null;
   }
 
-  Widget getMessageButton(
+  TmpObj getMessageButton(
     dynamic allFriendRequestsToMe,
     dynamic allMyFriendRequests,
     dynamic allMyFriends,
     dynamic friends,
     int index,
   ) {
-    MessageButton button;
+    TmpObj button;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     double _fontSize = 20;
@@ -619,20 +637,27 @@ class _FriendsPageState extends State<FriendsPage> {
         _fontSize = 20;
     }
     if (_typeUser == TypeUser.me) {
-      return Container();
+      return TmpObj(button: Container(), isFriend: true, ignore: true);
     }
-
+    //check if proxy is active and building for him/her
+    if (graphQLAuth.isProxy &&
+        friends[index]['id'] == graphQLAuth.getUserMap()['id']) {
+      return TmpObj(button: Container(), isFriend: true, ignore: true);
+    }
     if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {
-      button = MessageButton(
-        key: Key('${Keys.newFriendsButton}-$index'),
-        text: Strings.quitFriend.i18n,
-        onPressed: () => _quitFriendRequest(friends[index]['id']),
-        fontSize: _fontSize,
-        icon: Icon(
-          MdiIcons.accountRemove,
-          color: Colors.white,
-        ),
-      );
+      button = TmpObj(
+          button: MessageButton(
+            key: Key('${Keys.newFriendsButton}-$index'),
+            text: Strings.quitFriend.i18n,
+            onPressed: () => _quitFriendRequest(friends[index]['id']),
+            fontSize: _fontSize,
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+          isFriend: true,
+          ignore: false);
     } else {
       button =
           checkMyFriendRequests(allMyFriendRequests, friends, index, _fontSize);
@@ -642,16 +667,19 @@ class _FriendsPageState extends State<FriendsPage> {
 
       button ??= alreadyFriends(allMyFriends, friends, index, _fontSize);
 
-      button ??= MessageButton(
-        key: Key('${Keys.newFriendsButton}-$index'),
-        text: Strings.newFriend.i18n,
-        onPressed: () => _newFriendRequest(friends[index]['id']),
-        fontSize: _fontSize,
-        icon: Icon(
-          MdiIcons.accountPlusOutline,
-          color: Colors.white,
-        ),
-      );
+      button ??= TmpObj(
+          button: MessageButton(
+            key: Key('${Keys.newFriendsButton}-$index'),
+            text: Strings.newFriend.i18n,
+            onPressed: () => _newFriendRequest(friends[index]['id']),
+            fontSize: _fontSize,
+            icon: Icon(
+              MdiIcons.accountPlusOutline,
+              color: Colors.white,
+            ),
+          ),
+          isFriend: false,
+          ignore: false);
     }
     return button;
   }

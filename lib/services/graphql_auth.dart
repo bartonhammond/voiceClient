@@ -12,8 +12,6 @@ class GraphQLAuth {
   User user;
   User originalUser;
   String token;
-  String currentUserId;
-  String originalUserId;
   bool isProxy = false;
 
   String getHttpLinkUri(
@@ -47,7 +45,6 @@ class GraphQLAuth {
   Future<void> removeProxy() async {
     isProxy = false;
     user = originalUser;
-    currentUserId = originalUserId;
     await setupEnvironment();
   }
 
@@ -62,9 +59,13 @@ class GraphQLAuth {
     return _originalUserMap;
   }
 
+//Only called after someone logs in either
+//web or device
   void setUser(User _user) {
-    originalUser ??= _user;
+    originalUser = _user;
     user = _user;
+    //this gets set in setupEnvironment
+    _originalUserMap = null;
   }
 
   User getUser() {

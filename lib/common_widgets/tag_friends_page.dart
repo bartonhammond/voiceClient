@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -76,6 +79,9 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   };
 
   final List<Map<String, dynamic>> _tagItems = [];
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
+  VoidCallback _refetchQuery;
 
   @override
   void initState() {
@@ -97,12 +103,24 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         }
       }
     }
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {
+        _refetchQuery();
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
     _debouncer.stop();
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
     super.dispose();
   }
 
@@ -270,7 +288,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
       'user': user,
     };
     _tagItems.add(tag);
-    if (widget.story == null) {
+    if (widget.story == null || widget.isBook) {
       _tagsHaveChanged = true;
     } else {
       _tagsHaveChanged = haveTagsChanged();
@@ -280,6 +298,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   }
 
   void onDelete(Map<String, dynamic> user) {
+    _tagsHaveChanged = false;
     for (var tag in _tagItems) {
       if (tag['id'] == user['id']) {
         _tagItems.remove(tag);
@@ -287,7 +306,13 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
       }
     }
     setState(() {
-      _tagsHaveChanged = haveTagsChanged();
+      if (widget.isBook &&
+          widget.story['user']['isBook'] &&
+          _tagItems.isEmpty) {
+        _tagsHaveChanged = true;
+      } else {
+        _tagsHaveChanged = haveTagsChanged();
+      }
     });
   }
 
@@ -317,8 +342,15 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
           ? () async {
               if (widget.isBook) {
                 if (widget.onBookSave != null) {
+                  //assign to book
                   if (_tagItems.length == 1) {
                     await widget.onBookSave(_tagItems[0]['user']['id']);
+                    setState(() {
+                      _tagsHaveChanged = false;
+                    });
+                  } else {
+                    //remove current book
+                    await widget.onBookSave(null);
                     setState(() {
                       _tagsHaveChanged = false;
                     });
@@ -331,7 +363,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                 );
                 for (var tag in _tagItems) {
                   await addStoryTag(
-                    graphQLAuth.currentUserId,
+                    graphQLAuth.getUserMap()['id'],
                     GraphQLProvider.of(context).value,
                     widget.story,
                     tag,
@@ -391,9 +423,10 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         appBar: AppBar(
           backgroundColor: Color(0xff00bcd4),
           title: Text(Strings.MFV.i18n),
-          actions: checkProxy(graphQLAuth, context, () {
-            setState(() {});
-          }),
+          actions: checkProxy(
+            graphQLAuth,
+            context,
+          ),
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -436,6 +469,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                         stackTrace: StackTrace.current.toString());
                     return Text('\nErrors: \n  ' + result.exception.toString());
                   }
+                  _refetchQuery = refetch;
                   List<dynamic> friends;
                   if (widget.isBook) {
                     friends = List<dynamic>.from(

@@ -238,7 +238,7 @@ class _UnicornDialer extends State<UnicornDialer>
               return Positioned(
                 right: widget.orientation == UnicornOrientation.VERTICAL
                     ? widget.childButtons[index].currentButton.mini
-                        ? 75.0
+                        ? 55.0
                         : 0.0
                     : ((widget.childButtons.length - index) * 55.0) + 15,
                 bottom: widget.orientation == UnicornOrientation.VERTICAL
@@ -272,17 +272,24 @@ class _UnicornDialer extends State<UnicornDialer>
               );
             });
 
-      final unicornDialWidget = Container(
-          margin: widget.hasNotch ? EdgeInsets.only(bottom: 15.0) : null,
-          height: 190,
-          width: 180,
+      final unicornDialWidget = Padding(
+        padding: EdgeInsets.fromLTRB(0, 0, 0, 25),
+        child: Container(
+          margin: widget.hasNotch ? EdgeInsets.only(bottom: 5.0) : null,
+          height: 190, //190
+          width: 150, //135 150
           child: Stack(
-              //fit: StackFit.expand,
-              alignment: Alignment.bottomCenter,
-              clipBehavior: Clip.none,
-              children: childButtonsList.toList()
-                ..add(Positioned(
-                    right: null, bottom: null, child: mainFloatingButton))));
+            //fit: StackFit.expand,
+            alignment: Alignment.bottomCenter,
+            clipBehavior: Clip.none,
+            children: childButtonsList.toList()
+              ..add(
+                Positioned(
+                    right: null, bottom: null, child: mainFloatingButton),
+              ),
+          ),
+        ),
+      );
 
       final modal = ScaleTransition(
           scale: CurvedAnimation(

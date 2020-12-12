@@ -32,12 +32,15 @@ class CustomRaisedButton extends StatelessWidget {
   }
 
   Widget buildText(String text, BuildContext context) {
-    return Text(
-      text,
-      style: TextStyle(
-        fontSize: fontSize,
-        fontWeight: FontWeight.w400,
-        color: Colors.black,
+    return Padding(
+      padding: EdgeInsets.fromLTRB(5, 5, 10, 5),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.w400,
+          color: Colors.black,
+        ),
       ),
     );
   }
@@ -57,7 +60,7 @@ class CustomRaisedButton extends StatelessWidget {
                       color: Color(0xff00bcd4),
                       onPressed: onPressed,
                       icon: icon,
-                      padding: EdgeInsets.all(10),
+                      padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
                       label: buildText(
                         text,
                         context,

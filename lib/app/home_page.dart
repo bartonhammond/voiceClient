@@ -78,7 +78,6 @@ class _HomePageState extends State<HomePage> {
           child: Icon(Icons.history),
           onPressed: _areTabsEnabled
               ? () {
-                  print('story pressed');
                   Navigator.push<dynamic>(context,
                       MaterialPageRoute<dynamic>(builder: (context) {
                     params['onFinish'] = () {
@@ -104,7 +103,6 @@ class _HomePageState extends State<HomePage> {
             mini: true,
             onPressed: _areTabsEnabled
                 ? () {
-                    print('book pressed');
                     Navigator.push<dynamic>(
                       context,
                       MaterialPageRoute<dynamic>(
@@ -130,7 +128,7 @@ class _HomePageState extends State<HomePage> {
           )
         : FloatingActionButton(
             backgroundColor: Color(0xff00bcd4),
-            onPressed: null,
+            onPressed: () {},
             tooltip: Strings.toolTipFAB.i18n,
             child: Icon(
               Icons.add,

@@ -47,6 +47,8 @@ class StoriesPage extends StatefulWidget {
 class _StoriesPageState extends State<StoriesPage> {
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   Map<String, dynamic> user;
 
@@ -104,7 +106,12 @@ class _StoriesPageState extends State<StoriesPage> {
   @override
   void initState() {
     super.initState();
-
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {});
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {});
+    });
     if (getId() == null) {
       _typeStoryView = TypeStoriesView.allFriends;
     } else {
@@ -114,6 +121,13 @@ class _StoriesPageState extends State<StoriesPage> {
         _typeStoryView = TypeStoriesView.oneFriend;
       }
     }
+  }
+
+  @override
+  void dispose() {
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
+    super.dispose();
   }
 
   String getId() {
@@ -342,7 +356,6 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('storiesPage.build');
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -385,9 +398,7 @@ class _StoriesPageState extends State<StoriesPage> {
             title: Text(
               Strings.MFV.i18n,
             ),
-            actions: checkProxy(graphQLAuth, context, () {
-              setState(() {});
-            }),
+            actions: checkProxy(graphQLAuth, context),
           ),
           drawer: getId() == null ? getDrawer(context) : null,
           body: Container(
@@ -396,7 +407,11 @@ class _StoriesPageState extends State<StoriesPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getId() == null ? Container() : FriendWidget(user: user),
+                getId() == null
+                    ? Container()
+                    : FriendWidget(
+                        user: user,
+                      ),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
@@ -465,9 +480,6 @@ class _StoriesPageState extends State<StoriesPage> {
                                           onPush: widget.onPush,
                                           showFriend: getId() == null,
                                           onDelete: () {
-                                            setState(() {});
-                                          },
-                                          onProxySelected: () {
                                             setState(() {});
                                           },
                                           story: Map<String, dynamic>.from(

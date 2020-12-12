@@ -16,6 +16,10 @@ class BookHasNoStories {
   String id;
 }
 
+class ProxyStarted {}
+
+class ProxyEnded {}
+
 class BookWasAdded {}
 
 class BookWasDeleted {}

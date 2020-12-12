@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
 
@@ -18,6 +19,7 @@ import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
@@ -77,10 +79,28 @@ class _StoryPlayState extends State<StoryPlay>
   DeviceScreenType deviceType;
   bool _showIcons = false;
 
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
+  GraphQLClient graphQLClient;
+  GraphQLClient graphQLClientFileServer;
+
   @override
   void initState() {
     _id = _uuid.v1();
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {});
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {});
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
+    super.dispose();
   }
 
   @override
@@ -107,18 +127,27 @@ class _StoryPlayState extends State<StoryPlay>
     super.didChangeDependencies();
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
   Future<void> setBook(String id) async {
-    await changeStoriesUser(
-      GraphQLProvider.of(context).value,
-      _story['user']['id'],
-      id,
-      _story['id'],
-    );
+    if (id == null) {
+      //remove the current book
+      final String currentUserId = await getUserIdByEmail(
+        graphQLClient,
+        _story['user']['bookAuthorEmail'],
+      );
+      await changeStoriesUser(
+        graphQLClient,
+        _story['user']['id'],
+        currentUserId,
+        _story['id'],
+      );
+    } else {
+      await changeStoriesUser(
+        graphQLClient,
+        _story['user']['id'],
+        id,
+        _story['id'],
+      );
+    }
     setState(() {});
   }
 
@@ -144,9 +173,6 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = audio;
       _uploadInProgress = true;
     });
-
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     await doCommentUploads(
       graphQLAuth,
@@ -179,9 +205,6 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudioWeb = bytes;
       _uploadInProgress = true;
     });
-
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
 
     await doCommentUploads(
       graphQLAuth,
@@ -241,6 +264,10 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   Widget build(BuildContext context) {
     _isWeb = AppConfig.of(context).isWeb;
+    graphQLClient = GraphQLProvider.of(context).value;
+    graphQLClientFileServer =
+        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
+
     return FutureBuilder(
         future: Future.wait([
           getStory(),
@@ -262,7 +289,6 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
-          print('storyPlay.build story is null is ${_story == null}');
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;
           } else {
@@ -299,9 +325,10 @@ class _StoryPlayState extends State<StoryPlay>
                 title: Text(
                   Strings.MFV.i18n,
                 ),
-                actions: checkProxy(graphQLAuth, context, () {
-                  setState(() {});
-                }),
+                actions: checkProxy(
+                  graphQLAuth,
+                  context,
+                ),
                 backgroundColor: Color(0xff00bcd4),
                 leading: IconButton(
                     icon: Icon(MdiIcons.lessThan),
@@ -322,13 +349,10 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<Map> getStory() async {
-    print('storyPlay.getStory start _storyWasSaved: $_storyWasSaved');
     if (!(_storyWasSaved ||
         (widget.params != null &&
             widget.params.isNotEmpty &&
             widget.params.containsKey('id')))) {
-      print(
-          'storyPlay.getStory widget.params.containsKey is ${widget.params.containsKey("id")}');
       return null;
     }
 
@@ -340,24 +364,18 @@ class _StoryPlayState extends State<StoryPlay>
       },
     );
 
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
       throw queryResult.exception;
     }
 
     if (queryResult.data['Story'].length > 0) {
-      print('storyPlay.getStory return story');
       return queryResult.data['Story'][0];
     }
     return null;
   }
 
   Future<void> doImageUpload() async {
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
     MultipartFile multipartFile;
 
     if (_image != null) {
@@ -393,14 +411,9 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> doAudioUpload() async {
-    print('storyplay.doAudioUpload start');
-    final GraphQLClient graphQLClientFileServer =
-        graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);
-
     MultipartFile multipartFile;
 
     if (_storyAudioWeb != null) {
-      print('storyplay.doAudioUpload  _storyAudioWeb not null');
       multipartFile = MultipartFile.fromBytes(
         'audio',
         _storyAudioWeb,
@@ -410,7 +423,6 @@ class _StoryPlayState extends State<StoryPlay>
     }
 
     if (_storyAudio != null) {
-      print('storyplay.doAudioUpload  _storyAudio not null');
       multipartFile = getMultipartFile(
         _storyAudio,
         '$_id.mp3',
@@ -419,7 +431,6 @@ class _StoryPlayState extends State<StoryPlay>
       );
     }
     if (multipartFile != null) {
-      print('storyplay.doAudioUpload multipartFile  not null');
       _audioFilePath = await performMutation(
         graphQLClientFileServer,
         multipartFile,
@@ -442,12 +453,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   Future<void> doStoryUpload() async {
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-    print('storyPlay.doStoryUpload _story is null: ${_story == null}');
     if (_story == null) {
-      print(
-          'storyPlay.doStoryUpload _imageFilePath is null: ${_imageFilePath == null}');
-      print(
-          'storyPlay.doStoryUpload _audioFilePath is null: ${_audioFilePath == null}');
       if (_imageFilePath != null && _audioFilePath != null) {
         await addStory(
           graphQLClient,
@@ -472,11 +478,9 @@ class _StoryPlayState extends State<StoryPlay>
       }
     } else {
       //don't update unnecessarily
-      print('storyPlay.doStoryUpload story not null');
       if (_imageFilePath != null ||
           _audioFilePath != null ||
           _storyType != _story['type']) {
-        print('storyPlay.doStoryUpload image, audio or storyType');
 
         _imageFilePath ??= _story['image'];
         _audioFilePath ??= _story['audio'];
@@ -496,13 +500,6 @@ class _StoryPlayState extends State<StoryPlay>
             backgroundColor: Colors.black,
             textColor: Colors.white,
             fontSize: 16.0);
-      } else {
-        print(
-            'storyplay.doStoryUpload _imageFilePath == null ${_imageFilePath == null}');
-        print(
-            'storyplay.doStoryUpload _audioFilePath == null ${_audioFilePath == null}');
-        print(
-            'storyplay.doStoryUpload _storyType != _story[type= ${_storyType != _story["type"]}');
       }
     }
 
@@ -742,44 +739,6 @@ class _StoryPlayState extends State<StoryPlay>
           _story['user']['isBook']
               ? SizedBox(
                   width: 10,
-                )
-              : Container(),
-          _story['user']['isBook']
-              ? CustomRaisedButton(
-                  key: Key('deleteBook'),
-                  text: 'Remove book?',
-                  icon: _showIcons
-                      ? Icon(
-                          Icons.collections_bookmark,
-                          color: Colors.white,
-                        )
-                      : null,
-                  onPressed: () async {
-                    final bool _removeBook = await PlatformAlertDialog(
-                      title: 'Remove book?',
-                      content: Strings.areYouSure.i18n,
-                      cancelActionText: Strings.cancel.i18n,
-                      defaultActionText: Strings.yes.i18n,
-                    ).show(context);
-                    if (_removeBook == true) {
-                      final GraphQLClient graphQLClient =
-                          GraphQLProvider.of(context).value;
-
-                      final String currentUserId = await getUserIdByEmail(
-                        graphQLClient,
-                        _story['user']['bookAuthorEmail'],
-                      );
-                      print('StoryPlay storyId ${_story["id"]}');
-                      await changeStoriesUser(
-                        GraphQLProvider.of(context).value,
-                        _story['user']['id'],
-                        currentUserId,
-                        _story['id'],
-                      );
-
-                      setState(() {});
-                    }
-                  },
                 )
               : Container(),
         ],

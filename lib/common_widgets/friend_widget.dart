@@ -38,14 +38,12 @@ class FriendWidget extends StatefulWidget {
     this.message,
     this.showFamilyCheckbox = true,
     this.allowExpandToggle = true,
-    this.onProxySelected,
   });
   Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map<String, dynamic> story;
   final VoidCallback onDelete;
   final VoidCallback callBack;
-  final VoidCallback onProxySelected;
   final Widget friendButton;
   final ValueChanged<Map<String, dynamic>> onFriendPush;
   final bool showBorder;
@@ -232,13 +230,11 @@ class _FriendWidgetState extends State<FriendWidget> {
 
     return MessageButton(
       key: Key('messageButton-${widget.user["id"]}'),
-      text: 'Proxy?',
+      text: 'Manage?',
       onPressed: () async {
         await graphQLAuth.setProxy(widget.user['email']);
         setState(() {});
-        if (widget.onProxySelected != null) {
-          widget.onProxySelected();
-        }
+        eventBus.fire(ProxyStarted());
         //Check if there are pending messages
         eventBus.fire(GetUserMessagesEvent());
       },

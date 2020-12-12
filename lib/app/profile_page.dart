@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
@@ -72,13 +73,14 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController nameFormFieldController = TextEditingController();
   TextEditingController homeFormFieldController = TextEditingController();
 
+  StreamSubscription proxyStartedSubscription;
+  StreamSubscription proxyEndedSubscription;
+
   Future<Map<String, dynamic>> getUser() async {
-    print('profilepage.getUser');
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
     Map<String, dynamic> user;
     if (widget.isBook) {
-      print('profilePage.getUser isBook');
       user = <String, dynamic>{
         'id': '',
         'email': '',
@@ -90,7 +92,6 @@ class _ProfilePageState extends State<ProfilePage> {
       };
     } else if (graphQLAuth.getUserMap() == null) {
       //must be new user
-      print('profilePage.getUser null');
       user = <String, dynamic>{
         'id': '',
         'email': graphQLAuth.user.email,
@@ -102,7 +103,6 @@ class _ProfilePageState extends State<ProfilePage> {
       };
     } else {
       //existing user
-      print('profilePage.getUser getUserMap');
       graphQLAuth.setupEnvironment();
       user = graphQLAuth.getUserMap();
     }
@@ -112,6 +112,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
+      setState(() {});
+    });
+    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
+      setState(() {});
+    });
   }
 
   @override
@@ -119,6 +125,8 @@ class _ProfilePageState extends State<ProfilePage> {
     emailFormFieldController.dispose();
     nameFormFieldController.dispose();
     homeFormFieldController.dispose();
+    proxyStartedSubscription.cancel();
+    proxyEndedSubscription.cancel();
     super.dispose();
   }
 
@@ -236,8 +244,6 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!nameIsValid || !homeIsValid) {
         return;
       }
-      print('profilePage doUploads jpegPathUrl isNull? {$jpegPathUrl == null}');
-      print('profilePage jpegPathUrl $jpegPathUrl');
       final QueryResult queryResult = await createOrUpdateUserInfo(
         shouldCreateUser,
         graphQLClient,
@@ -331,11 +337,6 @@ class _ProfilePageState extends State<ProfilePage> {
           _width = _height = 100;
         }
     }
-    print('profilePage form _image: isNull ? ${_image == null}');
-    print(
-        'profilePage form _webImageBytes: isNull ? ${_webImageBytes == null}');
-    print('profilePage userId: $userId');
-    print('profilePage user["image"]: |${user["image"]}|');
 
     return SingleChildScrollView(
         key: _formKey,
@@ -456,7 +457,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     });
                   },
                   onWebCroppedCallback: (ByteData imageBytes) async {
-                    print('profilePage.onWebCroppedCallback');
                     setState(() {
                       _webImageBytes = imageBytes;
                       _uploadInProgress = true;
@@ -468,7 +468,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     });
                   },
                   onImageSelected: (io.File croppedFile) async {
-                    print('profilePage.onImageSelected');
                     setState(() {
                       _image = croppedFile;
                       _uploadInProgress = true;
@@ -660,13 +659,10 @@ class _ProfilePageState extends State<ProfilePage> {
           user = snapshot.data[0];
           isBook = user['isBook'] || widget.isBook;
 
-          print('profilePage build userId: $userId user["id"]: ${user["id"]}');
-
           //if user is new, user['id'] will be empty
           if (user['id'].isNotEmpty && userId != user['id']) {
             userId = user['id'];
             userImage = user['image'];
-            print('profilePage build setting formFieldControllers');
             emailFormFieldController.text = user['email'];
             nameFormFieldController.text = user['name'];
             homeFormFieldController.text = user['home'];
@@ -684,12 +680,12 @@ class _ProfilePageState extends State<ProfilePage> {
             key: _scaffoldKey,
             drawer: isBook ? null : getDrawer(context),
             appBar: AppBar(
-              title: isBook ? Text('Book') : Text(Strings.profilePageName.i18n),
-              backgroundColor: Constants.backgroundColor,
-              actions: checkProxy(graphQLAuth, context, () {
-                setState(() {});
-              }),
-            ),
+                title: Text(Strings.MFV.i18n),
+                backgroundColor: Constants.backgroundColor,
+                actions: checkProxy(
+                  graphQLAuth,
+                  context,
+                )),
             body: getForm(),
           );
         });
