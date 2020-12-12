@@ -191,10 +191,10 @@ class _FriendWidgetState extends State<FriendWidget> {
 
     return MessageButton(
       key: Key('messageButton-${widget.user["id"]}'),
-      text: 'Delete?',
+      text: Strings.deleteBookButton,
       onPressed: () async {
         final bool delete = await PlatformAlertDialog(
-          title: 'Delete Book?',
+          title: Strings.deleteBookTitle.i18n,
           content: Strings.areYouSure.i18n,
           cancelActionText: Strings.cancel.i18n,
           defaultActionText: Strings.yes.i18n,
@@ -230,7 +230,7 @@ class _FriendWidgetState extends State<FriendWidget> {
 
     return MessageButton(
       key: Key('messageButton-${widget.user["id"]}'),
-      text: 'Manage?',
+      text: Strings.manageBook.i18n,
       onPressed: () async {
         await graphQLAuth.setProxy(widget.user['email']);
         setState(() {});

@@ -79,8 +79,8 @@ class _AuthDialogState extends State<AuthDialog> {
       });
       _formReady();
     });
-    textControllerEmail.text = 'admin@myfamilyvoice.com';
-    textControllerPassword.text = 'Passw0rd';
+    textControllerEmail.text = '';
+    textControllerPassword.text = '';
     super.initState();
   }
 

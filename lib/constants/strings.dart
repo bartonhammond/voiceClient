@@ -96,6 +96,9 @@ class Strings {
   static const String yourHomeLabel = 'Home';
   static const String nameEmptyMessage = 'Please enter your name';
   static const String homeEmptyMessage = 'Please enter your home';
+  static const String nameLengthMessage =
+      'Name length should be greater than 5';
+  static const String homeLengthMessage = 'Home length must be greater than 1';
 
   //Story Page
   static const String imagePlaceholder = 'Image Placeholder';
@@ -114,6 +117,13 @@ class Strings {
   static const String addTagHere = 'Add tag here';
   static const String showAllTags = 'Show all tags';
   static const String deleteStoryButton = 'Delete story?';
+  static const String deleteBookButton = 'Delete?';
+  static const String deleteBookTitle = 'Delete Book?';
+  static const String manageBook = 'Manage?';
+  static const String bookName = 'Book';
+  static const String selectBookTitle = 'Select Book';
+  static const String selectBookDescription = 'Only one book can be selected';
+  static const String quitManagingTitle = 'Quit Managing?';
 
   //Fab With Icons
   static const String incrementToolTip = 'Add Story';

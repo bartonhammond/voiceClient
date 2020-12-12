@@ -557,7 +557,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       return Strings.nameEmptyMessage.i18n;
                     }
                     if (value.length < 5) {
-                      return 'Name length should be greater than 5';
+                      return Strings.nameLengthMessage.i18n;
                     }
                     nameIsValid = true;
                     return null;

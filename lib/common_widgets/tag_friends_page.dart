@@ -277,8 +277,8 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   Future<void> onSelect(Map<String, dynamic> user) async {
     if (widget.isBook && _tagItems.length == 1) {
       await PlatformAlertDialog(
-        title: 'Select Book',
-        content: 'Only one book can be selected',
+        title: Strings.selectBookTitle.i18n,
+        content: Strings.selectBookDescription.i18n,
         defaultActionText: Strings.ok.i18n,
       ).show(context);
       return;
