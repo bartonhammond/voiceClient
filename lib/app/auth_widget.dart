@@ -28,7 +28,9 @@ class AuthWidget extends StatelessWidget {
   final String userEmail;
 
   Future<Locale> getLocaleFromStorage(BuildContext context) async {
-    final Locale locale = await LocaleSecureStore().getLocale();
+    Locale locale = await LocaleSecureStore().getLocale();
+    locale ??= Locale('en');
+
     I18n.of(context).locale = locale;
 
     return locale;
@@ -92,7 +94,7 @@ class AuthWidget extends StatelessWidget {
           );
         }
         return I18n(
-          initialLocale: snapshot.data,
+          initialLocale: snapshot.data[1],
           child: WebHomePage(),
         );
       },

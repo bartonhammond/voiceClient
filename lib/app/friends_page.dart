@@ -62,14 +62,16 @@ class _FriendsPageState extends State<FriendsPage> {
     2: true,
     3: true,
     4: true,
+    5: true,
   };
 
   Map<int, String> searchResultsName = {
-    0: 'userSearchFamily',
-    1: 'userSearchFriends',
-    2: 'userSearchNotFriends',
-    3: 'userSearchBooks',
-    4: 'User'
+    0: 'userSearch',
+    1: 'userSearchFamily',
+    2: 'userSearchFriends',
+    3: 'userSearchNotFriends',
+    4: 'userSearchBooks',
+    5: 'User'
   };
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
@@ -77,7 +79,7 @@ class _FriendsPageState extends State<FriendsPage> {
   @override
   void initState() {
     _searchString = '*';
-    _typeUser = TypeUser.family;
+    _typeUser = TypeUser.all;
     bookWasDeletedSubscription = eventBus.on<BookWasDeleted>().listen((event) {
       setState(() {
         _refetchQuery();
@@ -193,6 +195,10 @@ class _FriendsPageState extends State<FriendsPage> {
       child: DropdownButton<TypeUser>(
         value: _typeUser,
         items: [
+          DropdownMenuItem(
+            child: Text('All'),
+            value: TypeUser.all,
+          ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonFamily.i18n,
@@ -325,6 +331,9 @@ class _FriendsPageState extends State<FriendsPage> {
       'skip': _skip.toString(),
     };
     switch (_typeUser) {
+      case TypeUser.all:
+        gqlString = userSearchQL;
+        break;
       case TypeUser.family:
         gqlString = userSearchFamilyQL;
         break;
@@ -460,11 +469,7 @@ class _FriendsPageState extends State<FriendsPage> {
                             return index < friends.length
                                 ? StaggeredGridTileFriend(
                                     typeUser: _typeUser,
-                                    onPush: _typeUser == TypeUser.friends ||
-                                            _typeUser == TypeUser.me ||
-                                            _typeUser == TypeUser.family
-                                        ? widget.onPush
-                                        : null,
+                                    onPush: widget.onPush,
                                     friend: friends[index],
                                     friendButton: getMessageButton(
                                       allNewFriendRequestsToMe,
@@ -636,8 +641,9 @@ class _FriendsPageState extends State<FriendsPage> {
       default:
         _fontSize = 20;
     }
-    if (_typeUser == TypeUser.me) {
-      return TmpObj(button: Container(), isFriend: true, ignore: true);
+    if (_typeUser == TypeUser.me ||
+        friends[index]['id'] == graphQLAuth.getUserMap()['id']) {
+      return TmpObj(button: Container(), isFriend: true, ignore: false);
     }
     //check if proxy is active and building for him/her
     if (graphQLAuth.isProxy &&

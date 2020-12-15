@@ -49,6 +49,7 @@ class _StoriesPageState extends State<StoriesPage> {
   final ScrollController _scrollController = ScrollController();
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
+  StreamSubscription storyWasAssignedToBookSubscription;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   Map<String, dynamic> user;
 
@@ -103,15 +104,42 @@ class _StoriesPageState extends State<StoriesPage> {
     },
   };
 
+  VoidCallback _refetchQuery;
+
   @override
   void initState() {
     super.initState();
     proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      setState(() {});
+      print('storiesPage onProxyStarted');
+      setState(() {
+        if (_refetchQuery != null) {
+          print('storiesPage onProxyStarted refetch');
+          _refetchQuery();
+        }
+      });
     });
     proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      setState(() {});
+      print('storiesPage onProxyEnded');
+
+      setState(() {
+        if (_refetchQuery != null) {
+          print('storiesPage onProxyEnded refetch');
+          _refetchQuery();
+        }
+      });
     });
+    storyWasAssignedToBookSubscription =
+        eventBus.on<StoryWasAssignedToBook>().listen((event) {
+      print('storiesPage storyWasAssignedToBook');
+
+      setState(() {
+        if (_refetchQuery != null) {
+          print('storiesPage storyWasAssignedToBook refetch');
+          _refetchQuery();
+        }
+      });
+    });
+
     if (getId() == null) {
       _typeStoryView = TypeStoriesView.allFriends;
     } else {
@@ -127,6 +155,7 @@ class _StoriesPageState extends State<StoriesPage> {
   void dispose() {
     proxyStartedSubscription.cancel();
     proxyEndedSubscription.cancel();
+    storyWasAssignedToBookSubscription.cancel();
     super.dispose();
   }
 
@@ -440,7 +469,7 @@ class _StoriesPageState extends State<StoriesPage> {
                         return Text(
                             '\nErrors: \n  ' + result.exception.toString());
                       }
-
+                      _refetchQuery = refetch;
                       final List<dynamic> stories = List<dynamic>.from(
                           result.data[searchResultsName[_typeStoryView]
                               [_storyFeedType]]);

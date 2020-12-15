@@ -14,6 +14,9 @@ const String _user_ = r'''
     image
     isBook
     bookAuthorEmail
+    created{
+      formatted
+    }
     friends {
       from {
         isFamily
@@ -24,17 +27,9 @@ const String _user_ = r'''
     }
   }
 ''';
-const String getUserByEmailQL = r'''
-query getUserByEmail($email: String!) {
-  User(email: $email)''' +
-    _user_ +
-    '''
-}
-''';
 
-const String getUserByEmailForAuthQL = r'''
-query getUserByEmail($email: String!) {
-  User(email: $email) {
+const String _friend_ = r'''
+ {
     __typename
     id
     name
@@ -43,16 +38,19 @@ query getUserByEmail($email: String!) {
     image
     isBook
     bookAuthorEmail
+    created {
+      formatted
+    }
+    friends {
+      from {
+        isFamily
+        User {
+          email
+        }
+      }
+    }
   }
-}
-''';
 
-const String getUserByIdQL = r'''
-query getUserById($id: ID!) {
-User(id: $id)''' +
-    _user_ +
-    '''
-}
 ''';
 
 const _story_ = r'''
@@ -122,6 +120,37 @@ const _story_ = r'''
     }
   }
 
+''';
+
+const String getUserByEmailQL = r'''
+query getUserByEmail($email: String!) {
+  User(email: $email)''' +
+    _user_ +
+    '''
+}
+''';
+
+const String getUserByEmailForAuthQL = r'''
+query getUserByEmail($email: String!) {
+  User(email: $email) {
+    __typename
+    id
+    name
+    email
+    home
+    image
+    isBook
+    bookAuthorEmail
+  }
+}
+''';
+
+const String getUserByIdQL = r'''
+query getUserById($id: ID!) {
+User(id: $id)''' +
+    _user_ +
+    '''
+}
 ''';
 
 const String getStoryByIdQL = r'''
@@ -435,60 +464,18 @@ query getFriendsOfMine ($email: String!) {
 
 const String getBooksOfMineQL = r'''
 query getBooksOfMine ($email: String!) {
-  books(email: $email){
-    __typename
-    id
-		email
-    name
-    home
-    image
-    isBook
-    bookAuthorEmail
-    created{
-      formatted
-    }
-  }
+  books(email: $email) ''' +
+    _user_ +
+    '''
 }
 ''';
 
-const String userSearch = r'''
-query userSearch($searchString: String!) {
-  userSearch(searchString: $searchString) {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    isBook
-    bookAuthorEmail
-  }
+const String userSearchQL = r'''
+query userSearch($searchString: String!, $skip: String!, $limit: String!) {
+  userSearch(searchString: $searchString, skip: $skip, limit: $limit) ''' +
+    _friend_ +
+    '''
 }
-''';
-
-const String _friend_ = r'''
- {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    isBook
-    bookAuthorEmail
-    created {
-      formatted
-    }
-    friends {
-      from {
-        isFamily
-        User {
-          email
-        }
-      }
-    }
-  }
-
 ''';
 
 const String userSearchFriendsQL = r'''
@@ -533,6 +520,14 @@ query userSearchBooks($searchString: String!, $email: String!, $skip: String!, $
 const String userSearchNotFriendsQL = r'''
 query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+    _friend_ +
+    '''  
+}
+''';
+
+const String userSearchNotFriendsBooksQL = r'''
+query userSearchNotFriendsBooks($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
+  userSearchNotFriendsBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
     _friend_ +
     '''  
 }

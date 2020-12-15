@@ -81,6 +81,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
+
   GraphQLClient graphQLClient;
   GraphQLClient graphQLClientFileServer;
 
@@ -148,6 +149,8 @@ class _StoryPlayState extends State<StoryPlay>
         _story['id'],
       );
     }
+    eventBus.fire(StoryWasAssignedToBook());
+
     setState(() {});
   }
 
@@ -481,7 +484,6 @@ class _StoryPlayState extends State<StoryPlay>
       if (_imageFilePath != null ||
           _audioFilePath != null ||
           _storyType != _story['type']) {
-
         _imageFilePath ??= _story['image'];
         _audioFilePath ??= _story['audio'];
         await updateStory(
