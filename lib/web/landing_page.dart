@@ -749,7 +749,8 @@ class _LandingPageState extends State<LandingPage> {
               // Passing controller to widgets below.
               controller: _controller,
               child: SizedBox(
-                height: 750,
+                height: 950,
+                width: 800,
                 child: ListView(
                   children: const [
                     player,
