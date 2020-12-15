@@ -2,6 +2,8 @@ import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
+import 'package:flutter/services.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -10,6 +12,45 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  YoutubePlayerController _controller;
+
+  @override
+  void initState() {
+    _controller = YoutubePlayerController(
+      initialVideoId: 'xfBFZPsx8UA', //whoami
+      params: const YoutubePlayerParams(
+        playlist: [
+          'za8jb5dDBq0', //Registration
+          '8CMrwyZ9mFg', //Users Tab
+          'OAIeQqVePIQ', //Notices
+          'kegALu9x5_U', //Story
+          '6a4AuphhnQ8', //Stories tab
+          'Bs6A6Cqy7M0', //Distribution
+          'PQKEdjpD6LA', //Tagging
+          'pzkQ7uJ-jxM', //Books
+        ],
+        autoPlay: false,
+        showControls: false,
+        showFullscreenButton: true,
+      ),
+    );
+    _controller.onEnterFullscreen = () {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeLeft,
+        DeviceOrientation.landscapeRight,
+      ]);
+    };
+    _controller.onExitFullscreen = () {
+      SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+      Future.delayed(const Duration(seconds: 1), () {
+        _controller.play();
+      });
+      Future.delayed(const Duration(seconds: 5), () {
+        SystemChrome.setPreferredOrientations(DeviceOrientation.values);
+      });
+      super.initState();
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -138,6 +179,8 @@ class _LandingPageState extends State<LandingPage> {
                   Strings.landingFeatureFourExplain.i18n,
                   'momHS.png',
                 ),
+                _buildFeatureYouTube('CHECK OUT THE INSTRUCTIONAL VIDEOS',
+                    'Learn how easy it is to use My Family Voice'),
                 Container(
                   color: Colors.white,
                   width: MediaQuery.of(context).size.height * 0.5,
@@ -629,5 +672,94 @@ class _LandingPageState extends State<LandingPage> {
               ),
             ],
           );
+  }
+
+  Widget _buildFeatureYouTube(
+    String title,
+    String sub,
+  ) {
+    const player = YoutubePlayerIFrame();
+    return Container(
+      height: MediaQuery.of(context).size.height,
+      color: Colors.blue.shade100,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
+        alignment: WrapAlignment.center,
+        runSpacing: 10.0,
+        spacing: 10.0,
+        children: <Widget>[
+          Container(
+            width: MediaQuery.of(context).size.height,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          .copyWith(fontSize: 15.0, color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      sub,
+                      style: Theme.of(context).textTheme.headline3.copyWith(
+                          fontWeight: FontWeight.bold, color: Colors.black),
+                    ),
+                  ),
+                  Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: <Widget>[
+                            Text('Be sure to click on the playlist  ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyText1
+                                    .copyWith(
+                                      fontSize: 18.0,
+                                      height: 1.8,
+                                      fontWeight: FontWeight.w300,
+                                    )),
+                            Icon(Icons.playlist_play),
+                            Text(' to see all available videos',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodyText1
+                                    .copyWith(
+                                      fontSize: 18.0,
+                                      height: 1.8,
+                                      fontWeight: FontWeight.w300,
+                                    )),
+                          ])),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            child: YoutubePlayerControllerProvider(
+              // Passing controller to widgets below.
+              controller: _controller,
+              child: SizedBox(
+                height: 750,
+                child: ListView(
+                  children: const [
+                    player,
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 }

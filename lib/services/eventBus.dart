@@ -24,6 +24,8 @@ class BookWasAdded {}
 
 class BookWasDeleted {}
 
+class StoryWasAssignedToBook {}
+
 class ProfileEvent {
   ProfileEvent(this.isComplete);
   bool isComplete;

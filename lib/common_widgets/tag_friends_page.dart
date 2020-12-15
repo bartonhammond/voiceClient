@@ -60,22 +60,25 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     2: true,
     3: true,
     4: true,
+    5: true,
   };
 
   Map<int, String> searchResultsName = {
-    0: 'userSearchFamily', //TypeUser.family
-    1: 'userSearchFriends', //TypeUser.friends
-    2: 'userSearchNotFriends', //TypeUser.users
-    3: 'userSearchBooks', //TypeUser.books
-    4: 'User' //TypeUser.me
+    0: 'userSearch', //TypeUser.all
+    1: 'userSearchFamily', //TypeUser.family
+    2: 'userSearchFriends', //TypeUser.friends
+    3: 'userSearchNotFriends', //TypeUser.users
+    4: 'userSearchBooks', //TypeUser.books
+    5: 'User' //TypeUser.me
   };
 
   Map<int, String> searchResultsNameBooks = {
-    0: 'userSearchFamilyBooks',
-    1: 'userSearchFriendsBooks',
-    2: 'userSearchNotFriends',
-    3: 'userSearchBooks',
-    4: 'User'
+    0: 'userSearchBooks',
+    1: 'userSearchFamilyBooks',
+    2: 'userSearchFriendsBooks',
+    3: 'userSearchNotFriendsBooks',
+    4: 'userSearchBooks',
+    5: 'User'
   };
 
   final List<Map<String, dynamic>> _tagItems = [];
@@ -229,7 +232,11 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         }
         break;
       case TypeUser.users:
-        gqlString = userSearchNotFriendsQL;
+        if (widget.isBook) {
+          gqlString = userSearchNotFriendsBooksQL;
+        } else {
+          gqlString = userSearchNotFriendsQL;
+        }
         break;
       case TypeUser.books:
         gqlString = userSearchBooksQL;

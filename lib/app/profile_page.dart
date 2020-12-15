@@ -66,7 +66,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool formReady = false;
   bool nameIsValid = false;
   bool homeIsValid = false;
-  ByteData _webImageBytes;
+  Uint8List _webImage;
+
   String jpegPathUrl;
 
   TextEditingController emailFormFieldController = TextEditingController();
@@ -132,13 +133,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
   bool _formReady() {
     if (shouldCreateUser) {
-      if ((_isWeb && _webImageBytes != null || !_isWeb && _image != null) &&
+      if ((_isWeb && _webImage != null || !_isWeb && _image != null) &&
           nameIsValid &&
           homeIsValid) {
         return true;
       }
     } else {
-      if ((_isWeb && _webImageBytes != null || !_isWeb && _image != null) ||
+      if ((_isWeb && _webImage != null || !_isWeb && _image != null) ||
           (nameIsValid && homeIsValid)) {
         return true;
       }
@@ -219,13 +220,9 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       if (imageUpdated) {
         MultipartFile multipartFile;
-        if (_isWeb && _webImageBytes != null) {
-          multipartFile = MultipartFile.fromBytes(
-              'image',
-              _webImageBytes.buffer
-                  .asUint8List(0, _webImageBytes.lengthInBytes),
-              filename: '$userId.jpg',
-              contentType: MediaType('image', 'jpeg'));
+        if (_isWeb && _webImage != null) {
+          multipartFile = MultipartFile.fromBytes('image', _webImage,
+              filename: '$userId.jpg', contentType: MediaType('image', 'jpeg'));
         } else {
           multipartFile = getMultipartFile(
             _image,
@@ -358,13 +355,11 @@ class _ProfilePageState extends State<ProfilePage> {
                     height: _height.toDouble(),
                   ),
                 )
-              else if (_webImageBytes != null)
+              else if (_webImage != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(40.0),
                   child: Image.memory(
-                    _webImageBytes.buffer.asUint8List(
-                        _webImageBytes.offsetInBytes,
-                        _webImageBytes.lengthInBytes),
+                    _webImage,
                     width: _width.toDouble(),
                     height: _height.toDouble(),
                   ),
@@ -458,7 +453,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   onWebCroppedCallback: (ByteData imageBytes) async {
                     setState(() {
-                      _webImageBytes = imageBytes;
+                      _webImage = imageBytes.buffer.asUint8List(
+                          imageBytes.offsetInBytes, imageBytes.lengthInBytes);
+
                       _uploadInProgress = true;
                       imageUpdated = true;
                     });

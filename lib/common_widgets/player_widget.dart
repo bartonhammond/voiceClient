@@ -190,6 +190,7 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     try {
       final playPosition = (widget.position != null &&
               widget.duration != null &&
+              widget.position.inMilliseconds != null &&
               widget.position.inMilliseconds > 0 &&
               widget.position.inMilliseconds < widget.duration.inMilliseconds)
           ? widget.position

@@ -14,6 +14,7 @@ enum TabItem {
 }
 
 enum TypeUser {
+  all,
   family,
   friends,
   users,
