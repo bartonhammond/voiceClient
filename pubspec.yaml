@@ -24,6 +24,7 @@ dependencies:
   audioplayers: ^0.17.0
   auto_size_text: ^2.1.0
   badges: ^1.1.1
+  carousel_slider: ^2.3.1
   configurable_expansion_tile: ^1.0.0
   convert: ^2.1.1
   crop: ^0.4.2

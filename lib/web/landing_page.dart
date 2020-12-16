@@ -1,5 +1,6 @@
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/web/feature_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:flutter/services.dart';
@@ -54,6 +55,9 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('landingPage build');
+    final MediaQueryData queryData = MediaQuery.of(context);
+    print('landingPage devicePixelRatio: ${queryData.devicePixelRatio}');
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -179,6 +183,7 @@ class _LandingPageState extends State<LandingPage> {
                   Strings.landingFeatureFourExplain.i18n,
                   'momHS.png',
                 ),
+                FeatureSlider(),
                 _buildFeatureYouTube('CHECK OUT THE INSTRUCTIONAL VIDEOS',
                     'Learn how easy it is to use My Family Voice'),
                 Container(
@@ -680,8 +685,7 @@ class _LandingPageState extends State<LandingPage> {
   ) {
     const player = YoutubePlayerIFrame();
     return Container(
-      height: MediaQuery.of(context).size.height,
-      color: Colors.blue.shade100,
+      height: 750.0,
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         runAlignment: WrapAlignment.center,
