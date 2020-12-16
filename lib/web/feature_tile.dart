@@ -22,10 +22,10 @@ class FeaturesTile extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w500,
-                color: Color(0xCC262626)),
+            style: Theme.of(context)
+                .textTheme
+                .headline5
+                .copyWith(fontWeight: FontWeight.bold, color: Colors.black),
           ),
           SizedBox(
             height: 8,

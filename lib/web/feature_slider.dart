@@ -1,3 +1,4 @@
+import 'package:MyFamilyVoice/web/carousel.dart';
 import 'package:MyFamilyVoice/web/feature_tile.dart';
 import 'package:MyFamilyVoice/web/general_data.dart';
 import 'package:MyFamilyVoice/web/model/feature_tile_model.dart';
@@ -40,21 +41,23 @@ class _FeatureSliderState extends State<FeatureSlider> {
             height: 50,
           ),
           Text(
-            'Easily Navigation',
+            'Fun for the whole family',
             textAlign: TextAlign.center,
-            style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w500,
-                color: Color(0xCC262626)),
+            style: Theme.of(context)
+                .textTheme
+                .headline3
+                .copyWith(fontWeight: FontWeight.bold, color: Colors.black),
           ),
           SizedBox(
             height: 8,
           ),
-          Text(
-            'Be sure to scroll right and left on the images below to see all the images',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w300),
-          ),
+          Text('Everyone has a Story to tell, Every Story has something to say',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyText1.copyWith(
+                    fontSize: 20.0,
+                    height: 1.8,
+                    fontWeight: FontWeight.w300,
+                  )),
           SizedBox(
             height: 16,
           ),
@@ -76,17 +79,9 @@ class _FeatureSliderState extends State<FeatureSlider> {
                         }),
                   ),
                   Container(
-                    height: 650,
+                    height: 700,
                     width: MediaQuery.of(context).size.width / 3,
-                    child: ListView.builder(
-                        itemCount: screenshots.length,
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return Container(
-                              margin: EdgeInsets.symmetric(horizontal: 40),
-                              child: Image.asset(screenshots[index]));
-                        }),
+                    child: Carousel(screenshots),
                   ),
                   Container(
                     width: MediaQuery.of(context).size.width / 3,
