@@ -1,5 +1,6 @@
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/web/feature_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:flutter/services.dart';
@@ -54,6 +55,9 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    print('landingPage build');
+    final MediaQueryData queryData = MediaQuery.of(context);
+    print('landingPage devicePixelRatio: ${queryData.devicePixelRatio}');
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -155,6 +159,7 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ],
                 ),
+                FeatureSlider(),
                 _buildFeatureOne(
                   Strings.landingFeatureOne.i18n,
                   Strings.landingFeatureOneSub.i18n,
@@ -295,7 +300,6 @@ class _LandingPageState extends State<LandingPage> {
   Widget _buildFeatureOne(
       String title, String sub, String explain, String image) {
     return Container(
-      color: Colors.blue.shade100,
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         runAlignment: WrapAlignment.center,
@@ -315,30 +319,27 @@ class _LandingPageState extends State<LandingPage> {
                     child: Text(
                       title,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyText1
-                          .copyWith(fontSize: 15.0, color: Colors.black),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      sub,
                       style: Theme.of(context).textTheme.headline3.copyWith(
                           fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      explain,
-                      style: Theme.of(context).textTheme.bodyText1.copyWith(
-                            fontSize: 18.0,
-                            height: 1.8,
-                            fontWeight: FontWeight.w300,
-                          ),
-                    ),
+                    child: Text(sub,
+                        style: Theme.of(context).textTheme.bodyText1.copyWith(
+                              fontSize: 20.0,
+                              height: 1.8,
+                              fontWeight: FontWeight.w300,
+                            )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(explain,
+                        style: Theme.of(context).textTheme.bodyText1.copyWith(
+                              fontSize: 20.0,
+                              height: 1.8,
+                              fontWeight: FontWeight.w300,
+                            )),
                   )
                 ],
               ),
@@ -365,128 +366,143 @@ class _LandingPageState extends State<LandingPage> {
     String image,
   ) {
     return orientation == Orientation.portrait
-        ? Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runAlignment: WrapAlignment.center,
-            alignment: WrapAlignment.center,
-            runSpacing: 10.0,
-            spacing: 10.0,
-            children: <Widget>[
-              Container(
-                width: MediaQuery.of(context).size.height * 0.5,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.black),
+        ? Container(
+            color: Colors.blue.shade100,
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runAlignment: WrapAlignment.center,
+              alignment: WrapAlignment.center,
+              runSpacing: 10.0,
+              spacing: 10.0,
+              children: <Widget>[
+                Container(
+                  width: MediaQuery.of(context).size.height * 0.5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyText1
+                                .copyWith(fontSize: 15.0, color: Colors.black),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          sub,
-                          style: Theme.of(context).textTheme.headline3.copyWith(
-                              fontWeight: FontWeight.bold, color: Colors.black),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(sub,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          explain,
-                          style: Theme.of(context).textTheme.bodyText1.copyWith(
-                                fontSize: 18.0,
-                                height: 1.8,
-                                fontWeight: FontWeight.w300,
-                              ),
-                        ),
-                      )
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(explain,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  image,
-                  fit: BoxFit.cover,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                ),
-              ),
-            ],
-          )
-        : Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runAlignment: WrapAlignment.center,
-            alignment: WrapAlignment.center,
-            runSpacing: 10.0,
-            spacing: 10.0,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  image,
-                  fit: BoxFit.cover,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                ),
-              ),
-              Container(
-                width: MediaQuery.of(context).size.height * 0.5,
-                child: Padding(
+                Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.black),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          sub,
-                          style: Theme.of(context).textTheme.headline3.copyWith(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          explain,
-                          style: Theme.of(context).textTheme.bodyText1.copyWith(
-                                fontSize: 18.0,
-                                height: 1.8,
-                                fontWeight: FontWeight.w300,
-                              ),
-                        ),
-                      )
-                    ],
+                  child: Image.asset(
+                    image,
+                    fit: BoxFit.cover,
+                    height: MediaQuery.of(context).size.height * 0.6,
                   ),
                 ),
-              ),
-            ],
-          );
+              ],
+            ))
+        : Container(
+            color: Colors.blue.shade100,
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runAlignment: WrapAlignment.center,
+              alignment: WrapAlignment.center,
+              runSpacing: 10.0,
+              spacing: 10.0,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    image,
+                    fit: BoxFit.cover,
+                    height: MediaQuery.of(context).size.height * 0.6,
+                  ),
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.height * 0.5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline3
+                                .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(sub,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(explain,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ));
   }
 
   Widget _buildFeatureThree(
       String title, String sub, String explain, String image) {
     return Container(
-      color: Colors.blue.shade100,
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         runAlignment: WrapAlignment.center,
@@ -506,30 +522,27 @@ class _LandingPageState extends State<LandingPage> {
                     child: Text(
                       title,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyText1
-                          .copyWith(fontSize: 15.0, color: Colors.black),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      sub,
                       style: Theme.of(context).textTheme.headline3.copyWith(
                           fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      explain,
-                      style: Theme.of(context).textTheme.bodyText1.copyWith(
-                            fontSize: 18.0,
-                            height: 1.8,
-                            fontWeight: FontWeight.w300,
-                          ),
-                    ),
+                    child: Text(sub,
+                        style: Theme.of(context).textTheme.bodyText1.copyWith(
+                              fontSize: 20.0,
+                              height: 1.8,
+                              fontWeight: FontWeight.w300,
+                            )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(explain,
+                        style: Theme.of(context).textTheme.bodyText1.copyWith(
+                              fontSize: 20.0,
+                              height: 1.8,
+                              fontWeight: FontWeight.w300,
+                            )),
                   )
                 ],
               ),
@@ -556,121 +569,141 @@ class _LandingPageState extends State<LandingPage> {
     String image,
   ) {
     return orientation == Orientation.portrait
-        ? Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runAlignment: WrapAlignment.center,
-            alignment: WrapAlignment.center,
-            runSpacing: 10.0,
-            spacing: 10.0,
-            children: <Widget>[
-              Container(
-                width: MediaQuery.of(context).size.height * 0.5,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.black),
+        ? Container(
+            color: Colors.blue.shade100,
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runAlignment: WrapAlignment.center,
+              alignment: WrapAlignment.center,
+              runSpacing: 10.0,
+              spacing: 10.0,
+              children: <Widget>[
+                Container(
+                  width: MediaQuery.of(context).size.height * 0.5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline3
+                                .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                          ),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          sub,
-                          style: Theme.of(context).textTheme.headline3.copyWith(
-                              fontWeight: FontWeight.bold, color: Colors.black),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(sub,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
                         ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          explain,
-                          style: Theme.of(context).textTheme.bodyText1.copyWith(
-                                fontSize: 18.0,
-                                height: 1.8,
-                                fontWeight: FontWeight.w300,
-                              ),
-                        ),
-                      )
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(explain,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  image,
-                  fit: BoxFit.cover,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                ),
-              ),
-            ],
-          )
-        : Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runAlignment: WrapAlignment.center,
-            alignment: WrapAlignment.center,
-            runSpacing: 10.0,
-            spacing: 10.0,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Image.asset(
-                  image,
-                  fit: BoxFit.cover,
-                  height: MediaQuery.of(context).size.height * 0.6,
-                ),
-              ),
-              Container(
-                width: MediaQuery.of(context).size.height * 0.5,
-                child: Padding(
+                Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          title,
-                          textAlign: TextAlign.center,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1
-                              .copyWith(fontSize: 15.0, color: Colors.black),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          sub,
-                          style: Theme.of(context).textTheme.headline3.copyWith(
-                              fontWeight: FontWeight.bold, color: Colors.black),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          explain,
-                          style: Theme.of(context).textTheme.bodyText1.copyWith(
-                                fontSize: 18.0,
-                                height: 1.8,
-                                fontWeight: FontWeight.w300,
-                              ),
-                        ),
-                      )
-                    ],
+                  child: Image.asset(
+                    image,
+                    fit: BoxFit.cover,
+                    height: MediaQuery.of(context).size.height * 0.6,
                   ),
                 ),
-              ),
-            ],
+              ],
+            ))
+        : Container(
+            color: Colors.blue.shade100,
+            child: Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              runAlignment: WrapAlignment.center,
+              alignment: WrapAlignment.center,
+              runSpacing: 10.0,
+              spacing: 10.0,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Image.asset(
+                    image,
+                    fit: BoxFit.cover,
+                    height: MediaQuery.of(context).size.height * 0.6,
+                  ),
+                ),
+                Container(
+                  color: Colors.blue.shade100,
+                  width: MediaQuery.of(context).size.height * 0.5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            title,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline3
+                                .copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(sub,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(explain,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .bodyText1
+                                  .copyWith(
+                                    fontSize: 20.0,
+                                    height: 1.8,
+                                    fontWeight: FontWeight.w300,
+                                  )),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           );
   }
 
@@ -680,8 +713,7 @@ class _LandingPageState extends State<LandingPage> {
   ) {
     const player = YoutubePlayerIFrame();
     return Container(
-      height: MediaQuery.of(context).size.height,
-      color: Colors.blue.shade100,
+      height: 750.0,
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.center,
         runAlignment: WrapAlignment.center,
@@ -701,19 +733,18 @@ class _LandingPageState extends State<LandingPage> {
                     child: Text(
                       title,
                       textAlign: TextAlign.center,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyText1
-                          .copyWith(fontSize: 15.0, color: Colors.black),
+                      style: Theme.of(context).textTheme.headline3.copyWith(
+                          fontWeight: FontWeight.bold, color: Colors.black),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      sub,
-                      style: Theme.of(context).textTheme.headline3.copyWith(
-                          fontWeight: FontWeight.bold, color: Colors.black),
-                    ),
+                    child: Text(sub,
+                        style: Theme.of(context).textTheme.bodyText1.copyWith(
+                              fontSize: 20.0,
+                              height: 1.8,
+                              fontWeight: FontWeight.w300,
+                            )),
                   ),
                   Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -725,7 +756,7 @@ class _LandingPageState extends State<LandingPage> {
                                     .textTheme
                                     .bodyText1
                                     .copyWith(
-                                      fontSize: 18.0,
+                                      fontSize: 20.0,
                                       height: 1.8,
                                       fontWeight: FontWeight.w300,
                                     )),
@@ -745,6 +776,8 @@ class _LandingPageState extends State<LandingPage> {
             ),
           ),
           Container(
+            height: 750,
+            width: 800,
             child: YoutubePlayerControllerProvider(
               // Passing controller to widgets below.
               controller: _controller,
