@@ -250,7 +250,7 @@ class _ProfilePageState extends State<ProfilePage> {
         name: nameFormFieldController.text,
         home: homeFormFieldController.text,
         isBook: isBook,
-        bookAuthorEmail: graphQLAuth.getOriginalUserMap()['email'],
+        bookAuthorEmail: graphQLAuth.originalUser.email,
       );
 
       if (queryResult.hasException) {
@@ -670,6 +670,8 @@ class _ProfilePageState extends State<ProfilePage> {
             userId = Uuid().v1();
             if (isBook) {
               emailFormFieldController.text = userId;
+            } else {
+              emailFormFieldController.text = user['email'];
             }
             shouldCreateUser = true;
           }
