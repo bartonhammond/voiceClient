@@ -2,6 +2,8 @@
 // Generated file. Do not edit.
 //
 
+// ignore_for_file: lines_longer_than_80_chars
+
 import 'package:audioplayers/audioplayers_web.dart';
 import 'package:connectivity_for_web/connectivity_for_web.dart';
 import 'package:file_picker/src/file_picker_web.dart';
