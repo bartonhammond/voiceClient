@@ -1,4 +1,6 @@
 import 'package:MyFamilyVoice/app/legal/legal_page.dart';
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:i18n_extension/i18n_widget.dart';
@@ -49,10 +51,14 @@ Future<String> getVersionAndBuild(AppConfig config) async {
 }
 
 Widget drawer(
+  AppConfig config,
   BuildContext context,
   String versionBuild,
   bool showLogout,
 ) {
+  final TextEditingController emailFieldController = TextEditingController();
+  final AuthService authService =
+      Provider.of<AuthService>(context, listen: false);
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -88,6 +94,34 @@ Widget drawer(
             onTap: () {},
           ),
         ),
+        config.authServiceType == AuthServiceType.mock
+            ? Card(
+                child: Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextField(
+                              controller: emailFieldController,
+                            ),
+                          ),
+                          CustomRaisedButton(
+                            text: 'Submit',
+                            onPressed: () async {
+                              print('email: ${emailFieldController.text}');
+                              await authService.signInWithEmailAndLink(
+                                  email: emailFieldController.text);
+                            },
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
+            : Container(),
         showLogout
             ? Card(
                 child: ListTile(
@@ -165,7 +199,7 @@ Widget drawer(
                   await getDialog(context, 'Terms', 'terms.html');
                 },
               ),
-            )
+            ),
           ],
         ),
       ],
@@ -218,7 +252,7 @@ Widget getDrawer(BuildContext context, {bool showLogout = true}) {
         );
       } else {
         final String versionBuild = snapshot.data;
-        return drawer(context, versionBuild, showLogout);
+        return drawer(config, context, versionBuild, showLogout);
       }
     },
   );
