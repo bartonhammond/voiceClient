@@ -47,8 +47,10 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  final GlobalKey<FormFieldState> _nameFormKey = GlobalKey<FormFieldState>();
-  final GlobalKey<FormFieldState> _homeFormKey = GlobalKey<FormFieldState>();
+  final GlobalKey<FormFieldState> _nameFormKey =
+      GlobalKey<FormFieldState>(debugLabel: 'nameFormKey');
+  final GlobalKey<FormFieldState> _homeFormKey =
+      GlobalKey<FormFieldState>(debugLabel: 'homeFormKey');
   GraphQLAuth graphQLAuth;
   GraphQLClient graphQLClientFileServer;
   GraphQLClient graphQLClient;
@@ -487,6 +489,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: _formFieldWidth.toDouble(),
                       margin: const EdgeInsets.only(right: 10, left: 10),
                       child: TextFormField(
+                        key: Key('emailFormField'),
                         controller: emailFormFieldController,
                         readOnly: true,
                         decoration: InputDecoration(

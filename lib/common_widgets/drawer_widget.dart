@@ -30,6 +30,7 @@ Future<void> _signOut(BuildContext context) async {
 
 Future<void> _confirmSignOut(BuildContext context) async {
   final bool didRequestSignOut = await PlatformAlertDialog(
+    key: Key('signOutConfirmation'),
     title: Strings.logout.i18n,
     content: Strings.logoutAreYouSure.i18n,
     cancelActionText: Strings.cancel.i18n,
@@ -104,10 +105,12 @@ Widget drawer(
                         children: <Widget>[
                           Expanded(
                             child: TextField(
+                              key: Key('emailTextField'),
                               controller: emailFieldController,
                             ),
                           ),
                           CustomRaisedButton(
+                            key: Key('submitButton'),
                             text: 'Submit',
                             onPressed: () async {
                               print('email: ${emailFieldController.text}');
@@ -125,6 +128,7 @@ Widget drawer(
         showLogout
             ? Card(
                 child: ListTile(
+                  key: Key('signOutTile'),
                   title: Text(Strings.logout.i18n),
                   onTap: () {
                     _confirmSignOut(context);

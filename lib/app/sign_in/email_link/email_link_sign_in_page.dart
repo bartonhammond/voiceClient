@@ -198,6 +198,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
           ),
           SizedBox(height: 16.0),
           FormSubmitButton(
+            key: Key('sendLinkButton'),
             onPressed: isLoading ? null : _validateAndSubmit,
             loading: isLoading,
             text: Strings.sendActivationLink.i18n,

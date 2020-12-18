@@ -62,8 +62,10 @@ class GraphQLAuth {
 //Only called after someone logs in either
 //web or device
   void setUser(User _user) {
+    print('graphQLAuth.setUser ${_user.email}');
     originalUser = _user;
     user = _user;
+    _userMap = null;
     //this gets set in setupEnvironment
     _originalUserMap = null;
   }

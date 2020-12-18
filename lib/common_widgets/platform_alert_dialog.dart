@@ -7,14 +7,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
 class PlatformAlertDialog extends PlatformWidget {
-  PlatformAlertDialog({
+  const PlatformAlertDialog({
+    Key key,
     @required this.title,
     @required this.content,
     this.cancelActionText,
     @required this.defaultActionText,
-  })  : assert(title != null),
-        assert(content != null),
-        assert(defaultActionText != null);
+  }) : super(key: key);
 
   final String title;
   final String content;

@@ -209,6 +209,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
                 ),
                 Text(
                   item.text,
+                  key: Key(item.text),
                   style: TextStyle(color: color),
                 )
               ],
