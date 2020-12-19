@@ -30,3 +30,9 @@ final configuredApp = AppConfig(
     child: MyApp(),
   );
 ```
+
+*  Testing w/ Gherkin
+   *  `flutter run -d 7D2E6D03-6416-4667-843D-39C739AFDBFE -t lib/main_integration_test.dart --verbose`
+   *  take uri and update app_test
+   *  `dart app_test.dart `
+   *  `cp report.json ~/flutter/cucumber` and run `node index.js`

@@ -200,7 +200,7 @@ class _FriendWidgetState extends State<FriendWidget> {
           defaultActionText: Strings.yes.i18n,
         ).show(context);
         if (delete) {
-          await deleteBook(graphQLClient, widget.user['id']);
+          await deleteBook(graphQLClient, widget.user['email']);
           //fire event so FriendsPage can setState
           eventBus.fire(BookWasDeleted());
           if (Navigator.canPop(context)) {

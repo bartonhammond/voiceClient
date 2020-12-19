@@ -1060,7 +1060,7 @@ mutation deleteStoryTags($storyId: String!) {
 ''';
 
 const String deleteBookQL = r'''
-mutation deleteBook($id: String!) {
-  deleteBook(id: $id)
+mutation deleteBook($email: String!) {
+  deleteBook(email: $email)
 }
 ''';

@@ -85,7 +85,7 @@ class PlatformAlertDialog extends PlatformWidget {
 }
 
 class PlatformAlertDialogAction extends PlatformWidget {
-  PlatformAlertDialogAction({this.child, this.onPressed});
+  const PlatformAlertDialogAction({this.child, this.onPressed});
   final Widget child;
   final VoidCallback onPressed;
 
