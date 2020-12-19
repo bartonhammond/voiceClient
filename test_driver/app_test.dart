@@ -7,7 +7,6 @@ import 'package:graphql/client.dart';
 
 import 'graphQL.dart' as graphql;
 import 'steps/fillFormField.dart';
-import 'steps/widget_of_type.dart';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
@@ -21,7 +20,6 @@ Future<void> main(List<String> args) async {
 
   final Iterable<StepDefinitionGeneric<World>> steps = [
     fillFormField(),
-    widgetOfType()
   ];
 
   final config = FlutterTestConfiguration.DEFAULT(
