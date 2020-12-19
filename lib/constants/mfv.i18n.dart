@@ -568,6 +568,10 @@ extension Localization on String {
         'es': 'Grabar mensaje',
       } +
       {
+        'en': Strings.friendWidgetMessage,
+        'es': 'Mensaje',
+      } +
+      {
         'en': Strings.reactionTableMessage,
         'es': '¿Mensaje?',
       } +

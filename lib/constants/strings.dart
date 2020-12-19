@@ -186,6 +186,7 @@ class Strings {
   static const String storyPlayAudience = 'Audience';
 
   static const String friendWidgetRecordMessage = 'Record Message';
+  static const String friendWidgetMessage = 'Message';
 
   static const String reactionTableMessage = 'Message?';
 

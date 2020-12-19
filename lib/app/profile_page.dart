@@ -276,6 +276,8 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!nameIsValid || !homeIsValid) {
         return;
       }
+      print(
+          'profilePage creatingOrUpdateUserInfor shouldCreateuser: $shouldCreateUser');
       final QueryResult queryResult = await createOrUpdateUserInfo(
         shouldCreateUser,
         graphQLClient,
@@ -298,7 +300,10 @@ class _ProfilePageState extends State<ProfilePage> {
         throw queryResult.exception;
       }
 
+      await graphQLAuth.setupEnvironment();
+
       if (isBook) {
+        print('profilePage isBook add friend 1');
         //make friends
         await addUserFriend(
           graphQLClient,
@@ -306,6 +311,7 @@ class _ProfilePageState extends State<ProfilePage> {
           graphQLAuth.getOriginalUserMap()['id'],
         );
 
+        print('profilePage isBook add friend 2');
         await addUserFriend(
           graphQLClient,
           graphQLAuth.getOriginalUserMap()['id'],
@@ -553,14 +559,64 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 15,
               ),
               Container(
+                key: Key('nameFormField'),
                 width: _formFieldWidth.toDouble(),
                 margin: const EdgeInsets.only(right: 10, left: 10),
-                child: Tooltip(
-                  message: 'Email',
-                  child: TextFormField(
-                    key: _nameFormKey,
-                    controller: nameFormFieldController,
-                    decoration: InputDecoration(
+                child: TextFormField(
+                  key: _nameFormKey,
+                  controller: nameFormFieldController,
+                  decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color: Color(0xff00bcd4),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color: Color(0xff00bcd4),
+                        width: 2.0,
+                      ),
+                    ),
+                    hintStyle: TextStyle(color: Color(0xff00bcd4)),
+                    border: const OutlineInputBorder(),
+                    filled: true,
+                    hintText: Strings.yourFullNameText.i18n,
+                    labelText: Strings.yourFullNameLabel.i18n,
+                    labelStyle: TextStyle(color: Color(0xff00bcd4)),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      if (_nameFormKey.currentState.validate()) {
+                        formReady = _formReady();
+                      }
+                    });
+                  },
+                  validator: (value) {
+                    nameIsValid = false;
+                    if (value.isEmpty) {
+                      return Strings.nameEmptyMessage.i18n;
+                    }
+                    if (value.length < 5) {
+                      return Strings.nameLengthMessage.i18n;
+                    }
+                    nameIsValid = true;
+                    return null;
+                  },
+                ),
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Container(
+                key: Key('homeFormField'),
+                width: _formFieldWidth.toDouble(),
+                margin: const EdgeInsets.only(right: 10, left: 10),
+                child: TextFormField(
+                  key: _homeFormKey,
+                  controller: homeFormFieldController,
+                  decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25.0),
                         borderSide: BorderSide(
@@ -574,85 +630,32 @@ class _ProfilePageState extends State<ProfilePage> {
                           width: 2.0,
                         ),
                       ),
-                      hintStyle: TextStyle(color: Color(0xff00bcd4)),
                       border: const OutlineInputBorder(),
                       filled: true,
-                      hintText: Strings.yourFullNameText.i18n,
-                      labelText: Strings.yourFullNameLabel.i18n,
-                      labelStyle: TextStyle(color: Color(0xff00bcd4)),
-                    ),
-                    onChanged: (value) {
-                      setState(() {
-                        if (_nameFormKey.currentState.validate()) {
-                          formReady = _formReady();
-                        }
-                      });
-                    },
-                    validator: (value) {
-                      nameIsValid = false;
-                      if (value.isEmpty) {
-                        return Strings.nameEmptyMessage.i18n;
+                      hintText: Strings.yourHomeText.i18n,
+                      hintStyle: TextStyle(color: Color(0xff00bcd4)),
+                      labelText: Strings.yourHomeLabel.i18n,
+                      labelStyle: TextStyle(color: Color(0xff00bcd4))),
+                  onChanged: (value) {
+                    setState(() {
+                      if (_homeFormKey.currentState.validate()) {
+                        formReady = _formReady();
                       }
-                      if (value.length < 5) {
-                        return Strings.nameLengthMessage.i18n;
-                      }
-                      nameIsValid = true;
-                      return null;
-                    },
-                  ),
+                    });
+                  },
+                  validator: (value) {
+                    homeIsValid = false;
+                    if (value.isEmpty) {
+                      return Strings.homeEmptyMessage.i18n;
+                    }
+                    if (!(value.length > 1)) {
+                      return 'Home length must be greater than 1';
+                    }
+                    homeIsValid = true;
+                    return null;
+                  },
                 ),
               ),
-              SizedBox(
-                height: 15,
-              ),
-              Container(
-                  width: _formFieldWidth.toDouble(),
-                  margin: const EdgeInsets.only(right: 10, left: 10),
-                  child: Tooltip(
-                    message: 'Home',
-                    child: TextFormField(
-                      key: _homeFormKey,
-                      controller: homeFormFieldController,
-                      decoration: InputDecoration(
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: BorderSide(
-                              color: Color(0xff00bcd4),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: BorderSide(
-                              color: Color(0xff00bcd4),
-                              width: 2.0,
-                            ),
-                          ),
-                          border: const OutlineInputBorder(),
-                          filled: true,
-                          hintText: Strings.yourHomeText.i18n,
-                          hintStyle: TextStyle(color: Color(0xff00bcd4)),
-                          labelText: Strings.yourHomeLabel.i18n,
-                          labelStyle: TextStyle(color: Color(0xff00bcd4))),
-                      onChanged: (value) {
-                        setState(() {
-                          if (_homeFormKey.currentState.validate()) {
-                            formReady = _formReady();
-                          }
-                        });
-                      },
-                      validator: (value) {
-                        homeIsValid = false;
-                        if (value.isEmpty) {
-                          return Strings.homeEmptyMessage.i18n;
-                        }
-                        if (!(value.length > 1)) {
-                          return 'Home length must be greater than 1';
-                        }
-                        homeIsValid = true;
-                        return null;
-                      },
-                    ),
-                  )),
               SizedBox(
                 height: 8,
               ),

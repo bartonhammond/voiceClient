@@ -77,6 +77,7 @@ class _HomePageState extends State<HomePage> {
         labelHasShadow: true,
         labelShadowColor: Colors.black38,
         currentButton: FloatingActionButton(
+          key: Key('storyFloatingActionButton'),
           heroTag: 'story',
           backgroundColor: Color(0xff00bcd4),
           mini: true,
@@ -103,6 +104,7 @@ class _HomePageState extends State<HomePage> {
         labelHasShadow: true,
         labelShadowColor: Colors.black38,
         currentButton: FloatingActionButton(
+            key: Key('bookFloatingActionButton'),
             heroTag: 'book',
             backgroundColor: Color(0xff00bcd4),
             mini: true,
@@ -125,7 +127,9 @@ class _HomePageState extends State<HomePage> {
             parentButtonBackground: Color(0xff00bcd4),
             backgroundColor: Color(0xff00bcd4),
             orientation: UnicornOrientation.VERTICAL,
-            parentButton: Icon(Icons.add),
+            parentButton: Icon(
+              Icons.add,
+            ),
             hasBackground: false,
             hasNotch: true,
             childPadding: 0,

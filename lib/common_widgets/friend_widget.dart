@@ -229,7 +229,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     }
 
     return MessageButton(
-      key: Key('messageButton-${widget.user["id"]}'),
+      key: Key('messageButton-${widget.user["name"]}'),
       text: Strings.manageBook.i18n,
       onPressed: () async {
         await graphQLAuth.setProxy(widget.user['email']);
@@ -462,7 +462,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                               ),
                               const SizedBox(width: 10),
                               InkWell(
-                                  child: Text('Message'),
+                                  child: Text(Strings.friendWidgetMessage.i18n),
                                   onTap: () {
                                     setState(() {
                                       _showMakeMessage = !_showMakeMessage;

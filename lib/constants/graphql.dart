@@ -1064,3 +1064,9 @@ mutation deleteBook($email: String!) {
   deleteBook(email: $email)
 }
 ''';
+
+const String deleteBookByNameQL = r'''
+mutation deleteBookByName($name: String!) {
+  deleteBookByName(name: $name)
+}
+''';

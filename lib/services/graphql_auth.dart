@@ -118,6 +118,7 @@ class GraphQLAuth {
     if (user == null) {
       return null;
     }
+    print('graphQLAuth.setupEnvironment user: ${user.email}');
     final QueryOptions _queryOptions = QueryOptions(
       documentNode: gql(getUserByEmailForAuthQL),
       variables: <String, dynamic>{
@@ -133,8 +134,11 @@ class GraphQLAuth {
         queryResult.data['User'] != null &&
         queryResult.data['User'].length > 0 &&
         queryResult.data['User'][0]['id'] != null) {
+      print('graphQLAuth setupEnvironment found User in db');
       _userMap = queryResult.data['User'][0];
       _originalUserMap ??= <String, dynamic>{..._userMap};
+    } else {
+      print('graphQLAuth setupEnvironment User not in db');
     }
     return graphQLClient;
   }

@@ -166,6 +166,7 @@ class _FriendsPageState extends State<FriendsPage> {
     return Flexible(
       fit: FlexFit.loose,
       child: TextField(
+        key: Key('searchField'),
         decoration: InputDecoration(
             focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Color(0xff00bcd4))),

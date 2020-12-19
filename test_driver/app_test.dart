@@ -6,7 +6,7 @@ import 'package:gherkin/gherkin.dart';
 import 'package:graphql/client.dart';
 
 import 'graphQL.dart' as graphql;
-import 'steps/fillFormField.dart';
+import 'steps/expectTextFormFieldToHaveValue.dart';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
@@ -17,9 +17,10 @@ Future<void> main(List<String> args) async {
       graphql.getGraphQLClient(GraphQLClientType.ApolloServer);
 
   await graphql.deleteBook(graphQLClient, 'something@myfamilyvoice.com');
+  await graphql.deleteBookByName(graphQLClient, 'Book Name');
 
   final Iterable<StepDefinitionGeneric<World>> steps = [
-    fillFormField(),
+    expectTextFormFieldToHaveValue()
   ];
 
   final config = FlutterTestConfiguration.DEFAULT(
@@ -30,7 +31,7 @@ Future<void> main(List<String> args) async {
     //..targetDeviceId = '68E55A48-0FE6-41B0-B94E-27E08DE2D6EB'
     ..restartAppBetweenScenarios = false
     ..targetAppWorkingDirectory = '../'
-    //..tagExpression = '@newuser'
+    ..tagExpression = '@newuser'
     //..targetAppPath = 'test_driver/app.dart'
     //  ..defaultTimeout = Duration(seconds: 2)
     // ..buildFlavor = "staging" // uncomment when using build flavor and check android/ios flavor setup see android file android\app\build.gradle
