@@ -380,7 +380,10 @@ class _MessagesPageState extends State<MessagesPage> {
       child: Container(
         child: Column(
           children: <Widget>[
-            Text(Strings.noResults.i18n),
+            Text(
+              Strings.noResults.i18n,
+              key: Key('noMessages'),
+            ),
           ],
         ),
       ),

@@ -353,6 +353,7 @@ class _StoryPlayState extends State<StoryPlay>
                 ),
                 backgroundColor: Color(0xff00bcd4),
                 leading: IconButton(
+                    key: Key('backButton'),
                     icon: Icon(MdiIcons.lessThan),
                     onPressed: () {
                       if (widget.params.isNotEmpty &&
@@ -912,6 +913,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   Widget getCard(BuildContext context) {
     return SingleChildScrollView(
+      key: Key('storyPlayScrollView'),
       child: Form(
         key: _formKey,
         child: Column(

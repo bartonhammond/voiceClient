@@ -4,10 +4,8 @@ import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:graphql/client.dart';
-
 import 'graphQL.dart' as graphql;
 import 'steps/expectTextFormFieldToHaveValue.dart';
-import 'steps/whenTapQuickWidget.dart';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
@@ -22,7 +20,6 @@ Future<void> main(List<String> args) async {
 
   final Iterable<StepDefinitionGeneric<World>> steps = [
     expectTextFormFieldToHaveValue(),
-    whenTapQuickWidget(),
   ];
 
   final config = FlutterTestConfiguration.DEFAULT(

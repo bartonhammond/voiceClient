@@ -38,6 +38,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
             Center(
               child: Text(
                 title,
+                key: Key('message-title'),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
             ),
