@@ -564,6 +564,14 @@ extension Localization on String {
         'es': 'Audiencia',
       } +
       {
+        'en': Strings.storyPlayAttention,
+        'es': 'Atención',
+      } +
+      {
+        'en': Strings.storyPlayBookQuestion,
+        'es': '¿Libro?',
+      } +
+      {
         'en': Strings.friendWidgetRecordMessage,
         'es': 'Grabar mensaje',
       } +
@@ -714,7 +722,8 @@ extension Localization on String {
         'en': Strings.landingFeatureFourExplain,
         'es':
             'Cuando selecciona su imagen, puede recortarla, ajustar su posición y volver a enmarcarla. Fácilmente también',
-      };
+      } +
+      {'en': Strings.proxyQuitManaging, 'es': '¿Dejar de administrar?'};
 
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);

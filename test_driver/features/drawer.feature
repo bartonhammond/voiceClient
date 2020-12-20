@@ -38,6 +38,26 @@ Feature: Drawer
         And I tap the text that contains the text "Profile"
         Then I expect the "nameFormField" textFormField to be "Book Name"
         And I expect the "homeFormField" textFormField to be "Book Home City, State"
+        Then I tap the "proxyButton" button
+        And I tap the "alertDefault" button
+        Then I expect the "nameFormField" textFormField to be "Test Name"
+        And I expect the "homeFormField" textFormField to be "Home City, State"
+        Given I tap the "mainFloatingActionButton" widget
+        And I tap the "storyFloatingActionButton" widget
+        And I tap the "storyPageGalleryButton" button
+        And I quickly tap the "recorderWidgetRecordButton" button
+        And I pause for 3 seconds
+        And I quickly tap the "recorderWidgetStopButton" button
+        Then I expect the widget "profileToast" to be present within 2 seconds
+        Then I expect the widget "deleteStoryButton" to be present within 2 seconds
+        And I tap the "storyPlayAttentionButton" button
+        And I fill the "tagFriendsPageSearch" field with "Book"
+        And I tap the "tagFriendsPage-Book Name" widget
+        And I tap the "tagFreindsPageSave" button
+
+
+
+
 
 
 

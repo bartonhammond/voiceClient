@@ -34,14 +34,9 @@ class _HomePageState extends State<HomePage> {
         (graphQLAuth.getUserMap()['image'] == null &&
             graphQLAuth.getUserMap()['name'] == null &&
             graphQLAuth.getUserMap()['home'] == null)) {
-      print('homePage userMap is null');
       _currentTab = TabItem.profile;
       _areTabsEnabled = false;
     } else {
-      print('homePage userMap is not null');
-      print("image: ${graphQLAuth.getUserMap()['image']}");
-      print("name: ${graphQLAuth.getUserMap()['name']}");
-      print("home: ${graphQLAuth.getUserMap()['home']}");
       _currentTab = TabItem.stories;
       _areTabsEnabled = true;
     }

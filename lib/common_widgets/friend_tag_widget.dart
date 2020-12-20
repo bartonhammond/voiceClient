@@ -55,9 +55,7 @@ class _FriendTagWidgetState extends State<FriendTagWidget> {
       child: Column(mainAxisSize: MainAxisSize.min, children: [
         ListTile(
           leading: GestureDetector(
-            onTap: () {
-
-            },
+            onTap: () {},
             child: ClipRRect(
               borderRadius: BorderRadius.circular(25.0),
               child: FadeInImage.memoryNetwork(
@@ -89,6 +87,7 @@ class _FriendTagWidgetState extends State<FriendTagWidget> {
             ),
           ),
           trailing: Checkbox(
+            key: Key('tagFriendsPage-${widget.user["name"]}'),
             value: false,
             onChanged: (bool newValue) {
               if (widget.onSelect != null) {

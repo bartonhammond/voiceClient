@@ -7,6 +7,7 @@ import 'package:graphql/client.dart';
 
 import 'graphQL.dart' as graphql;
 import 'steps/expectTextFormFieldToHaveValue.dart';
+import 'steps/whenTapQuickWidget.dart';
 
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
@@ -20,7 +21,8 @@ Future<void> main(List<String> args) async {
   await graphql.deleteBookByName(graphQLClient, 'Book Name');
 
   final Iterable<StepDefinitionGeneric<World>> steps = [
-    expectTextFormFieldToHaveValue()
+    expectTextFormFieldToHaveValue(),
+    whenTapQuickWidget(),
   ];
 
   final config = FlutterTestConfiguration.DEFAULT(

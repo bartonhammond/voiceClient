@@ -184,6 +184,8 @@ class Strings {
   static const String storiesPageGlobal = 'Global';
 
   static const String storyPlayAudience = 'Audience';
+  static const String storyPlayAttention = 'Attention';
+  static const String storyPlayBookQuestion = 'Book?';
 
   static const String friendWidgetRecordMessage = 'Record Message';
   static const String friendWidgetMessage = 'Message';
@@ -242,4 +244,5 @@ class Strings {
       'You can use the gallery images or use the camera to take a picture';
   static const String landingFeatureFourExplain =
       'When you select your picture, you can crop it, adjust its position, and reframe it.  Easily too.';
+  static const String proxyQuitManaging = 'Quit Managing?';
 }
