@@ -1,17 +1,6 @@
 Feature: Drawer
 
-    Scenario: login as existing user
-        Given I open the drawer
-        Given I fill the "emailTextField" field with "admin@myfamilyvoice.com"
-        Given I tap the "submitButton" button
-        Then I expect the widget "Stories" to be present within 10 seconds
-        And I open the drawer
-        And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
-        Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-    @newuser
+    @newUser
     Scenario: login as new user
         Given I open the drawer
         And I fill the "emailTextField" field with "something@myfamilyvoice.com"
@@ -45,6 +34,7 @@ Feature: Drawer
         #Quit Manage the Book
         Then I tap the "proxyButton" button
         And I tap the "alertDefault" button
+        And I pause for 1 seconds
         Then I expect the "nameFormField" "TextFormField" to be "Test Name"
         And I expect the "homeFormField" "TextFormField" to be "Home City, State"
         #Create a Story
@@ -82,6 +72,7 @@ Feature: Drawer
         Then I expect the "message-title" to be "Attention"
         And I expect the "userName" to be "Test Name"
         And I expect the "userHome" to be "Home City, State"
+        #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Clear"
         Then I expect the "noMessages" to be "No results"
         #Log out
@@ -91,8 +82,50 @@ Feature: Drawer
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
-
-
+    @secondUser
+    Scenario: login as Barton
+        #Log in as user
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Make friendRequest to Book
+        And I tap the text that contains the text "Users"
+        And I fill the "searchField" field with "Book"
+        Then I tap the button that contains the text "Friend?"
+        Given I tap the "alertDefault" button
+        Then I expect the text "Pending" to be present
+        #Log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #Log in as Book
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "Book Name"
+        Given I tap the "submitButton" button
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Accept the Friend Request
+        Given I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Friend Request"
+        And I expect the "userName" to be "Barton Hammond"
+        And I expect the "userHome" to be "Fond du Lac, WI"
+        #Clear the messages and validate there are no others
+        Given I tap the button that contains the text "Approve"
+        And I tap the "alertDefault" button
+        Then I expect the "noMessages" to be "No results"
+        #Log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #Log in as Barton
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        Then I expect the widget "Stories" to be present within 10 seconds
 
 
 

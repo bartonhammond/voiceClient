@@ -42,6 +42,43 @@ Future<void> deleteBookByName(
   return;
 }
 
+Future<void> deleteUserMessagesByName(
+  GraphQLClient graphQLClientApolloServer,
+  String name,
+) async {
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(deleteUserMessagesByNameQL),
+    variables: <String, dynamic>{
+      'name': name,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return;
+}
+
+Future<Map> getUserByName(
+  GraphQLClient graphQLClient,
+  String name,
+) async {
+  final QueryOptions _queryOptions = QueryOptions(
+    documentNode: gql(getUserByNameQL),
+    variables: <String, dynamic>{
+      'name': name,
+    },
+  );
+  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return queryResult.data['User'];
+}
+
 GraphQLClient getGraphQLClient(GraphQLClientType type) {
   const String uri = 'http://192.168.1.13';
   String port = '4003'; //this is not secured (export foo=barton)
