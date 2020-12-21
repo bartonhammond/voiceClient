@@ -32,7 +32,7 @@ Future<void> main(List<String> arguments) async {
   parser.addOption(
     'runTag',
     help: 'which tag to run?',
-    allowed: ['all', 'existingUser', 'newUser', 'secondUser'],
+    allowed: ['all', 'first', 'second', 'third', 'fourth'],
   );
 
   if (arguments == null || arguments.isEmpty) {
@@ -50,16 +50,34 @@ Future<void> main(List<String> arguments) async {
   final GraphQLClient graphQLClient =
       graphql.getGraphQLClient(GraphQLClientType.ApolloServer);
 
+  if (argResults['deleteTestUser'] == 'yes' &&
+      argResults['deleteBook'] == 'yes') {
+    Map<String, dynamic> result =
+        await graphql.getUserByName(graphQLClient, 'Test Name');
+    final String toId = result['id'];
+    result = await graphql.getUserByName(graphQLClient, 'Book Name');
+    final String fromId = result['id'];
+    await graphql.quitFriendship(graphQLClient, toId, fromId);
+  }
   if (argResults['deleteTestUser'] == 'yes') {
-    await graphql.deleteBook(graphQLClient, 'something@myfamilyvoice.com');
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Test Name',
+    );
   }
 
   if (argResults['deleteBook'] == 'yes') {
-    await graphql.deleteBookByName(graphQLClient, 'Book Name');
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Book Name',
+    );
   }
 
   if (argResults['deleteBooksMessages'] == 'yes') {
-    await graphql.deleteUserMessagesByName(graphQLClient, 'Book Name');
+    await graphql.deleteUserMessagesByName(
+      graphQLClient,
+      'Book Name',
+    );
   }
 
   final Iterable<StepDefinitionGeneric<World>> steps = [

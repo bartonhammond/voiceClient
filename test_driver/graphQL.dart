@@ -76,7 +76,33 @@ Future<Map> getUserByName(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['User'];
+  return queryResult.data['User'][0];
+}
+
+Future<void> quitFriendship(
+  GraphQLClient graphQLClient,
+  String idFrom,
+  String idTo,
+) async {
+  MutationOptions options = MutationOptions(
+    documentNode: gql(removeUserFriends),
+    variables: <String, dynamic>{
+      'from': idFrom,
+      'to': idTo,
+    },
+  );
+
+  await graphQLClient.mutate(options);
+
+  options = MutationOptions(
+    documentNode: gql(removeUserFriends),
+    variables: <String, dynamic>{
+      'from': idTo,
+      'to': idFrom,
+    },
+  );
+
+  await graphQLClient.mutate(options);
 }
 
 GraphQLClient getGraphQLClient(GraphQLClientType type) {
