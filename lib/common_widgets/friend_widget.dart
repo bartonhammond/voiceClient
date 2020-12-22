@@ -228,7 +228,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     }
 
     return MessageButton(
-      key: Key('messageButton-${widget.user["name"]}'),
+      key: Key('manageButton-${widget.user["name"]}'),
       text: Strings.manageBook.i18n,
       onPressed: () async {
         await graphQLAuth.setProxy(widget.user['email']);
@@ -384,7 +384,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                 ),
                 Text(
                   widget.user['name'],
-                  key: Key('userName'),
+                  key: Key('userName-${widget.user["name"]}'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: _fontSize,
@@ -392,7 +392,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                 ),
                 Text(
                   widget.user['home'],
-                  key: Key('userHome'),
+                  key: Key('userHome-${widget.user["name"]}'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: _fontSize,

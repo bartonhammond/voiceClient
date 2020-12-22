@@ -41,14 +41,14 @@ dependencies:
     sdk: flutter
   flutter_animation_progress_bar: ^1.0.6
   flutter_audio_recorder: 
-    git:
-      url: git://github.com/bartonhammond/flutter_audio_recorder.git
+    git: https://github.com/bartonhammond/flutter_audio_recorder.git
   flutter_device_locale: ^0.4.0
   flutter_localizations:
     sdk: flutter
   flutter_reaction_button: ^1.0.6
   flutter_staggered_grid_view: ^0.3.0
-  flutter_tags: ^0.4.9+1
+  flutter_tags:
+    git: https://github.com/bartonhammond/flutter_tags.git
   flutter_widget_from_html: ^0.5.1+5
   fluttertoast: ^7.1.5
   get: ^3.13.2

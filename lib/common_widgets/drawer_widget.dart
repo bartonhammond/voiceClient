@@ -1,8 +1,10 @@
 import 'package:MyFamilyVoice/app/legal/legal_page.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
@@ -114,8 +116,34 @@ Widget drawer(
                             text: 'Submit',
                             onPressed: () async {
                               print('email: ${emailFieldController.text}');
-                              await authService.signInWithEmailAndLink(
-                                  email: emailFieldController.text);
+                              //During testing, the "Book Name" is created so email is generated
+                              final bool emailValid = RegExp(
+                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                  .hasMatch(emailFieldController.text);
+
+                              if (!emailValid) {
+                                //try to get user by name
+                                final GraphQLClient graphQLClient =
+                                    GraphQLProvider.of(context).value;
+                                final QueryOptions _queryOptions = QueryOptions(
+                                  documentNode: gql(getUserByNameQL),
+                                  variables: <String, dynamic>{
+                                    'name': emailFieldController.text,
+                                  },
+                                );
+
+                                final QueryResult queryResult =
+                                    await graphQLClient.query(_queryOptions);
+                                if (queryResult.hasException) {
+                                  throw queryResult.exception;
+                                }
+                                await authService.signInWithEmailAndLink(
+                                    email: queryResult.data['User'][0]
+                                        ['email']);
+                              } else {
+                                await authService.signInWithEmailAndLink(
+                                    email: emailFieldController.text);
+                              }
                             },
                           ),
                         ],

@@ -484,6 +484,7 @@ class _StoriesPageState extends State<StoriesPage> {
                       }
 
                       return Expanded(
+                        key: Key('storiesPageExpanded'),
                         child: stories == null || stories.isEmpty
                             ? Center(
                                 child: Container(

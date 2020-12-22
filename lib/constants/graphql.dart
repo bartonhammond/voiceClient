@@ -1070,3 +1070,17 @@ mutation deleteBookByName($name: String!) {
   deleteBookByName(name: $name)
 }
 ''';
+
+const String deleteUserMessagesByNameQL = r'''
+mutation deleteUserMessagesByName($name: String!) {
+  deleteUserMessagesByName(name: $name)
+}
+''';
+
+const String getUserByNameQL = r'''
+query getUserByName($name: String!) {
+  User(name: $name)''' +
+    _user_ +
+    '''
+}
+''';
