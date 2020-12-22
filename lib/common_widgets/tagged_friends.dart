@@ -41,7 +41,7 @@ class _TaggedFriendsState extends State<TaggedFriends> {
 
                   return GestureDetector(
                       child: ItemTags(
-                        key: Key(index.toString()),
+                        key: Key('itemTag-${item["user"]["name"]}'),
                         index: index,
                         title: item['user']['name'],
                         pressEnabled: false,

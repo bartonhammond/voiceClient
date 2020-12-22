@@ -1,5 +1,7 @@
 import 'dart:io' as io;
 
+import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:MyFamilyVoice/web/crop_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,7 @@ import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ImageControls extends StatefulWidget {
   const ImageControls({
@@ -32,6 +35,7 @@ class ImageControls extends StatefulWidget {
 
 class _ImageControlsState extends State<ImageControls> {
   final picker = ImagePicker();
+  AuthServiceType _authServiceType;
 //this is for web
   Future<void> _openFileExplorer() async {
     List<PlatformFile> _paths;
@@ -69,8 +73,23 @@ class _ImageControlsState extends State<ImageControls> {
     return;
   }
 
+  Future<io.File> getImageFileFromAssets(String path) async {
+    final byteData = await rootBundle.load('assets/$path');
+
+    final file = io.File('${(await getTemporaryDirectory()).path}/$path');
+    await file.writeAsBytes(byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return file;
+  }
+
   Future selectImage(ImageSource source) async {
     io.File image;
+    if (_authServiceType == AuthServiceType.mock) {
+      final io.File file = await getImageFileFromAssets('me.jpg');
+      return widget.onImageSelected(file);
+    }
+
     final PickedFile pickedFile = await picker.getImage(source: source);
     if (pickedFile != null) {
       image = io.File(pickedFile.path);
@@ -120,6 +139,7 @@ class _ImageControlsState extends State<ImageControls> {
 
   @override
   Widget build(BuildContext context) {
+    _authServiceType = AppConfig.of(context).authServiceType;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.max,

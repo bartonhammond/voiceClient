@@ -59,7 +59,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   String _imageFilePath;
   String _audioFilePath;
-  StoryType _storyType = StoryType.FAMILY;
+  StoryType _storyType = StoryType.FRIENDS;
   bool _uploadInProgress = false;
   bool _isWeb = false;
 
@@ -84,6 +84,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   GraphQLClient graphQLClient;
   GraphQLClient graphQLClientFileServer;
+  FToast _fToast;
 
   @override
   void initState() {
@@ -94,6 +95,8 @@ class _StoryPlayState extends State<StoryPlay>
     proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
       setState(() {});
     });
+    _fToast = FToast();
+    _fToast.init(context);
     super.initState();
   }
 
@@ -126,6 +129,37 @@ class _StoryPlayState extends State<StoryPlay>
         _width = _height = 100;
     }
     super.didChangeDependencies();
+  }
+
+  void _showToast() {
+    final Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text(Strings.saved.i18n,
+              key: Key('profileToast'),
+              style: TextStyle(
+                  backgroundColor: Colors.black,
+                  color: Colors.white,
+                  fontSize: 16.0))
+        ],
+      ),
+    );
+
+    _fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 3),
+    );
   }
 
   Future<void> setBook(String id) async {
@@ -189,14 +223,6 @@ class _StoryPlayState extends State<StoryPlay>
       _uploadInProgress = false;
     });
 
-    Fluttertoast.showToast(
-        msg: Strings.saved.i18n,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 3,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
     return;
   }
 
@@ -221,14 +247,7 @@ class _StoryPlayState extends State<StoryPlay>
       _commentAudio = null;
       _uploadInProgress = false;
     });
-    Fluttertoast.showToast(
-        msg: Strings.saved.i18n,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.BOTTOM,
-        timeInSecForIosWeb: 3,
-        backgroundColor: Colors.black,
-        textColor: Colors.white,
-        fontSize: 16.0);
+    _showToast();
     return;
   }
 
@@ -334,6 +353,7 @@ class _StoryPlayState extends State<StoryPlay>
                 ),
                 backgroundColor: Color(0xff00bcd4),
                 leading: IconButton(
+                    key: Key('backButton'),
                     icon: Icon(MdiIcons.lessThan),
                     onPressed: () {
                       if (widget.params.isNotEmpty &&
@@ -439,14 +459,7 @@ class _StoryPlayState extends State<StoryPlay>
         multipartFile,
         'mp3',
       );
-      Fluttertoast.showToast(
-          msg: Strings.saved.i18n,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 3,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);
+      _showToast();
 
       await doStoryUpload();
     }
@@ -466,15 +479,7 @@ class _StoryPlayState extends State<StoryPlay>
           _audioFilePath,
           storyTypes[_storyType.index],
         );
-        Fluttertoast.showToast(
-            msg: Strings.saved.i18n,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 3,
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            fontSize: 16.0);
-
+        _showToast();
         setState(() {
           _storyWasSaved = true;
         });
@@ -494,14 +499,7 @@ class _StoryPlayState extends State<StoryPlay>
           _story['created']['formatted'],
           storyTypes[_storyType.index],
         );
-        Fluttertoast.showToast(
-            msg: Strings.saved.i18n,
-            toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 3,
-            backgroundColor: Colors.black,
-            textColor: Colors.white,
-            fontSize: 16.0);
+        _showToast();
       }
     }
 
@@ -776,7 +774,7 @@ class _StoryPlayState extends State<StoryPlay>
                     const SizedBox(width: 5),
                     CustomRaisedButton(
                       key: Key('storyPlayAttentionButton'),
-                      text: 'Attention',
+                      text: Strings.storyPlayAttention.i18n,
                       icon: Icon(
                         Icons.group_add,
                         size: 20,
@@ -828,7 +826,7 @@ class _StoryPlayState extends State<StoryPlay>
                 const SizedBox(width: 5),
                 CustomRaisedButton(
                   key: Key('storyPlayBookButton'),
-                  text: 'Book?',
+                  text: Strings.storyPlayBookQuestion.i18n,
                   icon: Icon(
                     Icons.collections_bookmark,
                     size: 20,
@@ -915,6 +913,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   Widget getCard(BuildContext context) {
     return SingleChildScrollView(
+      key: Key('storyPlayScrollView'),
       child: Form(
         key: _formKey,
         child: Column(

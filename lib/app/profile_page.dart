@@ -47,8 +47,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
-  final GlobalKey<FormFieldState> _nameFormKey = GlobalKey<FormFieldState>();
-  final GlobalKey<FormFieldState> _homeFormKey = GlobalKey<FormFieldState>();
+  final _nameFormKey = GlobalKey<FormFieldState>();
+  final _homeFormKey = GlobalKey<FormFieldState>();
+
   GraphQLAuth graphQLAuth;
   GraphQLClient graphQLClientFileServer;
   GraphQLClient graphQLClient;
@@ -76,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
-
+  FToast _fToast;
   Future<Map<String, dynamic>> getUser() async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
@@ -113,12 +114,46 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _fToast = FToast();
+    _fToast.init(context);
+
     proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
       setState(() {});
     });
     proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
       setState(() {});
     });
+  }
+
+  void _showToast() {
+    final Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text(Strings.saved.i18n,
+              key: Key('profileToast'),
+              style: TextStyle(
+                  backgroundColor: Colors.black,
+                  color: Colors.white,
+                  fontSize: 16.0))
+        ],
+      ),
+    );
+
+    _fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 3),
+    );
   }
 
   @override
@@ -241,6 +276,8 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!nameIsValid || !homeIsValid) {
         return;
       }
+      print(
+          'profilePage creatingOrUpdateUserInfor shouldCreateuser: $shouldCreateUser');
       final QueryResult queryResult = await createOrUpdateUserInfo(
         shouldCreateUser,
         graphQLClient,
@@ -263,7 +300,10 @@ class _ProfilePageState extends State<ProfilePage> {
         throw queryResult.exception;
       }
 
+      await graphQLAuth.setupEnvironment();
+
       if (isBook) {
+        print('profilePage isBook add friend 1');
         //make friends
         await addUserFriend(
           graphQLClient,
@@ -271,6 +311,7 @@ class _ProfilePageState extends State<ProfilePage> {
           graphQLAuth.getOriginalUserMap()['id'],
         );
 
+        print('profilePage isBook add friend 2');
         await addUserFriend(
           graphQLClient,
           graphQLAuth.getOriginalUserMap()['id'],
@@ -287,6 +328,8 @@ class _ProfilePageState extends State<ProfilePage> {
         eventBus.fire(BookWasAdded());
       }
 
+      _showToast();
+      /*
       Fluttertoast.showToast(
           msg: Strings.saved.i18n,
           toastLength: Toast.LENGTH_SHORT,
@@ -294,7 +337,7 @@ class _ProfilePageState extends State<ProfilePage> {
           timeInSecForIosWeb: 3,
           backgroundColor: Colors.black,
           textColor: Colors.white,
-          fontSize: 16.0);
+          fontSize: 16.0);*/
     } catch (e) {
       print(e.toString());
       logger.createMessage(
@@ -487,6 +530,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       width: _formFieldWidth.toDouble(),
                       margin: const EdgeInsets.only(right: 10, left: 10),
                       child: TextFormField(
+                        key: Key('emailFormField'),
                         controller: emailFormFieldController,
                         readOnly: true,
                         decoration: InputDecoration(
@@ -515,6 +559,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 15,
               ),
               Container(
+                key: Key('nameFormField'),
                 width: _formFieldWidth.toDouble(),
                 margin: const EdgeInsets.only(right: 10, left: 10),
                 child: TextFormField(
@@ -565,6 +610,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 15,
               ),
               Container(
+                key: Key('homeFormField'),
                 width: _formFieldWidth.toDouble(),
                 margin: const EdgeInsets.only(right: 10, left: 10),
                 child: TextFormField(

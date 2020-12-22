@@ -1,6 +1,10 @@
 import 'package:MyFamilyVoice/app/legal/legal_page.dart';
+import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
+import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
@@ -28,6 +32,7 @@ Future<void> _signOut(BuildContext context) async {
 
 Future<void> _confirmSignOut(BuildContext context) async {
   final bool didRequestSignOut = await PlatformAlertDialog(
+    key: Key('signOutConfirmation'),
     title: Strings.logout.i18n,
     content: Strings.logoutAreYouSure.i18n,
     cancelActionText: Strings.cancel.i18n,
@@ -49,10 +54,14 @@ Future<String> getVersionAndBuild(AppConfig config) async {
 }
 
 Widget drawer(
+  AppConfig config,
   BuildContext context,
   String versionBuild,
   bool showLogout,
 ) {
+  final TextEditingController emailFieldController = TextEditingController();
+  final AuthService authService =
+      Provider.of<AuthService>(context, listen: false);
   return Drawer(
     child: ListView(
       padding: EdgeInsets.zero,
@@ -88,9 +97,66 @@ Widget drawer(
             onTap: () {},
           ),
         ),
+        config.authServiceType == AuthServiceType.mock
+            ? Card(
+                child: Container(
+                  padding: EdgeInsets.all(10.0),
+                  child: Column(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: TextField(
+                              key: Key('emailTextField'),
+                              controller: emailFieldController,
+                            ),
+                          ),
+                          CustomRaisedButton(
+                            key: Key('submitButton'),
+                            text: 'Submit',
+                            onPressed: () async {
+                              print('email: ${emailFieldController.text}');
+                              //During testing, the "Book Name" is created so email is generated
+                              final bool emailValid = RegExp(
+                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                  .hasMatch(emailFieldController.text);
+
+                              if (!emailValid) {
+                                //try to get user by name
+                                final GraphQLClient graphQLClient =
+                                    GraphQLProvider.of(context).value;
+                                final QueryOptions _queryOptions = QueryOptions(
+                                  documentNode: gql(getUserByNameQL),
+                                  variables: <String, dynamic>{
+                                    'name': emailFieldController.text,
+                                  },
+                                );
+
+                                final QueryResult queryResult =
+                                    await graphQLClient.query(_queryOptions);
+                                if (queryResult.hasException) {
+                                  throw queryResult.exception;
+                                }
+                                await authService.signInWithEmailAndLink(
+                                    email: queryResult.data['User'][0]
+                                        ['email']);
+                              } else {
+                                await authService.signInWithEmailAndLink(
+                                    email: emailFieldController.text);
+                              }
+                            },
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              )
+            : Container(),
         showLogout
             ? Card(
                 child: ListTile(
+                  key: Key('signOutTile'),
                   title: Text(Strings.logout.i18n),
                   onTap: () {
                     _confirmSignOut(context);
@@ -165,7 +231,7 @@ Widget drawer(
                   await getDialog(context, 'Terms', 'terms.html');
                 },
               ),
-            )
+            ),
           ],
         ),
       ],
@@ -218,7 +284,7 @@ Widget getDrawer(BuildContext context, {bool showLogout = true}) {
         );
       } else {
         final String versionBuild = snapshot.data;
-        return drawer(context, versionBuild, showLogout);
+        return drawer(config, context, versionBuild, showLogout);
       }
     },
   );

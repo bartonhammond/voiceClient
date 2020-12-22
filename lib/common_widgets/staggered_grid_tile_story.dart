@@ -433,7 +433,9 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                             ),
                             const SizedBox(width: 5),
                             InkWell(
-                              child: AutoSizeText('Attention'),
+                              child: Text(Strings.storyPlayAttention.i18n,
+                                  key: Key(
+                                      'attentionButton-${widget.story["user"]["name"]}')),
                               onTap: () async {
                                 setState(() {
                                   _showMakeComments = false;
@@ -453,7 +455,8 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     ),
                     const SizedBox(width: 5),
                     InkWell(
-                        child: Text(Strings.commentRequest.i18n),
+                        child: Text(Strings.commentRequest.i18n,
+                            key: Key('commentButton-${widget.index}')),
                         onTap: () {
                           setState(() {
                             _showMakeComments = !_showMakeComments;
@@ -482,7 +485,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               ? Comments(
                   showExpand: true,
                   key: Key(
-                      '${Keys.commentsWidgetExpansionTile}-${widget.story["id"]}'),
+                      '${Keys.commentsWidgetExpansionTile}-${widget.story["user"]["name"]}'),
                   story: widget.story,
                   fontSize: 12,
                   isWeb: _isWeb,
