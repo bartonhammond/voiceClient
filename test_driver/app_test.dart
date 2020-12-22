@@ -54,10 +54,14 @@ Future<void> main(List<String> arguments) async {
       argResults['deleteBook'] == 'yes') {
     Map<String, dynamic> result =
         await graphql.getUserByName(graphQLClient, 'Test Name');
-    final String toId = result['id'];
-    result = await graphql.getUserByName(graphQLClient, 'Book Name');
-    final String fromId = result['id'];
-    await graphql.quitFriendship(graphQLClient, toId, fromId);
+    if (result != null) {
+      final String toId = result['id'];
+      result = await graphql.getUserByName(graphQLClient, 'Book Name');
+      if (result != null) {
+        final String fromId = result['id'];
+        await graphql.quitFriendship(graphQLClient, toId, fromId);
+      }
+    }
   }
   if (argResults['deleteTestUser'] == 'yes') {
     await graphql.deleteBookByName(

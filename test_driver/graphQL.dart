@@ -76,7 +76,11 @@ Future<Map> getUserByName(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['User'][0];
+  if (queryResult.data['User'].length == 1) {
+    return queryResult.data['User'][0];
+  } else {
+    return null;
+  }
 }
 
 Future<void> quitFriendship(
