@@ -844,13 +844,13 @@ Future<void> deleteStoryTags(
 
 Future<void> deleteBook(
   GraphQLClient graphQLClientApolloServer,
-  String id,
+  String email,
 ) async {
   //Create the Story
   final MutationOptions _mutationOptions = MutationOptions(
     documentNode: gql(deleteBookQL),
     variables: <String, dynamic>{
-      'id': id,
+      'email': email,
     },
   );
 

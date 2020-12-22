@@ -12,6 +12,7 @@ List<Widget> checkProxy(
   if (graphQLAuth.isProxy) {
     return [
       IconButton(
+        key: Key('proxyButton'),
         icon: Icon(
           Icons.person_add_disabled,
           size: 30,
@@ -19,7 +20,7 @@ List<Widget> checkProxy(
         color: Colors.red,
         onPressed: () async {
           final bool quitProxy = await PlatformAlertDialog(
-            title: 'Quit Managing?',
+            title: Strings.proxyQuitManaging.i18n,
             content: graphQLAuth.getUserMap()['name'],
             defaultActionText: Strings.ok.i18n,
             cancelActionText: Strings.cancel.i18n,

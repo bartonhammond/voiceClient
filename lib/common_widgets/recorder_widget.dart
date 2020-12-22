@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:file/local.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -10,7 +12,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:simple_timer/simple_timer.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
-import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -48,7 +49,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
   FlutterAudioRecorder _recorder;
   Recording _current;
   RecordingStatus _currentStatus = RecordingStatus.Unset;
-
+  //If AuthServiceType.mock, the animation doesnt
   TimerController _timerController;
   final TimerStyle _timerStyle = TimerStyle.ring;
   final TimerProgressIndicatorDirection _progressIndicatorDirection =
@@ -58,7 +59,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
 
   bool _stopButtonEnabled = true;
   String _localAudioPath;
-
+  AuthServiceType _authServiceType;
   @override
   void initState() {
     super.initState();
@@ -73,7 +74,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
   Widget getRecordButton(bool _showIcon) {
     final dynamic textAndIcon = _buildText(_currentStatus);
     return CustomRaisedButton(
-      key: Key(Keys.storyPageGalleryButton),
+      key: Key('recorderWidgetRecordButton'),
       text: textAndIcon['text'],
       icon: _showIcon
           ? Icon(
@@ -140,7 +141,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
         final current = await _recorder.current(channel: 0);
         // should be "Initialized", if all working fine
         setState(() {
-          _timerController.reset();
+          if (_authServiceType != AuthServiceType.mock) {
+            _timerController.reset();
+          }
           _current = current;
           _currentStatus = current.status;
           widget.setAudioFile(null);
@@ -164,7 +167,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
       await _recorder.start();
       final recording = await _recorder.current(channel: 0);
       setState(() {
-        _timerController.start();
+        if (_authServiceType != AuthServiceType.mock) {
+          _timerController.start();
+        }
         _current = recording;
         _stopButtonEnabled = true;
       });
@@ -189,7 +194,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
   Future<void> _resume() async {
     await _recorder.resume();
     setState(() {
-      _timerController.start();
+      if (_authServiceType != AuthServiceType.mock) {
+        _timerController.start();
+      }
       _stopButtonEnabled = true;
     });
     return;
@@ -198,7 +205,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
   Future<void> _pause() async {
     await _recorder.pause();
     setState(() {
-      _timerController.pause();
+      if (_authServiceType != AuthServiceType.mock) {
+        _timerController.pause();
+      }
       _stopButtonEnabled = false;
     });
     return;
@@ -211,7 +220,9 @@ class _RecorderWidgetState extends State<RecorderWidget>
       _current = result;
       _currentStatus = _current.status;
       _localAudioPath = _current.path;
-      _timerController.pause();
+      if (_authServiceType != AuthServiceType.mock) {
+        _timerController.pause();
+      }
       _stopButtonEnabled = false;
     });
   }
@@ -324,7 +335,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
         width: 4,
       ),
       CustomRaisedButton(
-        key: Key(Keys.storyPageStopButton),
+        key: Key('recorderWidgetStopButton'),
         text: Strings.audioStop.i18n,
         icon: widget.showIcon
             ? Icon(
@@ -339,29 +350,34 @@ class _RecorderWidgetState extends State<RecorderWidget>
       ),
       Container(
         height: 40,
-        child: FAProgressBar(
-          currentValue: level.toInt(),
-          maxValue: 100,
-          size: 40,
-          animatedDuration: const Duration(milliseconds: 400),
-          direction: Axis.vertical,
-          verticalDirection: VerticalDirection.up,
-          borderRadius: 0,
-          border: Border.all(
-            color: level == 0.0 ? Colors.transparent : Colors.indigo,
-            width: 0.5,
-          ),
-          backgroundColor: level == 0.0 ? Colors.transparent : Colors.white,
-          progressColor: level == 0.0 ? Colors.transparent : Colors.red,
-          changeColorValue: 75,
-          changeProgressColor: level == 0.0 ? Colors.transparent : Colors.green,
-        ),
+        child: _authServiceType == AuthServiceType.mock
+            ? Container()
+            : FAProgressBar(
+                currentValue: level.toInt(),
+                maxValue: 100,
+                size: 40,
+                animatedDuration: const Duration(milliseconds: 400),
+                direction: Axis.vertical,
+                verticalDirection: VerticalDirection.up,
+                borderRadius: 0,
+                border: Border.all(
+                  color: level == 0.0 ? Colors.transparent : Colors.indigo,
+                  width: 0.5,
+                ),
+                backgroundColor:
+                    level == 0.0 ? Colors.transparent : Colors.white,
+                progressColor: level == 0.0 ? Colors.transparent : Colors.red,
+                changeColorValue: 75,
+                changeProgressColor:
+                    level == 0.0 ? Colors.transparent : Colors.green,
+              ),
       )
     ];
   }
 
   @override
   Widget build(BuildContext context) {
+    _authServiceType = AppConfig.of(context).authServiceType;
     return Flexible(
       child: Column(
         mainAxisSize: MainAxisSize.min,

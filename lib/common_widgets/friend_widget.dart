@@ -13,7 +13,6 @@ import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -200,7 +199,7 @@ class _FriendWidgetState extends State<FriendWidget> {
           defaultActionText: Strings.yes.i18n,
         ).show(context);
         if (delete) {
-          await deleteBook(graphQLClient, widget.user['id']);
+          await deleteBook(graphQLClient, widget.user['email']);
           //fire event so FriendsPage can setState
           eventBus.fire(BookWasDeleted());
           if (Navigator.canPop(context)) {
@@ -229,7 +228,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     }
 
     return MessageButton(
-      key: Key('messageButton-${widget.user["id"]}'),
+      key: Key('manageButton-${widget.user["name"]}'),
       text: Strings.manageBook.i18n,
       onPressed: () async {
         await graphQLAuth.setProxy(widget.user['email']);
@@ -306,7 +305,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                       color: Color(0xff00bcd4),
                       size: 20,
                     )),
-                AutoSizeText(
+                Text(
                   widget.user['name'],
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
@@ -383,15 +382,17 @@ class _FriendWidgetState extends State<FriendWidget> {
                     Container(),
                   ],
                 ),
-                AutoSizeText(
+                Text(
                   widget.user['name'],
+                  key: Key('userName-${widget.user["name"]}'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: _fontSize,
                   ),
                 ),
-                AutoSizeText(
+                Text(
                   widget.user['home'],
+                  key: Key('userHome-${widget.user["name"]}'),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: _fontSize,
@@ -399,7 +400,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                 ),
                 widget.story == null
                     ? Container()
-                    : AutoSizeText(
+                    : Text(
                         df.format(dt),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
@@ -462,7 +463,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                               ),
                               const SizedBox(width: 10),
                               InkWell(
-                                  child: Text('Message'),
+                                  child: Text(Strings.friendWidgetMessage.i18n),
                                   onTap: () {
                                     setState(() {
                                       _showMakeMessage = !_showMakeMessage;
@@ -521,7 +522,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                               height: 1,
                               color: Colors.grey[300],
                             ),
-                            Text('Record Message',
+                            Text(Strings.friendWidgetRecordMessage.i18n,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16)),
                             SizedBox(

@@ -37,6 +37,7 @@ class AuthWidget extends StatelessWidget {
   }
 
   FutureBuilder setupHomePage(BuildContext context, User user) {
+    print('authWidget.setupHomePage user: ${user.email}');
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     graphQLAuth.setUser(user);
 

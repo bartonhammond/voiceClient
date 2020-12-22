@@ -131,6 +131,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     return Flexible(
       fit: FlexFit.loose,
       child: TextField(
+        key: Key('tagFriendsPageSearch'),
         decoration: InputDecoration(
             focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Color(0xff00bcd4))),
@@ -347,14 +348,19 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
           : null,
       onPressed: _tagsHaveChanged
           ? () async {
+              print('tfp tagsHaveChanged');
               if (widget.isBook) {
+                print('tfp.isBook');
                 if (widget.onBookSave != null) {
+                  print('tfp.isBook onBookSave');
                   //assign to book
                   if (_tagItems.length == 1) {
                     await widget.onBookSave(_tagItems[0]['user']['id']);
                     setState(() {
                       _tagsHaveChanged = false;
                     });
+                    print('tfp.isBook navigator pop');
+                    Navigator.pop(context);
                   } else {
                     //remove current book
                     await widget.onBookSave(null);
@@ -388,6 +394,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                 if (widget.onSaved != null) {
                   widget.onSaved();
                 }
+                Navigator.pop(context);
               }
             }
           : null,

@@ -43,6 +43,9 @@ Future<String> getUserIdByEmail(
     },
   );
   final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
   return queryResult.data['User'][0]['id'];
 }
 

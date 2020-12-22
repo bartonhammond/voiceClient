@@ -166,6 +166,7 @@ class _FriendsPageState extends State<FriendsPage> {
     return Flexible(
       fit: FlexFit.loose,
       child: TextField(
+        key: Key('searchField'),
         decoration: InputDecoration(
             focusedBorder: UnderlineInputBorder(
                 borderSide: BorderSide(color: Color(0xff00bcd4))),
@@ -550,7 +551,8 @@ class _FriendsPageState extends State<FriendsPage> {
             case 'new':
               return TmpObj(
                   button: MessageButton(
-                    key: Key('${Keys.newFriendsButton}-$index'),
+                    key:
+                        Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
                     text: Strings.pending.i18n,
                     onPressed: null,
                     fontSize: _fontSize,
@@ -578,7 +580,7 @@ class _FriendsPageState extends State<FriendsPage> {
         if (friendRequestToMe['User']['id'] == friends[index]['id']) {
           return TmpObj(
               button: MessageButton(
-                key: Key('${Keys.newFriendsButton}-$index'),
+                key: Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
                 text: Strings.pending.i18n,
                 onPressed: null,
                 fontSize: _fontSize,
@@ -653,7 +655,7 @@ class _FriendsPageState extends State<FriendsPage> {
     if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {
       button = TmpObj(
           button: MessageButton(
-            key: Key('${Keys.newFriendsButton}-$index'),
+            key: Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
             text: Strings.quitFriend.i18n,
             onPressed: () => _quitFriendRequest(friends[index]['id']),
             fontSize: _fontSize,
@@ -675,7 +677,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
       button ??= TmpObj(
           button: MessageButton(
-            key: Key('${Keys.newFriendsButton}-$index'),
+            key: Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
             text: Strings.newFriend.i18n,
             onPressed: () => _newFriendRequest(friends[index]['id']),
             fontSize: _fontSize,

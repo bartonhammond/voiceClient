@@ -162,6 +162,7 @@ class _UnicornDialer extends State<UnicornDialer>
                   _parentController.value)),
               alignment: FractionalOffset.center,
               child: FloatingActionButton(
+                  key: Key('mainFloatingActionButton'),
                   isExtended: false,
                   heroTag: widget.parentHeroTag,
                   backgroundColor: widget.parentButtonBackground,
