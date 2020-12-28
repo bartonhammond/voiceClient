@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -7,6 +8,7 @@ import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
+import 'package:web_socket_channel/io.dart';
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.enabled, this.iconData, this.text});
@@ -46,9 +48,11 @@ class FABBottomAppBar extends StatefulWidget {
 
 class FABBottomAppBarState extends State<FABBottomAppBar>
     with WidgetsBindingObserver {
+  IOWebSocketChannel channel;
   int _selectedIndex = 0;
   int _messageCount = 0;
-  Timer timer;
+  AppLifecycleState currentLifeCycle;
+  GraphQLAuth graphQLAuth;
 
   void _updateIndex(int index) {
     widget.onTabSelected(index);
@@ -58,9 +62,59 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     return;
   }
 
+  Future<void> wserror(dynamic err) async {
+    print('fab wserror ${err.toString()}');
+    await reconnect();
+    return;
+  }
+
+  Future<void> reconnect() async {
+    print('fab reconnect start');
+    if (graphQLAuth == null) {
+      print('fab reconnect graphQLAuth == null');
+      graphQLAuth = locator<GraphQLAuth>();
+    }
+    print('fab reconnect graphQLAuth != null');
+    if (channel != null) {
+      // add in a reconnect delay
+      await Future<dynamic>.delayed(Duration(seconds: 4));
+    }
+    setState(() {
+      print(DateTime.now().toString() + ' Starting connection attempt...');
+      channel = IOWebSocketChannel.connect(AppConfig.of(context).websocket);
+      channel.sink.add(graphQLAuth.getUserMap()['email']);
+      print(DateTime.now().toString() + ' Connection attempt completed.');
+    });
+    channel.stream.listen(
+      (dynamic data) => processMessage(),
+      onDone: reconnect,
+      onError: wserror,
+      cancelOnError: true,
+    );
+  }
+
+  void processMessage() {
+    if (currentLifeCycle == AppLifecycleState.detached ||
+        currentLifeCycle == AppLifecycleState.inactive ||
+        currentLifeCycle == AppLifecycleState.paused) {
+      _messageCount++;
+    } else {
+      setState(() {
+        _messageCount++;
+      });
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    reconnect();
+    super.didChangeDependencies();
+  }
+
   @override
   void initState() {
     super.initState();
+
     _selectedIndex = widget.selectedIndex;
     eventBus.on<MessagesEvent>().listen((event) {
       setState(() {
@@ -75,15 +129,14 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     Future.delayed(const Duration(milliseconds: 500), () async {
       await _getUserMessages();
     });
-    timer =
-        Timer.periodic(Duration(seconds: 60), (Timer t) => _getUserMessages());
+
     WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
-    timer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
+    channel.sink.close();
     super.dispose();
   }
 
@@ -94,13 +147,8 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
         Future.delayed(const Duration(milliseconds: 500), () {
           _getUserMessages();
         });
-        if (timer != null && !timer.isActive) {
-          timer = Timer.periodic(
-              Duration(seconds: 60), (Timer t) => _getUserMessages());
-        }
         break;
       case AppLifecycleState.inactive:
-        timer?.cancel();
         break;
       case AppLifecycleState.paused:
         break;
@@ -110,7 +158,6 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   Future<void> _getUserMessages() async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     final QueryResult queryResult = await getUserMessages(
         GraphQLProvider.of(context).value,
         graphQLAuth.getUserMap()['email'],
@@ -132,6 +179,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
 
   @override
   Widget build(BuildContext context) {
+    graphQLAuth = locator<GraphQLAuth>();
     final List<Widget> items = List.generate(widget.items.length, (int index) {
       Color iconColor;
       if (index == 2 && _messageCount > 0) {

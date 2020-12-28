@@ -71,6 +71,7 @@ dependencies:
   shared_preferences: ^0.5.12+4
   simple_timer: ^1.0.1
   uuid: ^2.1.0
+  web_socket_channel: ^1.1.0
   youtube_player_iframe: ^1.2.0+2
 
 dev_dependencies:

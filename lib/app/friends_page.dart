@@ -257,7 +257,7 @@ class _FriendsPageState extends State<FriendsPage> {
             'Friend Request',
             'friend-request',
             null,
-            toUser['email']);
+            toUser['bookAuthorEmail']);
 
         allMyFriendRequests = await _getAllMyFriendRequests(context);
         allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);

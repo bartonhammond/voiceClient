@@ -314,6 +314,7 @@ Future<void> addUserMessages(
     bool foundManageTypeForUser = false;
     for (var message in result.data['userMessages']) {
       if (message['messageType'] == 'manage' &&
+          message['messageStatus'] == 'new' &&
           message['userEmail'] == toUser['email']) {
         foundManageTypeForUser = true;
         break;
@@ -336,7 +337,7 @@ Future<void> addUserMessages(
             'text': 'Manage',
             'type': 'manage',
             'key1': null,
-            'key2': null,
+            'key2': result.data['User'][0]['email'],
           });
       result = await graphQLClient.mutate(options);
       if (result.hasException) {

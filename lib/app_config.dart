@@ -10,6 +10,7 @@ class AppConfig extends InheritedWidget {
     @required this.getHttpLink,
     @required this.isSecured,
     @required this.isWeb,
+    this.websocket = 'ws://192.168.1.14:3000',
     this.authServiceType = AuthServiceType.firebase,
     this.mockEmail,
     @required Widget child,
@@ -20,6 +21,7 @@ class AppConfig extends InheritedWidget {
   final HttpLink Function(String) getHttpLink;
   final bool isSecured;
   final bool isWeb;
+  final String websocket;
   final AuthServiceType authServiceType;
   final String mockEmail;
 
