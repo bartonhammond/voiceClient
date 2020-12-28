@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
@@ -110,19 +110,12 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   Future<void> _getUserMessages() async {
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getUserMessagesQL),
-      variables: <String, dynamic>{
-        'email': graphQLAuth.getUser().email,
-        'status': 'new',
-        'limit': '1',
-        'cursor': DateTime.now().toIso8601String(),
-      },
-    );
+    final QueryResult queryResult = await getUserMessages(
+        GraphQLProvider.of(context).value,
+        graphQLAuth.getUserMap()['email'],
+        DateTime.now().toIso8601String());
 
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
     if (queryResult.hasException) {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,

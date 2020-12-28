@@ -238,7 +238,7 @@ class _FriendsPageState extends State<FriendsPage> {
     );
   }
 
-  Future<void> _newFriendRequest(String _friendId) async {
+  Future<void> _newFriendRequest(Map<String, dynamic> toUser) async {
     final bool addNewFriend = await PlatformAlertDialog(
       title: Strings.requestFriendship.i18n,
       content: Strings.areYouSure.i18n,
@@ -249,15 +249,15 @@ class _FriendsPageState extends State<FriendsPage> {
       final _uuid = Uuid();
       try {
         await addUserMessages(
-          GraphQLProvider.of(context).value,
-          graphQLAuth.getUserMap()['id'],
-          _friendId,
-          _uuid.v1(),
-          'new',
-          'Friend Request',
-          'friend-request',
-          null,
-        );
+            GraphQLProvider.of(context).value,
+            graphQLAuth.getUserMap(),
+            toUser,
+            _uuid.v1(),
+            'new',
+            'Friend Request',
+            'friend-request',
+            null,
+            toUser['email']);
 
         allMyFriendRequests = await _getAllMyFriendRequests(context);
         allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
@@ -679,7 +679,7 @@ class _FriendsPageState extends State<FriendsPage> {
           button: MessageButton(
             key: Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
             text: Strings.newFriend.i18n,
-            onPressed: () => _newFriendRequest(friends[index]['id']),
+            onPressed: () => _newFriendRequest(friends[index]),
             fontSize: _fontSize,
             icon: Icon(
               MdiIcons.accountPlusOutline,

@@ -376,7 +376,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                 );
                 for (var tag in _tagItems) {
                   await addStoryTag(
-                    graphQLAuth.getUserMap()['id'],
+                    graphQLAuth.getUserMap(),
                     GraphQLProvider.of(context).value,
                     widget.story,
                     tag,

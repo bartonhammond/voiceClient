@@ -5,7 +5,7 @@ import 'package:http/http.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 
-Future<String> addUser(
+Future<Map<String, dynamic>> addUser(
   GraphQLClient graphQLClientFileServer,
   GraphQLClient graphQLClient,
   Map<String, dynamic> user,
@@ -45,5 +45,5 @@ Future<String> addUser(
   if (result.hasException) {
     throw result.exception;
   }
-  return id;
+  return result.data[0];
 }

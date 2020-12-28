@@ -7,11 +7,11 @@ import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
+import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -97,7 +97,7 @@ class _FriendWidgetState extends State<FriendWidget> {
       graphQLAuth,
       graphQLClientFileServer,
       graphQLClient,
-      widget.user['id'],
+      widget.user,
       messageAudioWeb: _messageAudioWeb,
     );
 
@@ -121,7 +121,7 @@ class _FriendWidgetState extends State<FriendWidget> {
       graphQLAuth,
       graphQLClientFileServer,
       graphQLClient,
-      widget.user['id'],
+      widget.user,
       messageAudio: _messageAudio,
     );
     setState(() {
@@ -135,15 +135,10 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   Future<void> callBack() async {
     try {
-      final QueryOptions _queryOptions = QueryOptions(
-        documentNode: gql(getUserByEmailQL),
-        variables: <String, dynamic>{
-          'email': widget.user['email'],
-          'friendEmail': graphQLAuth.getUserMap()['email'],
-        },
+      final QueryResult queryResult = await getUserByEmail(
+        graphQLClient,
+        widget.user['email'],
       );
-
-      final QueryResult queryResult = await graphQLClient.query(_queryOptions);
 
       setState(() {
         widget.user = queryResult.data['User'][0];
