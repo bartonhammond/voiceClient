@@ -24,6 +24,7 @@ dependency_overrides:
 dependencies:
   audioplayers: ^0.17.0
   auto_size_text: ^2.1.0
+  background_fetch: ^0.6.0
   badges: ^1.1.1
   carousel_slider: ^2.3.1
   configurable_expansion_tile: ^1.0.0
@@ -40,6 +41,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animation_progress_bar: ^1.0.6
+  flutter_app_badger: ^1.1.2
   flutter_audio_recorder: 
     git: https://github.com/bartonhammond/flutter_audio_recorder.git
   flutter_device_locale: ^0.4.0

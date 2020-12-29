@@ -47,7 +47,7 @@ Future<QueryResult> getUserMessages(
     variables: <String, dynamic>{
       'email': userEmail,
       'status': 'new',
-      'limit': '1',
+      'limit': '100',
       'cursor': cursor,
     },
   );

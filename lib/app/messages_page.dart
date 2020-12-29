@@ -560,7 +560,8 @@ class _MessagesPageState extends State<MessagesPage> {
 
                 if (messages.isEmpty || messages.length < nMessages) {
                   moreSearchResults[_messageType.index] = false;
-                } else {
+                }
+                if (messages.isNotEmpty) {
                   eventBus.fire(MessagesEvent(false));
                 }
 

@@ -78,8 +78,13 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     if (channel != null) {
       // add in a reconnect delay
       await Future<dynamic>.delayed(Duration(seconds: 4));
+      return reconnect();
     }
-
+    if (!mounted) {
+      // add in a reconnect delay
+      await Future<dynamic>.delayed(Duration(seconds: 4));
+      return reconnect();
+    }
     print(DateTime.now().toString() + ' Starting connection attempt...');
     channel = IOWebSocketChannel.connect(AppConfig.of(context).websocket);
     channel.sink.add(graphQLAuth.getUserMap()['email']);
