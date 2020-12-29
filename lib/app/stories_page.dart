@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -175,20 +176,11 @@ class _StoriesPageState extends State<StoriesPage> {
     if (widget.params == null || getId() == null) {
       return user;
     }
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getUserByIdQL),
-      variables: <String, dynamic>{
-        'id': getId(),
-      },
+
+    return await getUserById(
+      GraphQLProvider.of(context).value,
+      getId(),
     );
-
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    return queryResult.data['User'][0];
   }
 
   String getCursor(List<dynamic> _list) {

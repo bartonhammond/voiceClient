@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
@@ -376,7 +375,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                 );
                 for (var tag in _tagItems) {
                   await addStoryTag(
-                    graphQLAuth.getUserMap()['id'],
+                    graphQLAuth.getUserMap(),
                     GraphQLProvider.of(context).value,
                     widget.story,
                     tag,

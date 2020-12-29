@@ -79,7 +79,7 @@ class _State extends State<ReactionTable> {
     });
   }
 
-  Future<void> _newFriendRequest(String _friendId) async {
+  Future<void> _newFriendRequest(Map<String, dynamic> reaction) async {
     final bool addNewFriend = await PlatformAlertDialog(
       title: Strings.requestFriendship.i18n,
       content: Strings.areYouSure.i18n,
@@ -92,12 +92,13 @@ class _State extends State<ReactionTable> {
         await addUserMessages(
           GraphQLProvider.of(context).value,
           locator<GraphQLAuth>().getUserMap()['id'],
-          _friendId,
+          reaction['id'],
           _uuid.v1(),
           'new',
           'Friend Request',
           'friend-request',
           null,
+          reaction['email'],
         );
       } catch (e) {
         logger.createMessage(
@@ -248,7 +249,9 @@ class _State extends State<ReactionTable> {
                                             '${Keys.reactionTableNewFriendsButton}'),
                                         text: Strings.newFriend.i18n,
                                         onPressed: () {
-                                          _newFriendRequest(reaction['userId']);
+                                          _newFriendRequest(
+                                            reaction,
+                                          );
                                         },
                                         fontSize: 20,
                                         icon: null,

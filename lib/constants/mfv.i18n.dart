@@ -217,7 +217,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.quitFriend,
-        'es': '¿Salir?',
+        'es': '¿Dejar?',
       } +
       {
         'en': Strings.pending,
@@ -723,7 +723,10 @@ extension Localization on String {
         'es':
             'Cuando selecciona su imagen, puede recortarla, ajustar su posición y volver a enmarcarla. Fácilmente también',
       } +
-      {'en': Strings.proxyQuitManaging, 'es': '¿Dejar de administrar?'};
+      {
+        'en': Strings.proxyQuitManaging,
+        'es': '¿Dejar de administrar?',
+      };
 
   String get i18n => localize(this, _t);
   String fill(List<Object> params) => localizeFill(this, params);

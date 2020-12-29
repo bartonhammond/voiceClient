@@ -56,49 +56,51 @@ Future<void> main(List<String> arguments) async {
       final String fresh = tmp.substring(tmp.length - 5);
       p.email = '${parts[0]}$fresh@${parts[1]}';
 
-      final String userId = await addUser(
+      final user = await addUser(
         graphQLClientFileServer,
         graphQLClientApolloServer,
         p.toMap(),
       );
       await Future<dynamic>.delayed(Duration(seconds: 1));
-      userIds.add(userId);
-      print('addUser: ${p.email} $userId');
+      userIds.add(user['id']);
+      print('addUser: ${p.email} ${user["id"]}');
       final uuid = Uuid();
       for (var _userIndex = 0; _userIndex < users.length; _userIndex++) {
-        final String _userId = await q.getUserByEmail(
+        final Map<String, dynamic> _user = await q.getUserByEmail(
           graphQLClientApolloServer,
           users[_userIndex]['email'],
         );
         await addUserFriend(
           graphQLClientApolloServer,
-          userId,
-          _userId,
+          user['id'],
+          _user['id'],
         );
         await addUserFriend(
           graphQLClientApolloServer,
-          _userId,
-          userId,
+          _user['id'],
+          user['id'],
         );
         await addUserMessages(
           graphQLClientApolloServer,
-          userId,
-          _userId,
+          user,
+          _user,
           uuid.v1(),
           'new',
           'Friend Request',
           'friend-request',
           null,
+          users[_userIndex]['email'],
         );
         await addUserMessages(
           graphQLClientApolloServer,
-          userId,
-          _userId,
+          user,
+          _user,
           uuid.v1(),
           'new',
           'comment',
           'comment',
           null,
+          users[_userIndex]['email'],
         );
       }
       //For 10 Stories
@@ -110,7 +112,7 @@ Future<void> main(List<String> arguments) async {
         //Create Story
         await Future<dynamic>.delayed(Duration(seconds: 1));
         final storyId = await addSingleStory(
-            userId,
+            user['id'],
             files,
             graphQLClientApolloServer,
             graphQLClientFileServer,

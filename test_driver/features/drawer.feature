@@ -64,9 +64,12 @@ Feature: Drawer
         And I swipe up by 500 pixels on the "storyPlayScrollView"
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
+        And I tap the "backButton" button
+        #Expect something@myfamilyvoice.com to have a "Manage" notification
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Manage"
         #Manage the Book
         And I tap the "manageButton-Book Name" button
-        And I tap the "backButton" button
         # Now, as the Manager of Book, Verify a message was sent from the Attention
         And I tap the text that contains the text "Notices"
         Then I expect the "message-title" to be "Attention"
@@ -75,9 +78,14 @@ Feature: Drawer
         #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Clear"
         Then I expect the "noMessages" to be "No results"
-        #Quit proxy
+        #Quit proxy while still  on Notices
         Then I tap the "proxyButton" button
         And I tap the "alertDefault" button
+        Then I expect the "message-title" to be "Manage"
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        Given I tap the button that contains the text "Clear"
+        Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
@@ -97,6 +105,7 @@ Feature: Drawer
         And I fill the "searchField" field with "Book"
         Then I tap the button that contains the text "Friend?"
         Given I tap the "alertDefault" button
+        And I pause for 1 seconds
         Then I expect the text "Pending" to be present
         #Log out
         And I open the drawer
@@ -109,9 +118,10 @@ Feature: Drawer
         And I fill the "emailTextField" field with "something@myfamilyvoice.com"
         Given I tap the "submitButton" button
         Then I expect the widget "Stories" to be present within 10 seconds
-        #Find the new Book User
-        And I tap the text that contains the text "Users"
-        And I fill the "searchField" field with "Book"
+        #Check notices
+        And I tap the text that contains the text "Notices"
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
         And I tap the "manageButton-Book Name" button
         And I tap the text that contains the text "Profile"
         Then I expect the "nameFormField" "TextFormField" to be "Book Name"
@@ -131,6 +141,13 @@ Feature: Drawer
         And I tap the text that contains the text "Profile"
         Then I expect the "nameFormField" "TextFormField" to be "Test Name"
         And I expect the "homeFormField" "TextFormField" to be "Home City, State"
+        #Clear the existing Manage notificiation
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Manage"
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        Given I tap the button that contains the text "Clear"
+        Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
@@ -192,6 +209,14 @@ Feature: Drawer
         Then I expect the "message-title" to be "Comment"
         #clear the comment
         And I tap the "clearCommentButton-0" widget
+        Then I expect the "noMessages" to be "No results"
+        #Quit proxy while still  on Notices
+        Then I tap the "proxyButton" button
+        And I tap the "alertDefault" button
+        Then I expect the "message-title" to be "Manage"
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        Given I tap the button that contains the text "Clear"
         Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
