@@ -135,13 +135,13 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   Future<void> callBack() async {
     try {
-      final QueryResult queryResult = await getUserByEmail(
+      final user = await getUserByEmail(
         graphQLClient,
         widget.user['email'],
       );
 
       setState(() {
-        widget.user = queryResult.data['User'][0];
+        widget.user = user;
       });
     } catch (e) {
       //ignore

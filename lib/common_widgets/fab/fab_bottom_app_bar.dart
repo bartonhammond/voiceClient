@@ -79,12 +79,12 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
       // add in a reconnect delay
       await Future<dynamic>.delayed(Duration(seconds: 4));
     }
-    setState(() {
-      print(DateTime.now().toString() + ' Starting connection attempt...');
-      channel = IOWebSocketChannel.connect(AppConfig.of(context).websocket);
-      channel.sink.add(graphQLAuth.getUserMap()['email']);
-      print(DateTime.now().toString() + ' Connection attempt completed.');
-    });
+
+    print(DateTime.now().toString() + ' Starting connection attempt...');
+    channel = IOWebSocketChannel.connect(AppConfig.of(context).websocket);
+    channel.sink.add(graphQLAuth.getUserMap()['email']);
+    print(DateTime.now().toString() + ' Connection attempt completed.');
+
     channel.stream.listen(
       (dynamic data) => processMessage(),
       onDone: reconnect,
@@ -99,9 +99,11 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
         currentLifeCycle == AppLifecycleState.paused) {
       _messageCount++;
     } else {
-      setState(() {
-        _messageCount++;
-      });
+      if (mounted) {
+        setState(() {
+          _messageCount++;
+        });
+      }
     }
   }
 

@@ -321,7 +321,7 @@ Future<void> addUserMessages(
       }
     }
     if (!foundManageTypeForUser) {
-      result = await getUserByEmail(
+      final Map user = await getUserByEmail(
         graphQLClient,
         toUser['bookAuthorEmail'],
       );
@@ -330,14 +330,14 @@ Future<void> addUserMessages(
           documentNode: gql(addUserMessagesQL),
           variables: <String, dynamic>{
             'from': toUser['id'],
-            'to': result.data['User'][0]['id'], //bookAuth
+            'to': user['id'], //bookAuth
             'id': _uuid.v1(),
             'created': now.toIso8601String(),
             'status': 'new',
             'text': 'Manage',
             'type': 'manage',
             'key1': null,
-            'key2': result.data['User'][0]['email'],
+            'key2': user['email'],
           });
       result = await graphQLClient.mutate(options);
       if (result.hasException) {
