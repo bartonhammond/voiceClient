@@ -290,7 +290,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
       case 'attention':
         return StaggeredGridTileMessage(
-          title: 'Attention',
+          title: Strings.storyPlayAttention.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
@@ -327,7 +327,7 @@ class _MessagesPageState extends State<MessagesPage> {
         break;
       case 'manage':
         return StaggeredGridTileMessage(
-          title: Strings.manageBook.i18n,
+          title: Strings.messagesPageManage,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
@@ -425,7 +425,7 @@ class _MessagesPageState extends State<MessagesPage> {
             value: MessageType.ALL,
           ),
           DropdownMenuItem(
-            child: Text('Attention'),
+            child: Text(Strings.storyPlayAttention.i18n),
             value: MessageType.ATTENTION,
           ),
           DropdownMenuItem(
@@ -441,7 +441,7 @@ class _MessagesPageState extends State<MessagesPage> {
             value: MessageType.FRIEND_REQUEST,
           ),
           DropdownMenuItem(
-            child: Text(Strings.manageBook.i18n),
+            child: Text(Strings.messagesPageManage.i18n),
             value: MessageType.MANAGE,
           ),
         ],

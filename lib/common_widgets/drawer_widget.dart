@@ -119,7 +119,6 @@ Widget drawer(
                             key: Key('submitButton'),
                             text: 'Submit',
                             onPressed: () async {
-                              print('email: ${emailFieldController.text}');
                               //During testing, the "Book Name" is created so email is generated
                               final bool emailValid = RegExp(
                                       r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")

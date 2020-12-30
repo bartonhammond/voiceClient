@@ -29,7 +29,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    print('homePage userMap');
     if (graphQLAuth.getUserMap() == null ||
         (graphQLAuth.getUserMap()['image'] == null &&
             graphQLAuth.getUserMap()['name'] == null &&

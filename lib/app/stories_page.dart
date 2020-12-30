@@ -111,31 +111,23 @@ class _StoriesPageState extends State<StoriesPage> {
   void initState() {
     super.initState();
     proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      print('storiesPage onProxyStarted');
       setState(() {
         if (_refetchQuery != null) {
-          print('storiesPage onProxyStarted refetch');
           _refetchQuery();
         }
       });
     });
     proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      print('storiesPage onProxyEnded');
-
       setState(() {
         if (_refetchQuery != null) {
-          print('storiesPage onProxyEnded refetch');
           _refetchQuery();
         }
       });
     });
     storyWasAssignedToBookSubscription =
         eventBus.on<StoryWasAssignedToBook>().listen((event) {
-      print('storiesPage storyWasAssignedToBook');
-
       setState(() {
         if (_refetchQuery != null) {
-          print('storiesPage storyWasAssignedToBook refetch');
           _refetchQuery();
         }
       });

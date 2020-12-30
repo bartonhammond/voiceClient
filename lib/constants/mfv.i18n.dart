@@ -424,6 +424,10 @@ extension Localization on String {
         'es': 'Solicitud de amigo',
       } +
       {
+        'en': Strings.messagesPageManage,
+        'es': 'Gestionar',
+      } +
+      {
         'en': Strings.commentRequest,
         'es': 'Comentario',
       } +

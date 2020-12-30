@@ -80,11 +80,8 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
       return;
     }
     if (mounted) {
-      print(DateTime.now().toString() + ' Starting connection attempt...');
       channel = IOWebSocketChannel.connect(websocket);
       channel.sink.add(graphQLAuth.getUserMap()['email']);
-      print(DateTime.now().toString() + ' Connection attempt completed.');
-
       channel.stream.listen(
         (dynamic data) => processMessage(),
         onDone: reconnect,
@@ -95,26 +92,21 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
       await Future<dynamic>.delayed(Duration(seconds: 4));
       if (graphQLAuth.getUserMap() != null &&
           graphQLAuth.getUserMap().isNotEmpty) {
-        print(
-            'fab userMap not null email: ${graphQLAuth.getUserMap()["email"]}, reconnect');
         return reconnect();
       }
     }
   }
 
   void processMessage() {
-    print('fab processsMessage mounted: $mounted lifeCycle: $currentLifeCycle');
     if (currentLifeCycle == AppLifecycleState.detached ||
         currentLifeCycle == AppLifecycleState.inactive ||
         currentLifeCycle == AppLifecycleState.paused) {
       _messageCount++;
     } else {
       if (mounted) {
-        print('fab processsMessage setting state start');
         setState(() {
           _messageCount++;
         });
-        print('fab processsMessage setting state end');
       }
     }
   }
@@ -125,22 +117,18 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
 
     _selectedIndex = widget.selectedIndex;
     eventBus.on<MessagesEvent>().listen((event) {
-      print('fab initState messagesEvent listen mounted: $mounted start');
       if (mounted) {
         setState(() {
           _messageCount = event.empty ? 0 : 1;
         });
       }
-      print('fab initState messagesEvent listen mounted: $mounted end');
     });
 
     eventBus.on<GetUserMessagesEvent>().listen((event) async {
-      print('fab initState getUserMessagesEvent setState');
       await _getUserMessages();
     });
 
     Future.delayed(const Duration(milliseconds: 500), () async {
-      print('fab initState delayed 500');
       await _getUserMessages();
     });
 
@@ -149,12 +137,10 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
 
   @override
   void dispose() {
-    print('fab dispose start');
     WidgetsBinding.instance.removeObserver(this);
     channel?.sink?.close();
     channel = null;
     super.dispose();
-    print('fab dispose end');
   }
 
   @override
@@ -176,13 +162,10 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   Future<void> _getUserMessages() async {
-    print('fab _getUserMessages start');
     if (graphQLAuth.getUserMap() == null) {
-      print('fab _getUserMessages userMap is null');
       return;
     }
     if (!mounted) {
-      print('fab _getUserMessages not mounted');
       return;
     }
     final QueryResult queryResult = await getUserMessages(
@@ -198,18 +181,15 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
           stackTrace: StackTrace.current.toString());
       throw queryResult.exception;
     }
-    print('fab _getUserMessages setState mounted: $mounted started');
     setState(() {
       _messageCount = queryResult.data['userMessages'].length;
     });
-    print('fab _getUserMessages setState mounted: $mounted end');
   }
 
   @override
   Widget build(BuildContext context) {
     graphQLAuth = locator<GraphQLAuth>();
     websocket = AppConfig.of(context).websocket;
-    print('fab build reconnect');
     reconnect();
     final List<Widget> items = List.generate(widget.items.length, (int index) {
       Color iconColor;

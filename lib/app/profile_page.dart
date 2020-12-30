@@ -326,17 +326,7 @@ class _ProfilePageState extends State<ProfilePage> {
       }
 
       _showToast();
-      /*
-      Fluttertoast.showToast(
-          msg: Strings.saved.i18n,
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 3,
-          backgroundColor: Colors.black,
-          textColor: Colors.white,
-          fontSize: 16.0);*/
     } catch (e) {
-      print(e.toString());
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
           source: 'profile_page',
