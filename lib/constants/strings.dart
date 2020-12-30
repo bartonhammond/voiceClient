@@ -177,6 +177,7 @@ class Strings {
   static const String messagesPageMessageMessages = 'Messages';
   static const String messagesPageMessageComments = 'Comments';
   static const String messagesPageMessageFriendRequests = 'Friend Requests';
+  static const String messagesPageManage = 'Manage';
 
   static const String storiesPageAll = 'All';
   static const String storiesPageFamily = 'Family';

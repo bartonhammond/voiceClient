@@ -161,6 +161,9 @@ class _MessagesPageState extends State<MessagesPage> {
   ///won't pick it up
   ///
   Future<void> callBack(Map<String, dynamic> message) async {
+    if (message == null || message['id'] == null) {
+      return;
+    }
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     try {
       await updateUserMessageStatusById(
@@ -175,7 +178,7 @@ class _MessagesPageState extends State<MessagesPage> {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
           source: 'messages_page',
-          shortMessage: e.exception.toString(),
+          shortMessage: e.toString(),
           stackTrace: StackTrace.current.toString());
       rethrow;
     }
@@ -287,7 +290,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
       case 'attention':
         return StaggeredGridTileMessage(
-          title: 'Attention',
+          title: Strings.storyPlayAttention.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
@@ -324,7 +327,7 @@ class _MessagesPageState extends State<MessagesPage> {
         break;
       case 'manage':
         return StaggeredGridTileMessage(
-          title: 'Manage',
+          title: Strings.messagesPageManage,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
@@ -422,7 +425,7 @@ class _MessagesPageState extends State<MessagesPage> {
             value: MessageType.ALL,
           ),
           DropdownMenuItem(
-            child: Text('Attention'),
+            child: Text(Strings.storyPlayAttention.i18n),
             value: MessageType.ATTENTION,
           ),
           DropdownMenuItem(
@@ -438,7 +441,7 @@ class _MessagesPageState extends State<MessagesPage> {
             value: MessageType.FRIEND_REQUEST,
           ),
           DropdownMenuItem(
-            child: Text('Manage'),
+            child: Text(Strings.messagesPageManage.i18n),
             value: MessageType.MANAGE,
           ),
         ],

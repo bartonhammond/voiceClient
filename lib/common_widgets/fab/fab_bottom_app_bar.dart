@@ -53,6 +53,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   int _messageCount = 0;
   AppLifecycleState currentLifeCycle;
   GraphQLAuth graphQLAuth;
+  String websocket;
 
   void _updateIndex(int index) {
     widget.onTabSelected(index);
@@ -63,39 +64,37 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   Future<void> wserror(dynamic err) async {
-    print('fab wserror ${err.toString()}');
+    channel = null;
     await reconnect();
     return;
   }
 
   Future<void> reconnect() async {
-    print('fab reconnect start');
-    if (graphQLAuth == null) {
-      print('fab reconnect graphQLAuth == null');
-      graphQLAuth = locator<GraphQLAuth>();
-    }
-    print('fab reconnect graphQLAuth != null');
     if (channel != null) {
-      // add in a reconnect delay
-      await Future<dynamic>.delayed(Duration(seconds: 4));
-      return reconnect();
+      return;
     }
-    if (!mounted) {
-      // add in a reconnect delay
-      await Future<dynamic>.delayed(Duration(seconds: 4));
-      return reconnect();
-    }
-    print(DateTime.now().toString() + ' Starting connection attempt...');
-    channel = IOWebSocketChannel.connect(AppConfig.of(context).websocket);
-    channel.sink.add(graphQLAuth.getUserMap()['email']);
-    print(DateTime.now().toString() + ' Connection attempt completed.');
 
-    channel.stream.listen(
-      (dynamic data) => processMessage(),
-      onDone: reconnect,
-      onError: wserror,
-      cancelOnError: true,
-    );
+    graphQLAuth ?? locator<GraphQLAuth>();
+
+    if (graphQLAuth.getUserMap() == null) {
+      return;
+    }
+    if (mounted) {
+      channel = IOWebSocketChannel.connect(websocket);
+      channel.sink.add(graphQLAuth.getUserMap()['email']);
+      channel.stream.listen(
+        (dynamic data) => processMessage(),
+        onDone: reconnect,
+        onError: wserror,
+        cancelOnError: true,
+      );
+    } else {
+      await Future<dynamic>.delayed(Duration(seconds: 4));
+      if (graphQLAuth.getUserMap() != null &&
+          graphQLAuth.getUserMap().isNotEmpty) {
+        return reconnect();
+      }
+    }
   }
 
   void processMessage() {
@@ -113,20 +112,16 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   @override
-  void didChangeDependencies() {
-    reconnect();
-    super.didChangeDependencies();
-  }
-
-  @override
   void initState() {
     super.initState();
 
     _selectedIndex = widget.selectedIndex;
     eventBus.on<MessagesEvent>().listen((event) {
-      setState(() {
-        _messageCount = event.empty ? 0 : 1;
-      });
+      if (mounted) {
+        setState(() {
+          _messageCount = event.empty ? 0 : 1;
+        });
+      }
     });
 
     eventBus.on<GetUserMessagesEvent>().listen((event) async {
@@ -143,12 +138,14 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    channel.sink.close();
+    channel?.sink?.close();
+    channel = null;
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    currentLifeCycle = state;
     switch (state) {
       case AppLifecycleState.resumed:
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -165,6 +162,12 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   Future<void> _getUserMessages() async {
+    if (graphQLAuth.getUserMap() == null) {
+      return;
+    }
+    if (!mounted) {
+      return;
+    }
     final QueryResult queryResult = await getUserMessages(
         GraphQLProvider.of(context).value,
         graphQLAuth.getUserMap()['email'],
@@ -178,7 +181,6 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
           stackTrace: StackTrace.current.toString());
       throw queryResult.exception;
     }
-
     setState(() {
       _messageCount = queryResult.data['userMessages'].length;
     });
@@ -187,6 +189,8 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   @override
   Widget build(BuildContext context) {
     graphQLAuth = locator<GraphQLAuth>();
+    websocket = AppConfig.of(context).websocket;
+    reconnect();
     final List<Widget> items = List.generate(widget.items.length, (int index) {
       Color iconColor;
       if (index == 2 && _messageCount > 0) {
