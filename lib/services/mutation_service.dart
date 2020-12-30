@@ -1,6 +1,7 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -271,34 +272,79 @@ Future<void> updateUserMessageStatusById(
 
 Future<void> addUserMessages(
   GraphQLClient graphQLClient,
-  String fromUserId,
-  String toUserId,
+  Map<String, dynamic> fromUser,
+  Map<String, dynamic> toUser,
   String messageId,
   String status,
   String text,
   String type,
   String key1,
+  String key2,
 ) async {
   final DateTime now = DateTime.now();
-  final MutationOptions options = MutationOptions(
+  MutationOptions options = MutationOptions(
     documentNode: gql(addUserMessagesQL),
     variables: <String, dynamic>{
-      'from': fromUserId,
-      'to': toUserId,
+      'from': fromUser['id'],
+      'to': toUser['id'],
       'id': messageId,
       'created': now.toIso8601String(),
       'status': status,
       'text': text,
       'type': type,
-      'key1': key1
+      'key1': key1,
+      'key2': key2,
     },
   );
 
-  final QueryResult result = await graphQLClient.mutate(options);
+  QueryResult result = await graphQLClient.mutate(options);
   if (result.hasException) {
     throw result.exception;
   }
+  //A message type 'manage' will be
+  //from the book
+  if (toUser['isBook'] == true) {
+    result = await getUserMessages(
+      graphQLClient,
+      toUser['bookAuthorEmail'],
+      DateTime.now().toIso8601String(),
+    );
 
+    //look for type manage
+    bool foundManageTypeForUser = false;
+    for (var message in result.data['userMessages']) {
+      if (message['messageType'] == 'manage' &&
+          message['messageStatus'] == 'new' &&
+          message['userEmail'] == toUser['email']) {
+        foundManageTypeForUser = true;
+        break;
+      }
+    }
+    if (!foundManageTypeForUser) {
+      final Map user = await getUserByEmail(
+        graphQLClient,
+        toUser['bookAuthorEmail'],
+      );
+      final _uuid = Uuid();
+      options = MutationOptions(
+          documentNode: gql(addUserMessagesQL),
+          variables: <String, dynamic>{
+            'from': toUser['id'],
+            'to': user['id'], //bookAuth
+            'id': _uuid.v1(),
+            'created': now.toIso8601String(),
+            'status': 'new',
+            'text': 'Manage',
+            'type': 'manage',
+            'key1': null,
+            'key2': user['email'],
+          });
+      result = await graphQLClient.mutate(options);
+      if (result.hasException) {
+        throw result.exception;
+      }
+    }
+  }
   return;
 }
 
@@ -634,13 +680,14 @@ Future<void> doCommentUploads(
 
   await addUserMessages(
     graphQLClientApolloServer,
-    graphQLAuth.getUserMap()['id'],
-    _story['user']['id'],
+    graphQLAuth.getUserMap(),
+    _story['user'],
     _uuid.v1(),
     'new',
     'Comment',
     'comment',
     _story['id'],
+    _story['user']['email'],
   );
   return;
 }
@@ -649,7 +696,7 @@ Future<void> doMessageUploads(
     GraphQLAuth graphQLAuth,
     GraphQLClient graphQLClientFileServer,
     GraphQLClient graphQLClientApolloServer,
-    String userId,
+    Map<String, dynamic> toUser,
     {io.File messageAudio,
     Uint8List messageAudioWeb}) async {
   final _uuid = Uuid();
@@ -684,13 +731,14 @@ Future<void> doMessageUploads(
 
   await addUserMessages(
     graphQLClientApolloServer,
-    graphQLAuth.getUserMap()['id'],
-    userId,
+    graphQLAuth.getUserMap(),
+    toUser,
     _messageId,
     'new',
     'Message',
     'message',
     _audioFilePath,
+    toUser['email'],
   );
   return;
 }
@@ -718,7 +766,7 @@ Future<void> updateUserIsFamily(
 }
 
 Future<void> addStoryTag(
-  String currentUserId,
+  Map<String, dynamic> user,
   GraphQLClient graphQLClient,
   Map<String, dynamic> _story,
   Map<String, dynamic> _tag,
@@ -746,13 +794,14 @@ Future<void> addStoryTag(
 
   await addUserMessages(
     graphQLClient,
-    currentUserId,
-    _tag['user']['id'],
+    user,
+    _tag['user'],
     _uuid.v1(),
     'new',
     'Attention',
     'attention',
     _story['id'],
+    _tag['user']['email'],
   );
 
   return;

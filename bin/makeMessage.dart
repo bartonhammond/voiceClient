@@ -32,13 +32,16 @@ Future<void> main(List<String> arguments) async {
   final GraphQLClient graphQLClient =
       getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
 
-  //Make everyone friends
-
-  final String _toId =
-      await q.getUserIdByEmail(graphQLClient, 'bartonhammond@gmail.com');
-
-  final String _fromId =
-      await q.getUserIdByEmail(graphQLClient, 'brucefreeman@gmail.com');
+  const String _toEmail = 'bartonhammond@gmail.com';
+  final String _toId = await q.getUserIdByEmail(
+    graphQLClient,
+    _toEmail,
+  );
+  const String _fromEmail = 'admin@myfamilyvoice.com';
+  final String _fromId = await q.getUserIdByEmail(
+    graphQLClient,
+    _fromEmail,
+  );
 
   String storyId;
 
@@ -69,6 +72,7 @@ Future<void> main(List<String> arguments) async {
         'Comment',
         'comment',
         storyId,
+        _toEmail,
       );
     }
   }
@@ -83,6 +87,7 @@ Future<void> main(List<String> arguments) async {
         'Friend Request',
         'friend-request',
         null,
+        _toEmail,
       );
     }
   }
@@ -99,6 +104,7 @@ Future<void> main(List<String> arguments) async {
         'Message',
         'message',
         mp3,
+        _toEmail,
       );
     }
   }

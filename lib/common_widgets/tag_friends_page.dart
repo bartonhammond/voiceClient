@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
@@ -348,18 +347,14 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
           : null,
       onPressed: _tagsHaveChanged
           ? () async {
-              print('tfp tagsHaveChanged');
               if (widget.isBook) {
-                print('tfp.isBook');
                 if (widget.onBookSave != null) {
-                  print('tfp.isBook onBookSave');
                   //assign to book
                   if (_tagItems.length == 1) {
                     await widget.onBookSave(_tagItems[0]['user']['id']);
                     setState(() {
                       _tagsHaveChanged = false;
                     });
-                    print('tfp.isBook navigator pop');
                     Navigator.pop(context);
                   } else {
                     //remove current book
@@ -376,7 +371,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                 );
                 for (var tag in _tagItems) {
                   await addStoryTag(
-                    graphQLAuth.getUserMap()['id'],
+                    graphQLAuth.getUserMap(),
                     GraphQLProvider.of(context).value,
                     widget.story,
                     tag,

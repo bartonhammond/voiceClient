@@ -44,13 +44,13 @@ Future<void> main(List<String> arguments) async {
 
   for (var userIndex = 0; userIndex < users.length; userIndex++) {
     try {
-      final String userId = await addUser(
+      final Map<String, dynamic> user = await addUser(
         graphQLClientFileServer,
         graphQLClientApolloServer,
         users[userIndex],
       );
-      userIds.add(userId);
-      print('addUser: $userId');
+      userIds.add(user['id']);
+      print('addUser: ${user["id"]}');
     } catch (e) {
       print(e);
     }

@@ -1,7 +1,7 @@
 import 'package:graphql/client.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 
-Future<String> getUserByEmail(
+Future<Map<String, dynamic>> getUserByEmail(
   GraphQLClient graphQLClient,
   String email,
 ) async {
@@ -12,7 +12,10 @@ Future<String> getUserByEmail(
     },
   );
   final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  return queryResult.data['User'][0]['id'];
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return queryResult.data['User'][0];
 }
 
 Future<List> getFriendsOfMineByEmail(
@@ -158,6 +161,7 @@ Future<void> addUserMessages(
   String text,
   String type,
   String key1,
+  String key2,
 ) async {
   final DateTime now = DateTime.now();
   final MutationOptions options = MutationOptions(
@@ -170,7 +174,8 @@ Future<void> addUserMessages(
       'status': status,
       'text': text,
       'type': type,
-      'key1': key1
+      'key1': key1,
+      'key2': key2,
     },
   );
 

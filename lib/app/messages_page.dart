@@ -52,6 +52,8 @@ class _MessagesPageState extends State<MessagesPage> {
     1: true,
     2: true,
     3: true,
+    4: true,
+    5: true,
   };
 
   Map<int, String> searchResultsName = {
@@ -60,6 +62,7 @@ class _MessagesPageState extends State<MessagesPage> {
     2: 'userMessagesByType',
     3: 'userMessagesByType',
     4: 'userMessagesByType',
+    5: 'userMessagesByType,'
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   StreamSubscription proxyStartedSubscription;
@@ -158,6 +161,9 @@ class _MessagesPageState extends State<MessagesPage> {
   ///won't pick it up
   ///
   Future<void> callBack(Map<String, dynamic> message) async {
+    if (message == null || message['id'] == null) {
+      return;
+    }
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     try {
       await updateUserMessageStatusById(
@@ -172,7 +178,7 @@ class _MessagesPageState extends State<MessagesPage> {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
           source: 'messages_page',
-          shortMessage: e.exception.toString(),
+          shortMessage: e.toString(),
           stackTrace: StackTrace.current.toString());
       rethrow;
     }
@@ -284,7 +290,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
       case 'attention':
         return StaggeredGridTileMessage(
-          title: 'Attention',
+          title: Strings.storyPlayAttention.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
@@ -319,6 +325,25 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         );
         break;
+      case 'manage':
+        return StaggeredGridTileMessage(
+          title: Strings.messagesPageManage,
+          key: Key('${Keys.messageGridTile}_$index'),
+          message: message,
+          approveButton: MessageButton(
+            key: Key('${Keys.clearCommentButton}-$index'),
+            text: Strings.clearCommentButton.i18n,
+            fontSize: 16,
+            onPressed: () => callBack(message),
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+          rejectButton: null,
+        );
+        break;
+
       default:
         return Text('invalid message type ${message['type']}');
     }
@@ -400,7 +425,7 @@ class _MessagesPageState extends State<MessagesPage> {
             value: MessageType.ALL,
           ),
           DropdownMenuItem(
-            child: Text('Attention'),
+            child: Text(Strings.storyPlayAttention.i18n),
             value: MessageType.ATTENTION,
           ),
           DropdownMenuItem(
@@ -414,6 +439,10 @@ class _MessagesPageState extends State<MessagesPage> {
           DropdownMenuItem(
             child: Text(Strings.messagesPageMessageFriendRequests.i18n),
             value: MessageType.FRIEND_REQUEST,
+          ),
+          DropdownMenuItem(
+            child: Text(Strings.messagesPageManage.i18n),
+            value: MessageType.MANAGE,
           ),
         ],
         onChanged: (value) {
@@ -449,6 +478,10 @@ class _MessagesPageState extends State<MessagesPage> {
       case MessageType.MESSAGE:
         gqlString = getUserMessagesByTypeQL;
         _variables['type'] = 'message';
+        break;
+      case MessageType.MANAGE:
+        gqlString = getUserMessagesByTypeQL;
+        _variables['type'] = 'manage';
         break;
       case MessageType.FRIEND_REQUEST:
         gqlString = getUserMessagesByTypeQL;
@@ -530,7 +563,8 @@ class _MessagesPageState extends State<MessagesPage> {
 
                 if (messages.isEmpty || messages.length < nMessages) {
                   moreSearchResults[_messageType.index] = false;
-                } else {
+                }
+                if (messages.isNotEmpty) {
                   eventBus.fire(MessagesEvent(false));
                 }
 

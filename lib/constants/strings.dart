@@ -72,7 +72,7 @@ class Strings {
   static const String typeUserButtonMe = 'Me';
   static const String requestFriendship = 'Request Friendship?';
   static const String cancelFriendship = 'End Friendship?';
-  static const String quitFriend = 'Quit friend?';
+  static const String quitFriend = 'Quit?';
   static const String pending = 'Pending';
   static const String newFriend = 'Friend?';
 
@@ -177,6 +177,7 @@ class Strings {
   static const String messagesPageMessageMessages = 'Messages';
   static const String messagesPageMessageComments = 'Comments';
   static const String messagesPageMessageFriendRequests = 'Friend Requests';
+  static const String messagesPageManage = 'Manage';
 
   static const String storiesPageAll = 'All';
   static const String storiesPageFamily = 'Family';

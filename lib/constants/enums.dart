@@ -80,4 +80,5 @@ enum MessageType {
   COMMENT,
   FRIEND_REQUEST,
   ATTENTION,
+  MANAGE,
 }
