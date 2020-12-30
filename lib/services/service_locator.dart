@@ -10,3 +10,7 @@ void setupServiceLocator(BuildContext context) {
   }
   locator.registerLazySingleton<GraphQLAuth>(() => GraphQLAuth(context));
 }
+
+void clearService() {
+  locator.reset();
+}

@@ -161,6 +161,9 @@ class _MessagesPageState extends State<MessagesPage> {
   ///won't pick it up
   ///
   Future<void> callBack(Map<String, dynamic> message) async {
+    if (message == null || message['id'] == null) {
+      return;
+    }
     final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
     try {
       await updateUserMessageStatusById(
@@ -175,7 +178,7 @@ class _MessagesPageState extends State<MessagesPage> {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
           source: 'messages_page',
-          shortMessage: e.exception.toString(),
+          shortMessage: e.toString(),
           stackTrace: StackTrace.current.toString());
       rethrow;
     }

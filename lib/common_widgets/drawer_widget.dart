@@ -2,6 +2,8 @@ import 'package:MyFamilyVoice/app/legal/legal_page.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
+import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -22,6 +24,8 @@ Future<void> _signOut(BuildContext context) async {
   try {
     final AuthService auth = Provider.of<AuthService>(context, listen: false);
     await auth.signOut();
+    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+    graphQLAuth.clear();
   } on PlatformException catch (e) {
     await PlatformExceptionAlertDialog(
       title: Strings.logoutFailed.i18n,

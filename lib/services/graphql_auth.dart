@@ -13,6 +13,16 @@ class GraphQLAuth {
   User originalUser;
   String token;
   bool isProxy = false;
+  Map<String, dynamic> _userMap;
+  Map<String, dynamic> _originalUserMap;
+
+  void clear() {
+    user = null;
+    originalUser = null;
+    token = null;
+    _userMap = null;
+    _originalUserMap = null;
+  }
 
   String getHttpLinkUri(
     GraphQLClientType type,
@@ -48,9 +58,6 @@ class GraphQLAuth {
     await setupEnvironment();
   }
 
-  Map<String, dynamic> _userMap;
-  Map<String, dynamic> _originalUserMap;
-
   Map<String, dynamic> getUserMap() {
     return _userMap;
   }
@@ -62,7 +69,6 @@ class GraphQLAuth {
 //Only called after someone logs in either
 //web or device
   void setUser(User _user) {
-    print('graphQLAuth.setUser ${_user.email}');
     originalUser = _user;
     user = _user;
     _userMap = null;
