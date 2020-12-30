@@ -276,8 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!nameIsValid || !homeIsValid) {
         return;
       }
-      print(
-          'profilePage creatingOrUpdateUserInfor shouldCreateuser: $shouldCreateUser');
+
       final QueryResult queryResult = await createOrUpdateUserInfo(
         shouldCreateUser,
         graphQLClient,
@@ -303,7 +302,6 @@ class _ProfilePageState extends State<ProfilePage> {
       await graphQLAuth.setupEnvironment();
 
       if (isBook) {
-        print('profilePage isBook add friend 1');
         //make friends
         await addUserFriend(
           graphQLClient,
@@ -311,7 +309,6 @@ class _ProfilePageState extends State<ProfilePage> {
           graphQLAuth.getOriginalUserMap()['id'],
         );
 
-        print('profilePage isBook add friend 2');
         await addUserFriend(
           graphQLClient,
           graphQLAuth.getOriginalUserMap()['id'],
@@ -343,7 +340,7 @@ class _ProfilePageState extends State<ProfilePage> {
       logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
           source: 'profile_page',
-          shortMessage: e.exception.toString(),
+          shortMessage: e.toString(),
           stackTrace: StackTrace.current.toString());
       rethrow;
     }

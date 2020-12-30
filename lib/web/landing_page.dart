@@ -55,9 +55,6 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
-    print('landingPage build');
-    final MediaQueryData queryData = MediaQuery.of(context);
-    print('landingPage devicePixelRatio: ${queryData.devicePixelRatio}');
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(

@@ -327,7 +327,7 @@ class _MessagesPageState extends State<MessagesPage> {
         break;
       case 'manage':
         return StaggeredGridTileMessage(
-          title: 'Manage',
+          title: Strings.manageBook.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
@@ -441,7 +441,7 @@ class _MessagesPageState extends State<MessagesPage> {
             value: MessageType.FRIEND_REQUEST,
           ),
           DropdownMenuItem(
-            child: Text('Manage'),
+            child: Text(Strings.manageBook.i18n),
             value: MessageType.MANAGE,
           ),
         ],

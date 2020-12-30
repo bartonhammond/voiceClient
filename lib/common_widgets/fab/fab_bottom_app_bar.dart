@@ -58,31 +58,24 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   void _updateIndex(int index) {
     widget.onTabSelected(index);
     setState(() {
-      print('fab _updateIndex setState start mounted: $mounted');
       _selectedIndex = index;
-      print('fab _updateIndex setState end  mounted: $mounted');
     });
     return;
   }
 
   Future<void> wserror(dynamic err) async {
-    print('fab wserror ${err.toString()}');
     channel = null;
     await reconnect();
     return;
   }
 
   Future<void> reconnect() async {
-    print('fab reconnect start');
     if (channel != null) {
-      print('fab reconnect channel not null');
       return;
     }
 
-    if (graphQLAuth == null) {
-      print('fab reconnect graphQLAuth == null');
-      graphQLAuth = locator<GraphQLAuth>();
-    }
+    graphQLAuth ?? locator<GraphQLAuth>();
+
     if (graphQLAuth.getUserMap() == null) {
       return;
     }

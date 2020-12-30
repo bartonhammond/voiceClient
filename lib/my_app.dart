@@ -94,7 +94,7 @@ class MyApp extends StatelessWidget {
             ),
             _onBackgroundFetch)
         .then((int status) {
-      print('[BackgroundFetch] configure success: $status');
+      //noop
     }).catchError((dynamic e) {
       print('[BackgroundFetch] configure ERROR: $e');
     });
