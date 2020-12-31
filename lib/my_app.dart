@@ -1,3 +1,4 @@
+import 'package:MyFamilyVoice/common_widgets/image_editor/screen_util.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
@@ -55,7 +56,9 @@ class MyApp extends StatelessWidget {
 
   Future<void> _onBackgroundFetch(String taskId) async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
+    if (graphQLAuth.getUserMap() == null || graphQLAuth.getUserMap().isEmpty) {
+      return;
+    }
     final QueryResult queryResult = await getUserMessages(
         graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer),
         graphQLAuth.getUserMap()['email'],
@@ -211,6 +214,7 @@ class MyApp extends StatelessWidget {
       services.DeviceOrientation.portraitDown,
       services.DeviceOrientation.portraitUp,
     ]);
+    ScreenUtil.init(width: 750, height: 1334, allowFontScaling: true);
     Locale locale;
     return FutureBuilder(
       future: Future.wait([

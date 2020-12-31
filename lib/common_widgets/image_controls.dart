@@ -1,14 +1,12 @@
 import 'dart:io' as io;
-
+import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/common_widgets/image_editor/image_editor.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
-import 'package:MyFamilyVoice/web/crop_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
-
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
@@ -23,7 +21,7 @@ class ImageControls extends StatefulWidget {
     this.showIcons = true,
     this.isWeb = false,
   });
-  final Function(io.File) onImageSelected;
+  final Function(ByteData) onImageSelected;
   final Function(bool) onOpenFileExplorer;
   final Function(ByteData) onWebCroppedCallback;
   final bool showIcons;
@@ -60,15 +58,17 @@ class _ImageControlsState extends State<ImageControls> {
     }
 
     if (_paths != null) {
-      Navigator.push<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => CropWidget(
-              imageBytes: _paths[0].bytes,
-              onCropped: widget.onWebCroppedCallback,
-            ),
-            fullscreenDialog: false,
-          ));
+      await Navigator.of(context, rootNavigator: true).push<dynamic>(
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) {
+            return ImageEditor(
+              bytes: _paths[0].bytes,
+              onImageSelected: widget.onImageSelected,
+            );
+          },
+          fullscreenDialog: true,
+        ),
+      );
     }
     return;
   }
@@ -87,7 +87,8 @@ class _ImageControlsState extends State<ImageControls> {
     io.File image;
     if (_authServiceType == AuthServiceType.mock) {
       final io.File file = await getImageFileFromAssets('me.jpg');
-      return widget.onImageSelected(file);
+      final Uint8List bytes = file.readAsBytesSync();
+      return widget.onImageSelected(ByteData.view(bytes.buffer));
     }
 
     final PickedFile pickedFile = await picker.getImage(source: source);
@@ -96,44 +97,17 @@ class _ImageControlsState extends State<ImageControls> {
     }
 
     if (image != null && pickedFile != null) {
-      final io.File croppedFile = await ImageCropper.cropImage(
-        sourcePath: image.path,
-        compressQuality: 50,
-        maxWidth: 700,
-        maxHeight: 700,
-        compressFormat: ImageCompressFormat.jpg,
-        aspectRatioPresets: io.Platform.isAndroid
-            ? [
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
-              ]
-            : [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio5x3,
-                CropAspectRatioPreset.ratio5x4,
-                CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
-              ],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: 'Cropper',
+      await Navigator.of(context, rootNavigator: true).push<dynamic>(
+        MaterialPageRoute<dynamic>(
+          builder: (BuildContext context) {
+            return ImageEditor(
+              bytes: image.readAsBytesSync(),
+              onImageSelected: widget.onImageSelected,
+            );
+          },
+          fullscreenDialog: true,
         ),
       );
-
-      if (croppedFile != null) {
-        widget.onImageSelected(croppedFile);
-      }
     }
   }
 
