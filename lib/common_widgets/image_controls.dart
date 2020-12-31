@@ -69,17 +69,6 @@ class _ImageControlsState extends State<ImageControls> {
           fullscreenDialog: true,
         ),
       );
-      /** barton
-      Navigator.push<dynamic>(
-          context,
-          MaterialPageRoute<dynamic>(
-            builder: (BuildContext context) => CropWidget(
-              imageBytes: _paths[0].bytes,
-              onCropped: widget.onWebCroppedCallback,
-            ),
-            fullscreenDialog: false,
-          ));
-          */
     }
     return;
   }
@@ -119,46 +108,6 @@ class _ImageControlsState extends State<ImageControls> {
           fullscreenDialog: true,
         ),
       );
-      /**
-      final io.File croppedFile = await ImageCropper.cropImage(
-        sourcePath: image.path,
-        compressQuality: 50,
-        maxWidth: 700,
-        maxHeight: 700,
-        compressFormat: ImageCompressFormat.jpg,
-        aspectRatioPresets: io.Platform.isAndroid
-            ? [
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio16x9
-              ]
-            : [
-                CropAspectRatioPreset.original,
-                CropAspectRatioPreset.square,
-                CropAspectRatioPreset.ratio3x2,
-                CropAspectRatioPreset.ratio4x3,
-                CropAspectRatioPreset.ratio5x3,
-                CropAspectRatioPreset.ratio5x4,
-                CropAspectRatioPreset.ratio7x5,
-                CropAspectRatioPreset.ratio16x9
-              ],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: 'Cropper',
-        ),
-      );
-      
-      if (croppedFile != null) {
-        widget.onImageSelected(croppedFile);
-      }
-      */
     }
   }
 
