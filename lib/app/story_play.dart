@@ -49,7 +49,7 @@ class _StoryPlayState extends State<StoryPlay>
   bool _showComments = false;
   Map<String, dynamic> _story;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-  io.File _image;
+  ByteData _image;
   io.File _storyAudio;
   io.File _commentAudio;
   ByteData _webImageBytes;
@@ -402,11 +402,11 @@ class _StoryPlayState extends State<StoryPlay>
     MultipartFile multipartFile;
 
     if (_image != null) {
-      multipartFile = getMultipartFile(
-        _image,
-        '$_id.jpg',
+      multipartFile = MultipartFile.fromBytes(
         'image',
-        'jpeg',
+        _image.buffer.asUint8List(0, _image.lengthInBytes),
+        filename: '$_id.jpg',
+        contentType: MediaType('image', 'jpeg'),
       );
 
       _imageFilePath = await performMutation(
@@ -543,9 +543,9 @@ class _StoryPlayState extends State<StoryPlay>
                   _uploadInProgress = false;
                 });
               },
-              onImageSelected: (io.File croppedFile) async {
+              onImageSelected: (ByteData bytes) async {
                 setState(() {
-                  _image = croppedFile;
+                  _image = bytes;
                   _uploadInProgress = true;
                 });
 
@@ -612,12 +612,15 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Widget getImageDisplay(int _width, int _height) {
+    print(
+        'story getImageDisplay _image null: ${_image == null} _story null: ${_story == null}');
     if (_image != null)
       return Center(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(25.0),
-          child: Image.file(
-            _image,
+          borderRadius: BorderRadius.circular(40.0),
+          child: Image.memory(
+            _image.buffer
+                .asUint8List(_image.offsetInBytes, _image.lengthInBytes),
             width: _width.toDouble(),
             height: _height.toDouble(),
           ),
@@ -636,7 +639,7 @@ class _StoryPlayState extends State<StoryPlay>
     else if (_story != null)
       return Center(
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(25.0),
+          borderRadius: BorderRadius.circular(40.0),
           child: FadeInImage.memoryNetwork(
             width: _width.toDouble(),
             height: _height.toDouble(),
@@ -645,8 +648,6 @@ class _StoryPlayState extends State<StoryPlay>
               _story['image'],
               width: _width,
               height: _height,
-              resizingType: 'fill',
-              enlarge: 1,
             ),
           ),
         ),

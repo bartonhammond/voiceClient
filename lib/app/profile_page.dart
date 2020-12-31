@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
@@ -59,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
   bool shouldCreateUser = false;
   bool _isWeb = false;
   Map<String, dynamic> user;
-  io.File _image;
+  ByteData _image;
   bool imageUpdated = false;
   String imageFilePath;
   final picker = ImagePicker();
@@ -256,14 +255,18 @@ class _ProfilePageState extends State<ProfilePage> {
       if (imageUpdated) {
         MultipartFile multipartFile;
         if (_isWeb && _webImage != null) {
-          multipartFile = MultipartFile.fromBytes('image', _webImage,
-              filename: '$userId.jpg', contentType: MediaType('image', 'jpeg'));
-        } else {
-          multipartFile = getMultipartFile(
-            _image,
-            '$userId.jpg',
+          multipartFile = MultipartFile.fromBytes(
             'image',
-            'jpeg',
+            _webImage,
+            filename: '$userId.jpg',
+            contentType: MediaType('image', 'jpeg'),
+          );
+        } else {
+          multipartFile = MultipartFile.fromBytes(
+            'image',
+            _image.buffer.asUint8List(0, _image.lengthInBytes),
+            filename: '$userId.jpg',
+            contentType: MediaType('image', 'jpeg'),
           );
         }
 
@@ -379,8 +382,9 @@ class _ProfilePageState extends State<ProfilePage> {
               if (_image != null)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(40.0),
-                  child: Image.file(
-                    _image,
+                  child: Image.memory(
+                    _image.buffer.asUint8List(
+                        _image.offsetInBytes, _image.lengthInBytes),
                     width: _width.toDouble(),
                     height: _height.toDouble(),
                   ),
@@ -494,7 +498,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       _uploadInProgress = false;
                     });
                   },
-                  onImageSelected: (io.File croppedFile) async {
+                  onImageSelected: (ByteData croppedFile) async {
                     setState(() {
                       _image = croppedFile;
                       _uploadInProgress = true;
