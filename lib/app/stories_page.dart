@@ -64,21 +64,18 @@ class _StoriesPageState extends State<StoriesPage> {
     TypeStoriesView.allFriends: {
       StoryFeedType.ALL: true,
       StoryFeedType.FAMILY: true,
-      StoryFeedType.GLOBAL: true,
       StoryFeedType.FRIENDS: true,
       StoryFeedType.ME: true,
     },
     TypeStoriesView.oneFriend: {
       StoryFeedType.ALL: true,
       StoryFeedType.FAMILY: true,
-      StoryFeedType.GLOBAL: true,
       StoryFeedType.FRIENDS: true,
       StoryFeedType.ME: true,
     },
     TypeStoriesView.me: {
       StoryFeedType.ALL: true,
       StoryFeedType.FAMILY: true,
-      StoryFeedType.GLOBAL: true,
       StoryFeedType.FRIENDS: true,
       StoryFeedType.ME: true,
     },
@@ -87,20 +84,17 @@ class _StoriesPageState extends State<StoriesPage> {
     TypeStoriesView.allFriends: {
       StoryFeedType.ALL: 'userFriendsStories',
       StoryFeedType.FAMILY: 'userFriendsStoriesFamily',
-      StoryFeedType.GLOBAL: 'userFriendsStoriesGlobal',
       StoryFeedType.FRIENDS: 'userFriendsStoriesFriends',
       StoryFeedType.ME: 'userStoriesMe',
     },
     TypeStoriesView.oneFriend: {
       StoryFeedType.ALL: 'userStories',
       StoryFeedType.FAMILY: 'userStoriesFamily',
-      StoryFeedType.GLOBAL: 'userStoriesGlobal',
       StoryFeedType.FRIENDS: 'userStoriesFriends',
     },
     TypeStoriesView.me: {
       StoryFeedType.ALL: 'userStoriesMe',
       StoryFeedType.FAMILY: 'userStoriesMeFamily',
-      StoryFeedType.GLOBAL: 'userStoriesGlobal',
       StoryFeedType.FRIENDS: 'userStoriesFriends',
     },
   };
@@ -244,9 +238,6 @@ class _StoriesPageState extends State<StoriesPage> {
           case StoryFeedType.ALL:
             gqlString = getUserFriendsStoriesQL;
             break;
-          case StoryFeedType.GLOBAL:
-            gqlString = getUserFriendsStoriesGlobalQL;
-            break;
           case StoryFeedType.FAMILY:
             gqlString = getUserFriendsStoriesFamilyQL;
             break;
@@ -264,10 +255,6 @@ class _StoriesPageState extends State<StoriesPage> {
             gqlString = getUserStoriesQL;
             _variables['email'] = user['email'];
             _variables['currentUserEmail'] = graphQLAuth.getUser().email;
-            break;
-          case StoryFeedType.GLOBAL:
-            gqlString = getUserStoriesGlobalQL;
-            _variables['email'] = user['email'];
             break;
           case StoryFeedType.FAMILY:
             gqlString = getUserStoriesFamilyQL;
@@ -288,9 +275,6 @@ class _StoriesPageState extends State<StoriesPage> {
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
             gqlString = getUserStoriesMeQL;
-            break;
-          case StoryFeedType.GLOBAL:
-            gqlString = getUserStoriesGlobalQL;
             break;
           case StoryFeedType.FAMILY:
             gqlString = getUserStoriesMeFamilyQL;
@@ -331,12 +315,6 @@ class _StoriesPageState extends State<StoriesPage> {
         ),
         value: StoryFeedType.FRIENDS,
       ),
-      DropdownMenuItem(
-        child: Text(
-          Strings.storiesPageGlobal.i18n,
-        ),
-        value: StoryFeedType.GLOBAL,
-      )
     ];
 
     if (_typeStoryView == TypeStoriesView.allFriends) {

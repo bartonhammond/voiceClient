@@ -417,18 +417,6 @@ query getUserStoriesFamily($email: String!, $currentUserEmail: String!, $limit: 
 }
 ''';
 
-const String getUserStoriesGlobalQL = r'''
-query getUserStoriesGlobal($email: String!, $limit: String!, $cursor: String!) {
- userStoriesGlobal(
-  		email: $email 
-			limit: $limit
-  		cursor: $cursor
-		)''' +
-    _story_ +
-    '''
-}
-''';
-
 const String getUserStoriesMeQL = r'''
 query getUserStoriesMe ($email: String!, $limit: String!, $cursor: String!) {
  userStoriesMe(
@@ -731,17 +719,6 @@ const String getUserFriendsStoriesFriendsQL = r'''
 query getUserFriendsStoriesFriends($email: String!, $limit: String!, $cursor: String!) {
 userFriendsStoriesFriends(
   		email: $email 
-			limit: $limit
-  		cursor: $cursor
-		)''' +
-    _story_ +
-    '''      
-}
-  ''';
-
-const String getUserFriendsStoriesGlobalQL = r'''
-query getUserFriendsStoriesGlobal($email: String!, $limit: String!, $cursor: String!) {
-userFriendsStoriesGlobal(
 			limit: $limit
   		cursor: $cursor
 		)''' +

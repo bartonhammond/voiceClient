@@ -321,9 +321,6 @@ class _StoryPlayState extends State<StoryPlay>
               case 'FRIENDS':
                 _storyType = StoryType.FRIENDS;
                 break;
-              case 'GLOBAL':
-                _storyType = StoryType.GLOBAL;
-                break;
             }
           }
 
@@ -892,12 +889,6 @@ class _StoryPlayState extends State<StoryPlay>
                           )),
                       value: StoryType.FRIENDS,
                     ),
-                    DropdownMenuItem(
-                        child: Text(Strings.storiesPageGlobal,
-                            style: TextStyle(
-                              fontSize: 15,
-                            )),
-                        value: StoryType.GLOBAL),
                   ],
                   onChanged: (_value) async {
                     setState(() {
