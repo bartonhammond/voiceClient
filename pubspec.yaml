@@ -33,6 +33,7 @@ dependencies:
   crypto: ^2.1.4
   cupertino_icons: ^0.1.2
   event_bus: ^1.1.1
+  extended_image: 1.5.0-dev
   file: ^6.0.0-nullsafety.4 
   file_picker: ^2.1.0
   firebase_auth: ^0.18.3+1
@@ -59,9 +60,12 @@ dependencies:
   graphql_flutter: ^3.1.0
   http: ^0.12.2
   i18n_extension: ^1.4.5
+  image: ^2.1.4
   image_cropper: ^1.2.3
+  image_editor: ^0.1.2
   image_picker: ^0.6.7+2
   intl: ^0.17.0-nullsafety.2
+  isolate: ^2.0.2
   material_design_icons_flutter: 4.0.5755
   microphone: ^0.0.2+3
   package_info: ^0.4.0+13
@@ -113,6 +117,7 @@ flutter:
     - assets/terms.html
     - assets/images/
     - assets/me.jpg
+
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.
   # For details regarding adding assets from package dependencies, see

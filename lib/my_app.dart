@@ -55,7 +55,9 @@ class MyApp extends StatelessWidget {
 
   Future<void> _onBackgroundFetch(String taskId) async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-
+    if (graphQLAuth.getUserMap() == null || graphQLAuth.getUserMap().isEmpty) {
+      return;
+    }
     final QueryResult queryResult = await getUserMessages(
         graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer),
         graphQLAuth.getUserMap()['email'],
