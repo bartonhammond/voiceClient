@@ -85,6 +85,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
     compile 'com.android.support:multidex:1.0.3'
+    classpath 'com.android.tools.build:gradle:3.2.1'
+    classpath 'com.google.gms:google-services:4.3.0'
 }
 
 apply plugin: 'com.google.gms.google-services'

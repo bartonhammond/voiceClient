@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:MyFamilyVoice/app/ads_global.dart';
 import 'package:MyFamilyVoice/constants/TmpObj.dart';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
@@ -33,6 +34,7 @@ class FriendsPage extends StatefulWidget {
     this.onPush,
   }) : super(key: key);
   final ValueChanged<Map<String, dynamic>> onPush;
+  static AdsGlobal friendsAdGlobal = AdsGlobal();
   @override
   _FriendsPageState createState() => _FriendsPageState();
 }

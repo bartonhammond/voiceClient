@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:MyFamilyVoice/app/ads_global.dart';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
@@ -39,6 +40,9 @@ class StoriesPage extends StatefulWidget {
     this.onPush,
     this.params,
   }) : super(key: key);
+
+  static AdsGlobal storiesAdGlobal = AdsGlobal();
+
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map<String, dynamic> params;
   @override

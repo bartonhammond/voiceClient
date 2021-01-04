@@ -48,20 +48,17 @@ enum ReactionType {
   LOVE,
 }
 final List storyTypes = <String>[
-  'GLOBAL',
   'FRIENDS',
   'FAMILY',
 ];
 //What types can a story be?
 enum StoryType {
-  GLOBAL,
   FRIENDS,
   FAMILY,
 }
 
 enum StoryFeedType {
   ALL,
-  GLOBAL,
   FRIENDS,
   FAMILY,
   ME,
