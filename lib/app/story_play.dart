@@ -297,9 +297,19 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   Widget build(BuildContext context) {
     if (!kIsWeb) {
-      _bannerAd ??=
-          createBannerAdd(['ancestory', 'memories', 'family', 'stories'])
-            ..load();
+      _bannerAd ??= createBannerAdd([
+        'heritage',
+        'history',
+        'pets',
+        'children',
+        'vacation',
+        'marriage',
+        'photography',
+        'train',
+        'home',
+        'automobile',
+      ])
+        ..load();
       _bannerAd?.show(
         anchorOffset: 60.0,
         anchorType: AnchorType.top,
