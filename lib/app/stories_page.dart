@@ -53,7 +53,7 @@ class StoriesPage extends StatefulWidget {
 }
 
 class _StoriesPageState extends State<StoriesPage> {
-  static final AdsGlobal _storiesAdGlobal = AdsGlobal();
+  static AdsGlobal _storiesAdGlobal;
   final _nativeAdController = NativeAdmobController();
 
   final nStories = 20;
@@ -358,6 +358,7 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
+    _storiesAdGlobal ??= AdsGlobal(context);
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -455,8 +456,8 @@ class _StoriesPageState extends State<StoriesPage> {
                       if (stories.isEmpty) {
                         eventBus.fire(BookHasNoStories(user['id']));
                       }
-                      final int _storiesLength = stories.length +
-                          _storiesAdGlobal.willShowAd(stories.length);
+                      final int _storiesLength = stories.length + 1;
+                      _storiesAdGlobal.randomizeFrequency();
 
                       return Expanded(
                         key: Key('storiesPageExpanded'),
@@ -478,66 +479,12 @@ class _StoriesPageState extends State<StoriesPage> {
                                 mainAxisSpacing: 4.0,
                                 crossAxisSpacing: 4.0,
                                 itemBuilder: (context, index) {
-                                  return index < _storiesLength
+                                  return index < stories.length
                                       ? _storiesAdGlobal.showAd()
-                                          ? Container(
-                                              clipBehavior: Clip.hardEdge,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Colors.grey,
-                                                  width: 2.0,
-                                                ),
-                                                borderRadius:
-                                                    BorderRadius.circular(15.0),
-                                              ),
-                                              margin: EdgeInsets.all(8),
-                                              height: 330,
-                                              // color: Colors.cyanAccent,
-                                              child: NativeAdmob(
-                                                options: NativeAdmobOptions(
-                                                    bodyTextStyle:
-                                                        const NativeTextStyle(
-                                                            fontSize: 12,
-                                                            color:
-                                                                Colors.black),
-                                                    adLabelTextStyle:
-                                                        NativeTextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.white,
-                                                      backgroundColor: Constants
-                                                          .backgroundColor,
-                                                    ),
-                                                    callToActionStyle:
-                                                        NativeTextStyle(
-                                                      fontSize: 15,
-                                                      color: Colors.white,
-                                                      backgroundColor: Constants
-                                                          .backgroundColor,
-                                                    )),
-                                                key: Key('nativeAdMob-$index'),
-                                                adUnitID: NativeAd.testAdUnitId,
-                                                controller: _nativeAdController,
-                                                type: NativeAdmobType.full,
-                                                loading: Center(
-                                                    child:
-                                                        CircularProgressIndicator()),
-                                                error: Text('failed to load'),
-                                              ),
-                                            )
-                                          : StaggeredGridTileStory(
-                                              index: _storiesAdGlobal
-                                                  .storyCount(increment: true),
-                                              crossAxisCount: _crossAxisCount,
-                                              onPush: widget.onPush,
-                                              showFriend: getId() == null,
-                                              onDelete: () {
-                                                setState(() {});
-                                              },
-                                              story: Map<String, dynamic>.from(
-                                                  stories[_storiesAdGlobal
-                                                      .storyCount(
-                                                          increment: false)]),
-                                            )
+                                          ? getAdmobNative(
+                                              stories, index, _crossAxisCount)
+                                          : getStaggered(
+                                              stories, index, _crossAxisCount)
                                       : moreSearchResults[_typeStoryView]
                                               [_storyFeedType]
                                           ? getLoadMoreButton(
@@ -554,6 +501,63 @@ class _StoriesPageState extends State<StoriesPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget getStaggered(List<dynamic> stories, int index, int _crossAxisCount) {
+    return StaggeredGridTileStory(
+      index: index,
+      crossAxisCount: _crossAxisCount,
+      onPush: widget.onPush,
+      showFriend: getId() == null,
+      onDelete: () {
+        setState(() {});
+      },
+      story: Map<String, dynamic>.from(stories[index]),
+    );
+  }
+
+  Widget getAdmobNative(List<dynamic> stories, int index, int _crossAxisCount) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Container(
+          clipBehavior: Clip.hardEdge,
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.grey,
+              width: 2.0,
+            ),
+            borderRadius: BorderRadius.circular(15.0),
+          ),
+          margin: EdgeInsets.all(8),
+          height: 330,
+          // color: Colors.cyanAccent,
+          child: NativeAdmob(
+            options: NativeAdmobOptions(
+                bodyTextStyle:
+                    const NativeTextStyle(fontSize: 12, color: Colors.black),
+                adLabelTextStyle: NativeTextStyle(
+                  fontSize: 12,
+                  color: Colors.white,
+                  backgroundColor: Constants.backgroundColor,
+                ),
+                callToActionStyle: NativeTextStyle(
+                  fontSize: 15,
+                  color: Colors.white,
+                  backgroundColor: Constants.backgroundColor,
+                )),
+            key: Key('nativeAdMob-$index'),
+            adUnitID: NativeAd.testAdUnitId,
+            controller: _nativeAdController,
+            type: NativeAdmobType.full,
+            loading: Center(child: CircularProgressIndicator()),
+            error: Text('failed to load'),
+          ),
+        ),
+        getStaggered(stories, index, _crossAxisCount)
+      ],
     );
   }
 }

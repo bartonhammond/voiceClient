@@ -1,17 +1,25 @@
 import 'dart:math';
-import 'package:flutter/foundation.dart';
+import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
+import 'package:flutter/material.dart';
 
 class AdsGlobal {
+  AdsGlobal(BuildContext context) {
+    authServiceType = AppConfig.of(context).authServiceType;
+  }
+  AuthServiceType authServiceType;
   int min = 5;
   int max = 15;
 
   int currentDisplayCount = 0;
   int adDisplayFrequency = 5;
-  int currentPosition = -1;
   Random rnd = Random();
 
   /// Determin if the add should show
   bool showAd() {
+    if (authServiceType == AuthServiceType.mock) {
+      return false;
+    }
     currentDisplayCount++;
 
     final bool equal = currentDisplayCount == adDisplayFrequency;
@@ -21,23 +29,7 @@ class AdsGlobal {
     return equal;
   }
 
-  ///Will the next amount of stories trigger a display of ad?
-  ///return 0 - it won't happen
-  ///any other number, it's the number of times it will happen
-  int willShowAd(int length) {
-    //change it
+  void randomizeFrequency() {
     adDisplayFrequency = min + rnd.nextInt(max - min);
-    currentPosition = -1;
-    return length ~/ adDisplayFrequency;
-  }
-
-  ///Track the story index separate from the displayCount
-  ///so that we don't skip a story
-  int storyCount({@required bool increment}) {
-    if (!increment) {
-      return currentPosition;
-    }
-    currentPosition++;
-    return currentPosition;
   }
 }
