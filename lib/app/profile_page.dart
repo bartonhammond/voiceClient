@@ -696,7 +696,8 @@ class _ProfilePageState extends State<ProfilePage> {
         'reunion',
         'camera',
         'anniversary',
-        'airline'
+        'airline',
+        'insurance'
       ])
         ..load();
       _bannerAd?.show(

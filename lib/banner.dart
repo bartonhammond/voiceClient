@@ -8,8 +8,12 @@ BannerAd createBannerAdd(List<String> keywords) {
     keywords: keywords,
     contentUrl: 'https://myfamilyvoice.com',
     childDirected: false,
-    testDevices: <String>['8F6E7E74-D953-4AB4-942B-4590972A5398'],
+    testDevices: <String>[
+      '8F6E7E74-D953-4AB4-942B-4590972A5398',
+      'emulator-5554'
+    ],
   );
+
   String testAdUnit;
   if (Platform.isAndroid) {
     testAdUnit = AdMob.androidAdUnitIdBanner;
