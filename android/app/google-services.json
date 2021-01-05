@@ -44,12 +44,13 @@
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "online.myfamilyvoice.mobile",
-                "app_store_id": "1515985270"
+                "app_store_id": "962194608"
               }
             }
           ]
         }
-      }
+      },
+      "admob_app_id": "ca-app-pub-1583562934436261~4402652977"
     }
   ],
   "configuration_version": "1"

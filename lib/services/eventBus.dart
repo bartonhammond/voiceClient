@@ -16,6 +16,10 @@ class BookHasNoStories {
   String id;
 }
 
+class HideProfileBanner {}
+
+class HideStoryBanner {}
+
 class ProxyStarted {}
 
 class ProxyEnded {}
