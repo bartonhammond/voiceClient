@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
-
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/banner.dart';
 import 'package:MyFamilyVoice/common_widgets/comments.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
@@ -25,6 +26,7 @@ import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -46,6 +48,7 @@ class StoryPlay extends StatefulWidget {
 
 class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
+  BannerAd _bannerAd;
   bool _showComments = false;
   Map<String, dynamic> _story;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -81,6 +84,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
+  StreamSubscription bannerSubscription;
 
   GraphQLClient graphQLClient;
   GraphQLClient graphQLClientFileServer;
@@ -95,6 +99,10 @@ class _StoryPlayState extends State<StoryPlay>
     proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
       setState(() {});
     });
+    bannerSubscription = eventBus.on<HideStoryBanner>().listen((event) {
+      _bannerAd?.dispose();
+      _bannerAd = null;
+    });
     _fToast = FToast();
     _fToast.init(context);
     super.initState();
@@ -104,6 +112,9 @@ class _StoryPlayState extends State<StoryPlay>
   void dispose() {
     proxyStartedSubscription.cancel();
     proxyEndedSubscription.cancel();
+    bannerSubscription.cancel();
+    _bannerAd?.dispose();
+    _bannerAd = null;
     super.dispose();
   }
 
@@ -285,6 +296,25 @@ class _StoryPlayState extends State<StoryPlay>
 
   @override
   Widget build(BuildContext context) {
+    if (!kIsWeb) {
+      _bannerAd ??= createBannerAdd([
+        'heritage',
+        'history',
+        'pets',
+        'children',
+        'vacation',
+        'marriage',
+        'photography',
+        'train',
+        'home',
+        'automobile',
+      ])
+        ..load();
+      _bannerAd?.show(
+        anchorOffset: 60.0,
+        anchorType: AnchorType.top,
+      );
+    }
     _isWeb = AppConfig.of(context).isWeb;
     graphQLClient = GraphQLProvider.of(context).value;
     graphQLClientFileServer =
@@ -906,135 +936,140 @@ class _StoryPlayState extends State<StoryPlay>
   Widget getCard(BuildContext context) {
     return SingleChildScrollView(
       key: Key('storyPlayScrollView'),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            if (_story != null ||
-                (widget.params != null &&
-                    widget.params.containsKey('id') &&
-                    widget.params['id'].isNotEmpty))
-              FriendWidget(
-                user: _story['user'],
-                story: _story,
-                showMessage: false,
+      child: Container(
+        padding: const EdgeInsets.only(
+            left: 10.0, top: 60.0, right: 10.0, bottom: 10.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (_story != null ||
+                  (widget.params != null &&
+                      widget.params.containsKey('id') &&
+                      widget.params['id'].isNotEmpty))
+                FriendWidget(
+                  user: _story['user'],
+                  story: _story,
+                  showMessage: false,
+                ),
+              if ((_story != null ||
+                      (widget.params != null &&
+                          widget.params.containsKey('id') &&
+                          widget.params['id'].isNotEmpty)) &&
+                  _isCurrentUserAuthor &&
+                  _showComments == false)
+                buildDeleteStory(_showIcons),
+              getStoryTypeDropDown(),
+              getImageDisplay(
+                _width,
+                _height,
               ),
-            if ((_story != null ||
-                    (widget.params != null &&
-                        widget.params.containsKey('id') &&
-                        widget.params['id'].isNotEmpty)) &&
-                _isCurrentUserAuthor &&
-                _showComments == false)
-              buildDeleteStory(_showIcons),
-            getStoryTypeDropDown(),
-            getImageDisplay(
-              _width,
-              _height,
-            ),
-            SizedBox(
-              height: _spacer.toDouble(),
-            ),
-            _showComments == false ? getStoryControls() : Container(),
-            _story != null
-                ? Column(children: <Widget>[
-                    SizedBox(
-                      height: _spacer.toDouble(),
-                    ),
-                    InkWell(
-                        child: _showComments
-                            ? Text(
-                                Strings.storyLabel.i18n,
-                                style: TextStyle(
-                                  color: Color(0xff00bcd4),
-                                  fontSize: 16.0,
-                                ),
-                              )
-                            : Text(
-                                Strings.commentsLabel.i18n,
-                                style: TextStyle(
-                                  color: Color(0xff00bcd4),
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                        onTap: () {
-                          setState(() {
-                            _showComments = !_showComments;
-                          });
-                        }),
-                    SizedBox(
-                      height: _spacer.toDouble(),
-                    ),
-                    _showComments
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                                Text(Strings.recordAComment.i18n,
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16)),
-                                SizedBox(
-                                  height: _spacer.toDouble(),
-                                ),
-                                _isWeb
-                                    ? RecorderWidgetWeb(
-                                        key: Key('storyPlayRecorderWidgetWeb'),
-                                        isCurrentUserAuthor:
-                                            _isCurrentUserAuthor,
-                                        setAudioWeb: setCommentAudioWeb,
-                                        timerDuration: 90,
-                                        isForComment: true,
-                                      )
-                                    : RecorderWidget(
-                                        key: Key('storyPlayRecorderWidget'),
-                                        isCurrentUserAuthor:
-                                            _isCurrentUserAuthor,
-                                        setAudioFile: setCommentAudioFile,
-                                        timerDuration: 90,
-                                        isForComment: true,
-                                      ),
-                                _uploadInProgress
-                                    ? CircularProgressIndicator()
-                                    : Divider(
-                                        indent: 50,
-                                        endIndent: 50,
-                                        height: _spacer.toDouble(),
-                                        thickness: 5,
-                                      ),
-                                Comments(
-                                  key: Key(Keys.commentsWidgetExpansionTile),
-                                  story: _story,
-                                  fontSize: 16,
-                                  showExpand: true,
-                                  isWeb: _isWeb,
-                                  onClickDelete:
-                                      (Map<String, dynamic> _comment) async {
-                                    final bool _deleteComment =
-                                        await PlatformAlertDialog(
-                                      title: Strings.deleteComment.i18n,
-                                      content: Strings.areYouSure.i18n,
-                                      cancelActionText: Strings.cancel.i18n,
-                                      defaultActionText: Strings.yes.i18n,
-                                    ).show(context);
-                                    if (_deleteComment == true) {
-                                      await deleteComment(
-                                        GraphQLProvider.of(context).value,
-                                        _comment['id'],
-                                      );
-                                      setState(() {});
-                                    }
-                                  },
+              SizedBox(
+                height: _spacer.toDouble(),
+              ),
+              _showComments == false ? getStoryControls() : Container(),
+              _story != null
+                  ? Column(children: <Widget>[
+                      SizedBox(
+                        height: _spacer.toDouble(),
+                      ),
+                      InkWell(
+                          child: _showComments
+                              ? Text(
+                                  Strings.storyLabel.i18n,
+                                  style: TextStyle(
+                                    color: Color(0xff00bcd4),
+                                    fontSize: 16.0,
+                                  ),
                                 )
-                              ])
-                        : Container()
-                  ])
-                : Container(),
-            SizedBox(
-              height: 75,
-            ),
-          ],
+                              : Text(
+                                  Strings.commentsLabel.i18n,
+                                  style: TextStyle(
+                                    color: Color(0xff00bcd4),
+                                    fontSize: 16.0,
+                                  ),
+                                ),
+                          onTap: () {
+                            setState(() {
+                              _showComments = !_showComments;
+                            });
+                          }),
+                      SizedBox(
+                        height: _spacer.toDouble(),
+                      ),
+                      _showComments
+                          ? Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                  Text(Strings.recordAComment.i18n,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16)),
+                                  SizedBox(
+                                    height: _spacer.toDouble(),
+                                  ),
+                                  _isWeb
+                                      ? RecorderWidgetWeb(
+                                          key:
+                                              Key('storyPlayRecorderWidgetWeb'),
+                                          isCurrentUserAuthor:
+                                              _isCurrentUserAuthor,
+                                          setAudioWeb: setCommentAudioWeb,
+                                          timerDuration: 90,
+                                          isForComment: true,
+                                        )
+                                      : RecorderWidget(
+                                          key: Key('storyPlayRecorderWidget'),
+                                          isCurrentUserAuthor:
+                                              _isCurrentUserAuthor,
+                                          setAudioFile: setCommentAudioFile,
+                                          timerDuration: 90,
+                                          isForComment: true,
+                                        ),
+                                  _uploadInProgress
+                                      ? CircularProgressIndicator()
+                                      : Divider(
+                                          indent: 50,
+                                          endIndent: 50,
+                                          height: _spacer.toDouble(),
+                                          thickness: 5,
+                                        ),
+                                  Comments(
+                                    key: Key(Keys.commentsWidgetExpansionTile),
+                                    story: _story,
+                                    fontSize: 16,
+                                    showExpand: true,
+                                    isWeb: _isWeb,
+                                    onClickDelete:
+                                        (Map<String, dynamic> _comment) async {
+                                      final bool _deleteComment =
+                                          await PlatformAlertDialog(
+                                        title: Strings.deleteComment.i18n,
+                                        content: Strings.areYouSure.i18n,
+                                        cancelActionText: Strings.cancel.i18n,
+                                        defaultActionText: Strings.yes.i18n,
+                                      ).show(context);
+                                      if (_deleteComment == true) {
+                                        await deleteComment(
+                                          GraphQLProvider.of(context).value,
+                                          _comment['id'],
+                                        );
+                                        setState(() {});
+                                      }
+                                    },
+                                  )
+                                ])
+                          : Container()
+                    ])
+                  : Container(),
+              SizedBox(
+                height: 75,
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -17,7 +17,7 @@
          additional functionality it is fine to subclass or reimplement
          FlutterApplication and put your custom class here. -->
     <application
-	tools:replace="android:label"
+	    tools:replace="android:label"
         android:label="My Family Voice"
         android:icon="@mipmap/ic_launcher" 
         android:allowBackup="true"
@@ -80,12 +80,9 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-            <meta-data
-                android:name="com.shakebugs.APIClientID"
-                android:value="ZAKN2OjFCV9AtMKuGCXiupvs894cbZOBHuCG2BQu" />
-            <meta-data
-                android:name="com.shakebugs.APIClientSecret"
-                android:value="fXf9bkFScK6dMoPdhlvGJ4lFdlnfgTwqJhndrpVmq01VHHFWfHrhOgj" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1583562934436261~4402652977"/>
     </application>
     <meta-data
     android:name="flutterEmbedding"

@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/banner.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -44,6 +47,8 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  BannerAd _bannerAd;
+
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final _nameFormKey = GlobalKey<FormFieldState>();
@@ -76,7 +81,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
+  StreamSubscription bannerSubscription;
+
   FToast _fToast;
+
   Future<Map<String, dynamic>> getUser() async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
@@ -122,6 +130,10 @@ class _ProfilePageState extends State<ProfilePage> {
     proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
       setState(() {});
     });
+    bannerSubscription = eventBus.on<HideProfileBanner>().listen((event) {
+      _bannerAd?.dispose();
+      _bannerAd = null;
+    });
   }
 
   void _showToast() {
@@ -162,6 +174,9 @@ class _ProfilePageState extends State<ProfilePage> {
     homeFormFieldController.dispose();
     proxyStartedSubscription.cancel();
     proxyEndedSubscription.cancel();
+    bannerSubscription.cancel();
+    _bannerAd?.dispose();
+    _bannerAd = null;
     super.dispose();
   }
 
@@ -371,7 +386,8 @@ class _ProfilePageState extends State<ProfilePage> {
     return SingleChildScrollView(
         key: _formKey,
         child: Container(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.only(
+              left: 10.0, top: 60.0, right: 10.0, bottom: 10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -670,6 +686,26 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    if (!kIsWeb) {
+      _bannerAd ??= createBannerAdd([
+        'ancestory',
+        'memories',
+        'family',
+        'travel',
+        'stories',
+        'reunion',
+        'camera',
+        'anniversary',
+        'airline',
+        'insurance'
+      ])
+        ..load();
+      _bannerAd?.show(
+        anchorOffset: 60.0,
+        anchorType: AnchorType.top,
+      );
+    }
+
     _isWeb = AppConfig.of(context).isWeb;
     graphQLAuth = locator<GraphQLAuth>();
     graphQLClientFileServer =

@@ -36,6 +36,7 @@ dependencies:
   extended_image: 1.5.0-dev
   file: ^6.0.0-nullsafety.4 
   file_picker: ^2.1.0
+  firebase_admob: ^0.10.3
   firebase_auth: ^0.18.3+1
   firebase_dynamic_links: ^0.6.2
   flag: ^3.0.4
@@ -48,6 +49,7 @@ dependencies:
   flutter_device_locale: ^0.4.0
   flutter_localizations:
     sdk: flutter
+  flutter_native_admob: ^2.1.0+3
   flutter_reaction_button: ^1.0.6
   flutter_staggered_grid_view: ^0.3.0
   flutter_tags:
