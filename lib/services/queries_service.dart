@@ -58,3 +58,23 @@ Future<QueryResult> getUserMessages(
   }
   return queryResult;
 }
+
+Future<Map> getUserFriend(
+  GraphQLClient graphQLClient,
+  String userEmail,
+  String otherEmail,
+) async {
+  final QueryOptions _queryOptions = QueryOptions(
+    documentNode: gql(getUserFriendQL),
+    variables: <String, dynamic>{
+      'email': userEmail,
+      'otherEmail': otherEmail,
+    },
+  );
+
+  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return queryResult.data['userFriend'][0];
+}

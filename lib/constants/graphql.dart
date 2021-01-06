@@ -1062,3 +1062,17 @@ query getUserByName($name: String!) {
     '''
 }
 ''';
+
+const String getUserFriendQL = r'''
+query getUserFriend($email: String!, $otherEmail: String!) {
+userFriend(email: $email, otherEmail: $otherEmail) {
+    id
+    email
+    name
+    home
+    created
+    image
+    isFriend
+  }
+}
+''';
