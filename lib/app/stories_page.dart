@@ -403,7 +403,7 @@ class _StoriesPageState extends State<StoriesPage> {
             ),
             actions: checkProxy(graphQLAuth, context),
           ),
-          drawer: getId() == null ? getDrawer(context) : null,
+          drawer: getId() == null ? DrawerWidget() : null,
           body: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
