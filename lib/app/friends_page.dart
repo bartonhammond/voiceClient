@@ -409,7 +409,7 @@ class _FriendsPageState extends State<FriendsPage> {
           context,
         ),
       ),
-      drawer: getDrawer(context),
+      drawer: DrawerWidget(),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Column(

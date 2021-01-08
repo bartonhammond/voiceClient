@@ -18,6 +18,8 @@ class BookHasNoStories {
 
 class HideProfileBanner {}
 
+class ShowProfileBanner {}
+
 class HideStoryBanner {}
 
 class ProxyStarted {}
