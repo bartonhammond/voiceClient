@@ -151,7 +151,6 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    print('fab dispose channel = null');
     channel?.sink?.close();
     channel = null;
     super.dispose();

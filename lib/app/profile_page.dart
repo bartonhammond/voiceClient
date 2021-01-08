@@ -132,12 +132,10 @@ class _ProfilePageState extends State<ProfilePage> {
       setState(() {});
     });
     hideBannerSubscription = eventBus.on<HideProfileBanner>().listen((event) {
-      print('profilePage hideProfileBanner');
       _bannerAd?.dispose();
       _bannerAd = null;
     });
     showBannerSubscription = eventBus.on<ShowProfileBanner>().listen((event) {
-      print('profilePage showProfileBanner');
       setState(() {});
     });
   }

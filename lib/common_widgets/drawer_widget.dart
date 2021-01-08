@@ -35,13 +35,11 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   @override
   void initState() {
     super.initState();
-    print('drawerWidget initState');
     eventBus.fire(HideProfileBanner());
   }
 
   @override
   void dispose() {
-    print('drawerWidget dispose');
     eventBus.fire(ShowProfileBanner());
     super.dispose();
   }
