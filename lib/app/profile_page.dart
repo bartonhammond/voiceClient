@@ -81,7 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
-  StreamSubscription bannerSubscription;
+  StreamSubscription hideBannerSubscription;
+  StreamSubscription showBannerSubscription;
 
   FToast _fToast;
 
@@ -130,9 +131,12 @@ class _ProfilePageState extends State<ProfilePage> {
     proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
       setState(() {});
     });
-    bannerSubscription = eventBus.on<HideProfileBanner>().listen((event) {
+    hideBannerSubscription = eventBus.on<HideProfileBanner>().listen((event) {
       _bannerAd?.dispose();
       _bannerAd = null;
+    });
+    showBannerSubscription = eventBus.on<ShowProfileBanner>().listen((event) {
+      setState(() {});
     });
   }
 
@@ -174,7 +178,8 @@ class _ProfilePageState extends State<ProfilePage> {
     homeFormFieldController.dispose();
     proxyStartedSubscription.cancel();
     proxyEndedSubscription.cancel();
-    bannerSubscription.cancel();
+    hideBannerSubscription.cancel();
+    showBannerSubscription.cancel();
     _bannerAd?.dispose();
     _bannerAd = null;
     super.dispose();
@@ -684,27 +689,32 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  BannerAd getBannerAd() {
+    return createBannerAdd([
+      'ancestory',
+      'memories',
+      'family',
+      'travel',
+      'stories',
+      'reunion',
+      'camera',
+      'anniversary',
+      'airline',
+      'insurance'
+    ])
+      ..load();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!kIsWeb) {
-      _bannerAd ??= createBannerAdd([
-        'ancestory',
-        'memories',
-        'family',
-        'travel',
-        'stories',
-        'reunion',
-        'camera',
-        'anniversary',
-        'airline',
-        'insurance'
-      ])
-        ..load();
-      _bannerAd?.show(
-        anchorOffset: 60.0,
-        anchorType: AnchorType.top,
-      );
+      _bannerAd ??= getBannerAd();
     }
+
+    _bannerAd?.show(
+      anchorOffset: 60.0,
+      anchorType: AnchorType.top,
+    );
 
     _isWeb = AppConfig.of(context).isWeb;
     graphQLAuth = locator<GraphQLAuth>();
@@ -750,7 +760,7 @@ class _ProfilePageState extends State<ProfilePage> {
           }
           return Scaffold(
             key: _scaffoldKey,
-            drawer: isBook ? null : getDrawer(context),
+            drawer: isBook ? null : DrawerWidget(),
             appBar: AppBar(
                 title: Text(Strings.MFV.i18n),
                 backgroundColor: Constants.backgroundColor,

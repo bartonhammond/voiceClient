@@ -522,7 +522,7 @@ class _MessagesPageState extends State<MessagesPage> {
           context,
         ),
       ),
-      drawer: getDrawer(context),
+      drawer: DrawerWidget(),
       body: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         child: Column(

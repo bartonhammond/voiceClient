@@ -1,4 +1,4 @@
-import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
+import 'package:MyFamilyVoice/common_widgets/getDialog.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/web/feature_slider.dart';
 import 'package:flutter/material.dart';
