@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
+import 'package:MyFamilyVoice/common_widgets/radio_group.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
@@ -890,43 +891,22 @@ class _StoryPlayState extends State<StoryPlay>
 
   Widget getStoryTypeDropDown() {
     return Container(
+      width: 300,
       padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(
-            Strings.storyPlayAudience.i18n,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(
-            width: 10,
-          ),
           _isCurrentUserAuthor
-              ? DropdownButton<StoryType>(
-                  value: _storyType,
-                  items: [
-                    DropdownMenuItem(
-                      child: Text(Strings.storiesPageFamily.i18n,
-                          style: TextStyle(
-                            fontSize: 15,
-                          )),
-                      value: StoryType.FAMILY,
-                    ),
-                    DropdownMenuItem(
-                      child: Text(Strings.storiesPageFriends.i18n,
-                          style: TextStyle(
-                            fontSize: 15,
-                          )),
-                      value: StoryType.FRIENDS,
-                    ),
-                  ],
-                  onChanged: (_value) async {
+              ? RadioGroup(
+                  storyType: _storyType,
+                  onSelect: (StoryType storyType) async {
                     setState(() {
-                      _storyType = _value;
+                      _storyType = storyType;
                     });
                     await doStoryUpload();
                     setState(() {});
-                  })
+                  },
+                )
               : Text(storyTypes[_storyType.index]),
         ],
       ),

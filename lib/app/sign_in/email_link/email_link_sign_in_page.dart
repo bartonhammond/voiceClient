@@ -115,7 +115,7 @@ class _EmailLinkSignInPageState extends State<EmailLinkSignInPage> {
               backgroundColor: Color(0xff00bcd4),
               title: Text(Strings.MFV.i18n),
             ),
-            drawer: getDrawer(context, showLogout: false),
+            drawer: DrawerWidget(showLogout: false),
             body: SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.all(16.0),

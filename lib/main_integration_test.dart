@@ -17,6 +17,7 @@ void main() {
 
   final configuredApp = AppConfig(
     flavorName: 'Test',
+    websocket: 'ws://192.168.1.14:3000',
     apiBaseUrl: 'http://192.168.1.13',
     getHttpLink: getHttpLink,
     isSecured: false,
