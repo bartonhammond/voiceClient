@@ -20,6 +20,7 @@ void main(List<String> args) {
 
   final configuredApp = AppConfig(
     flavorName: 'Web',
+    websocket: 'ws://192.168.1.14:3000',
     apiBaseUrl: 'http://192.168.1.13',
     getHttpLink: getHttpLink,
     isSecured: false,

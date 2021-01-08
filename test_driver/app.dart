@@ -18,6 +18,7 @@ void main() {
 
   final configuredApp = AppConfig(
     flavorName: 'Test',
+    websocket: 'ws://192.168.1.14:3000',
     apiBaseUrl: 'http://dev-myfamilyvoice.com',
     getHttpLink: getHttpLink,
     isSecured: false,
