@@ -320,10 +320,14 @@ class _FriendWidgetState extends State<FriendWidget> {
           );
   }
 
-  Future<Map> getStoriesOriginalAuthor() async {
+  Future<Map> getOriginalAuthor() async {
     if (!widget.user['isBook']) {
       final Map<String, dynamic> user = <String, dynamic>{'empty': true};
       return user;
+    }
+    //if its the current user
+    if (graphQLAuth.getUserMap()['email'] == widget.user['bookAuthorEmail']) {
+      return graphQLAuth.getUserMap();
     }
     return await getUserFriend(
       GraphQLProvider.of(context).value,
@@ -340,7 +344,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     DateFormat df,
   ) {
     return FutureBuilder(
-        future: getStoriesOriginalAuthor(),
+        future: getOriginalAuthor(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             logger.createMessage(
@@ -467,7 +471,8 @@ class _FriendWidgetState extends State<FriendWidget> {
                 ),
           widget.user['isBook'] ? getIsBookColumn(_fontSize) : Container(),
           widget.showFamilyCheckbox
-              ? widget.user['email'] == graphQLAuth.getUserMap()['email']
+              ? widget.user['email'] == graphQLAuth.getUserMap()['email'] ||
+                      originalUser['email'] == graphQLAuth.getUserMap()['email']
                   ? Container()
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -495,7 +500,8 @@ class _FriendWidgetState extends State<FriendWidget> {
                   df.format(dt),
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
                 ),
-          widget.user['id'] == graphQLAuth.getUserMap()['id']
+          widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
+                  originalUser['email'] == graphQLAuth.getUserMap()['email']
               ? Container()
               : widget.showMessage
                   ? Container(
@@ -504,7 +510,8 @@ class _FriendWidgetState extends State<FriendWidget> {
                       color: Colors.grey[300],
                     )
                   : Container(),
-          widget.user['id'] == graphQLAuth.getUserMap()['id']
+          widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
+                  originalUser['email'] == graphQLAuth.getUserMap()['email']
               ? Container()
               : widget.showMessage
                   ? Row(
@@ -530,7 +537,12 @@ class _FriendWidgetState extends State<FriendWidget> {
               : SizedBox(
                   height: 10.toDouble(),
                 ),
-          widget.friendButton == null ? Container() : widget.friendButton,
+          widget.friendButton == null
+              ? Container()
+              : widget.user['bookAuthorEmail'] ==
+                      graphQLAuth.getUserMap()['email']
+                  ? Container()
+                  : widget.friendButton,
           SizedBox(
             height: 7.toDouble(),
           ),
@@ -616,7 +628,26 @@ class _FriendWidgetState extends State<FriendWidget> {
     );
   }
 
+  Future<void> _confirmBan(BuildContext context) async {
+    final bool ban = await PlatformAlertDialog(
+      key: Key('banConfirmation'),
+      title: 'Ban ${originalUser["name"]}',
+      content: Strings.logoutAreYouSure.i18n,
+      cancelActionText: Strings.cancel.i18n,
+      defaultActionText: Strings.yes.i18n,
+    ).show(context);
+    if (ban == true) {
+      print('ban that bad boy');
+    }
+  }
+
   Widget getIsBookColumn(double _fontSize) {
+    if (widget.story == null) {
+      return Container();
+    }
+    if (graphQLAuth.getUser().email == originalUser['email']) {
+      return Container();
+    }
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Column(
@@ -635,7 +666,24 @@ class _FriendWidgetState extends State<FriendWidget> {
               fontWeight: FontWeight.bold,
               fontSize: _fontSize,
             ),
-          )
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Ban?'),
+              SizedBox(
+                height: 24.0,
+                width: 24.0,
+                child: Checkbox(
+                  key: Key('originalUserBan-${originalUser["name"]}'),
+                  value: false,
+                  onChanged: (bool newValue) {
+                    _confirmBan(context);
+                  },
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

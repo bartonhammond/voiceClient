@@ -103,6 +103,7 @@ Feature: Drawer
         #Make friendRequest to Book
         And I tap the text that contains the text "Users"
         And I fill the "searchField" field with "Book"
+        And I pause for 1 seconds
         Then I tap the button that contains the text "Friend?"
         Given I tap the "alertDefault" button
         And I pause for 1 seconds

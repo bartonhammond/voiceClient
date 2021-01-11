@@ -94,6 +94,7 @@ Future<void> addStory(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
+
   return;
 }
 
@@ -191,6 +192,30 @@ Future<void> changeStoriesUser(
   }
 
   return;
+}
+
+Future<void> addStoryOriginalUser(
+  GraphQLClient graphQLClientApolloServer,
+  String currentUserId,
+  String storyId,
+) async {
+  final userInput = {'id': currentUserId};
+  final to = {'id': storyId};
+
+  //Remove  Story w/ User
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(addStoryOriginalUserQL),
+    variables: <String, dynamic>{
+      'from': userInput,
+      'to': to,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
 }
 
 Future<void> deleteMessage(

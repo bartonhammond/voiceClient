@@ -83,6 +83,13 @@ const _story_ = r'''
         }
       }      
     }
+    originalUser {
+      email
+      name
+      home
+      image
+      id    
+    }
     comments {
       id
       audio
@@ -271,6 +278,23 @@ UpdateStory(
 const String mergeUserStories = r'''
 mutation mergeStoryUser($from: _UserInput!, $to: _StoryInput!) {
 MergeStoryUser(
+    from: $from
+    to: $to
+  ) {
+    from {
+      email
+    }
+    to {
+      audio
+      image
+    }
+  }
+}
+''';
+
+const String addStoryOriginalUserQL = r'''
+mutation addStoryOriginalUser($from: _UserInput!, $to: _StoryInput!) {
+AddStoryOriginalUser(
     from: $from
     to: $to
   ) {
@@ -1070,7 +1094,9 @@ userFriend(email: $email, otherEmail: $otherEmail) {
     email
     name
     home
-    created
+    created {
+      formatted
+    }
     image
     isFriend
   }
