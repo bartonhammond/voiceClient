@@ -1102,3 +1102,36 @@ userFriend(email: $email, otherEmail: $otherEmail) {
   }
 }
 ''';
+
+const String addUserBannedQL = r'''
+mutation addUserBanned($from: _UserInput!, $to: _UserInput!, $data: _BannedInput!) {
+AddUserBanned(
+  from: $from, 
+  to: $to,
+  data: $data
+  ) {
+    from {
+      email
+      name
+    }
+    to {
+      email
+      id
+      name
+    }
+    id
+    created {
+      formatted
+    }
+  }
+}
+''';
+
+const String deleteBannedQL = r'''
+mutation deleteBanned($email: String!) {
+deleteBanned(
+  email: $email
+  )
+}
+
+''';

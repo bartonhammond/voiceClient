@@ -513,6 +513,10 @@ class _StoriesPageState extends State<StoriesPage> {
       onDelete: () {
         setState(() {});
       },
+      onBanned: () {
+        print('storiesPage onBanned');
+        setState(() {});
+      },
       story: Map<String, dynamic>.from(stories[index]),
     );
   }

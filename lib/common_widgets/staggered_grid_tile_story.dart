@@ -38,6 +38,7 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.story,
     @required this.showFriend,
     @required this.onDelete,
+    @required this.onBanned,
     this.index,
     this.crossAxisCount,
   });
@@ -45,6 +46,7 @@ class StaggeredGridTileStory extends StatefulWidget {
   Map story;
   final bool showFriend;
   final VoidCallback onDelete;
+  final VoidCallback onBanned;
   final int index;
   final int crossAxisCount;
 
@@ -278,6 +280,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       story: widget.story,
                       onDelete: widget.onDelete,
                       callBack: callBack,
+                      onBanned: widget.onBanned,
                       showBorder: false,
                       showMessage: false,
                       showFamilyCheckbox: false,

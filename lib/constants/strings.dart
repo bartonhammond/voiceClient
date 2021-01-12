@@ -124,6 +124,8 @@ class Strings {
   static const String selectBookTitle = 'Select Book';
   static const String selectBookDescription = 'Only one book can be selected';
   static const String quitManagingTitle = 'Quit Managing?';
+  static const String writtenByTitle = 'Written By';
+  static const String areYouSureYouWantToBan = 'Are you sure you want to ban?';
 
   //Fab With Icons
   static const String incrementToolTip = 'Add Story';

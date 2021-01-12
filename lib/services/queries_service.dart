@@ -73,11 +73,8 @@ Future<Map> getUserFriend(
   );
 
   final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-
   if (queryResult.hasException) {
-    print('getUserFriend hasException ${queryResult.exception}');
     throw queryResult.exception;
   }
-
   return queryResult.data['userFriend'];
 }

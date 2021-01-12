@@ -26,25 +26,26 @@ import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 // ignore: must_be_immutable
 class FriendWidget extends StatefulWidget {
-  FriendWidget({
-    @required this.user,
-    this.onPush,
-    this.story,
-    this.onDelete,
-    this.callBack,
-    this.friendButton,
-    this.onFriendPush,
-    this.showBorder = true,
-    this.showMessage = true,
-    this.message,
-    this.showFamilyCheckbox = true,
-    this.allowExpandToggle = true,
-  });
+  FriendWidget(
+      {@required this.user,
+      this.onPush,
+      this.story,
+      this.onDelete,
+      this.callBack,
+      this.friendButton,
+      this.onFriendPush,
+      this.showBorder = true,
+      this.showMessage = true,
+      this.message,
+      this.showFamilyCheckbox = true,
+      this.allowExpandToggle = true,
+      this.onBanned});
   Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map<String, dynamic> story;
   final VoidCallback onDelete;
   final VoidCallback callBack;
+  final VoidCallback onBanned;
   final Widget friendButton;
   final ValueChanged<Map<String, dynamic>> onFriendPush;
   final bool showBorder;
@@ -632,12 +633,18 @@ class _FriendWidgetState extends State<FriendWidget> {
     final bool ban = await PlatformAlertDialog(
       key: Key('banConfirmation'),
       title: 'Ban ${originalUser["name"]}',
-      content: Strings.logoutAreYouSure.i18n,
+      content: Strings.areYouSureYouWantToBan.i18n,
       cancelActionText: Strings.cancel.i18n,
       defaultActionText: Strings.yes.i18n,
     ).show(context);
     if (ban == true) {
-      print('ban that bad boy');
+      await addUserBanned(
+        graphQLClient,
+        graphQLAuth.getUserMap()['id'],
+        originalUser['id'],
+      );
+      print('friendWidget onBanned fired');
+      widget.onBanned();
     }
   }
 
@@ -654,7 +661,7 @@ class _FriendWidgetState extends State<FriendWidget> {
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          Text('Written By',
+          Text(Strings.writtenByTitle.i18n,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: _fontSize,

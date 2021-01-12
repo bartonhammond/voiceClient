@@ -226,3 +226,20 @@ Feature: Drawer
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
+    @fifth
+    Scenario: login as Barton
+        #Log in as Barton
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        #Scroll so that the FriendWidget isn't visible
+        And I swipe down by 225 pixels on the "storiesPageExpanded"
+        Then I expect the "originalUser-Test Name" to be "Test Name"
+        And I tap the "originalUserBan-Test Name" widget
+        Then I expect the widget "banConfirmation" to be present within 2 seconds
+        Then I expect the text "Are you sure you want to ban?" to be present
+        And I tap the "alertDefault" button
+        And I pause for 3 seconds

@@ -936,3 +936,40 @@ Future<void> deleteBook(
   }
   return;
 }
+
+Future<void> addUserBanned(
+  GraphQLClient graphQLClientApolloServer,
+  String fromUserId,
+  String toUserId,
+) async {
+  //Create the Ban
+  final uuid = Uuid();
+  final String _bannedId = uuid.v1();
+  final DateTime now = DateTime.now();
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  final String formattedDate = formatter.format(now);
+
+  final fromUserInput = {'id': fromUserId};
+  final toUserInput = {'id': toUserId};
+  final data = {
+    'id': _bannedId,
+    'created': {'formatted': formattedDate}
+  };
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(addUserBannedQL),
+    variables: <String, dynamic>{
+      'from': fromUserInput,
+      'to': toUserInput,
+      'data': data,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  return;
+}
