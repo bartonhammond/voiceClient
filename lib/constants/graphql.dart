@@ -28,31 +28,6 @@ const String _user_ = r'''
   }
 ''';
 
-const String _friend_ = r'''
- {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    isBook
-    bookAuthorEmail
-    created {
-      formatted
-    }
-    friends {
-      from {
-        isFamily
-        User {
-          email
-        }
-      }
-    }
-  }
-
-''';
-
 const _story_ = r'''
 {
     __typename
@@ -485,46 +460,46 @@ query getBooksOfMine ($email: String!) {
 const String userSearchQL = r'''
 query userSearch($searchString: String!, $skip: String!, $limit: String!) {
   userSearch(searchString: $searchString, skip: $skip, limit: $limit) ''' +
-    _friend_ +
+    _user_ +
     '''
 }
 ''';
 
 const String userSearchFriendsQL = r'''
-query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
    userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
-    _friend_ +
+    _user_ +
     '''
 }
 ''';
 const String userSearchFriendsBooksQL = r'''
-query userSearchFriendsBooks($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+query userSearchFriendsBooks($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
    userSearchFriendsBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
-    _friend_ +
+    _user_ +
     '''
 }
 ''';
 
 const String userSearchFamilyQL = r'''
-query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
    userSearchFamily(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
-    _friend_ +
+    _user_ +
     '''
 }
 ''';
 
 const String userSearchFamilyBooksQL = r'''
-query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
    userSearchFamilyBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
-    _friend_ +
+    _user_ +
     '''
 }
 ''';
 
 const String userSearchBooksQL = r'''
-query userSearchBooks($searchString: String!, $email: String!, $skip: String!, $limit: String! ) {
+query userSearchBooks($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
    userSearchBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
-    _friend_ +
+    _user_ +
     '''
 }
 ''';
@@ -532,7 +507,7 @@ query userSearchBooks($searchString: String!, $email: String!, $skip: String!, $
 const String userSearchNotFriendsQL = r'''
 query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
   userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
-    _friend_ +
+    _user_ +
     '''  
 }
 ''';
@@ -540,7 +515,7 @@ query userSearchNotFriends($searchString: String!, $email: String!, $skip: Strin
 const String userSearchNotFriendsBooksQL = r'''
 query userSearchNotFriendsBooks($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
   userSearchNotFriendsBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
-    _friend_ +
+    _user_ +
     '''  
 }
 ''';
@@ -548,7 +523,7 @@ query userSearchNotFriendsBooks($searchString: String!, $email: String!, $skip: 
 const String userSearchMeQL = r'''
 query userSearchMe($email: String!) {
   User(email: $email)''' +
-    _friend_ +
+    _user_ +
     '''  
 }
 ''';
@@ -1127,6 +1102,25 @@ AddUserBanned(
 }
 ''';
 
+const String removeUserBannedQL = r'''
+mutation removeUserBanned($from: _UserInput!, $to: _UserInput!) {
+RemoveUserBanned(
+  from: $from, 
+  to: $to
+  ) {
+    from {
+      email
+      name
+    }
+    to {
+      email
+      id
+      name
+    }
+  }
+}
+''';
+
 const String deleteBannedQL = r'''
 mutation deleteBanned($email: String!) {
 deleteBanned(
@@ -1134,4 +1128,29 @@ deleteBanned(
   )
 }
 
+''';
+
+const String getUserQL = r'''
+query getUser($email: String!, $bannedByEmail: String!) {
+  User(email: $email) {
+    __typename
+    id
+    name
+    email
+    home
+    image
+    isBook
+    bookAuthorEmail
+     banned {
+      from(filter: { User: { email_in: [$bannedByEmail] } }) {
+        id
+        User {
+          id
+          name
+          email
+        }
+      }
+    }
+  }
+}
 ''';

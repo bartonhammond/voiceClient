@@ -227,7 +227,7 @@ Feature: Drawer
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
     @fifth
-    Scenario: login as Barton
+    Scenario: login as Barton and ban Test Name and then unban him
         #Log in as Barton
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -242,4 +242,17 @@ Feature: Drawer
         Then I expect the widget "banConfirmation" to be present within 2 seconds
         Then I expect the text "Are you sure you want to ban?" to be present
         And I tap the "alertDefault" button
-        And I pause for 3 seconds
+        And I pause for 2 seconds
+        #Find the new banned book
+        And I tap the text that contains the text "Users"
+        And I fill the "searchField" field with "Book"
+        Then I expect the "originalUser-Test Name" to be "Test Name"
+        #Tap the "Ban" button and confirm that the dalog is to "Remove"
+        Given I tap the "originalUserBan-Test Name" widget
+        Then I expect the widget "banConfirmation" to be present within 2 seconds
+        And I expect the text "Remove Ban Test Name" to be present
+        Then I tap the "alertDefault" button
+        #Verify the story written by Test Name is now presented
+        And I tap the text that contains the text "Stories"
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"

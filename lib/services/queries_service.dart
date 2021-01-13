@@ -59,16 +59,16 @@ Future<QueryResult> getUserMessages(
   return queryResult;
 }
 
-Future<Map> getUserFriend(
+Future<Map> getUser(
   GraphQLClient graphQLClient,
-  String userEmail,
-  String otherEmail,
+  String bannedByEmail,
+  String email,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserFriendQL),
+    documentNode: gql(getUserQL),
     variables: <String, dynamic>{
-      'email': userEmail,
-      'otherEmail': otherEmail,
+      'email': email,
+      'bannedByEmail': bannedByEmail,
     },
   );
 
@@ -76,5 +76,5 @@ Future<Map> getUserFriend(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['userFriend'];
+  return queryResult.data['User'][0];
 }

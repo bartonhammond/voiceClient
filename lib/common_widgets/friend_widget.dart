@@ -330,7 +330,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     if (graphQLAuth.getUserMap()['email'] == widget.user['bookAuthorEmail']) {
       return graphQLAuth.getUserMap();
     }
-    return await getUserFriend(
+    return await getUser(
       GraphQLProvider.of(context).value,
       graphQLAuth.getUser().email,
       widget.user['bookAuthorEmail'],
@@ -629,31 +629,57 @@ class _FriendWidgetState extends State<FriendWidget> {
     );
   }
 
-  Future<void> _confirmBan(BuildContext context) async {
-    final bool ban = await PlatformAlertDialog(
-      key: Key('banConfirmation'),
-      title: 'Ban ${originalUser["name"]}',
-      content: Strings.areYouSureYouWantToBan.i18n,
-      cancelActionText: Strings.cancel.i18n,
-      defaultActionText: Strings.yes.i18n,
-    ).show(context);
-    if (ban == true) {
-      await addUserBanned(
-        graphQLClient,
-        graphQLAuth.getUserMap()['id'],
-        originalUser['id'],
-      );
-      print('friendWidget onBanned fired');
-      widget.onBanned();
+  Future<void> _confirmBan(BuildContext context, bool banned) async {
+    if (!banned) {
+      final bool ban = await PlatformAlertDialog(
+        key: Key('banConfirmation'),
+        title: Strings.banUser.i18n + " '${originalUser["name"]}'",
+        content: Strings.areYouSureYouWantToBan.i18n,
+        cancelActionText: Strings.cancel.i18n,
+        defaultActionText: Strings.yes.i18n,
+      ).show(context);
+      if (ban == true) {
+        await addUserBanned(
+          graphQLClient,
+          graphQLAuth.getUserMap()['id'],
+          originalUser['id'],
+        );
+        setState(() {});
+        if (widget.onBanned != null) {
+          widget.onBanned();
+        }
+      }
+    } else {
+      final bool banRemove = await PlatformAlertDialog(
+        key: Key('banConfirmation'),
+        title: Strings.unbanUser + " '${originalUser["name"]}'",
+        content: Strings.removeTheBan,
+        cancelActionText: Strings.cancel.i18n,
+        defaultActionText: Strings.yes.i18n,
+      ).show(context);
+      if (banRemove == true) {
+        await removeUserBanned(
+          graphQLClient,
+          graphQLAuth.getUserMap()['id'],
+          originalUser['id'],
+        );
+        setState(() {});
+      }
     }
   }
 
   Widget getIsBookColumn(double _fontSize) {
-    if (widget.story == null) {
-      return Container();
-    }
     if (graphQLAuth.getUser().email == originalUser['email']) {
       return Container();
+    }
+    if (originalUser['name'] == null) {
+      return Container();
+    }
+    bool banned = false;
+    if (originalUser.containsKey('banned') &&
+        originalUser['banned'].containsKey('from') &&
+        originalUser['banned']['from'].length == 1) {
+      banned = true;
     }
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
@@ -683,9 +709,9 @@ class _FriendWidgetState extends State<FriendWidget> {
                 width: 24.0,
                 child: Checkbox(
                   key: Key('originalUserBan-${originalUser["name"]}'),
-                  value: false,
-                  onChanged: (bool newValue) {
-                    _confirmBan(context);
+                  value: banned,
+                  onChanged: (bool bannedValue) {
+                    _confirmBan(context, !bannedValue);
                   },
                 ),
               ),

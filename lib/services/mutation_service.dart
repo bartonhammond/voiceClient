@@ -973,3 +973,29 @@ Future<void> addUserBanned(
 
   return;
 }
+
+Future<void> removeUserBanned(
+  GraphQLClient graphQLClientApolloServer,
+  String fromUserId,
+  String toUserId,
+) async {
+  final fromUserInput = {'id': fromUserId};
+  final toUserInput = {'id': toUserId};
+
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(removeUserBannedQL),
+    variables: <String, dynamic>{
+      'from': fromUserInput,
+      'to': toUserInput,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  return;
+}
