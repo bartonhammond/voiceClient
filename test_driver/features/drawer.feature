@@ -250,7 +250,7 @@ Feature: Drawer
         #Tap the "Ban" button and confirm that the dalog is to "Remove"
         Given I tap the "originalUserBan-Test Name" widget
         Then I expect the widget "banConfirmation" to be present within 2 seconds
-        And I expect the text "Remove Ban Test Name" to be present
+        And I expect the text "Unban: 'Test Name'" to be present
         Then I tap the "alertDefault" button
         #Verify the story written by Test Name is now presented
         And I tap the text that contains the text "Stories"
