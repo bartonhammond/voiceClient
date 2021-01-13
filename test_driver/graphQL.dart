@@ -128,3 +128,23 @@ GraphQLClient getGraphQLClient(GraphQLClientType type) {
 
   return graphQLClient;
 }
+
+Future<void> deleteBanned(
+  GraphQLClient graphQLClientApolloServer,
+  String email,
+) async {
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(deleteBannedQL),
+    variables: <String, dynamic>{
+      'email': email,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return;
+}

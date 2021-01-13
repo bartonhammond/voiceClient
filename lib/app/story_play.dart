@@ -177,21 +177,25 @@ class _StoryPlayState extends State<StoryPlay>
   Future<void> setBook(String id) async {
     if (id == null) {
       //remove the current book
-      final String currentUserId = await getUserIdByEmail(
-        graphQLClient,
-        _story['user']['bookAuthorEmail'],
-      );
       await changeStoriesUser(
         graphQLClient,
-        _story['user']['id'],
-        currentUserId,
+        _story['user']['id'], //currentUser
+        _story['originalUser']['id'], //original
         _story['id'],
       );
     } else {
+      if (_story['originalUser'] == null) {
+        //Merge Story w/ OriginalUser
+        addStoryOriginalUser(
+          graphQLClient,
+          _story['user']['id'],
+          _story['id'],
+        );
+      }
       await changeStoriesUser(
         graphQLClient,
-        _story['user']['id'],
-        id,
+        _story['user']['id'], //currentUser
+        id, //new
         _story['id'],
       );
     }
@@ -360,8 +364,8 @@ class _StoryPlayState extends State<StoryPlay>
                   _story['user'] != null &&
                   (_story['user']['id'] == graphQLAuth.getUserMap()['id'] ||
                       _story['user']['isBook'] == true &&
-                          _story['user']['bookAuthorEmail'] ==
-                              graphQLAuth.getUserMap()['email']))) {
+                          _story['originalUser']['id'] ==
+                              graphQLAuth.getUserMap()['id']))) {
             _isCurrentUserAuthor = true;
           } else {
             _isCurrentUserAuthor = false;
@@ -640,8 +644,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Widget getImageDisplay(int _width, int _height) {
-    print(
-        'story getImageDisplay _image null: ${_image == null} _story null: ${_story == null}');
     if (_image != null)
       return Center(
         child: ClipRRect(
@@ -809,6 +811,7 @@ class _StoryPlayState extends State<StoryPlay>
                         size: 20,
                       ),
                       onPressed: () {
+                        eventBus.fire(HideStoryBanner());
                         Navigator.push<dynamic>(
                           context,
                           MaterialPageRoute<dynamic>(
@@ -834,7 +837,7 @@ class _StoryPlayState extends State<StoryPlay>
                       ),
                       const SizedBox(width: 5),
                       InkWell(
-                        child: Text('Attention'),
+                        child: Text(Strings.storyPlayAttention.i18n),
                         onTap: () {
                           setState(() {
                             _showTaggedFriends = !_showTaggedFriends;
@@ -861,6 +864,7 @@ class _StoryPlayState extends State<StoryPlay>
                     size: 20,
                   ),
                   onPressed: () async {
+                    eventBus.fire(HideStoryBanner());
                     Navigator.push<dynamic>(
                       context,
                       MaterialPageRoute<dynamic>(

@@ -30,9 +30,14 @@ Future<void> main(List<String> arguments) async {
     allowed: ['yes', 'no'],
   );
   parser.addOption(
+    'deleteBanned',
+    help: 'delete the banned?',
+    allowed: ['yes', 'no'],
+  );
+  parser.addOption(
     'runTag',
     help: 'which tag to run?',
-    allowed: ['all', 'first', 'second', 'third', 'fourth'],
+    allowed: ['all', 'first', 'second', 'third', 'fourth', 'fifth'],
   );
 
   if (arguments == null || arguments.isEmpty) {
@@ -45,6 +50,7 @@ Future<void> main(List<String> arguments) async {
   print('deleteTestUser ${argResults["deleteTestUser"] == "yes"}');
   print('deleteBook ${argResults["deleteBook"] == "yes"}');
   print('deleteBooksMessages ${argResults["deleteBooksMessages"] == "yes"}');
+  print('deleteBanned ${argResults["deleteBanned"] == "yes"}');
   print('runTag ${argResults["runTag"]}');
 
   final GraphQLClient graphQLClient =
@@ -81,6 +87,13 @@ Future<void> main(List<String> arguments) async {
     await graphql.deleteUserMessagesByName(
       graphQLClient,
       'Book Name',
+    );
+  }
+
+  if (argResults['deleteBanned'] == 'yes') {
+    await graphql.deleteBanned(
+      graphQLClient,
+      'bartonhammond@gmail.com',
     );
   }
 

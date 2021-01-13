@@ -396,6 +396,26 @@ extension Localization on String {
         'es': '¿Dejar de administrar?',
       } +
       {
+        'en': Strings.writtenByTitle,
+        'es': 'Escrito por',
+      } +
+      {
+        'en': Strings.areYouSureYouWantToBan,
+        'es': '¿Estás segura de prohibir?',
+      } +
+      {
+        'en': Strings.banUser,
+        'es': 'Prohibición',
+      } +
+      {
+        'en': Strings.unbanUser,
+        'es': 'Desban',
+      } +
+      {
+        'en': Strings.removeTheBan,
+        'es': '¿Eliminar la prohibición?',
+      } +
+      {
         'en': Strings.incrementToolTip,
         'es': 'Añadir historia',
       } +
