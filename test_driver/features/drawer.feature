@@ -103,6 +103,7 @@ Feature: Drawer
         #Make friendRequest to Book
         And I tap the text that contains the text "Users"
         And I fill the "searchField" field with "Book"
+        And I pause for 1 seconds
         Then I tap the button that contains the text "Friend?"
         Given I tap the "alertDefault" button
         And I pause for 1 seconds
@@ -225,3 +226,33 @@ Feature: Drawer
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
+    @fifth
+    Scenario: login as Barton and ban Test Name and then unban him
+        #Log in as Barton
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        #Scroll so that the FriendWidget isn't visible
+        And I swipe down by 225 pixels on the "storiesPageExpanded"
+        Then I expect the "originalUser-Test Name" to be "Test Name"
+        And I tap the "originalUserBan-Test Name" widget
+        Then I expect the widget "banConfirmation" to be present within 2 seconds
+        Then I expect the text "Are you sure you want to ban?" to be present
+        And I tap the "alertDefault" button
+        And I pause for 2 seconds
+        #Find the new banned book
+        And I tap the text that contains the text "Users"
+        And I fill the "searchField" field with "Book"
+        Then I expect the "originalUser-Test Name" to be "Test Name"
+        #Tap the "Ban" button and confirm that the dalog is to "Remove"
+        Given I tap the "originalUserBan-Test Name" widget
+        Then I expect the widget "banConfirmation" to be present within 2 seconds
+        And I expect the text "Unban: 'Test Name'" to be present
+        Then I tap the "alertDefault" button
+        #Verify the story written by Test Name is now presented
+        And I tap the text that contains the text "Stories"
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"

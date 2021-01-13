@@ -266,6 +266,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     final config = AppConfig.of(context);
     return FutureBuilder(

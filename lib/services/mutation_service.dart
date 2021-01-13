@@ -94,6 +94,7 @@ Future<void> addStory(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
+
   return;
 }
 
@@ -191,6 +192,30 @@ Future<void> changeStoriesUser(
   }
 
   return;
+}
+
+Future<void> addStoryOriginalUser(
+  GraphQLClient graphQLClientApolloServer,
+  String currentUserId,
+  String storyId,
+) async {
+  final userInput = {'id': currentUserId};
+  final to = {'id': storyId};
+
+  //Remove  Story w/ User
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(addStoryOriginalUserQL),
+    variables: <String, dynamic>{
+      'from': userInput,
+      'to': to,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
 }
 
 Future<void> deleteMessage(
@@ -909,5 +934,68 @@ Future<void> deleteBook(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
+  return;
+}
+
+Future<void> addUserBanned(
+  GraphQLClient graphQLClientApolloServer,
+  String fromUserId,
+  String toUserId,
+) async {
+  //Create the Ban
+  final uuid = Uuid();
+  final String _bannedId = uuid.v1();
+  final DateTime now = DateTime.now();
+  final DateFormat formatter = DateFormat('yyyy-MM-dd');
+  final String formattedDate = formatter.format(now);
+
+  final fromUserInput = {'id': fromUserId};
+  final toUserInput = {'id': toUserId};
+  final data = {
+    'id': _bannedId,
+    'created': {'formatted': formattedDate}
+  };
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(addUserBannedQL),
+    variables: <String, dynamic>{
+      'from': fromUserInput,
+      'to': toUserInput,
+      'data': data,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  return;
+}
+
+Future<void> removeUserBanned(
+  GraphQLClient graphQLClientApolloServer,
+  String fromUserId,
+  String toUserId,
+) async {
+  final fromUserInput = {'id': fromUserId};
+  final toUserInput = {'id': toUserId};
+
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(removeUserBannedQL),
+    variables: <String, dynamic>{
+      'from': fromUserInput,
+      'to': toUserInput,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
   return;
 }
