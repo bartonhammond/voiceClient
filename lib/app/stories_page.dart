@@ -238,7 +238,7 @@ class _StoriesPageState extends State<StoriesPage> {
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
     String gqlString;
     final _variables = <String, dynamic>{
-      'email': graphQLAuth.getUser().email,
+      'currentUserEmail': graphQLAuth.getUser().email,
       'limit': nStories.toString(),
       'cursor': DateTime.now().toIso8601String(),
     };

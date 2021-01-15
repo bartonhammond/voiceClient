@@ -17,14 +17,25 @@ const String _user_ = r'''
     created{
       formatted
     }
-    friends {
-      from {
-        isFamily
-        User {
-          email
+    banned {
+        from(filter: { User: { email_in: [$currentUserEmail] } }) {
+          id
+          User {
+            id
+            name
+            email
+          }
         }
       }
-    }
+      friends {
+        to(filter: { User: { email_in: [$currentUserEmail] } }) {
+          id
+          isFamily
+          User {
+            email
+          }
+        }
+      }
   }
 ''';
 
@@ -50,7 +61,13 @@ const _story_ = r'''
       bookAuthorEmail
       id
       friends {
-        from {
+        from(filter: { User: { email_in: [$currentUserEmail] } }) {
+          isFamily
+          User {
+            email
+          }
+        }
+        to(filter: { User: { email_in: [$currentUserEmail] } }) {
           isFamily
           User {
             email
@@ -64,6 +81,33 @@ const _story_ = r'''
       home
       image
       id    
+      banned {
+        from(filter: { User: { email_in: [$currentUserEmail] } }) {
+          id
+          User {
+            id
+            name
+            email
+          }
+        }
+        
+      }
+      friends {
+        from(filter: { User: { email_in: [$currentUserEmail] } }) {
+          id
+          isFamily
+          User {
+            email
+          }
+        }
+        to(filter: { User: { email_in: [$currentUserEmail] } }) {
+          id
+          isFamily
+          User {
+            email
+          }
+        }
+      }
     }
     comments {
       id
@@ -78,7 +122,7 @@ const _story_ = r'''
       }
       status
     }
-    reactions(filter: { from: { email: $email	} } ) {
+    reactions(filter: { from: { email: $currentUserEmail	} } ) {
       id
       type
     }
@@ -105,8 +149,8 @@ const _story_ = r'''
 ''';
 
 const String getUserByEmailQL = r'''
-query getUserByEmail($email: String!) {
-  User(email: $email)''' +
+query getUserByEmail($email: String!, $currentUserEmail: String!) {
+  getUserByEmail(email: $email, currentUserEmail: $currentUserEmail)''' +
     _user_ +
     '''
 }
@@ -136,8 +180,10 @@ User(id: $id)''' +
 ''';
 
 const String getStoryByIdQL = r'''
-query getStoryById($id: ID!, $email: String!) {
-Story(id: $id)''' +
+query getStoryById($id: String!, $currentUserEmail: String!) {
+getStoryById(
+  id: $id, 
+  currentUserEmail: $currentUserEmail)''' +
     _story_ +
     '''
 }
@@ -458,7 +504,7 @@ query getBooksOfMine ($email: String!) {
 ''';
 
 const String userSearchQL = r'''
-query userSearch($searchString: String!, $skip: String!, $limit: String!) {
+query userSearch($currentUserEmail: String!, $searchString: String!, $skip: String!, $limit: String!) {
   userSearch(searchString: $searchString, skip: $skip, limit: $limit) ''' +
     _user_ +
     '''
@@ -691,9 +737,9 @@ query newMessagesCount($email: String!) {
 ''';
 
 const String getUserFriendsStoriesQL = r'''
-query getUserFriendsStories($email: String!, $limit: String!, $cursor: String!) {
+query getUserFriendsStories($currentUserEmail: String!, $limit: String!, $cursor: String!) {
 userFriendsStories(
-  		email: $email 
+  		currentUserEmail: $currentUserEmail
 			limit: $limit
   		cursor: $cursor
 		)''' +
@@ -1141,7 +1187,7 @@ query getUser($email: String!, $bannedByEmail: String!) {
     image
     isBook
     bookAuthorEmail
-     banned {
+    banned {
       from(filter: { User: { email_in: [$bannedByEmail] } }) {
         id
         User {

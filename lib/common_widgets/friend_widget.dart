@@ -7,13 +7,13 @@ import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -22,7 +22,6 @@ import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/constants/globals.dart' as globals;
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
-import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 // ignore: must_be_immutable
 class FriendWidget extends StatefulWidget {
@@ -42,7 +41,7 @@ class FriendWidget extends StatefulWidget {
       this.onBanned});
   Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
-  final Map<String, dynamic> story;
+  Map<String, dynamic> story;
   final VoidCallback onDelete;
   final VoidCallback callBack;
   final VoidCallback onBanned;
@@ -59,7 +58,6 @@ class FriendWidget extends StatefulWidget {
 }
 
 class _FriendWidgetState extends State<FriendWidget> {
-  Map<String, dynamic> originalUser;
   bool _showMakeMessage = false;
   bool _uploadInProgress = false;
   bool _isWeb = false;
@@ -138,17 +136,19 @@ class _FriendWidgetState extends State<FriendWidget> {
   }
 
   Future<void> callBack() async {
+    print('callback');
     try {
       final user = await getUserByEmail(
         graphQLClient,
         widget.user['email'],
+        graphQLAuth.getUserMap()['email'],
       );
-
+      printJson(user);
       setState(() {
         widget.user = user;
       });
     } catch (e) {
-      //ignore
+      print(e);
     }
   }
 
@@ -246,6 +246,7 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   @override
   Widget build(BuildContext context) {
+    printJson(widget.user);
     _isWeb = AppConfig.of(context).isWeb;
     graphQLClient = GraphQLProvider.of(context).value;
     graphQLClientFileServer =
@@ -312,62 +313,13 @@ class _FriendWidgetState extends State<FriendWidget> {
                   ),
                 ),
               ])
-        : getFutureBuilder(
+        : getCard(
             _width,
             _height,
             _fontSize,
             dt,
             df,
           );
-  }
-
-  Future<Map> getOriginalAuthor() async {
-    if (!widget.user['isBook']) {
-      final Map<String, dynamic> user = <String, dynamic>{'empty': true};
-      return user;
-    }
-    //if its the current user
-    if (graphQLAuth.getUserMap()['email'] == widget.user['bookAuthorEmail']) {
-      return graphQLAuth.getUserMap();
-    }
-    return await getUser(
-      GraphQLProvider.of(context).value,
-      graphQLAuth.getUser().email,
-      widget.user['bookAuthorEmail'],
-    );
-  }
-
-  Widget getFutureBuilder(
-    int _width,
-    int _height,
-    double _fontSize,
-    DateTime dt,
-    DateFormat df,
-  ) {
-    return FutureBuilder(
-        future: getOriginalAuthor(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            logger.createMessage(
-                userEmail: graphQLAuth.getUser().email,
-                source: 'stories_page',
-                shortMessage: snapshot.error.toString(),
-                stackTrace: StackTrace.current.toString());
-            return Text('\nErrors: \n  ' + snapshot.error.toString());
-          } else if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          originalUser = snapshot.data;
-          return getCard(
-            _width,
-            _height,
-            _fontSize,
-            dt,
-            df,
-          );
-        });
   }
 
   Widget getCard(
@@ -470,10 +422,17 @@ class _FriendWidgetState extends State<FriendWidget> {
                     fontSize: 10.0,
                   ),
                 ),
-          widget.user['isBook'] ? getIsBookColumn(_fontSize) : Container(),
+          widget.story != null && widget.user['isBook']
+              ? getStoryBookColumn(_fontSize)
+              : Container(),
+          widget.story == null ? getUserBookColumn(_fontSize) : Container(),
           widget.showFamilyCheckbox
               ? widget.user['email'] == graphQLAuth.getUserMap()['email'] ||
-                      originalUser['email'] == graphQLAuth.getUserMap()['email']
+                      (widget.story != null &&
+                          widget.story['originalUser'] != null &&
+                          widget.story['originalUser'].containsKey('email') &&
+                          widget.story['originalUser']['email'] ==
+                              graphQLAuth.getUserMap()['email'])
                   ? Container()
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -502,7 +461,12 @@ class _FriendWidgetState extends State<FriendWidget> {
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
                 ),
           widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
-                  originalUser['email'] == graphQLAuth.getUserMap()['email']
+                  (widget.story != null &&
+                      widget.story.containsKey('originalUser') &&
+                      widget.story['originalUser'] != null &&
+                      widget.story['originalUser'].containsKey('email') &&
+                      widget.story['originalUser']['email'] ==
+                          graphQLAuth.getUserMap()['email'])
               ? Container()
               : widget.showMessage
                   ? Container(
@@ -512,7 +476,12 @@ class _FriendWidgetState extends State<FriendWidget> {
                     )
                   : Container(),
           widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
-                  originalUser['email'] == graphQLAuth.getUserMap()['email']
+                  (widget.story != null &&
+                      widget.story.containsKey('originalUser') &&
+                      widget.story['originalUser'] != null &&
+                      widget.story['originalUser'].containsKey('email') &&
+                      widget.story['originalUser']['email'] ==
+                          graphQLAuth.getUserMap()['email'])
               ? Container()
               : widget.showMessage
                   ? Row(
@@ -629,11 +598,16 @@ class _FriendWidgetState extends State<FriendWidget> {
     );
   }
 
-  Future<void> _confirmBan(BuildContext context, bool banned) async {
+  Future<void> _confirmBan(
+    BuildContext context,
+    bool banned,
+    String userNameBanned,
+    String userIdBanned,
+  ) async {
     if (!banned) {
       final bool ban = await PlatformAlertDialog(
         key: Key('banConfirmation'),
-        title: Strings.banUser.i18n + " '${originalUser["name"]}'",
+        title: Strings.banUser.i18n + " '$userNameBanned'",
         content: Strings.areYouSureYouWantToBan.i18n,
         cancelActionText: Strings.cancel.i18n,
         defaultActionText: Strings.yes.i18n,
@@ -642,17 +616,20 @@ class _FriendWidgetState extends State<FriendWidget> {
         await addUserBanned(
           graphQLClient,
           graphQLAuth.getUserMap()['id'],
-          originalUser['id'],
+          userIdBanned,
         );
         setState(() {});
         if (widget.onBanned != null) {
           widget.onBanned();
         }
+        if (widget.story == null) {
+          callBack();
+        }
       }
     } else {
       final bool banRemove = await PlatformAlertDialog(
         key: Key('banConfirmation'),
-        title: Strings.unbanUser + " '${originalUser["name"]}'",
+        title: Strings.unbanUser + " '$userNameBanned'",
         content: Strings.removeTheBan,
         cancelActionText: Strings.cancel.i18n,
         defaultActionText: Strings.yes.i18n,
@@ -661,26 +638,50 @@ class _FriendWidgetState extends State<FriendWidget> {
         await removeUserBanned(
           graphQLClient,
           graphQLAuth.getUserMap()['id'],
-          originalUser['id'],
+          userIdBanned,
         );
-        setState(() {});
+        if (widget.story == null) {
+          callBack();
+        } else {
+          setState(() {});
+        }
       }
     }
   }
 
-  Widget getIsBookColumn(double _fontSize) {
-    if (graphQLAuth.getUser().email == originalUser['email']) {
-      return Container();
-    }
-    if (originalUser['name'] == null) {
-      return Container();
-    }
+  Widget getStoryBookColumn(double _fontSize) {
     bool banned = false;
-    if (originalUser.containsKey('banned') &&
-        originalUser['banned'].containsKey('from') &&
-        originalUser['banned']['from'].length == 1) {
-      banned = true;
+    bool showBannedBox = false;
+    String userNameBanned = 'None';
+    String userIdBanned = 'None';
+
+    if (widget.story != null) {
+      printJson(widget.story);
+
+      //is current person the originalUser
+      if (widget.story.containsKey('originalUser') &&
+          widget.story['originalUser'] != null &&
+          widget.story['originalUser'].containsKey('email') &&
+          widget.story['originalUser']['email'] ==
+              graphQLAuth.getUserMap()['email']) {
+        return Container();
+      }
+
+      //already friends w/ the originalUser, then don't ban
+      if (widget.story.containsKey('originalUser') &&
+          widget.story['originalUser'] != null &&
+          widget.story['originalUser'].containsKey('friends') &&
+          widget.story['originalUser']['friends'].containsKey('to') &&
+          widget.story['originalUser']['friends'].length == 1) {
+        return Container();
+      }
+
+      userNameBanned = widget.story['originalUser']['name'];
+      userIdBanned = widget.story['originalUser']['id'];
+      showBannedBox = true;
+      banned = false;
     }
+
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Column(
@@ -693,32 +694,62 @@ class _FriendWidgetState extends State<FriendWidget> {
                 fontSize: _fontSize,
               )),
           Text(
-            originalUser['name'],
-            key: Key('originalUser-${originalUser["name"]}'),
+            userNameBanned,
+            key: Key('originalUser-$userNameBanned'),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: _fontSize,
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Ban?'),
-              SizedBox(
-                height: 24.0,
-                width: 24.0,
-                child: Checkbox(
-                  key: Key('originalUserBan-${originalUser["name"]}'),
-                  value: banned,
-                  onChanged: (bool bannedValue) {
-                    _confirmBan(context, !bannedValue);
-                  },
-                ),
-              ),
-            ],
-          ),
+          showBannedBox
+              ? getBanRow(banned, userNameBanned, userIdBanned)
+              : Container()
         ],
       ),
     );
+  }
+
+  Widget getBanRow(bool banned, String userNameBanned, String userIdBanned) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('Ban?'),
+        SizedBox(
+          height: 24.0,
+          width: 24.0,
+          child: Checkbox(
+            key: Key('originalUserBan-$userNameBanned'),
+            value: banned,
+            onChanged: (bool bannedValue) {
+              _confirmBan(context, !bannedValue, userNameBanned, userIdBanned);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getUserBookColumn(double _fontSize) {
+    printJson(widget.user);
+    bool banned = false;
+    String userNameBanned = 'None';
+    String userIdBanned = 'None';
+
+    if (widget.user['banned']['from'].length == 1) {
+      userNameBanned = widget.user['name'];
+      userIdBanned = widget.user['id'];
+      banned = true;
+
+      return Container(
+        padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[getBanRow(banned, userNameBanned, userIdBanned)],
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/common_widgets/radio_group.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
@@ -175,6 +176,7 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setBook(String id) async {
+    print('storyPlay.setBook id: $id');
     if (id == null) {
       //remove the current book
       await changeStoriesUser(
@@ -185,6 +187,7 @@ class _StoryPlayState extends State<StoryPlay>
       );
     } else {
       if (_story['originalUser'] == null) {
+        print('storyPlay.setBook originalUser is null');
         //Merge Story w/ OriginalUser
         addStoryOriginalUser(
           graphQLClient,
@@ -212,6 +215,7 @@ class _StoryPlayState extends State<StoryPlay>
       documentNode: gql(getUserByEmailQL),
       variables: <String, dynamic>{
         'email': email,
+        'currentUserEmail': graphQLAuth.getUserMap()['email'],
       },
     );
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
@@ -336,7 +340,7 @@ class _StoryPlayState extends State<StoryPlay>
                 source: 'story_play',
                 shortMessage: snapshot.error.toString(),
                 stackTrace: StackTrace.current.toString());
-            return Text('\nErrors: \n  ' + snapshot.error.toString());
+            return Text('\n 1 Errors 1 : \n  ' + snapshot.error.toString());
           } else if (!snapshot.hasData) {
             return Scaffold(
               key: _scaffoldKey,
@@ -346,6 +350,9 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
+
+          printJson(_story);
+
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;
           } else {
@@ -415,7 +422,7 @@ class _StoryPlayState extends State<StoryPlay>
       documentNode: gql(getStoryByIdQL),
       variables: <String, dynamic>{
         'id': _storyWasSaved ? _id : widget.params['id'],
-        'email': graphQLAuth.getUserMap()['email']
+        'currentUserEmail': graphQLAuth.getUserMap()['email']
       },
     );
 
@@ -424,10 +431,7 @@ class _StoryPlayState extends State<StoryPlay>
       throw queryResult.exception;
     }
 
-    if (queryResult.data['Story'].length > 0) {
-      return queryResult.data['Story'][0];
-    }
-    return null;
+    return queryResult.data['getStoryById'];
   }
 
   Future<void> doImageUpload() async {
