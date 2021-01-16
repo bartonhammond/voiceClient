@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/common_widgets/radio_group.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
@@ -340,7 +339,7 @@ class _StoryPlayState extends State<StoryPlay>
                 source: 'story_play',
                 shortMessage: snapshot.error.toString(),
                 stackTrace: StackTrace.current.toString());
-            return Text('\n 1 Errors 1 : \n  ' + snapshot.error.toString());
+            return Text('\nErrors: \n  ' + snapshot.error.toString());
           } else if (!snapshot.hasData) {
             return Scaffold(
               key: _scaffoldKey,
@@ -350,8 +349,6 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
-
-          printJson(_story);
 
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;

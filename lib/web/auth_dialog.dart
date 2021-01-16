@@ -156,74 +156,45 @@ class _AuthDialogState extends State<AuthDialog> {
       flex: 1,
       child: Container(
         width: double.maxFinite,
-        child: FlatButton(
-          color: Colors.blueGrey[800],
-          hoverColor: Colors.blueGrey[900],
-          highlightColor: Colors.black,
-          onPressed: () async {
-            setState(() {});
-            if (_validateEmail(textControllerEmail.text) == null &&
-                _validatePassword(textControllerPassword.text) == null) {
-              setState(() {
-                _isRegistering = true;
-              });
-              await _authService
-                  .registerWithEmailPassword(
-                      textControllerEmail.text, textControllerPassword.text)
-                  .then((result) {
-                if (result != null) {
-                  setState(() {
-                    loginStatus = Strings.authDialogRegisterSuccess.i18n;
-                    loginStringColor = Colors.green;
-                  });
-                }
-              }).catchError((dynamic error) {
+        child: CustomRaisedButton(
+            onPressed: () async {
+              setState(() {});
+              if (_validateEmail(textControllerEmail.text) == null &&
+                  _validatePassword(textControllerPassword.text) == null) {
                 setState(() {
-                  loginStatus = Strings.authDialogRegisterFailure.i18n;
+                  _isRegistering = true;
+                });
+                await _authService
+                    .registerWithEmailPassword(
+                        textControllerEmail.text, textControllerPassword.text)
+                    .then((result) {
+                  if (result != null) {
+                    setState(() {
+                      loginStatus = Strings.authDialogRegisterSuccess.i18n;
+                      loginStringColor = Colors.green;
+                    });
+                  }
+                }).catchError((dynamic error) {
+                  setState(() {
+                    loginStatus = Strings.authDialogRegisterFailure.i18n;
+                    loginStringColor = Colors.red;
+                  });
+                });
+              } else {
+                setState(() {
+                  loginStatus = Strings.authDialogEnterEmailPassword.i18n;
                   loginStringColor = Colors.red;
                 });
-              });
-            } else {
+              }
               setState(() {
-                loginStatus = Strings.authDialogEnterEmailPassword.i18n;
-                loginStringColor = Colors.red;
-              });
-            }
-            setState(() {
-              _isRegistering = false;
+                _isRegistering = false;
 
-              textControllerEmail.text = '';
-              textControllerPassword.text = '';
-            });
-          },
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          child: Padding(
-            padding: EdgeInsets.only(
-              top: 15.0,
-              bottom: 15.0,
-            ),
-            child: _isRegistering
-                ? SizedBox(
-                    height: 16,
-                    width: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white,
-                      ),
-                    ),
-                  )
-                : Text(
-                    Strings.authDialogRegister,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white,
-                    ),
-                  ),
-          ),
-        ),
+                textControllerEmail.text = '';
+                textControllerPassword.text = '';
+              });
+            },
+            loading: _isRegistering,
+            text: Strings.authDialogRegister.i18n),
       ),
     );
   }

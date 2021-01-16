@@ -503,62 +503,62 @@ query getBooksOfMine ($email: String!) {
 
 const String userSearchQL = r'''
 query userSearch($currentUserEmail: String!, $searchString: String!, $skip: String!, $limit: String!) {
-  userSearch(searchString: $searchString, skip: $skip, limit: $limit) ''' +
+  userSearch(currentUserEmail: $currentUserEmail, searchString: $searchString, skip: $skip, limit: $limit) ''' +
     _user_ +
     '''
 }
 ''';
 
 const String userSearchFriendsQL = r'''
-query userSearchFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-   userSearchFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+query userSearchFriends($searchString: String!, $currentUserEmail: String!, $skip: String!, $limit: String!) {
+   userSearchFriends(searchString: $searchString, currentUserEmail: $currentUserEmail, skip: $skip, limit: $limit)''' +
     _user_ +
     '''
 }
 ''';
 const String userSearchFriendsBooksQL = r'''
-query userSearchFriendsBooks($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-   userSearchFriendsBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+query userSearchFriendsBooks($searchString: String!, $currentUserEmail: String!, $skip: String!, $limit: String!) {
+   userSearchFriendsBooks(searchString: $searchString, currentUserEmail: $currentUserEmail, skip: $skip, limit: $limit)''' +
     _user_ +
     '''
 }
 ''';
 
 const String userSearchFamilyQL = r'''
-query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-   userSearchFamily(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+query userSearchFamily($searchString: String!, $currentUserEmail: String!, $skip: String!, $limit: String!) {
+   userSearchFamily(searchString: $searchString, currentUserEmail: $currentUserEmail, skip: $skip, limit: $limit)''' +
     _user_ +
     '''
 }
 ''';
 
 const String userSearchFamilyBooksQL = r'''
-query userSearchFamily($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-   userSearchFamilyBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+query userSearchFamily($searchString: String!, $currentUserEmail: String!, $skip: String!, $limit: String!) {
+   userSearchFamilyBooks(searchString: $searchString, currentUserEmail: $currentUserEmail, skip: $skip, limit: $limit)''' +
     _user_ +
     '''
 }
 ''';
 
 const String userSearchBooksQL = r'''
-query userSearchBooks($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-   userSearchBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+query userSearchBooks($searchString: String!, $currentUserEmail: String!, $skip: String!, $limit: String!) {
+   userSearchBooks(searchString: $searchString, currentUserEmail: $currentUserEmail, skip: $skip, limit: $limit)''' +
     _user_ +
     '''
 }
 ''';
 
 const String userSearchNotFriendsQL = r'''
-query userSearchNotFriends($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-  userSearchNotFriends(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+query userSearchNotFriends($searchString: String!, $currentUserEmail: String!, $skip: String!, $limit: String!) {
+  userSearchNotFriends(searchString: $searchString, currentUserEmail: $currentUserEmail, skip: $skip, limit: $limit)''' +
     _user_ +
     '''  
 }
 ''';
 
 const String userSearchNotFriendsBooksQL = r'''
-query userSearchNotFriendsBooks($searchString: String!, $email: String!, $skip: String!, $limit: String!) {
-  userSearchNotFriendsBooks(searchString: $searchString, email: $email, skip: $skip, limit: $limit)''' +
+query userSearchNotFriendsBooks($searchString: String!, $currentUserEmail: String!, $skip: String!, $limit: String!) {
+  userSearchNotFriendsBooks(searchString: $searchString, currentUserEmail: $currentUserEmail, skip: $skip, limit: $limit)''' +
     _user_ +
     '''  
 }
@@ -1099,8 +1099,8 @@ mutation deleteUserMessagesByName($name: String!) {
 ''';
 
 const String getUserByNameQL = r'''
-query getUserByName($name: String!) {
-  User(name: $name)''' +
+query getUserByName($name: String!, $currentUserEmail: String!) {
+getUserByName(name: $name, currentUserEmail: $currentUserEmail)''' +
     _user_ +
     '''
 }

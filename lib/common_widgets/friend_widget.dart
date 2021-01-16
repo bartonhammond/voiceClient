@@ -15,6 +15,7 @@ import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -68,6 +69,7 @@ class _FriendWidgetState extends State<FriendWidget> {
   GraphQLClient graphQLClient;
   GraphQLClient graphQLClientFileServer;
   StreamSubscription bookHasNoStories;
+  Map bookAuthorUser;
   @override
   void initState() {
     super.initState();
@@ -136,14 +138,13 @@ class _FriendWidgetState extends State<FriendWidget> {
   }
 
   Future<void> callBack() async {
-    print('callback');
     try {
       final user = await getUserByEmail(
         graphQLClient,
         widget.user['email'],
         graphQLAuth.getUserMap()['email'],
       );
-      printJson(user);
+      printJson('friendWidget.callBack', user);
       setState(() {
         widget.user = user;
       });
@@ -244,9 +245,23 @@ class _FriendWidgetState extends State<FriendWidget> {
     );
   }
 
+  Future<Map> getBookAuthor() async {
+    if (widget.story != null) {
+      return null;
+    }
+
+    if (widget.user != null && !widget.user['isBook']) {
+      return null;
+    }
+    return await getUserByEmail(
+      graphQLClient,
+      widget.user['bookAuthorEmail'],
+      graphQLAuth.getUserMap()['email'],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    printJson(widget.user);
     _isWeb = AppConfig.of(context).isWeb;
     graphQLClient = GraphQLProvider.of(context).value;
     graphQLClientFileServer =
@@ -289,37 +304,59 @@ class _FriendWidgetState extends State<FriendWidget> {
       default:
         _width = _height = 100;
     }
-    return widget.allowExpandToggle && globals.collapseFriendWidget
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-                GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        globals.collapseFriendWidget =
-                            !globals.collapseFriendWidget;
-                      });
-                    },
-                    child: Icon(
-                      Icons.expand_more,
-                      color: Color(0xff00bcd4),
-                      size: 20,
-                    )),
-                Text(
-                  widget.user['name'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: _fontSize,
-                  ),
-                ),
-              ])
-        : getCard(
-            _width,
-            _height,
-            _fontSize,
-            dt,
-            df,
+
+    return FutureBuilder(
+      future: Future.wait([
+        getBookAuthor(),
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          logger.createMessage(
+              userEmail: graphQLAuth.getUser().email,
+              source: 'friend_widget',
+              shortMessage: snapshot.error.toString(),
+              stackTrace: StackTrace.current.toString());
+          return Text('\nErrors: \n  ' + snapshot.error.toString());
+        } else if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
           );
+        }
+        bookAuthorUser = snapshot.data[0];
+
+        return widget.allowExpandToggle && globals.collapseFriendWidget
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                    GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            globals.collapseFriendWidget =
+                                !globals.collapseFriendWidget;
+                          });
+                        },
+                        child: Icon(
+                          Icons.expand_more,
+                          color: Color(0xff00bcd4),
+                          size: 20,
+                        )),
+                    Text(
+                      widget.user['name'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: _fontSize,
+                      ),
+                    ),
+                  ])
+            : getCard(
+                _width,
+                _height,
+                _fontSize,
+                dt,
+                df,
+              );
+      },
+    );
   }
 
   Widget getCard(
@@ -668,7 +705,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     String userIdBanned = 'None';
 
     if (widget.story != null) {
-      printJson(widget.story);
+      printJson('friendWidget.getStoryBookColumn', widget.story);
 
       //is current person the originalUser
       if (widget.story.containsKey('originalUser') &&
@@ -694,6 +731,17 @@ class _FriendWidgetState extends State<FriendWidget> {
       banned = false;
     }
 
+    return getOriginalUserDetail(
+        _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
+  }
+
+  Widget getOriginalUserDetail(
+    double _fontSize,
+    bool showBannedBox,
+    bool banned,
+    String userNameBanned,
+    String userIdBanned,
+  ) {
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Column(
@@ -742,26 +790,46 @@ class _FriendWidgetState extends State<FriendWidget> {
   }
 
   Widget getUserBookColumn(double _fontSize) {
-    printJson(widget.user);
+    //When reading messages there are neither story or user
+    if (widget.user == null ||
+        !widget.user['isBook'] ||
+        !widget.user.containsKey('banned')) {
+      return Container();
+    }
+    //Is current author the original
+    if (widget.user['bookAuthorEmail'] == graphQLAuth.getUserMap()['email']) {
+      return Container();
+    }
+    printJson(
+      'friendWidget.getUserBookColumn widget.user',
+      widget.user,
+    );
+    bool showBannedBox = false;
     bool banned = false;
     String userNameBanned = 'None';
     String userIdBanned = 'None';
 
+    printJson(
+      'friendWidget.getUserBookColumn bookAuthorUser',
+      bookAuthorUser,
+    );
     if (widget.user['banned']['from'].length == 1) {
       userNameBanned = widget.user['name'];
       userIdBanned = widget.user['id'];
       banned = true;
-
-      return Container(
-        padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.max,
-          children: <Widget>[getBanRow(banned, userNameBanned, userIdBanned)],
-        ),
-      );
+      showBannedBox = true;
     } else {
-      return Container();
+      //If this were a Book, then the build would
+      //have got the bookAuthorUser
+      userNameBanned = bookAuthorUser['name'];
+      userIdBanned = bookAuthorUser['id'];
+      if (bookAuthorUser['banned']['from'].length == 1) {
+        banned = true;
+      }
+      showBannedBox = true;
     }
+
+    return getOriginalUserDetail(
+        _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
   }
 }
