@@ -138,10 +138,10 @@ class _StoriesPageState extends State<StoriesPage> {
       });
     });
 
-    if (getId() == null) {
+    if (getEmailFromParams() == null) {
       _typeStoryView = TypeStoriesView.allFriends;
     } else {
-      if (getId() == graphQLAuth.getUserMap()['id']) {
+      if (getEmailFromParams() == graphQLAuth.getUserMap()['email']) {
         _typeStoryView = TypeStoriesView.me;
       } else {
         _typeStoryView = TypeStoriesView.oneFriend;
@@ -157,26 +157,27 @@ class _StoriesPageState extends State<StoriesPage> {
     super.dispose();
   }
 
-  String getId() {
+  String getEmailFromParams() {
     if (widget.params == null) {
       return null;
     }
-    if (widget.params['id'] == null) {
+    if (widget.params['email'] == null) {
       return null;
     }
-    return widget.params['id'];
+    return widget.params['email'];
   }
 
   Future<Map> getUserFromUserId() async {
     final Map<String, dynamic> user = <String, dynamic>{'empty': true};
 
-    if (widget.params == null || getId() == null) {
+    if (widget.params == null || getEmailFromParams() == null) {
       return user;
     }
 
-    return await getUserById(
+    return await getUserByEmail(
       GraphQLProvider.of(context).value,
-      getId(),
+      getEmailFromParams(),
+      graphQLAuth.getUserMap()['email'],
     );
   }
 
@@ -264,17 +265,15 @@ class _StoriesPageState extends State<StoriesPage> {
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
             gqlString = getUserStoriesQL;
-            _variables['email'] = user['email'];
-            _variables['currentUserEmail'] = graphQLAuth.getUser().email;
+            _variables['currentUserEmail'] = user['email'];
             break;
           case StoryFeedType.FAMILY:
             gqlString = getUserStoriesFamilyQL;
-            _variables['email'] = user['email'];
-            _variables['currentUserEmail'] = graphQLAuth.getUser().email;
+            _variables['currentUserEmail'] = user['email'];
             break;
           case StoryFeedType.FRIENDS:
             gqlString = getUserStoriesFriendsQL;
-            _variables['email'] = user['email'];
+            _variables['currentUserEmail'] = user['email'];
             break;
           case StoryFeedType.ME:
             // never happens
@@ -403,14 +402,14 @@ class _StoriesPageState extends State<StoriesPage> {
             ),
             actions: checkProxy(graphQLAuth, context),
           ),
-          drawer: getId() == null ? DrawerWidget() : null,
+          drawer: getEmailFromParams() == null ? DrawerWidget() : null,
           body: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[
-                getId() == null
+                getEmailFromParams() == null
                     ? Container()
                     : FriendWidget(
                         user: user,
@@ -509,7 +508,7 @@ class _StoriesPageState extends State<StoriesPage> {
       index: index,
       crossAxisCount: _crossAxisCount,
       onPush: widget.onPush,
-      showFriend: getId() == null,
+      showFriend: getEmailFromParams() == null,
       onDelete: () {
         setState(() {});
       },

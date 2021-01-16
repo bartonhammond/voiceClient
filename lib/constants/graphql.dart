@@ -425,9 +425,8 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
 ''';
 
 const String getUserStoriesQL = r'''
-query getUserStories ($email: String!, $currentUserEmail: String!, $limit: String!, $cursor: String!) {
+query getUserStories ($currentUserEmail: String!, $limit: String!, $cursor: String!) {
  userStories(
-  		email: $email 
       currentUserEmail: $currentUserEmail
 			limit: $limit
   		cursor: $cursor
@@ -438,9 +437,9 @@ query getUserStories ($email: String!, $currentUserEmail: String!, $limit: Strin
 ''';
 
 const String getUserStoriesFriendsQL = r'''
-query getUserStoriesFriends($email: String!, $limit: String!, $cursor: String!) {
+query getUserStoriesFriends($currentUserEmail: String!, $limit: String!, $cursor: String!) {
  userStoriesFriends(
-  		email: $email 
+  		currentUserEmail: $currentUserEmail
 			limit: $limit
   		cursor: $cursor
 		)''' +
@@ -450,9 +449,8 @@ query getUserStoriesFriends($email: String!, $limit: String!, $cursor: String!) 
 ''';
 
 const String getUserStoriesFamilyQL = r'''
-query getUserStoriesFamily($email: String!, $currentUserEmail: String!, $limit: String!, $cursor: String!) {
+query getUserStoriesFamily($currentUserEmail: String!, $limit: String!, $cursor: String!) {
  userStoriesFamily(
-  		email: $email 
       currentUserEmail: $currentUserEmail
 			limit: $limit
   		cursor: $cursor
@@ -463,9 +461,9 @@ query getUserStoriesFamily($email: String!, $currentUserEmail: String!, $limit: 
 ''';
 
 const String getUserStoriesMeQL = r'''
-query getUserStoriesMe ($email: String!, $limit: String!, $cursor: String!) {
+query getUserStoriesMe ($currentUserEmail: String!, $limit: String!, $cursor: String!) {
  userStoriesMe(
-  		email: $email 
+  		currentUserEmail: $currentUserEmail 
 			limit: $limit
   		cursor: $cursor
 		)''' +
@@ -475,9 +473,9 @@ query getUserStoriesMe ($email: String!, $limit: String!, $cursor: String!) {
 ''';
 
 const String getUserStoriesMeFamilyQL = r'''
-query getUserStoriesMeFamily ($email: String!, $limit: String!, $cursor: String!) {
+query getUserStoriesMeFamily ($currentUserEmail: String!, $limit: String!, $cursor: String!) {
  userStoriesMeFamily(
-  		email: $email 
+  		currentUserEmail: $currentUserEmail 
 			limit: $limit
   		cursor: $cursor
 		)''' +
@@ -749,9 +747,9 @@ userFriendsStories(
 ''';
 
 const String getUserFriendsStoriesFamilyQL = r'''
-query getUserFriendsStoriesFamily($email: String!, $limit: String!, $cursor: String!) {
+query getUserFriendsStoriesFamily($currentUserEmail: String!, $limit: String!, $cursor: String!) {
 userFriendsStoriesFamily(
-  		email: $email 
+  		currentUserEmail: $currentUserEmail 
 			limit: $limit
   		cursor: $cursor
 		)''' +
@@ -761,9 +759,9 @@ userFriendsStoriesFamily(
 ''';
 
 const String getUserFriendsStoriesFriendsQL = r'''
-query getUserFriendsStoriesFriends($email: String!, $limit: String!, $cursor: String!) {
+query getUserFriendsStoriesFriends($currentUserEmail: String!, $limit: String!, $cursor: String!) {
 userFriendsStoriesFriends(
-  		email: $email 
+  		currentUserEmail: $currentUserEmail 
 			limit: $limit
   		cursor: $cursor
 		)''' +

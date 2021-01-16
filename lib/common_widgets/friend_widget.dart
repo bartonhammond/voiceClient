@@ -278,13 +278,13 @@ class _FriendWidgetState extends State<FriendWidget> {
     switch (deviceType) {
       case DeviceScreenType.desktop:
       case DeviceScreenType.tablet:
-        _width = _height = 50;
+        _width = _height = 100;
         break;
       case DeviceScreenType.watch:
         _width = _height = 50;
         break;
       case DeviceScreenType.mobile:
-        _width = _height = 50;
+        _width = _height = 100;
         break;
       default:
         _width = _height = 100;
@@ -329,56 +329,56 @@ class _FriendWidgetState extends State<FriendWidget> {
     DateTime dt,
     DateFormat df,
   ) {
-    return Card(
-      shadowColor: Colors.transparent,
-      borderOnForeground: false,
-      shape: widget.showBorder
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-              side: BorderSide(
-                color: Colors.grey,
-                width: 2.0,
-              ))
-          : null,
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 7.toDouble(),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              widget.allowExpandToggle
-                  ? GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          globals.collapseFriendWidget =
-                              !globals.collapseFriendWidget;
-                        });
-                      },
-                      child: Icon(
-                        Icons.expand_less,
-                        color: Color(0xff00bcd4),
-                        size: 20,
-                      ),
-                    )
-                  : Container(),
-              GestureDetector(
-                onTap: () {
-                  if (widget.onPush != null) {
-                    widget.onPush(<String, dynamic>{
-                      'id': widget.story['id'],
-                      'onFinish': widget.callBack,
-                      'onDelete': widget.onDelete,
-                    });
-                  }
-                  if (widget.onFriendPush != null) {
-                    widget.onFriendPush(<String, dynamic>{
-                      'id': widget.user['id'],
-                    });
-                  }
-                },
-                child: ClipRRect(
+    return GestureDetector(
+      onTap: () {
+        if (widget.onPush != null) {
+          widget.onPush(<String, dynamic>{
+            'id': widget.story['id'],
+            'onFinish': widget.callBack,
+            'onDelete': widget.onDelete,
+          });
+        }
+        if (widget.onFriendPush != null) {
+          widget.onFriendPush(<String, dynamic>{
+            'email': widget.user['email'],
+          });
+        }
+      },
+      child: Card(
+        shadowColor: Colors.transparent,
+        borderOnForeground: false,
+        shape: widget.showBorder
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                side: BorderSide(
+                  color: Colors.grey,
+                  width: 2.0,
+                ))
+            : null,
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+              height: 7.toDouble(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                widget.allowExpandToggle
+                    ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            globals.collapseFriendWidget =
+                                !globals.collapseFriendWidget;
+                          });
+                        },
+                        child: Icon(
+                          Icons.expand_less,
+                          color: Color(0xff00bcd4),
+                          size: 20,
+                        ),
+                      )
+                    : Container(),
+                ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
                   child: FadeInImage.memoryNetwork(
                     height: _height.toDouble(),
@@ -393,207 +393,219 @@ class _FriendWidgetState extends State<FriendWidget> {
                     ),
                   ),
                 ),
+              ],
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.65,
+              child: Text(
+                widget.user['name'],
+                key: Key('userName-${widget.user["name"]}'),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: _fontSize,
+                ),
+                maxLines: 10,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
               ),
-              Container(),
-            ],
-          ),
-          Text(
-            widget.user['name'],
-            key: Key('userName-${widget.user["name"]}'),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: _fontSize,
             ),
-          ),
-          Text(
-            widget.user['home'],
-            key: Key('userHome-${widget.user["name"]}'),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: _fontSize,
+            Container(
+              width: MediaQuery.of(context).size.width * 0.65,
+              child: Text(
+                widget.user['home'],
+                key: Key('userHome-${widget.user["name"]}'),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: _fontSize,
+                ),
+                maxLines: 10,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          widget.story == null
-              ? Container()
-              : Text(
-                  df.format(dt),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10.0,
+            widget.story == null
+                ? Container()
+                : Text(
+                    df.format(dt),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10.0,
+                    ),
                   ),
-                ),
-          widget.story != null && widget.user['isBook']
-              ? getStoryBookColumn(_fontSize)
-              : Container(),
-          widget.story == null ? getUserBookColumn(_fontSize) : Container(),
-          widget.showFamilyCheckbox
-              ? widget.user['email'] == graphQLAuth.getUserMap()['email'] ||
-                      (widget.story != null &&
-                          widget.story['originalUser'] != null &&
-                          widget.story['originalUser'].containsKey('email') &&
-                          widget.story['originalUser']['email'] ==
-                              graphQLAuth.getUserMap()['email'])
-                  ? Container()
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Checkbox(
-                            value: checkIfIsFamily(),
-                            onChanged: (bool newValue) async {
-                              await updateUserIsFamily(
-                                graphQLClient,
-                                graphQLAuth.getUserMap()['email'],
-                                widget.user['email'],
-                                newValue,
-                              );
-                              callBack();
-                            }),
-                        Text(Strings.storiesPageFamily.i18n),
-                      ],
-                    )
-              : checkIfIsFamily()
-                  ? Text(Strings.storiesPageFamily.i18n)
-                  : Container(),
-          widget.message == null
-              ? Container()
-              : Text(
-                  df.format(dt),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
-                ),
-          widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
-                  (widget.story != null &&
-                      widget.story.containsKey('originalUser') &&
-                      widget.story['originalUser'] != null &&
-                      widget.story['originalUser'].containsKey('email') &&
-                      widget.story['originalUser']['email'] ==
-                          graphQLAuth.getUserMap()['email'])
-              ? Container()
-              : widget.showMessage
-                  ? Container(
-                      margin: EdgeInsets.fromLTRB(25, 10, 25, 20),
-                      height: 1,
-                      color: Colors.grey[300],
-                    )
-                  : Container(),
-          widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
-                  (widget.story != null &&
-                      widget.story.containsKey('originalUser') &&
-                      widget.story['originalUser'] != null &&
-                      widget.story['originalUser'].containsKey('email') &&
-                      widget.story['originalUser']['email'] ==
-                          graphQLAuth.getUserMap()['email'])
-              ? Container()
-              : widget.showMessage
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(
-                          Icons.message,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        InkWell(
-                            child: Text(Strings.friendWidgetMessage.i18n),
-                            onTap: () {
-                              setState(() {
-                                _showMakeMessage = !_showMakeMessage;
-                              });
-                            })
-                      ],
-                    )
-                  : Container(),
-          widget.friendButton == null
-              ? Container()
-              : SizedBox(
-                  height: 10.toDouble(),
-                ),
-          widget.friendButton == null
-              ? Container()
-              : widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-                  ? Container()
-                  : widget.friendButton,
-          SizedBox(
-            height: 7.toDouble(),
-          ),
-          widget.user['isBook'] &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? graphQLAuth.isProxy
-                  ? Container()
-                  : getProxyButton()
-              : Container(),
-          widget.user['isBook'] &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? SizedBox(
-                  height: 7.toDouble(),
-                )
-              : Container(),
-          widget.user['isBook'] &&
-                  _showDeleteButton &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? graphQLAuth.isProxy
-                  ? Container()
-                  : getDeleteButton()
-              : Container(),
-          widget.user['isBook'] &&
-                  _showDeleteButton &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? SizedBox(
-                  height: 7.toDouble(),
-                )
-              : Container(),
-          _showMakeMessage
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                      Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+            widget.story != null && widget.user['isBook']
+                ? getStoryBookColumn(_fontSize)
+                : Container(),
+            widget.story == null ? getUserBookColumn(_fontSize) : Container(),
+            widget.showFamilyCheckbox
+                ? widget.user['email'] == graphQLAuth.getUserMap()['email'] ||
+                        (widget.story != null &&
+                            widget.story['originalUser'] != null &&
+                            widget.story['originalUser'].containsKey('email') &&
+                            widget.story['originalUser']['email'] ==
+                                graphQLAuth.getUserMap()['email'])
+                    ? Container()
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                              value: checkIfIsFamily(),
+                              onChanged: (bool newValue) async {
+                                await updateUserIsFamily(
+                                  graphQLClient,
+                                  graphQLAuth.getUserMap()['email'],
+                                  widget.user['email'],
+                                  newValue,
+                                );
+                                callBack();
+                              }),
+                          Text(Strings.storiesPageFamily.i18n),
+                        ],
+                      )
+                : checkIfIsFamily()
+                    ? Text(Strings.storiesPageFamily.i18n)
+                    : Container(),
+            widget.message == null
+                ? Container()
+                : Text(
+                    df.format(dt),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+                  ),
+            widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
+                    (widget.story != null &&
+                        widget.story.containsKey('originalUser') &&
+                        widget.story['originalUser'] != null &&
+                        widget.story['originalUser'].containsKey('email') &&
+                        widget.story['originalUser']['email'] ==
+                            graphQLAuth.getUserMap()['email'])
+                ? Container()
+                : widget.showMessage
+                    ? Container(
+                        margin: EdgeInsets.fromLTRB(25, 10, 25, 20),
                         height: 1,
                         color: Colors.grey[300],
-                      ),
-                      Text(Strings.friendWidgetRecordMessage.i18n,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      _isWeb
-                          ? RecorderWidgetWeb(
-                              key: Key('friendWidgetRecorderWeb'),
-                              showStacked: true,
-                              showIcon: true,
-                              isCurrentUserAuthor: true,
-                              setAudioWeb: setStoryAudioWeb,
-                              timerDuration: 90,
-                              showPlayerWidget: false,
-                            )
-                          : RecorderWidget(
-                              key: Key('friendWidgetRecorder'),
-                              showStacked: true,
-                              showIcon: true,
-                              isCurrentUserAuthor: true,
-                              setAudioFile: setCommentAudioFile,
-                              timerDuration: 90,
-                              showPlayerWidget: false,
-                            ),
-                      _uploadInProgress
-                          ? CircularProgressIndicator()
-                          : Container(),
-                      Divider(
-                        indent: 50,
-                        endIndent: 50,
-                        height: 20,
-                        thickness: 5,
                       )
-                    ])
-              : Container(),
-        ],
+                    : Container(),
+            widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
+                    (widget.story != null &&
+                        widget.story.containsKey('originalUser') &&
+                        widget.story['originalUser'] != null &&
+                        widget.story['originalUser'].containsKey('email') &&
+                        widget.story['originalUser']['email'] ==
+                            graphQLAuth.getUserMap()['email'])
+                ? Container()
+                : widget.showMessage
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(
+                            Icons.message,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          InkWell(
+                              child: Text(Strings.friendWidgetMessage.i18n),
+                              onTap: () {
+                                setState(() {
+                                  _showMakeMessage = !_showMakeMessage;
+                                });
+                              })
+                        ],
+                      )
+                    : Container(),
+            widget.friendButton == null
+                ? Container()
+                : SizedBox(
+                    height: 10.toDouble(),
+                  ),
+            widget.friendButton == null
+                ? Container()
+                : widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                    ? Container()
+                    : widget.friendButton,
+            SizedBox(
+              height: 7.toDouble(),
+            ),
+            widget.user['isBook'] &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? graphQLAuth.isProxy
+                    ? Container()
+                    : getProxyButton()
+                : Container(),
+            widget.user['isBook'] &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? SizedBox(
+                    height: 7.toDouble(),
+                  )
+                : Container(),
+            widget.user['isBook'] &&
+                    _showDeleteButton &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? graphQLAuth.isProxy
+                    ? Container()
+                    : getDeleteButton()
+                : Container(),
+            widget.user['isBook'] &&
+                    _showDeleteButton &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? SizedBox(
+                    height: 7.toDouble(),
+                  )
+                : Container(),
+            _showMakeMessage
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                        Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 25, vertical: 15),
+                          height: 1,
+                          color: Colors.grey[300],
+                        ),
+                        Text(Strings.friendWidgetRecordMessage.i18n,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        _isWeb
+                            ? RecorderWidgetWeb(
+                                key: Key('friendWidgetRecorderWeb'),
+                                showStacked: true,
+                                showIcon: true,
+                                isCurrentUserAuthor: true,
+                                setAudioWeb: setStoryAudioWeb,
+                                timerDuration: 90,
+                                showPlayerWidget: false,
+                              )
+                            : RecorderWidget(
+                                key: Key('friendWidgetRecorder'),
+                                showStacked: true,
+                                showIcon: true,
+                                isCurrentUserAuthor: true,
+                                setAudioFile: setCommentAudioFile,
+                                timerDuration: 90,
+                                showPlayerWidget: false,
+                              ),
+                        _uploadInProgress
+                            ? CircularProgressIndicator()
+                            : Container(),
+                        Divider(
+                          indent: 50,
+                          endIndent: 50,
+                          height: 20,
+                          thickness: 5,
+                        )
+                      ])
+                : Container(),
+          ],
+        ),
       ),
     );
   }
