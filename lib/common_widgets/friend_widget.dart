@@ -144,7 +144,7 @@ class _FriendWidgetState extends State<FriendWidget> {
         widget.user['email'],
         graphQLAuth.getUserMap()['email'],
       );
-      printJson('friendWidget.callBack', user);
+      //printJson('friendWidget.callBack', user);
       setState(() {
         widget.user = user;
       });
@@ -705,7 +705,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     String userIdBanned = 'None';
 
     if (widget.story != null) {
-      printJson('friendWidget.getStoryBookColumn', widget.story);
+      //printJson('friendWidget.getStoryBookColumn', widget.story);
 
       //is current person the originalUser
       if (widget.story.containsKey('originalUser') &&
@@ -800,10 +800,10 @@ class _FriendWidgetState extends State<FriendWidget> {
     if (widget.user['bookAuthorEmail'] == graphQLAuth.getUserMap()['email']) {
       return Container();
     }
-    printJson(
+    /*printJson(
       'friendWidget.getUserBookColumn widget.user',
       widget.user,
-    );
+    );*/
     bool showBannedBox = false;
     bool banned = false;
     String userNameBanned = 'None';
