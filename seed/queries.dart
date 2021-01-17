@@ -4,18 +4,20 @@ import 'package:MyFamilyVoice/constants/graphql.dart';
 Future<Map<String, dynamic>> getUserByEmail(
   GraphQLClient graphQLClient,
   String email,
+  String currentUserEmail,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmailForAuthQL),
+    documentNode: gql(getUserByEmailQL),
     variables: <String, dynamic>{
       'email': email,
+      'currentUserEmail': currentUserEmail
     },
   );
   final QueryResult queryResult = await graphQLClient.query(_queryOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['User'][0];
+  return queryResult.data['getUserByEmail'];
 }
 
 Future<List> getFriendsOfMineByEmail(
@@ -176,6 +178,50 @@ Future<void> addUserMessages(
       'type': type,
       'key1': key1,
       'key2': key2,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<List<dynamic>> getUsers(
+  GraphQLClient graphQLClient,
+  String searchString,
+  String currentUserEmail,
+  String limit,
+  String skip,
+) async {
+  final QueryOptions _queryOptions = QueryOptions(
+    documentNode: gql(userSearchQL),
+    variables: <String, dynamic>{
+      'searchString': searchString,
+      'currentUserEmail': currentUserEmail,
+      'limit': limit,
+      'skip': skip
+    },
+  );
+  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return queryResult.data['userSearch'];
+}
+
+Future<void> addUserBookAuthor(
+  GraphQLClient graphQLClient,
+  String fromUserId,
+  String toUserId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addUserBookAuthorQL),
+    variables: <String, dynamic>{
+      'from': fromUserId,
+      'to': toUserId,
     },
   );
 

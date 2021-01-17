@@ -67,9 +67,9 @@ Future<void> main(List<String> arguments) async {
       final uuid = Uuid();
       for (var _userIndex = 0; _userIndex < users.length; _userIndex++) {
         final Map<String, dynamic> _user = await q.getUserByEmail(
-          graphQLClientApolloServer,
-          users[_userIndex]['email'],
-        );
+            graphQLClientApolloServer,
+            users[_userIndex]['email'],
+            'bartonhammond@gmail.com');
         await addUserFriend(
           graphQLClientApolloServer,
           user['id'],

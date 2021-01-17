@@ -1198,3 +1198,28 @@ query getUser($email: String!, $bannedByEmail: String!) {
   }
 }
 ''';
+
+const String addUserBookAuthorQL = r'''
+mutation addUserBookAuthor($from: ID!, $to: ID!, ){
+  AddUserBookAuthor (
+    from: {
+      id: $from
+    }
+    to: {
+      id: $to
+    }
+  ) 
+  {
+    from {
+      id
+      name
+      email
+    }
+    to {
+      id
+      name
+      email
+    }
+  }
+}
+''';
