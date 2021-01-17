@@ -65,22 +65,20 @@ Future<void> deleteUserMessagesByName(
 Future<Map> getUserByName(
   GraphQLClient graphQLClient,
   String name,
+  String currentUserEmail,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
     documentNode: gql(getUserByNameQL),
     variables: <String, dynamic>{
       'name': name,
+      'currentUserEmail': currentUserEmail,
     },
   );
   final QueryResult queryResult = await graphQLClient.query(_queryOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  if (queryResult.data['User'].length == 1) {
-    return queryResult.data['User'][0];
-  } else {
-    return null;
-  }
+  return queryResult.data['userByNamed'];
 }
 
 Future<void> quitFriendship(

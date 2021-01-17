@@ -211,7 +211,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
     _skip = 0;
     var _variables = <String, dynamic>{
       'searchString': _searchString,
-      'email': graphQLAuth.getUser().email,
+      'currentUserEmail': graphQLAuth.getUser().email,
       'limit': _nFriends.toString(),
       'skip': _skip.toString(),
     };

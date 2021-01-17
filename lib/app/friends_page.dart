@@ -49,7 +49,6 @@ class _FriendsPageState extends State<FriendsPage> {
 
   dynamic allMyFriendRequests;
   dynamic allNewFriendRequestsToMe;
-  dynamic allMyFriends;
 
   int staggeredViewSize = 2;
 
@@ -108,21 +107,6 @@ class _FriendsPageState extends State<FriendsPage> {
     proxyStartedSubscription.cancel();
     proxyEndedSubscription.cancel();
     super.dispose();
-  }
-
-  Future<List> _getFriendsOfMineByEmail(BuildContext context) async {
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getFriendsOfMineQL),
-      variables: <String, dynamic>{
-        'email': graphQLAuth.getUserMap()['email'],
-      },
-    );
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    return queryResult.data['friendsOfMine'];
   }
 
   Future<List<dynamic>> _getAllNewFriendRequestsToMe(
@@ -324,7 +308,7 @@ class _FriendsPageState extends State<FriendsPage> {
     _skip = 0;
     var _variables = <String, dynamic>{
       'searchString': _searchString,
-      'email': graphQLAuth.getUser().email,
+      'currentUserEmail': graphQLAuth.getUser().email,
       'limit': _nFriends.toString(),
       'skip': _skip.toString(),
     };
@@ -377,7 +361,6 @@ class _FriendsPageState extends State<FriendsPage> {
       future: Future.wait([
         _getAllMyFriendRequests(context),
         _getAllNewFriendRequestsToMe(context),
-        _getFriendsOfMineByEmail(context),
       ]),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -393,7 +376,6 @@ class _FriendsPageState extends State<FriendsPage> {
         }
         allMyFriendRequests = snapshot.data[0];
         allNewFriendRequestsToMe = snapshot.data[1];
-        allMyFriends = snapshot.data[2];
         return _build();
       },
     );
@@ -472,7 +454,6 @@ class _FriendsPageState extends State<FriendsPage> {
                                     friendButton: getMessageButton(
                                       allNewFriendRequestsToMe,
                                       allMyFriendRequests,
-                                      allMyFriends,
                                       friends,
                                       index,
                                     ),
@@ -595,29 +576,25 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   TmpObj alreadyFriends(
-    dynamic allMyFriends,
     dynamic friends,
     int index,
     double _fontSize,
   ) {
-    if (allMyFriends != null) {
-      for (var friendToMe in allMyFriends) {
-        if (friendToMe['id'] == friends[index]['id']) {
-          return TmpObj(
-              button: MessageButton(
-                key: Key('${Keys.newFriendsButton}-$index'),
-                text: Strings.quitFriend.i18n,
-                onPressed: () => _quitFriendRequest(friends[index]['id']),
-                fontSize: _fontSize,
-                icon: Icon(
-                  MdiIcons.accountRemove,
-                  color: Colors.white,
-                ),
-              ),
-              isFriend: true,
-              ignore: false);
-        }
-      }
+    if (friends[index]['friends'].containsKey('to') &&
+        friends[index]['friends']['to'].length == 1) {
+      return TmpObj(
+          button: MessageButton(
+            key: Key('${Keys.newFriendsButton}-$index'),
+            text: Strings.quitFriend.i18n,
+            onPressed: () => _quitFriendRequest(friends[index]['id']),
+            fontSize: _fontSize,
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+          isFriend: true,
+          ignore: false);
     }
     return null;
   }
@@ -625,7 +602,6 @@ class _FriendsPageState extends State<FriendsPage> {
   TmpObj getMessageButton(
     dynamic allFriendRequestsToMe,
     dynamic allMyFriendRequests,
-    dynamic allMyFriends,
     dynamic friends,
     int index,
   ) {
@@ -664,13 +640,13 @@ class _FriendsPageState extends State<FriendsPage> {
           isFriend: true,
           ignore: false);
     } else {
-      button =
+      button = alreadyFriends(friends, index, _fontSize);
+
+      button ??=
           checkMyFriendRequests(allMyFriendRequests, friends, index, _fontSize);
 
       button ??= pendingFriendRequestsToMe(
           allFriendRequestsToMe, friends, index, _fontSize);
-
-      button ??= alreadyFriends(allMyFriends, friends, index, _fontSize);
 
       button ??= TmpObj(
           button: MessageButton(

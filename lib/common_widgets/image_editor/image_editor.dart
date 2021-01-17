@@ -131,12 +131,11 @@ class _ImageEditorState extends State<ImageEditor> {
             mainAxisSize: MainAxisSize.max,
             children: <Widget>[
               FlatButtonWithIcon(
-                icon: const Icon(Icons.crop),
+                icon: const Icon(Icons.crop, color: Colors.white),
                 label: Text(
                   'Crop',
-                  style: TextStyle(fontSize: fontSize),
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
                 ),
-                textColor: Colors.white,
                 onPressed: () {
                   showDialog<void>(
                       context: context,
@@ -178,47 +177,35 @@ class _ImageEditorState extends State<ImageEditor> {
                 },
               ),
               FlatButtonWithIcon(
-                icon: const Icon(Icons.flip),
+                icon: const Icon(Icons.flip, color: Colors.white),
                 label: Text(
                   'Flip',
-                  style: TextStyle(fontSize: fontSize),
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
                 ),
-                textColor: Colors.white,
                 onPressed: () {
                   editorKey.currentState.flip();
                 },
               ),
               FlatButtonWithIcon(
-                icon: const Icon(Icons.rotate_left),
+                icon: const Icon(Icons.rotate_left, color: Colors.white),
                 label: Text(
-                  'Left',
-                  style: TextStyle(fontSize: fontSize),
+                  'Turn',
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
                 ),
-                textColor: Colors.white,
                 onPressed: () {
                   editorKey.currentState.rotate(right: false);
                 },
               ),
               FlatButtonWithIcon(
-                icon: const Icon(Icons.rotate_right),
-                label: Text(
-                  'Right',
-                  style: TextStyle(fontSize: fontSize),
-                ),
-                textColor: Colors.white,
-                onPressed: () {
-                  editorKey.currentState.rotate(right: true);
-                },
-              ),
-              FlatButtonWithIcon(
-                icon: const Icon(Icons.rounded_corner_sharp),
+                icon:
+                    const Icon(Icons.rounded_corner_sharp, color: Colors.white),
                 label: PopupMenuButton<ExtendedImageCropLayerCornerPainter>(
                   key: popupMenuKey,
                   enabled: false,
                   offset: const Offset(100, -300),
                   child: Text(
                     'Corner',
-                    style: TextStyle(fontSize: fontSize),
+                    style: TextStyle(fontSize: fontSize, color: Colors.white),
                   ),
                   initialValue: _cornerPainter,
                   itemBuilder: (BuildContext context) {
@@ -273,18 +260,19 @@ class _ImageEditorState extends State<ImageEditor> {
                     }
                   },
                 ),
-                textColor: Colors.white,
                 onPressed: () {
                   popupMenuKey.currentState.showButtonMenu();
                 },
               ),
               FlatButtonWithIcon(
-                icon: const Icon(Icons.restore),
+                icon: const Icon(
+                  Icons.restore,
+                  color: Colors.white,
+                ),
                 label: Text(
                   'Reset',
-                  style: TextStyle(fontSize: fontSize),
+                  style: TextStyle(fontSize: fontSize, color: Colors.white),
                 ),
-                textColor: Colors.white,
                 onPressed: () {
                   editorKey.currentState.reset();
                 },

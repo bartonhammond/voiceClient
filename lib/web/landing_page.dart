@@ -264,7 +264,7 @@ class _LandingPageState extends State<LandingPage> {
                         ),
                         Row(
                           children: [
-                            FlatButton(
+                            TextButton(
                               onPressed: () {
                                 getDialog(context, 'Terms', 'terms.html');
                               },
@@ -272,7 +272,7 @@ class _LandingPageState extends State<LandingPage> {
                                 'Terms',
                               ),
                             ),
-                            FlatButton(
+                            TextButton(
                               onPressed: () {
                                 getDialog(context, 'Privacy', 'policy.html');
                               },

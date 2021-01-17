@@ -175,6 +175,7 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setBook(String id) async {
+    print('storyPlay.setBook id: $id');
     if (id == null) {
       //remove the current book
       await changeStoriesUser(
@@ -185,6 +186,7 @@ class _StoryPlayState extends State<StoryPlay>
       );
     } else {
       if (_story['originalUser'] == null) {
+        print('storyPlay.setBook originalUser is null');
         //Merge Story w/ OriginalUser
         addStoryOriginalUser(
           graphQLClient,
@@ -212,6 +214,7 @@ class _StoryPlayState extends State<StoryPlay>
       documentNode: gql(getUserByEmailQL),
       variables: <String, dynamic>{
         'email': email,
+        'currentUserEmail': graphQLAuth.getUserMap()['email'],
       },
     );
     final QueryResult queryResult = await graphQLClient.query(_queryOptions);
@@ -346,6 +349,7 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
+
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;
           } else {
@@ -415,7 +419,7 @@ class _StoryPlayState extends State<StoryPlay>
       documentNode: gql(getStoryByIdQL),
       variables: <String, dynamic>{
         'id': _storyWasSaved ? _id : widget.params['id'],
-        'email': graphQLAuth.getUserMap()['email']
+        'currentUserEmail': graphQLAuth.getUserMap()['email']
       },
     );
 
@@ -424,10 +428,7 @@ class _StoryPlayState extends State<StoryPlay>
       throw queryResult.exception;
     }
 
-    if (queryResult.data['Story'].length > 0) {
-      return queryResult.data['Story'][0];
-    }
-    return null;
+    return queryResult.data['getStoryById'];
   }
 
   Future<void> doImageUpload() async {

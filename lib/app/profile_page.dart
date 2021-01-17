@@ -227,7 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 fontSize: _fontSize.toDouble(),
                 key: Key(Keys.profilePageCancelButton),
                 icon: Icon(
-                  Icons.file_upload,
+                  Icons.cancel,
                   color: Colors.white,
                   size: _size.toDouble(),
                 ),
@@ -236,6 +236,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ? null
                     : () async {
                         setState(() {
+                          userId = null; //this makes the form get reset
                           _image = null;
                           formReady = false;
                           _uploadInProgress = false;
