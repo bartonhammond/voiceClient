@@ -4,11 +4,13 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 Future<Map> getUserByEmail(
   GraphQLClient graphQLClient,
   String userEmail,
+  String currentUserEmail,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
     documentNode: gql(getUserByEmailQL),
     variables: <String, dynamic>{
       'email': userEmail,
+      'currentUserEmail': currentUserEmail,
     },
   );
 
@@ -16,7 +18,7 @@ Future<Map> getUserByEmail(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['User'][0];
+  return queryResult.data['getUserByEmail'];
 }
 
 Future<Map> getUserById(

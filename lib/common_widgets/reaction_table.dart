@@ -308,28 +308,29 @@ class _State extends State<ReactionTable> {
     int count,
   ) {
     return Container(
-      height: 35,
-      decoration: BoxDecoration(
-          border: Border(
-        bottom: BorderSide(
-          width: 3,
-          color: isActive ? Color(0xff00bcd4) : Colors.white,
-        ),
-      )),
-      child: RaisedButton(
-        onPressed: () {
-          if (isActive) {
-            onButtonClicked(null);
-          } else {
-            onButtonClicked(type);
-          }
-        },
-        color: Colors.white,
-        child: Image.asset(
-          asset,
-          height: 20,
-        ),
-      ),
-    );
+        height: 35,
+        decoration: BoxDecoration(
+            border: Border(
+          bottom: BorderSide(
+            width: 3,
+            color: isActive ? Color(0xff00bcd4) : Colors.white,
+          ),
+        )),
+        child: TextButton(
+          style: ButtonStyle(
+            foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+          ),
+          onPressed: () {
+            if (isActive) {
+              onButtonClicked(null);
+            } else {
+              onButtonClicked(type);
+            }
+          },
+          child: Image.asset(
+            asset,
+            height: 20,
+          ),
+        ));
   }
 }

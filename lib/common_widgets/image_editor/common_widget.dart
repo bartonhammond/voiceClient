@@ -3,26 +3,11 @@ import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-class FlatButtonWithIcon extends FlatButton with MaterialButtonWithIconMixin {
+class FlatButtonWithIcon extends ElevatedButton
+    with MaterialButtonWithIconMixin {
   FlatButtonWithIcon({
     Key key,
     @required VoidCallback onPressed,
-    ValueChanged<bool> onHighlightChanged,
-    ButtonTextTheme textTheme,
-    Color textColor,
-    Color disabledTextColor,
-    Color color,
-    Color disabledColor,
-    Color focusColor,
-    Color hoverColor,
-    Color highlightColor,
-    Color splashColor,
-    Brightness colorBrightness,
-    EdgeInsetsGeometry padding,
-    ShapeBorder shape,
-    Clip clipBehavior = Clip.none,
-    FocusNode focusNode,
-    MaterialTapTargetSize materialTapTargetSize,
     @required Widget icon,
     @required Widget label,
   })  : assert(icon != null),
@@ -30,22 +15,6 @@ class FlatButtonWithIcon extends FlatButton with MaterialButtonWithIconMixin {
         super(
           key: key,
           onPressed: onPressed,
-          onHighlightChanged: onHighlightChanged,
-          textTheme: textTheme,
-          textColor: textColor,
-          disabledTextColor: disabledTextColor,
-          color: color,
-          disabledColor: disabledColor,
-          focusColor: focusColor,
-          hoverColor: hoverColor,
-          highlightColor: highlightColor,
-          splashColor: splashColor,
-          colorBrightness: colorBrightness,
-          padding: padding,
-          shape: shape,
-          clipBehavior: clipBehavior,
-          focusNode: focusNode,
-          materialTapTargetSize: materialTapTargetSize,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[

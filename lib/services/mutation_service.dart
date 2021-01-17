@@ -349,6 +349,7 @@ Future<void> addUserMessages(
       final Map user = await getUserByEmail(
         graphQLClient,
         toUser['bookAuthorEmail'],
+        fromUser['email'],
       );
       final _uuid = Uuid();
       options = MutationOptions(

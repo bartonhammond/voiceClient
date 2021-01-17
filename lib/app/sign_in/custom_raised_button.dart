@@ -47,43 +47,47 @@ class CustomRaisedButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final ButtonStyle raisedButtonStyle = ElevatedButton.styleFrom(
+      onPrimary: Colors.black87,
+      primary: Color(0xff00bcd4),
+      minimumSize: Size(88, 36),
+      padding: EdgeInsets.symmetric(horizontal: 16),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+      ),
+    );
+
     return loading == true
         ? buildSpinner(context)
         : icon != null
             ? Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                    RaisedButton.icon(
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(10.0))),
-                      color: Color(0xff00bcd4),
-                      onPressed: onPressed,
-                      icon: icon,
-                      padding: EdgeInsets.fromLTRB(10, 5, 10, 5),
-                      label: buildText(
-                        text,
-                        context,
-                      ),
+                  ElevatedButton.icon(
+                    style: raisedButtonStyle,
+                    onPressed: onPressed,
+                    icon: icon,
+                    label: buildText(
+                      text,
+                      context,
                     ),
-                  ])
+                  )
+                ],
+              )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                    RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.all(Radius.circular(10.0))),
-                      color: Color(0xff00bcd4),
-                      onPressed: onPressed,
-                      padding: EdgeInsets.all(5),
-                      child: loading
-                          ? buildSpinner(context)
-                          : buildText(
-                              text,
-                              context,
-                            ),
-                    )
-                  ]);
+                  ElevatedButton(
+                    style: raisedButtonStyle,
+                    onPressed: onPressed,
+                    child: loading
+                        ? buildSpinner(context)
+                        : buildText(
+                            text,
+                            context,
+                          ),
+                  )
+                ],
+              );
   }
 }

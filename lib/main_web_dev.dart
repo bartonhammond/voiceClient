@@ -13,7 +13,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:i18n_extension/i18n_widget.dart';
 import 'package:provider/provider.dart';
 
-void main(List<String> args) {
+void main() {
   HttpLink getHttpLink(String uri) {
     return HttpLink(uri: uri);
   }

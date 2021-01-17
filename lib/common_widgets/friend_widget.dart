@@ -7,14 +7,15 @@ import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
+import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -22,7 +23,6 @@ import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/constants/globals.dart' as globals;
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
-import 'package:MyFamilyVoice/services/logger.dart' as logger;
 
 // ignore: must_be_immutable
 class FriendWidget extends StatefulWidget {
@@ -42,7 +42,7 @@ class FriendWidget extends StatefulWidget {
       this.onBanned});
   Map<String, dynamic> user;
   final ValueChanged<Map<String, dynamic>> onPush;
-  final Map<String, dynamic> story;
+  Map<String, dynamic> story;
   final VoidCallback onDelete;
   final VoidCallback callBack;
   final VoidCallback onBanned;
@@ -59,7 +59,6 @@ class FriendWidget extends StatefulWidget {
 }
 
 class _FriendWidgetState extends State<FriendWidget> {
-  Map<String, dynamic> originalUser;
   bool _showMakeMessage = false;
   bool _uploadInProgress = false;
   bool _isWeb = false;
@@ -70,6 +69,7 @@ class _FriendWidgetState extends State<FriendWidget> {
   GraphQLClient graphQLClient;
   GraphQLClient graphQLClientFileServer;
   StreamSubscription bookHasNoStories;
+  Map bookAuthorUser;
   @override
   void initState() {
     super.initState();
@@ -142,13 +142,14 @@ class _FriendWidgetState extends State<FriendWidget> {
       final user = await getUserByEmail(
         graphQLClient,
         widget.user['email'],
+        graphQLAuth.getUserMap()['email'],
       );
-
+      //printJson('friendWidget.callBack', user);
       setState(() {
         widget.user = user;
       });
     } catch (e) {
-      //ignore
+      print(e);
     }
   }
 
@@ -244,6 +245,21 @@ class _FriendWidgetState extends State<FriendWidget> {
     );
   }
 
+  Future<Map> getBookAuthor() async {
+    if (widget.story != null) {
+      return null;
+    }
+
+    if (widget.user != null && !widget.user['isBook']) {
+      return null;
+    }
+    return await getUserByEmail(
+      graphQLClient,
+      widget.user['bookAuthorEmail'],
+      graphQLAuth.getUserMap()['email'],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     _isWeb = AppConfig.of(context).isWeb;
@@ -277,97 +293,70 @@ class _FriendWidgetState extends State<FriendWidget> {
     switch (deviceType) {
       case DeviceScreenType.desktop:
       case DeviceScreenType.tablet:
-        _width = _height = 50;
+        _width = _height = 100;
         break;
       case DeviceScreenType.watch:
         _width = _height = 50;
         break;
       case DeviceScreenType.mobile:
-        _width = _height = 50;
+        _width = _height = 100;
         break;
       default:
         _width = _height = 100;
     }
-    return widget.allowExpandToggle && globals.collapseFriendWidget
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-                GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        globals.collapseFriendWidget =
-                            !globals.collapseFriendWidget;
-                      });
-                    },
-                    child: Icon(
-                      Icons.expand_more,
-                      color: Color(0xff00bcd4),
-                      size: 20,
-                    )),
-                Text(
-                  widget.user['name'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: _fontSize,
-                  ),
-                ),
-              ])
-        : getFutureBuilder(
-            _width,
-            _height,
-            _fontSize,
-            dt,
-            df,
-          );
-  }
 
-  Future<Map> getOriginalAuthor() async {
-    if (!widget.user['isBook']) {
-      final Map<String, dynamic> user = <String, dynamic>{'empty': true};
-      return user;
-    }
-    //if its the current user
-    if (graphQLAuth.getUserMap()['email'] == widget.user['bookAuthorEmail']) {
-      return graphQLAuth.getUserMap();
-    }
-    return await getUser(
-      GraphQLProvider.of(context).value,
-      graphQLAuth.getUser().email,
-      widget.user['bookAuthorEmail'],
-    );
-  }
-
-  Widget getFutureBuilder(
-    int _width,
-    int _height,
-    double _fontSize,
-    DateTime dt,
-    DateFormat df,
-  ) {
     return FutureBuilder(
-        future: getOriginalAuthor(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            logger.createMessage(
-                userEmail: graphQLAuth.getUser().email,
-                source: 'stories_page',
-                shortMessage: snapshot.error.toString(),
-                stackTrace: StackTrace.current.toString());
-            return Text('\nErrors: \n  ' + snapshot.error.toString());
-          } else if (!snapshot.hasData) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          originalUser = snapshot.data;
-          return getCard(
-            _width,
-            _height,
-            _fontSize,
-            dt,
-            df,
+      future: Future.wait([
+        getBookAuthor(),
+      ]),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          logger.createMessage(
+              userEmail: graphQLAuth.getUser().email,
+              source: 'friend_widget',
+              shortMessage: snapshot.error.toString(),
+              stackTrace: StackTrace.current.toString());
+          return Text('\nErrors: \n  ' + snapshot.error.toString());
+        } else if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
           );
-        });
+        }
+        bookAuthorUser = snapshot.data[0];
+
+        return widget.allowExpandToggle && globals.collapseFriendWidget
+            ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                    GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            globals.collapseFriendWidget =
+                                !globals.collapseFriendWidget;
+                          });
+                        },
+                        child: Icon(
+                          Icons.expand_more,
+                          color: Color(0xff00bcd4),
+                          size: 20,
+                        )),
+                    Text(
+                      widget.user['name'],
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: _fontSize,
+                      ),
+                    ),
+                  ])
+            : getCard(
+                _width,
+                _height,
+                _fontSize,
+                dt,
+                df,
+              );
+      },
+    );
   }
 
   Widget getCard(
@@ -377,56 +366,56 @@ class _FriendWidgetState extends State<FriendWidget> {
     DateTime dt,
     DateFormat df,
   ) {
-    return Card(
-      shadowColor: Colors.transparent,
-      borderOnForeground: false,
-      shape: widget.showBorder
-          ? RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(15.0),
-              side: BorderSide(
-                color: Colors.grey,
-                width: 2.0,
-              ))
-          : null,
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 7.toDouble(),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              widget.allowExpandToggle
-                  ? GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          globals.collapseFriendWidget =
-                              !globals.collapseFriendWidget;
-                        });
-                      },
-                      child: Icon(
-                        Icons.expand_less,
-                        color: Color(0xff00bcd4),
-                        size: 20,
-                      ),
-                    )
-                  : Container(),
-              GestureDetector(
-                onTap: () {
-                  if (widget.onPush != null) {
-                    widget.onPush(<String, dynamic>{
-                      'id': widget.story['id'],
-                      'onFinish': widget.callBack,
-                      'onDelete': widget.onDelete,
-                    });
-                  }
-                  if (widget.onFriendPush != null) {
-                    widget.onFriendPush(<String, dynamic>{
-                      'id': widget.user['id'],
-                    });
-                  }
-                },
-                child: ClipRRect(
+    return GestureDetector(
+      onTap: () {
+        if (widget.onPush != null) {
+          widget.onPush(<String, dynamic>{
+            'id': widget.story['id'],
+            'onFinish': widget.callBack,
+            'onDelete': widget.onDelete,
+          });
+        }
+        if (widget.onFriendPush != null) {
+          widget.onFriendPush(<String, dynamic>{
+            'email': widget.user['email'],
+          });
+        }
+      },
+      child: Card(
+        shadowColor: Colors.transparent,
+        borderOnForeground: false,
+        shape: widget.showBorder
+            ? RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+                side: BorderSide(
+                  color: Colors.grey,
+                  width: 2.0,
+                ))
+            : null,
+        child: Column(
+          children: <Widget>[
+            SizedBox(
+              height: 7.toDouble(),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                widget.allowExpandToggle
+                    ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            globals.collapseFriendWidget =
+                                !globals.collapseFriendWidget;
+                          });
+                        },
+                        child: Icon(
+                          Icons.expand_less,
+                          color: Color(0xff00bcd4),
+                          size: 20,
+                        ),
+                      )
+                    : Container(),
+                ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
                   child: FadeInImage.memoryNetwork(
                     height: _height.toDouble(),
@@ -441,199 +430,233 @@ class _FriendWidgetState extends State<FriendWidget> {
                     ),
                   ),
                 ),
+              ],
+            ),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.65,
+              child: Text(
+                widget.user['name'],
+                key: Key('userName-${widget.user["name"]}'),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: _fontSize,
+                ),
+                maxLines: 10,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
               ),
-              Container(),
-            ],
-          ),
-          Text(
-            widget.user['name'],
-            key: Key('userName-${widget.user["name"]}'),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: _fontSize,
             ),
-          ),
-          Text(
-            widget.user['home'],
-            key: Key('userHome-${widget.user["name"]}'),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: _fontSize,
+            Container(
+              width: MediaQuery.of(context).size.width * 0.65,
+              child: Text(
+                widget.user['home'],
+                key: Key('userHome-${widget.user["name"]}'),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: _fontSize,
+                ),
+                maxLines: 10,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-          widget.story == null
-              ? Container()
-              : Text(
-                  df.format(dt),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 10.0,
+            widget.story == null
+                ? Container()
+                : Text(
+                    df.format(dt),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 10.0,
+                    ),
                   ),
-                ),
-          widget.user['isBook'] ? getIsBookColumn(_fontSize) : Container(),
-          widget.showFamilyCheckbox
-              ? widget.user['email'] == graphQLAuth.getUserMap()['email'] ||
-                      originalUser['email'] == graphQLAuth.getUserMap()['email']
-                  ? Container()
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Checkbox(
-                            value: checkIfIsFamily(),
-                            onChanged: (bool newValue) async {
-                              await updateUserIsFamily(
-                                graphQLClient,
-                                graphQLAuth.getUserMap()['email'],
-                                widget.user['email'],
-                                newValue,
-                              );
-                              callBack();
-                            }),
-                        Text(Strings.storiesPageFamily.i18n),
-                      ],
-                    )
-              : checkIfIsFamily()
-                  ? Text(Strings.storiesPageFamily.i18n)
-                  : Container(),
-          widget.message == null
-              ? Container()
-              : Text(
-                  df.format(dt),
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
-                ),
-          widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
-                  originalUser['email'] == graphQLAuth.getUserMap()['email']
-              ? Container()
-              : widget.showMessage
-                  ? Container(
-                      margin: EdgeInsets.fromLTRB(25, 10, 25, 20),
-                      height: 1,
-                      color: Colors.grey[300],
-                    )
-                  : Container(),
-          widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
-                  originalUser['email'] == graphQLAuth.getUserMap()['email']
-              ? Container()
-              : widget.showMessage
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Icon(
-                          Icons.message,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        InkWell(
-                            child: Text(Strings.friendWidgetMessage.i18n),
-                            onTap: () {
-                              setState(() {
-                                _showMakeMessage = !_showMakeMessage;
-                              });
-                            })
-                      ],
-                    )
-                  : Container(),
-          widget.friendButton == null
-              ? Container()
-              : SizedBox(
-                  height: 10.toDouble(),
-                ),
-          widget.friendButton == null
-              ? Container()
-              : widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-                  ? Container()
-                  : widget.friendButton,
-          SizedBox(
-            height: 7.toDouble(),
-          ),
-          widget.user['isBook'] &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? graphQLAuth.isProxy
-                  ? Container()
-                  : getProxyButton()
-              : Container(),
-          widget.user['isBook'] &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? SizedBox(
-                  height: 7.toDouble(),
-                )
-              : Container(),
-          widget.user['isBook'] &&
-                  _showDeleteButton &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? graphQLAuth.isProxy
-                  ? Container()
-                  : getDeleteButton()
-              : Container(),
-          widget.user['isBook'] &&
-                  _showDeleteButton &&
-                  widget.user['bookAuthorEmail'] ==
-                      graphQLAuth.getUserMap()['email']
-              ? SizedBox(
-                  height: 7.toDouble(),
-                )
-              : Container(),
-          _showMakeMessage
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                      Container(
-                        margin:
-                            EdgeInsets.symmetric(horizontal: 25, vertical: 15),
+            widget.story != null && widget.user['isBook']
+                ? getStoryBookColumn(_fontSize)
+                : Container(),
+            widget.story == null ? getUserBookColumn(_fontSize) : Container(),
+            widget.showFamilyCheckbox
+                ? widget.user['email'] == graphQLAuth.getUserMap()['email'] ||
+                        (widget.story != null &&
+                            widget.story['originalUser'] != null &&
+                            widget.story['originalUser'].containsKey('email') &&
+                            widget.story['originalUser']['email'] ==
+                                graphQLAuth.getUserMap()['email'])
+                    ? Container()
+                    : Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                              value: checkIfIsFamily(),
+                              onChanged: (bool newValue) async {
+                                await updateUserIsFamily(
+                                  graphQLClient,
+                                  graphQLAuth.getUserMap()['email'],
+                                  widget.user['email'],
+                                  newValue,
+                                );
+                                callBack();
+                              }),
+                          Text(Strings.storiesPageFamily.i18n),
+                        ],
+                      )
+                : checkIfIsFamily()
+                    ? Text(Strings.storiesPageFamily.i18n)
+                    : Container(),
+            widget.message == null
+                ? Container()
+                : Text(
+                    df.format(dt),
+                    style:
+                        TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0),
+                  ),
+            widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
+                    (widget.story != null &&
+                        widget.story.containsKey('originalUser') &&
+                        widget.story['originalUser'] != null &&
+                        widget.story['originalUser'].containsKey('email') &&
+                        widget.story['originalUser']['email'] ==
+                            graphQLAuth.getUserMap()['email'])
+                ? Container()
+                : widget.showMessage
+                    ? Container(
+                        margin: EdgeInsets.fromLTRB(25, 10, 25, 20),
                         height: 1,
                         color: Colors.grey[300],
-                      ),
-                      Text(Strings.friendWidgetRecordMessage.i18n,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16)),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      _isWeb
-                          ? RecorderWidgetWeb(
-                              key: Key('friendWidgetRecorderWeb'),
-                              showStacked: true,
-                              showIcon: true,
-                              isCurrentUserAuthor: true,
-                              setAudioWeb: setStoryAudioWeb,
-                              timerDuration: 90,
-                              showPlayerWidget: false,
-                            )
-                          : RecorderWidget(
-                              key: Key('friendWidgetRecorder'),
-                              showStacked: true,
-                              showIcon: true,
-                              isCurrentUserAuthor: true,
-                              setAudioFile: setCommentAudioFile,
-                              timerDuration: 90,
-                              showPlayerWidget: false,
-                            ),
-                      _uploadInProgress
-                          ? CircularProgressIndicator()
-                          : Container(),
-                      Divider(
-                        indent: 50,
-                        endIndent: 50,
-                        height: 20,
-                        thickness: 5,
                       )
-                    ])
-              : Container(),
-        ],
+                    : Container(),
+            widget.user['id'] == graphQLAuth.getUserMap()['id'] ||
+                    (widget.story != null &&
+                        widget.story.containsKey('originalUser') &&
+                        widget.story['originalUser'] != null &&
+                        widget.story['originalUser'].containsKey('email') &&
+                        widget.story['originalUser']['email'] ==
+                            graphQLAuth.getUserMap()['email'])
+                ? Container()
+                : widget.showMessage
+                    ? Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(
+                            Icons.message,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 10),
+                          InkWell(
+                              child: Text(Strings.friendWidgetMessage.i18n),
+                              onTap: () {
+                                setState(() {
+                                  _showMakeMessage = !_showMakeMessage;
+                                });
+                              })
+                        ],
+                      )
+                    : Container(),
+            widget.friendButton == null
+                ? Container()
+                : SizedBox(
+                    height: 10.toDouble(),
+                  ),
+            widget.friendButton == null
+                ? Container()
+                : widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                    ? Container()
+                    : widget.friendButton,
+            SizedBox(
+              height: 7.toDouble(),
+            ),
+            widget.user['isBook'] &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? graphQLAuth.isProxy
+                    ? Container()
+                    : getProxyButton()
+                : Container(),
+            widget.user['isBook'] &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? SizedBox(
+                    height: 7.toDouble(),
+                  )
+                : Container(),
+            widget.user['isBook'] &&
+                    _showDeleteButton &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? graphQLAuth.isProxy
+                    ? Container()
+                    : getDeleteButton()
+                : Container(),
+            widget.user['isBook'] &&
+                    _showDeleteButton &&
+                    widget.user['bookAuthorEmail'] ==
+                        graphQLAuth.getUserMap()['email']
+                ? SizedBox(
+                    height: 7.toDouble(),
+                  )
+                : Container(),
+            _showMakeMessage
+                ? Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                        Container(
+                          margin: EdgeInsets.symmetric(
+                              horizontal: 25, vertical: 15),
+                          height: 1,
+                          color: Colors.grey[300],
+                        ),
+                        Text(Strings.friendWidgetRecordMessage.i18n,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 16)),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        _isWeb
+                            ? RecorderWidgetWeb(
+                                key: Key('friendWidgetRecorderWeb'),
+                                showStacked: true,
+                                showIcon: true,
+                                isCurrentUserAuthor: true,
+                                setAudioWeb: setStoryAudioWeb,
+                                timerDuration: 90,
+                                showPlayerWidget: false,
+                              )
+                            : RecorderWidget(
+                                key: Key('friendWidgetRecorder'),
+                                showStacked: true,
+                                showIcon: true,
+                                isCurrentUserAuthor: true,
+                                setAudioFile: setCommentAudioFile,
+                                timerDuration: 90,
+                                showPlayerWidget: false,
+                              ),
+                        _uploadInProgress
+                            ? CircularProgressIndicator()
+                            : Container(),
+                        Divider(
+                          indent: 50,
+                          endIndent: 50,
+                          height: 20,
+                          thickness: 5,
+                        )
+                      ])
+                : Container(),
+          ],
+        ),
       ),
     );
   }
 
-  Future<void> _confirmBan(BuildContext context, bool banned) async {
+  Future<void> _confirmBan(
+    BuildContext context,
+    bool banned,
+    String userNameBanned,
+    String userIdBanned,
+  ) async {
     if (!banned) {
       final bool ban = await PlatformAlertDialog(
         key: Key('banConfirmation'),
-        title: Strings.banUser.i18n + " '${originalUser["name"]}'",
+        title: Strings.banUser.i18n + " '$userNameBanned'",
         content: Strings.areYouSureYouWantToBan.i18n,
         cancelActionText: Strings.cancel.i18n,
         defaultActionText: Strings.yes.i18n,
@@ -642,17 +665,20 @@ class _FriendWidgetState extends State<FriendWidget> {
         await addUserBanned(
           graphQLClient,
           graphQLAuth.getUserMap()['id'],
-          originalUser['id'],
+          userIdBanned,
         );
         setState(() {});
         if (widget.onBanned != null) {
           widget.onBanned();
         }
+        if (widget.story == null) {
+          callBack();
+        }
       }
     } else {
       final bool banRemove = await PlatformAlertDialog(
         key: Key('banConfirmation'),
-        title: Strings.unbanUser + " '${originalUser["name"]}'",
+        title: Strings.unbanUser + " '$userNameBanned'",
         content: Strings.removeTheBan,
         cancelActionText: Strings.cancel.i18n,
         defaultActionText: Strings.yes.i18n,
@@ -661,26 +687,61 @@ class _FriendWidgetState extends State<FriendWidget> {
         await removeUserBanned(
           graphQLClient,
           graphQLAuth.getUserMap()['id'],
-          originalUser['id'],
+          userIdBanned,
         );
-        setState(() {});
+        if (widget.story == null) {
+          callBack();
+        } else {
+          setState(() {});
+        }
       }
     }
   }
 
-  Widget getIsBookColumn(double _fontSize) {
-    if (graphQLAuth.getUser().email == originalUser['email']) {
-      return Container();
-    }
-    if (originalUser['name'] == null) {
-      return Container();
-    }
+  Widget getStoryBookColumn(double _fontSize) {
     bool banned = false;
-    if (originalUser.containsKey('banned') &&
-        originalUser['banned'].containsKey('from') &&
-        originalUser['banned']['from'].length == 1) {
-      banned = true;
+    bool showBannedBox = false;
+    String userNameBanned = 'None';
+    String userIdBanned = 'None';
+
+    if (widget.story != null) {
+      //printJson('friendWidget.getStoryBookColumn', widget.story);
+
+      //is current person the originalUser
+      if (widget.story.containsKey('originalUser') &&
+          widget.story['originalUser'] != null &&
+          widget.story['originalUser'].containsKey('email') &&
+          widget.story['originalUser']['email'] ==
+              graphQLAuth.getUserMap()['email']) {
+        return Container();
+      }
+
+      //already friends w/ the originalUser, then don't ban
+      if (widget.story.containsKey('originalUser') &&
+          widget.story['originalUser'] != null &&
+          widget.story['originalUser'].containsKey('friends') &&
+          widget.story['originalUser']['friends'].containsKey('to') &&
+          widget.story['originalUser']['friends'].length == 1) {
+        return Container();
+      }
+
+      userNameBanned = widget.story['originalUser']['name'];
+      userIdBanned = widget.story['originalUser']['id'];
+      showBannedBox = true;
+      banned = false;
     }
+
+    return getOriginalUserDetail(
+        _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
+  }
+
+  Widget getOriginalUserDetail(
+    double _fontSize,
+    bool showBannedBox,
+    bool banned,
+    String userNameBanned,
+    String userIdBanned,
+  ) {
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Column(
@@ -693,32 +754,82 @@ class _FriendWidgetState extends State<FriendWidget> {
                 fontSize: _fontSize,
               )),
           Text(
-            originalUser['name'],
-            key: Key('originalUser-${originalUser["name"]}'),
+            userNameBanned,
+            key: Key('originalUser-$userNameBanned'),
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: _fontSize,
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Ban?'),
-              SizedBox(
-                height: 24.0,
-                width: 24.0,
-                child: Checkbox(
-                  key: Key('originalUserBan-${originalUser["name"]}'),
-                  value: banned,
-                  onChanged: (bool bannedValue) {
-                    _confirmBan(context, !bannedValue);
-                  },
-                ),
-              ),
-            ],
-          ),
+          showBannedBox
+              ? getBanRow(banned, userNameBanned, userIdBanned)
+              : Container()
         ],
       ),
     );
+  }
+
+  Widget getBanRow(bool banned, String userNameBanned, String userIdBanned) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('Ban?'),
+        SizedBox(
+          height: 24.0,
+          width: 24.0,
+          child: Checkbox(
+            key: Key('originalUserBan-$userNameBanned'),
+            value: banned,
+            onChanged: (bool bannedValue) {
+              _confirmBan(context, !bannedValue, userNameBanned, userIdBanned);
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget getUserBookColumn(double _fontSize) {
+    //When reading messages there are neither story or user
+    if (widget.user == null ||
+        !widget.user['isBook'] ||
+        !widget.user.containsKey('banned')) {
+      return Container();
+    }
+    //Is current author the original
+    if (widget.user['bookAuthorEmail'] == graphQLAuth.getUserMap()['email']) {
+      return Container();
+    }
+    /*printJson(
+      'friendWidget.getUserBookColumn widget.user',
+      widget.user,
+    );*/
+    bool showBannedBox = false;
+    bool banned = false;
+    String userNameBanned = 'None';
+    String userIdBanned = 'None';
+
+    printJson(
+      'friendWidget.getUserBookColumn bookAuthorUser',
+      bookAuthorUser,
+    );
+    if (widget.user['banned']['from'].length == 1) {
+      userNameBanned = widget.user['name'];
+      userIdBanned = widget.user['id'];
+      banned = true;
+      showBannedBox = true;
+    } else {
+      //If this were a Book, then the build would
+      //have got the bookAuthorUser
+      userNameBanned = bookAuthorUser['name'];
+      userIdBanned = bookAuthorUser['id'];
+      if (bookAuthorUser['banned']['from'].length == 1) {
+        banned = true;
+      }
+      showBannedBox = true;
+    }
+
+    return getOriginalUserDetail(
+        _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
   }
 }
