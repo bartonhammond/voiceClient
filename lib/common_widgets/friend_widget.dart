@@ -808,11 +808,12 @@ class _FriendWidgetState extends State<FriendWidget> {
     bool banned = false;
     String userNameBanned = 'None';
     String userIdBanned = 'None';
-
+    /*
     printJson(
       'friendWidget.getUserBookColumn bookAuthorUser',
       bookAuthorUser,
-    );
+    );*/
+
     if (widget.user['banned']['from'].length == 1) {
       userNameBanned = widget.user['name'];
       userIdBanned = widget.user['id'];
