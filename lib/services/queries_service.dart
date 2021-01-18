@@ -60,23 +60,3 @@ Future<QueryResult> getUserMessages(
   }
   return queryResult;
 }
-
-Future<Map> getUser(
-  GraphQLClient graphQLClient,
-  String bannedByEmail,
-  String email,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserQL),
-    variables: <String, dynamic>{
-      'email': email,
-      'bannedByEmail': bannedByEmail,
-    },
-  );
-
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['User'][0];
-}

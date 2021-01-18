@@ -13,11 +13,11 @@ const String _user_ = r'''
     home
     image
     isBook
-    bookAuthorEmail
-    created{
-      formatted
-    }
-    banned {
+    bookAuthor {
+      id
+      email
+      name
+      banned {
         from(filter: { User: { email_in: [$currentUserEmail] } }) {
           id
           User {
@@ -36,6 +36,29 @@ const String _user_ = r'''
           }
         }
       }
+    }
+    created{
+      formatted
+    }
+    banned {
+      from(filter: { User: { email_in: [$currentUserEmail] } }) {
+        id
+        User {
+          id
+          name
+          email
+        }
+      }
+    }
+    friends {
+      to(filter: { User: { email_in: [$currentUserEmail] } }) {
+        id
+        isFamily
+        User {
+          email
+        }
+      }
+    }
   }
 ''';
 
@@ -52,63 +75,12 @@ const _story_ = r'''
     updated {
       formatted
     }
-    user {
-      email
-      name
-      home
-      image
-      isBook
-      bookAuthorEmail
-      id
-      friends {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
-          isFamily
-          User {
-            email
-          }
-        }
-        to(filter: { User: { email_in: [$currentUserEmail] } }) {
-          isFamily
-          User {
-            email
-          }
-        }
-      }      
-    }
-    originalUser {
-      email
-      name
-      home
-      image
-      id    
-      banned {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
-          id
-          User {
-            id
-            name
-            email
-          }
-        }
-        
-      }
-      friends {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
-          id
-          isFamily
-          User {
-            email
-          }
-        }
-        to(filter: { User: { email_in: [$currentUserEmail] } }) {
-          id
-          isFamily
-          User {
-            email
-          }
-        }
-      }
-    }
+    user ''' +
+    _user_ +
+    '''
+    originalUser ''' +
+    _user_ +
+    r'''
     comments {
       id
       audio
@@ -166,7 +138,6 @@ query getUserByEmail($email: String!) {
     home
     image
     isBook
-    bookAuthorEmail
   }
 }
 ''';
@@ -207,7 +178,6 @@ storyReactions(
     email
     name
     home
-    bookAuthorEmail
     image
     isBook
     friend
@@ -216,7 +186,7 @@ storyReactions(
 ''';
 
 const String createUserQL = r'''
-mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, $isBook: Boolean!, $bookAuthorEmail: String!) {
+mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, $isBook: Boolean!) {
   CreateUser(
     id: $id
     name: $name
@@ -224,7 +194,6 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     home: $home
     image: $image
     isBook: $isBook
-    bookAuthorEmail: $bookAuthorEmail
     created: { 
       formatted: $created 
     }
@@ -236,7 +205,6 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     home
     image
     isBook
-    bookAuthorEmail
     created {
       formatted
     }
@@ -395,7 +363,6 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   home
   image
   isBook
-  bookAuthorEmail
   activities(
     email: $email
     first: $first
@@ -417,7 +384,6 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
         home
         image
         isBook
-        bookAuthorEmail
       }
     }
   }
@@ -771,7 +737,7 @@ userFriendsStoriesFriends(
   ''';
 
 const String updateUserQL = r'''
-mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, $isBook: Boolean!, $bookAuthorEmail: String!){
+mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, $isBook: Boolean!,){
 UpdateUser(
   id: $id
   name: $name
@@ -779,7 +745,6 @@ UpdateUser(
   updated: {formatted: $updated}
   image: $image
   isBook: $isBook
-  bookAuthorEmail: $bookAuthorEmail
 ) {
     id
     name
@@ -790,7 +755,6 @@ UpdateUser(
     home
     image
     isBook
-    bookAuthorEmail
     updated {
       formatted
     }
@@ -1172,31 +1136,6 @@ deleteBanned(
   )
 }
 
-''';
-
-const String getUserQL = r'''
-query getUser($email: String!, $bannedByEmail: String!) {
-  User(email: $email) {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    isBook
-    bookAuthorEmail
-    banned {
-      from(filter: { User: { email_in: [$bannedByEmail] } }) {
-        id
-        User {
-          id
-          name
-          email
-        }
-      }
-    }
-  }
-}
 ''';
 
 const String addUserBookAuthorQL = r'''

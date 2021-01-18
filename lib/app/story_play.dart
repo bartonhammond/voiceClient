@@ -145,6 +145,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   void _showToast() {
     final Widget toast = Container(
+      key: Key('toastContainer'),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
@@ -158,7 +159,7 @@ class _StoryPlayState extends State<StoryPlay>
             width: 12.0,
           ),
           Text(Strings.saved.i18n,
-              key: Key('profileToast'),
+              key: Key('storyPlayToast'),
               style: TextStyle(
                   backgroundColor: Colors.black,
                   color: Colors.white,

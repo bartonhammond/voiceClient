@@ -2,6 +2,7 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -331,7 +332,7 @@ Future<void> addUserMessages(
   if (toUser['isBook'] == true) {
     result = await getUserMessages(
       graphQLClient,
-      toUser['bookAuthorEmail'],
+      toUser['bookAuthor']['email'],
       DateTime.now().toIso8601String(),
     );
 
@@ -348,7 +349,7 @@ Future<void> addUserMessages(
     if (!foundManageTypeForUser) {
       final Map user = await getUserByEmail(
         graphQLClient,
-        toUser['bookAuthorEmail'],
+        toUser['bookAuthor']['email'],
         fromUser['email'],
       );
       final _uuid = Uuid();
@@ -382,7 +383,7 @@ Future<QueryResult> createOrUpdateUserInfo(
     String name,
     String home,
     bool isBook,
-    String bookAuthorEmail}) async {
+    String bookAuthorId}) async {
   final DateTime now = DateTime.now();
   final DateFormat formatter = DateFormat('yyyy-MM-dd');
   final String formattedDate = formatter.format(now);
@@ -397,7 +398,6 @@ Future<QueryResult> createOrUpdateUserInfo(
               'image': jpegPathUrl,
               'created': formattedDate,
               'isBook': isBook,
-              'bookAuthorEmail': bookAuthorEmail,
             })
       : MutationOptions(
           documentNode: gql(updateUserQL),
@@ -408,10 +408,24 @@ Future<QueryResult> createOrUpdateUserInfo(
               'image': jpegPathUrl,
               'updated': formattedDate,
               'isBook': isBook,
-              'bookAuthorEmail': bookAuthorEmail,
             });
 
-  return await graphQLClient.mutate(_mutationOptions);
+  final QueryResult result = await graphQLClient.mutate(_mutationOptions);
+
+  print('''mutationService.createOrUpdateUserInfo 
+      shouldCreateUser: $shouldCreateUser 
+      isBook: $isBook 
+      id: $id 
+      bookAuthorId: $bookAuthorId''');
+
+  if (shouldCreateUser && isBook) {
+    await addUserBookAuthor(
+      graphQLClient,
+      id,
+      bookAuthorId,
+    );
+  }
+  return result;
 }
 
 Future<void> createComment(
@@ -998,5 +1012,28 @@ Future<void> removeUserBanned(
     throw queryResult.exception;
   }
 
+  return;
+}
+
+Future<void> addUserBookAuthor(
+  GraphQLClient graphQLClient,
+  String fromUserId,
+  String toUserId,
+) async {
+  print('addUserBookAuthor fromUserId $fromUserId toUserId $toUserId');
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addUserBookAuthorQL),
+    variables: <String, dynamic>{
+      'from': fromUserId,
+      'to': toUserId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    print('mutationService.addUserBookAuthor exception ${result.hasException}');
+    throw result.exception;
+  }
+  printJson('addUserBookAuthor', result.data['AddUserBookAuthor']);
   return;
 }

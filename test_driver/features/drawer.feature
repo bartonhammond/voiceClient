@@ -12,7 +12,7 @@ Feature: Drawer
         And I fill the "homeFormField" field with "Home City, State"
         And I pause for 1 seconds
         And I tap the "profilePageUploadButton" button
-        Then I expect the widget 'profileToast' to be present within 2 seconds
+        Then I expect the text "Save successful" to be present within the "toastContainer"
         #Create a Book
         Given I tap the "mainFloatingActionButton" widget
         Given I tap the "bookFloatingActionButton" widget
@@ -21,7 +21,7 @@ Feature: Drawer
         And I fill the "homeFormField" field with "Book Home City, State"
         And I pause for 1 seconds
         And I tap the "profilePageUploadButton" button
-        Then I expect the widget 'profileToast' to be present within 2 seconds
+        Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I tap the back button
         #Find the new Book User
         And I tap the text that contains the text "Users"
@@ -44,8 +44,8 @@ Feature: Drawer
         And I tap the "recorderWidgetRecordButton" button
         And I pause for 3 seconds
         And I tap the "recorderWidgetStopButton" button
-        Then I expect the widget "profileToast" to be present within 2 seconds
-        Then I expect the widget "deleteStoryButton" to be present within 2 seconds
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        Then I expect the widget "deleteStoryButton" to be present within 3 seconds
         # Add attention to the Book
         And I tap the "storyPlayAttentionButton" button
         And I fill the "tagFriendsPageSearch" field with "Book"
