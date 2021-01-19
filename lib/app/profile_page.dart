@@ -6,8 +6,6 @@ import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:MyFamilyVoice/services/check_proxy.dart';
-import 'package:MyFamilyVoice/services/queries_service.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

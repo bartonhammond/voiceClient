@@ -76,19 +76,21 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         documentNode: gql(getStoryByIdQL),
         variables: <String, dynamic>{
           'id': widget.story['id'],
-          'email': graphQLAuth.getUserMap()['email']
+          'currentUserEmail': graphQLAuth.getUserMap()['email']
         },
       );
 
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
 
       final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-
+      if (queryResult.hasException) {
+        throw queryResult.exception;
+      }
       setState(() {
-        widget.story = queryResult.data['Story'][0];
+        widget.story = queryResult.data['getStoryById'];
       });
     } catch (e) {
-      //ignore
+      print('sgts.callback faled $e');
     }
   }
 
@@ -394,6 +396,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                       Builder(
                         builder: (BuildContext c) {
                           return FlutterReactionButtonCheck(
+                            isChecked: false,
                             key: Key('reaction-${widget.story['id']}'),
                             boxAlignment: getAlignment(),
                             onReactionChanged: (reaction, isChecked) async {
@@ -411,7 +414,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                                 widget.story['id'],
                               );
 
-                              if (isChecked) {
+                              if (isChecked && reaction.id != 0) {
                                 //reaction
                                 await createReaction(
                                   graphQLClient,

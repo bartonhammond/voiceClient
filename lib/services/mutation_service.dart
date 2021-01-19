@@ -1020,7 +1020,6 @@ Future<void> addUserBookAuthor(
   String fromUserId,
   String toUserId,
 ) async {
-  print('addUserBookAuthor fromUserId $fromUserId toUserId $toUserId');
   final MutationOptions options = MutationOptions(
     documentNode: gql(addUserBookAuthorQL),
     variables: <String, dynamic>{
@@ -1031,9 +1030,7 @@ Future<void> addUserBookAuthor(
 
   final QueryResult result = await graphQLClient.mutate(options);
   if (result.hasException) {
-    print('mutationService.addUserBookAuthor exception ${result.hasException}');
     throw result.exception;
   }
-  printJson('addUserBookAuthor', result.data['AddUserBookAuthor']);
   return;
 }

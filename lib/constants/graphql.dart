@@ -75,9 +75,13 @@ const _story_ = r'''
     updated {
       formatted
     }
+    reactions(filter: { from: { email: $currentUserEmail	} } ) {
+      id
+      type
+    }
     user ''' +
     _user_ +
-    '''
+    r'''
     originalUser ''' +
     _user_ +
     r'''
@@ -93,10 +97,6 @@ const _story_ = r'''
         formatted
       }
       status
-    }
-    reactions(filter: { from: { email: $currentUserEmail	} } ) {
-      id
-      type
     }
     totalReactions
     totalLikes
@@ -919,7 +919,7 @@ mutation AddReactionFrom($userId: ID!, $reactionId: ID!) {
       email
     }
     to {
-        type
+      type
     }
     
   }

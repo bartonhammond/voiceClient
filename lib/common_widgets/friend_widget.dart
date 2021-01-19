@@ -142,7 +142,6 @@ class _FriendWidgetState extends State<FriendWidget> {
         widget.user['email'],
         graphQLAuth.getUserMap()['email'],
       );
-      //printJson('friendWidget.callBack', user);
       setState(() {
         widget.user = user;
       });
@@ -245,7 +244,7 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   @override
   Widget build(BuildContext context) {
-    printJson('friendWidget.build ', widget.user);
+    printJson('friendWidget.build', widget.user);
     _isWeb = AppConfig.of(context).isWeb;
     graphQLClient = GraphQLProvider.of(context).value;
     graphQLClientFileServer =
@@ -756,7 +755,6 @@ class _FriendWidgetState extends State<FriendWidget> {
         !widget.user.containsKey('banned')) {
       return Container();
     }
-    printJson('friendWidget.getUserBookColumn', widget.user);
     //Is current author the original
     if (widget.user['bookAuthor']['email'] ==
         graphQLAuth.getUserMap()['email']) {
