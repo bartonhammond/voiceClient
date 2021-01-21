@@ -3,13 +3,11 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 
 Future<Map> getUserByEmail(
   GraphQLClient graphQLClient,
-  String userEmail,
   String currentUserEmail,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
     documentNode: gql(getUserByEmailQL),
     variables: <String, dynamic>{
-      'email': userEmail,
       'currentUserEmail': currentUserEmail,
     },
   );
@@ -39,15 +37,15 @@ Future<Map> getUserById(
   return queryResult.data['User'][0];
 }
 
-Future<QueryResult> getUserMessages(
+Future<QueryResult> getUserMessagesReceived(
   GraphQLClient graphQLClient,
   String userEmail,
   String cursor,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserMessagesQL),
+    documentNode: gql(getUserMessagesReceivedQL),
     variables: <String, dynamic>{
-      'email': userEmail,
+      'currentUserEmail': userEmail,
       'status': 'new',
       'limit': '100',
       'cursor': cursor,

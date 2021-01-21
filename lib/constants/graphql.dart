@@ -12,7 +12,62 @@ const String _user_ = r'''
     email
     home
     image
-    isBook
+    isBook   
+    created{
+      formatted
+    }
+    messagesReceived(filter: {status: "new" }) {
+     	id
+      type
+      created {
+        formatted
+      }
+      fromEmail
+      toEmail
+      status
+      key1
+      key2
+      from {
+        id
+        email
+      }
+    }
+    messagesSent(filter: {status: "new" }) {
+      id
+      type
+      created {
+        formatted
+      }
+      fromEmail
+      toEmail
+      status
+      key1
+      key2
+      from {
+        id
+        email
+      }
+    }
+    banned {
+      from(filter: { User: { email_in: [$currentUserEmail] } }) {
+        id
+        User {
+          id
+          name
+          email
+        }
+      }
+    }
+    friends {
+      to(filter: { User: { email_in: [$currentUserEmail] } }) {
+        id
+        isFamily
+        User {
+          email
+        }
+      }
+    }
+    
     bookAuthor {
       id
       email
@@ -34,28 +89,6 @@ const String _user_ = r'''
           User {
             email
           }
-        }
-      }
-    }
-    created{
-      formatted
-    }
-    banned {
-      from(filter: { User: { email_in: [$currentUserEmail] } }) {
-        id
-        User {
-          id
-          name
-          email
-        }
-      }
-    }
-    friends {
-      to(filter: { User: { email_in: [$currentUserEmail] } }) {
-        id
-        isFamily
-        User {
-          email
         }
       }
     }
@@ -121,8 +154,8 @@ const _story_ = r'''
 ''';
 
 const String getUserByEmailQL = r'''
-query getUserByEmail($email: String!, $currentUserEmail: String!) {
-  getUserByEmail(email: $email, currentUserEmail: $currentUserEmail)''' +
+query getUserByEmail($currentUserEmail: String!) {
+  getUserByEmail(currentUserEmail: $currentUserEmail)''' +
     _user_ +
     '''
 }
@@ -538,157 +571,141 @@ query userSearchMe($email: String!) {
 }
 ''';
 
-const String addUserMessagesQL = r'''
-mutation addUserMessages($from: ID!, $to: ID!, $id: ID!, $created: String!, $status: String!, $text: String!, $type: String!, $key1: String, $key2: String){
-  AddUserMessages (
-    from: {
-      id: $from
-    }
-    to: {
-      id: $to
-    }
-    data: {
-      id: $id
-      created: {
-        formatted: $created
-      }
-      status: $status
-      text: $text
-      type: $type  
-      key1: $key1 
-      key2: $key2
-    }
-  ) 
-  {
-    __typename
+const String createMessageQL = r'''
+mutation createMessage($id: ID!, $created: String!, $status: String!, $type: String!, $key1: String, $key2: String, $toEmail: String!, $fromEmail: String!){
+CreateMessage(
+  id: $id
+  created: { 
+      formatted: $created 
+  }
+  status: $status
+  type: $type
+  key1: $key1
+  key2: $key2
+  toEmail: $toEmail
+  fromEmail: $fromEmail
+) {
+  __typename
     id
+}
+   
+}
+''';
+
+const String addUserMessagesSentQL = r'''
+mutation addUseMessagesSent($from: _UserInput!, $to: _MessageInput! ){
+AddUserMessagesSent(
+  from: $from
+  to: $to
+) {
     from {
       id
-      name
-      email
     }
-    to {
+    to  {
       id
-      name
-      email
+    }
+  }
+}
+''';
+
+const String addUserMessagesReceivedQL = r'''
+mutation addUserMessagesReceived($to: _UserInput!, $from: _MessageInput! ) {
+AddUserMessagesReceived(
+  from: $from
+  to: $to
+) {
+    from {
+      id
+    }
+    to  {
+      id
     }
   }
 }
 ''';
 
 const String updateUserMessageStatusByIdQL = r'''
-mutation updateUserMessageStatusById($email: String!, $id: String! $status: String!, $resolved: String!){
+mutation updateUserMessageStatusById($currentUserEmail: String!, $id: String! $status: String!, $resolved: String!){
   updateUserMessageStatusById(
-    email: $email
+    currentUserEmail: $currentUserEmail
     id: $id
     status: $status
     resolved: $resolved
   ){
     __typename
-    messageId
-    messageStatus
+    id
+    status
   }
 }
 ''';
 const String _message_ = r'''
  {
     __typename
-    messageId
-    messageType
-    messageCreated {
+    id
+    type
+    status
+    key1
+    key2
+    created {
       formatted
     }
-    messageText
-    messageKey1
-    messageStatus
-    userId
-    userEmail
-    userName
-    userHome
-    userImage
-    userIsBook
-    userBookAuthorEmail
+    fromEmail
+    toEmail
+    from ''' +
+    _user_ +
+    r'''
+    to ''' +
+    _user_ +
+    r'''    
   }
 ''';
 
-const String getUserMessagesQL = r'''
-query getUserMessages($email: String!, $status: String!, $cursor: String, $limit: String) {
-  userMessages(email: $email, status: $status, cursor: $cursor, limit: $limit)''' +
-    _message_ +
-    '''  
+const String getUserMessagesReceivedQL = r'''
+query getUserMessagesReceived($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!) {
+  userMessagesReceived(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit)
+    {
+    __typename
+    id
+    type
+    status
+    key1
+    key2
+    created {
+      formatted
+    }
+    from ''' +
+    _user_ +
+    r'''    
+  }
+}
+''';
+
+const String getUserMessagesSentQL = r'''
+query getUserMessagesSent($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!) {
+  userMessagesSent(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit)
+    {
+    __typename
+    id
+    type
+    status
+    key1
+    key2
+    created {
+      formatted
+    }
+    to ''' +
+    _user_ +
+    r'''    
+  }
 }
 ''';
 
 const String getUserMessagesByTypeQL = r'''
-query getUserMessagesByType($email: String!, $status: String!, $cursor: String, $limit: String, $type: String) {
-  userMessagesByType(email: $email, status: $status, cursor: $cursor, limit: $limit, type: $type)''' +
+query getUserMessagesByType($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!, $type: String!) {
+  userMessagesByType(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit, type: $type)''' +
     _message_ +
     '''  
 }
-''';
-
-const String getAllNewFriendRequestsToMe = r'''
-query getAllNewFriendRequests($email: String) {
-User(email: $email) {
-    __typename
-    id
-    messages {
-      from (filter: {
-        type: "friend-request"
-        status: "new"
-      })
-      
-      {
-        id
-        type
-        status
-        resolved{
-          formatted
-        }
-        created {
-          formatted
-        }
-        User {
-          id
-          name
-          email
-        }
-      } 
-      }
-    }
-  }
-''';
-
-const String getAllMyFriendRequests = r'''
-query getAllFriendRequests($email: String) {
-User(email: $email) {
-    __typename
-    id
-    messages {
-      to (filter: {
-        type: "friend-request"          
-      })
-      
-      {
-        __typename
-        id
-        type
-        status
-        resolved{
-          formatted
-        }
-        created {
-          formatted
-        }
-        User {
-          id
-          name
-          email
-        }
-      } 
-      }
-    }
-  }
 ''';
 
 const String newMessagesCount = r'''
@@ -771,7 +788,7 @@ mutation createComment($commentId: ID!, $storyId: ID!, $audio: String!, $status:
     status: $status
     created: { 
       formatted: $created 
-      }
+    }
   ) {
     __typename
     id

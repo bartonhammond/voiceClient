@@ -140,7 +140,6 @@ class _FriendWidgetState extends State<FriendWidget> {
       final user = await getUserByEmail(
         graphQLClient,
         widget.user['email'],
-        graphQLAuth.getUserMap()['email'],
       );
       setState(() {
         widget.user = user;
@@ -244,7 +243,6 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   @override
   Widget build(BuildContext context) {
-    printJson('friendWidget.build', widget.user);
     _isWeb = AppConfig.of(context).isWeb;
     graphQLClient = GraphQLProvider.of(context).value;
     graphQLClientFileServer =
@@ -660,8 +658,9 @@ class _FriendWidgetState extends State<FriendWidget> {
   }
 
   Widget getStoryBookColumn(double _fontSize) {
+    //printJson('getStoryBookColumn', widget.story);
     bool banned = false;
-    bool showBannedBox = false;
+    bool showBannedBox = true;
     String userNameBanned = 'None';
     String userIdBanned = 'None';
 
@@ -680,18 +679,20 @@ class _FriendWidgetState extends State<FriendWidget> {
           widget.story['originalUser'] != null &&
           widget.story['originalUser'].containsKey('friends') &&
           widget.story['originalUser']['friends'].containsKey('to') &&
-          widget.story['originalUser']['friends'].length == 1) {
-        return Container();
+          widget.story['originalUser']['friends']['to'].length == 1) {
+        print('original friends showBannedBox is false');
+        showBannedBox = false;
       }
 
       userNameBanned = widget.story['originalUser']['name'];
       userIdBanned = widget.story['originalUser']['id'];
-      showBannedBox = true;
       banned = false;
-    }
 
-    return getOriginalUserDetail(
-        _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
+      return getOriginalUserDetail(
+          _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
+    }
+    print('story is null?');
+    return Container();
   }
 
   Widget getOriginalUserDetail(
@@ -749,15 +750,15 @@ class _FriendWidgetState extends State<FriendWidget> {
   }
 
   Widget getUserBookColumn(double _fontSize) {
+    printJson('getUserBookColumn', widget.user);
     //When reading messages there are neither story or user
-    if (widget.user == null ||
-        !widget.user['isBook'] ||
-        !widget.user.containsKey('banned')) {
+    if (widget.user == null) {
       return Container();
     }
     //Is current author the original
-    if (widget.user['bookAuthor']['email'] ==
-        graphQLAuth.getUserMap()['email']) {
+    if (widget.user['isBook'] &&
+        widget.user['bookAuthor']['email'] ==
+            graphQLAuth.getUserMap()['email']) {
       return Container();
     }
 
@@ -766,18 +767,28 @@ class _FriendWidgetState extends State<FriendWidget> {
     String userNameBanned = 'None';
     String userIdBanned = 'None';
 
-    if (widget.user['banned']['from'].length == 1) {
+    //Is the banned user being display?
+    if (widget.user['banned']['from'] != null &&
+        widget.user['banned']['from'].length == 1) {
       userNameBanned = widget.user['name'];
       userIdBanned = widget.user['id'];
       banned = true;
       showBannedBox = true;
-    } else {
+    } else if (widget.user['isBook']) {
+      //Looking at book, so should ban the author?
       userNameBanned = widget.user['bookAuthor']['name'];
       userIdBanned = widget.user['bookAuthor']['id'];
-      if (widget.user['bookAuthor']['banned']['from'].length == 1) {
-        banned = true;
+      //already friends, don't ban
+      if (widget.user['bookAuthor']['friends']['to'].length == 1) {
+        showBannedBox = false;
+      } else {
+        showBannedBox = true;
+        if (widget.user['bookAuthor']['banned']['from'].length == 1) {
+          banned = true;
+        }
       }
-      showBannedBox = true;
+    } else {
+      return Container();
     }
 
     return getOriginalUserDetail(

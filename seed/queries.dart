@@ -44,14 +44,14 @@ Future<String> getUserIdByEmail(
   final QueryOptions _queryOptions = QueryOptions(
     documentNode: gql(getUserByEmailQL),
     variables: <String, dynamic>{
-      'email': email,
+      'currentUserEmail': email,
     },
   );
   final QueryResult queryResult = await graphQLClient.query(_queryOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['User'][0]['id'];
+  return queryResult.data['getUserByEmail']['id'];
 }
 
 String getCursor(List<dynamic> _list, {String fieldName = 'updated'}) {
@@ -160,32 +160,58 @@ Future<void> addUserMessages(
   String toUserId,
   String messageId,
   String status,
-  String text,
   String type,
   String key1,
   String key2,
 ) async {
   final DateTime now = DateTime.now();
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addUserMessagesQL),
+  //create the message
+  MutationOptions options = MutationOptions(
+    documentNode: gql(createMessageQL),
     variables: <String, dynamic>{
-      'from': fromUserId,
-      'to': toUserId,
       'id': messageId,
       'created': now.toIso8601String(),
       'status': status,
-      'text': text,
       'type': type,
       'key1': key1,
       'key2': key2,
     },
   );
 
-  final QueryResult result = await graphQLClient.mutate(options);
+  QueryResult result = await graphQLClient.mutate(options);
   if (result.hasException) {
     throw result.exception;
   }
+  //create from
+  final fromUser = {'id': fromUserId};
+  final toMessage = {'id': messageId};
 
+  options = MutationOptions(
+    documentNode: gql(addUserMessagesSentQL),
+    variables: <String, dynamic>{
+      'from': fromUser,
+      'to': toMessage,
+    },
+  );
+  result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+  //create to
+  final toUser = {'id': toUserId};
+  final fromMessage = {'id': messageId};
+
+  options = MutationOptions(
+    documentNode: gql(addUserMessagesReceivedQL),
+    variables: <String, dynamic>{
+      'to': toUser,
+      'from': fromMessage,
+    },
+  );
+  result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
   return;
 }
 

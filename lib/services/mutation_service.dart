@@ -281,7 +281,7 @@ Future<void> updateUserMessageStatusById(
   final MutationOptions options = MutationOptions(
     documentNode: gql(updateUserMessageStatusByIdQL),
     variables: <String, dynamic>{
-      'email': email,
+      'currentUserEmail': email,
       'id': messageId,
       'status': status,
       'resolved': DateTime.now().toIso8601String(),
@@ -296,30 +296,28 @@ Future<void> updateUserMessageStatusById(
   return;
 }
 
-Future<void> addUserMessages(
+Future<void> _addUserMessages(
   GraphQLClient graphQLClient,
   Map<String, dynamic> fromUser,
   Map<String, dynamic> toUser,
   String messageId,
   String status,
-  String text,
   String type,
   String key1,
   String key2,
 ) async {
   final DateTime now = DateTime.now();
   MutationOptions options = MutationOptions(
-    documentNode: gql(addUserMessagesQL),
+    documentNode: gql(createMessageQL),
     variables: <String, dynamic>{
-      'from': fromUser['id'],
-      'to': toUser['id'],
       'id': messageId,
       'created': now.toIso8601String(),
       'status': status,
-      'text': text,
       'type': type,
       'key1': key1,
       'key2': key2,
+      'fromEmail': fromUser['email'],
+      'toEmail': toUser['email'],
     },
   );
 
@@ -327,21 +325,75 @@ Future<void> addUserMessages(
   if (result.hasException) {
     throw result.exception;
   }
+
+  //create from
+  final String fromUserId = fromUser['id'];
+  final _fromUser = {'id': fromUserId};
+  final _toMessage = {'id': messageId};
+
+  options = MutationOptions(
+    documentNode: gql(addUserMessagesSentQL),
+    variables: <String, dynamic>{
+      'from': _fromUser,
+      'to': _toMessage,
+    },
+  );
+  result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+  //create to
+  final String toUserId = toUser['id'];
+  final _toUser = {'id': toUserId};
+  final _fromMessage = {'id': messageId};
+
+  options = MutationOptions(
+    documentNode: gql(addUserMessagesReceivedQL),
+    variables: <String, dynamic>{
+      'to': _toUser,
+      'from': _fromMessage,
+    },
+  );
+  result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+  return;
+}
+
+Future<void> addUserMessages(
+  GraphQLClient graphQLClient,
+  Map<String, dynamic> fromUser,
+  Map<String, dynamic> toUser,
+  String messageId,
+  String status,
+  String type,
+  String key1,
+  String key2,
+) async {
+  _addUserMessages(
+    graphQLClient,
+    fromUser,
+    toUser,
+    messageId,
+    status,
+    type,
+    key1,
+    key2,
+  );
   //A message type 'manage' will be
   //from the book
   if (toUser['isBook'] == true) {
-    result = await getUserMessages(
+    final QueryResult result = await getUserMessagesReceived(
       graphQLClient,
       toUser['bookAuthor']['email'],
       DateTime.now().toIso8601String(),
     );
 
-    //look for type manage
+    //look for type an existing manage
     bool foundManageTypeForUser = false;
-    for (var message in result.data['userMessages']) {
-      if (message['messageType'] == 'manage' &&
-          message['messageStatus'] == 'new' &&
-          message['userEmail'] == toUser['email']) {
+    for (var message in result.data['userMessagesReceived']) {
+      if (message['type'] == 'manage' && message['status'] == 'new') {
         foundManageTypeForUser = true;
         break;
       }
@@ -350,26 +402,18 @@ Future<void> addUserMessages(
       final Map user = await getUserByEmail(
         graphQLClient,
         toUser['bookAuthor']['email'],
-        fromUser['email'],
       );
-      final _uuid = Uuid();
-      options = MutationOptions(
-          documentNode: gql(addUserMessagesQL),
-          variables: <String, dynamic>{
-            'from': toUser['id'],
-            'to': user['id'], //bookAuth
-            'id': _uuid.v1(),
-            'created': now.toIso8601String(),
-            'status': 'new',
-            'text': 'Manage',
-            'type': 'manage',
-            'key1': null,
-            'key2': user['email'],
-          });
-      result = await graphQLClient.mutate(options);
-      if (result.hasException) {
-        throw result.exception;
-      }
+      final _messageId = Uuid().v1();
+      _addUserMessages(
+        graphQLClient,
+        fromUser,
+        user,
+        _messageId,
+        'new',
+        'manage',
+        key1,
+        user['email'],
+      );
     }
   }
   return;
@@ -724,7 +768,6 @@ Future<void> doCommentUploads(
     _story['user'],
     _uuid.v1(),
     'new',
-    'Comment',
     'comment',
     _story['id'],
     _story['user']['email'],
@@ -775,7 +818,6 @@ Future<void> doMessageUploads(
     toUser,
     _messageId,
     'new',
-    'Message',
     'message',
     _audioFilePath,
     toUser['email'],
@@ -838,7 +880,6 @@ Future<void> addStoryTag(
     _tag['user'],
     _uuid.v1(),
     'new',
-    'Attention',
     'attention',
     _story['id'],
     _tag['user']['email'],

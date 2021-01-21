@@ -177,7 +177,6 @@ class _StoriesPageState extends State<StoriesPage> {
     return await getUserByEmail(
       GraphQLProvider.of(context).value,
       getEmailFromParams(),
-      graphQLAuth.getUserMap()['email'],
     );
   }
 
@@ -366,7 +365,7 @@ class _StoriesPageState extends State<StoriesPage> {
       case DeviceScreenType.desktop:
       case DeviceScreenType.tablet:
         _staggeredViewSize = 1;
-        _crossAxisCount = 3;
+        _crossAxisCount = 2;
         break;
       case DeviceScreenType.watch:
         _crossAxisCount = 1;

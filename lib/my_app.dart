@@ -75,7 +75,7 @@ class MyApp extends StatelessWidget {
     if (graphQLAuth.getUserMap() == null || graphQLAuth.getUserMap().isEmpty) {
       return;
     }
-    final QueryResult queryResult = await getUserMessages(
+    final QueryResult queryResult = await getUserMessagesReceived(
         graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer),
         graphQLAuth.getUserMap()['email'],
         DateTime.now().toIso8601String());
@@ -88,7 +88,8 @@ class MyApp extends StatelessWidget {
           stackTrace: StackTrace.current.toString());
       throw queryResult.exception;
     }
-    FlutterAppBadger.updateBadgeCount(queryResult.data['userMessages'].length);
+    FlutterAppBadger.updateBadgeCount(
+        queryResult.data['userMessagesReceived'].length);
     BackgroundFetch.finish(taskId);
   }
 
