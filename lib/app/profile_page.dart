@@ -63,7 +63,6 @@ class _ProfilePageState extends State<ProfilePage> {
   String userImage = '';
   bool shouldCreateUser = false;
   bool _isWeb = false;
-  bool _isMock = false;
   Map<String, dynamic> user;
   ByteData _image;
   bool imageUpdated = false;
@@ -718,7 +717,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     _isWeb = AppConfig.of(context).isWeb;
-    _isMock = AppConfig.of(context).authServiceType == AuthServiceType.mock;
 
     graphQLAuth = locator<GraphQLAuth>();
     graphQLClientFileServer =

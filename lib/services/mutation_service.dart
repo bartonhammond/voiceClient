@@ -352,6 +352,7 @@ Future<void> _addUserMessages(
     variables: <String, dynamic>{
       'to': _toUser,
       'from': _fromMessage,
+      'currentUserEmail': fromUser['email']
     },
   );
   result = await graphQLClient.mutate(options);
@@ -371,7 +372,7 @@ Future<void> addUserMessages(
   String key1,
   String key2,
 ) async {
-  _addUserMessages(
+  await _addUserMessages(
     graphQLClient,
     fromUser,
     toUser,
@@ -404,10 +405,10 @@ Future<void> addUserMessages(
         toUser['bookAuthor']['email'],
       );
       final _messageId = Uuid().v1();
-      _addUserMessages(
+      await _addUserMessages(
         graphQLClient,
-        fromUser,
-        user,
+        toUser, //the book
+        user, // the books author
         _messageId,
         'new',
         'manage',

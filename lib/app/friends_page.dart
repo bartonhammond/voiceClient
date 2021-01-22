@@ -68,7 +68,6 @@ class _FriendsPageState extends State<FriendsPage> {
   };
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
-
   @override
   void initState() {
     _searchString = '*';
@@ -361,6 +360,7 @@ class _FriendsPageState extends State<FriendsPage> {
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
                 _refetchQuery = refetch;
+
                 final List<dynamic> friends = List<dynamic>.from(
                     result.data[searchResultsName[_typeUser.index]]);
 
@@ -588,17 +588,5 @@ class _FriendsPageState extends State<FriendsPage> {
           ignore: false);
     }
     return button;
-  }
-
-  Widget _progressIndicator() {
-    return SizedBox(
-      width: 200.0,
-      height: 300.0,
-      child: Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-    );
   }
 }

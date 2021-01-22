@@ -3,10 +3,10 @@ Feature: Drawer
     @first
     Scenario: login as new user
         Given I open the drawer
-        And I fill the "emailTextField" field with "something@myfamilyvoice.com"
+        And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         And I tap the "submitButton" button
         #Now on Profile page
-        Then I expect the "emailFormField" to be "something@myfamilyvoice.com"
+        Then I expect the "emailFormField" to be "testname@myfamilyvoice.com"
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Test Name"
         And I fill the "homeFormField" field with "Home City, State"
@@ -46,7 +46,7 @@ Feature: Drawer
         And I tap the "recorderWidgetStopButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I expect the widget "deleteStoryButton" to be present within 3 seconds
-        # Add attention to the Book
+        # On Story add attention to Book which should send a "attention" notification to the Book and a manage to the bookAuthor
         And I tap the "storyPlayAttentionButton" button
         And I fill the "tagFriendsPageSearch" field with "Book"
         And I tap the "tagFriendsPage-Book Name" widget
@@ -65,7 +65,7 @@ Feature: Drawer
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         And I tap the "backButton" button
-        #Expect something@myfamilyvoice.com to have a "Manage" notification
+        #Expect testname@myfamilyvoice.com to have a "Manage" notification
         And I tap the text that contains the text "Notices"
         Then I expect the "message-title" to be "Manage"
         #Manage the Book
@@ -116,7 +116,7 @@ Feature: Drawer
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
         #Log in as the person who had created the book
         Given I open the drawer
-        And I fill the "emailTextField" field with "something@myfamilyvoice.com"
+        And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         Given I tap the "submitButton" button
         Then I expect the widget "Stories" to be present within 10 seconds
         #Check notices
@@ -188,7 +188,7 @@ Feature: Drawer
     @fourth
     Scenario: Login as test user, manage the book and confirm the comment message
         Given I open the drawer
-        And I fill the "emailTextField" field with "something@myfamilyvoice.com"
+        And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         Given I tap the "submitButton" button
         Then I expect the widget "Stories" to be present within 10 seconds
         #Find the new Book User
@@ -207,9 +207,6 @@ Feature: Drawer
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         #go back
         And I tap the "backButton" button
-        Then I expect the "message-title" to be "Comment"
-        #clear the comment
-        And I tap the "clearCommentButton-0" widget
         Then I expect the "noMessages" to be "No results"
         #Quit proxy while still  on Notices
         Then I tap the "proxyButton" button

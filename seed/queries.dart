@@ -120,9 +120,9 @@ Future<List> getMessagesQuery(
   String cursor,
 ) async {
   final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserMessagesQL),
+    documentNode: gql(getUserMessagesReceivedQL),
     variables: <String, dynamic>{
-      'email': email,
+      'currentUserEmail': email,
       'status': 'new',
       'limit': count.toString(),
       'cursor': cursor

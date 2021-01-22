@@ -609,7 +609,7 @@ AddUserMessagesSent(
 ''';
 
 const String addUserMessagesReceivedQL = r'''
-mutation addUserMessagesReceived($to: _UserInput!, $from: _MessageInput! ) {
+mutation addUserMessagesReceived($to: _UserInput!, $from: _MessageInput!, $currentUserEmail: String!) {
 AddUserMessagesReceived(
   from: $from
   to: $to
@@ -617,9 +617,10 @@ AddUserMessagesReceived(
     from {
       id
     }
-    to  {
-      id
-    }
+    to ''' +
+    _user_ +
+    r'''
+
   }
 }
 ''';

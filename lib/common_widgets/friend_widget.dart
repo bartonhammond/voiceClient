@@ -778,8 +778,10 @@ class _FriendWidgetState extends State<FriendWidget> {
       //Looking at book, so should ban the author?
       userNameBanned = widget.user['bookAuthor']['name'];
       userIdBanned = widget.user['bookAuthor']['id'];
+      //Only show banned box if your are friends w/ the book
       //already friends, don't ban
-      if (widget.user['bookAuthor']['friends']['to'].length == 1) {
+      if (widget.user['friends']['to'].length == 0 ||
+          widget.user['bookAuthor']['friends']['to'].length == 1) {
         showBannedBox = false;
       } else {
         showBannedBox = true;
