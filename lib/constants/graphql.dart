@@ -49,7 +49,7 @@ const String _user_ = r'''
       }
     }
     banned {
-      from(filter: { User: { email_in: [$currentUserEmail] } }) {
+      from {
         id
         User {
           id
@@ -59,7 +59,7 @@ const String _user_ = r'''
       }
     }
     friends {
-      to(filter: { User: { email_in: [$currentUserEmail] } }) {
+      to(filter: { User: { email: $currentUserEmail } }) {
         id
         isFamily
         User {
@@ -73,7 +73,7 @@ const String _user_ = r'''
       email
       name
       banned {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
+        from {
           id
           User {
             id
@@ -92,6 +92,7 @@ const String _user_ = r'''
         }
       }
     }
+    
   }
 ''';
 
@@ -564,8 +565,8 @@ query userSearchNotFriendsBooks($searchString: String!, $currentUserEmail: Strin
 ''';
 
 const String userSearchMeQL = r'''
-query userSearchMe($email: String!) {
-  User(email: $email)''' +
+query userSearchMe($currentUserEmail: String!) {
+  User(email: $currentUserEmail)''' +
     _user_ +
     '''  
 }

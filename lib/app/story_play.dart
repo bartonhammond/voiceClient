@@ -176,7 +176,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setBook(String id) async {
-    print('storyPlay.setBook id: $id');
     if (id == null) {
       //remove the current book
       await changeStoriesUser(
@@ -187,7 +186,6 @@ class _StoryPlayState extends State<StoryPlay>
       );
     } else {
       if (_story['originalUser'] == null) {
-        print('storyPlay.setBook originalUser is null');
         //Merge Story w/ OriginalUser
         addStoryOriginalUser(
           graphQLClient,

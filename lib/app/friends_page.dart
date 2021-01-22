@@ -288,7 +288,7 @@ class _FriendsPageState extends State<FriendsPage> {
       case TypeUser.me:
         gqlString = userSearchMeQL;
         _variables = <String, dynamic>{
-          'email': graphQLAuth.getUser().email,
+          'currentUserEmail': graphQLAuth.getUser().email,
         };
         break;
 
@@ -381,6 +381,9 @@ class _FriendsPageState extends State<FriendsPage> {
                           itemBuilder: (context, index) {
                             return index < friends.length
                                 ? StaggeredGridTileFriend(
+                                    onBanned: () {
+                                      _refetchQuery();
+                                    },
                                     typeUser: _typeUser,
                                     onPush: widget.onPush,
                                     friend: friends[index],

@@ -2,7 +2,6 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -456,12 +455,6 @@ Future<QueryResult> createOrUpdateUserInfo(
             });
 
   final QueryResult result = await graphQLClient.mutate(_mutationOptions);
-
-  print('''mutationService.createOrUpdateUserInfo 
-      shouldCreateUser: $shouldCreateUser 
-      isBook: $isBook 
-      id: $id 
-      bookAuthorId: $bookAuthorId''');
 
   if (shouldCreateUser && isBook) {
     await addUserBookAuthor(
@@ -1020,7 +1013,6 @@ Future<void> addUserBanned(
       'data': data,
     },
   );
-
   final QueryResult queryResult =
       await graphQLClientApolloServer.mutate(_mutationOptions);
 

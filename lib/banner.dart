@@ -21,10 +21,8 @@ BannerAd createBannerAdd(List<String> keywords) {
     testAdUnit = AdMob.iosAdUnitIdBanner;
   }
   return BannerAd(
-      targetingInfo: targetingInfo,
-      adUnitId: BannerAd.testAdUnitId,
-      size: AdSize.banner,
-      listener: (MobileAdEvent event) {
-        print('Banner Event: $event');
-      });
+    targetingInfo: targetingInfo,
+    adUnitId: BannerAd.testAdUnitId,
+    size: AdSize.banner,
+  );
 }
