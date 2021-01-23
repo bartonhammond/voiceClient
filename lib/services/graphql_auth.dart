@@ -105,7 +105,7 @@ class GraphQLAuth {
     //Trying to get rid of cacheing
     //https://github.com/zino-app/graphql-flutter/issues/692
     final policies = Policies(
-      fetch: FetchPolicy.networkOnly,
+      fetch: FetchPolicy.noCache,
     );
     final GraphQLClient graphQLClient = GraphQLClient(
       cache: InMemoryCache(),

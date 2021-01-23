@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -7,9 +6,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
-
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
-
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_message.dart';
@@ -57,12 +54,12 @@ class _MessagesPageState extends State<MessagesPage> {
   };
 
   Map<int, String> searchResultsName = {
-    0: 'userMessages',
+    0: 'userMessagesReceived',
     1: 'userMessagesByType',
     2: 'userMessagesByType',
     3: 'userMessagesByType',
     4: 'userMessagesByType',
-    5: 'userMessagesByType,'
+    5: 'userMessagesByType'
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   StreamSubscription proxyStartedSubscription;
@@ -127,14 +124,14 @@ class _MessagesPageState extends State<MessagesPage> {
       try {
         await addUserFriend(
           graphQLClient,
-          message['User']['id'],
+          message['from']['id'],
           graphQLAuth.getUserMap()['id'],
         );
 
         await addUserFriend(
           graphQLClient,
           graphQLAuth.getUserMap()['id'],
-          message['User']['id'],
+          message['from']['id'],
         );
 
         await updateUserMessageStatusById(
@@ -157,7 +154,7 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   ///
-  ///Update the message to status of 'done' so that query
+  ///Update the message to status of 'cleared' so that query
   ///won't pick it up
   ///
   Future<void> callBack(Map<String, dynamic> message) async {
@@ -184,24 +181,7 @@ class _MessagesPageState extends State<MessagesPage> {
     }
   }
 
-  Widget getDetailWidget(Map<String, dynamic> _message, int index) {
-    final Map<String, dynamic> message = <String, dynamic>{};
-    message['id'] = _message['messageId'];
-    message['type'] = _message['messageType'];
-    message['created'] = _message['messageCreated'];
-    message['text'] = _message['messageText'];
-    message['status'] = _message['messageStatus'];
-
-    message['key1'] = _message['messageKey1'];
-    message['User'] = <String, dynamic>{};
-    message['User']['id'] = _message['userId'];
-    message['User']['email'] = _message['userEmail'];
-    message['User']['name'] = _message['userName'];
-    message['User']['home'] = _message['userHome'];
-    message['User']['image'] = _message['userImage'];
-    message['User']['isBook'] = _message['userIsBook'];
-    message['User']['bookAuthorEmail'] = _message['userBookAuthorEmail'];
-
+  Widget getDetailWidget(Map<String, dynamic> message, int index) {
     switch (message['type']) {
       case 'friend-request':
         return StaggeredGridTileMessage(
@@ -245,7 +225,7 @@ class _MessagesPageState extends State<MessagesPage> {
                 <String, dynamic>{
                   'id': message['key1'],
                   'onFinish': () {
-                    callBack(_message);
+                    callBack(message);
                   },
                 },
               );
@@ -295,14 +275,14 @@ class _MessagesPageState extends State<MessagesPage> {
           message: message,
           approveButton: MessageButton(
             key: Key('viewAttention-$index'),
-            text: 'View Story',
+            text: Strings.messagesPageViewStory,
             fontSize: 16,
             onPressed: () {
               widget.onPush(
                 <String, dynamic>{
                   'id': message['key1'],
                   'onFinish': () {
-                    callBack(_message);
+                    callBack(message);
                   },
                 },
               );
@@ -421,27 +401,39 @@ class _MessagesPageState extends State<MessagesPage> {
         value: _messageType,
         items: [
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessageAll.i18n),
+            child: Text(
+              Strings.messagesPageMessageAll.i18n,
+              key: Key('messagesPageAll'),
+            ),
             value: MessageType.ALL,
           ),
           DropdownMenuItem(
-            child: Text(Strings.storyPlayAttention.i18n),
+            child: Text(
+              Strings.storyPlayAttention.i18n,
+              key: Key('messagesPageAttention'),
+            ),
             value: MessageType.ATTENTION,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessage.i18n),
+            child: Text(
+              Strings.messagesPageMessage.i18n,
+              key: Key('messagesPageMessage'),
+            ),
             value: MessageType.MESSAGE,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessageComments.i18n),
+            child: Text(Strings.messagesPageMessageComments.i18n,
+                key: Key('messagesPageComment')),
             value: MessageType.COMMENT,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessageFriendRequests.i18n),
+            child: Text(Strings.messagesPageMessageFriendRequests.i18n,
+                key: Key('messagesPageFriendRequest')),
             value: MessageType.FRIEND_REQUEST,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageManage.i18n),
+            child: Text(Strings.messagesPageManage.i18n,
+                key: Key('messagesPageManage')),
             value: MessageType.MANAGE,
           ),
         ],
@@ -458,14 +450,14 @@ class _MessagesPageState extends State<MessagesPage> {
     String gqlString;
 
     final _variables = <String, dynamic>{
-      'email': graphQLAuth.getUser().email,
+      'currentUserEmail': graphQLAuth.getUser().email,
       'status': 'new',
       'limit': '20',
       'cursor': DateTime.now().toIso8601String(),
     };
     switch (_messageType) {
       case MessageType.ALL:
-        gqlString = getUserMessagesQL;
+        gqlString = getUserMessagesReceivedQL;
         break;
       case MessageType.ATTENTION:
         gqlString = getUserMessagesByTypeQL;

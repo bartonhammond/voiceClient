@@ -397,7 +397,7 @@ extension Localization on String {
       } +
       {
         'en': Strings.writtenByTitle,
-        'es': 'Escrito por',
+        'es': 'Autora',
       } +
       {
         'en': Strings.areYouSureYouWantToBan,
@@ -446,6 +446,10 @@ extension Localization on String {
       {
         'en': Strings.messagesPageManage,
         'es': 'Gestionar',
+      } +
+      {
+        'en': Strings.messagesPageViewStory,
+        'es': 'Ver historia',
       } +
       {
         'en': Strings.commentRequest,

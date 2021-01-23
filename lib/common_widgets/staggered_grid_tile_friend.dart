@@ -9,11 +9,13 @@ class StaggeredGridTileFriend extends StatelessWidget {
     @required this.friend,
     @required this.friendButton,
     @required this.typeUser,
+    this.onBanned,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   final Map friend;
   final TmpObj friendButton;
   final TypeUser typeUser;
+  final VoidCallback onBanned;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ class StaggeredGridTileFriend extends StatelessWidget {
       showMessage: !friendButton.ignore && friendButton.isFriend,
       showFamilyCheckbox: !friendButton.ignore && friendButton.isFriend,
       allowExpandToggle: false,
+      onBanned: onBanned,
     );
   }
 }

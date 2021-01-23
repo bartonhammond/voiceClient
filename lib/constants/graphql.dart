@@ -12,13 +12,68 @@ const String _user_ = r'''
     email
     home
     image
-    isBook
-    bookAuthorEmail
+    isBook   
     created{
       formatted
     }
+    messagesReceived(filter: {status: "new" }) {
+     	id
+      type
+      created {
+        formatted
+      }
+      fromEmail
+      toEmail
+      status
+      key1
+      key2
+      from {
+        id
+        email
+      }
+    }
+    messagesSent(filter: {status: "new" }) {
+      id
+      type
+      created {
+        formatted
+      }
+      fromEmail
+      toEmail
+      status
+      key1
+      key2
+      from {
+        id
+        email
+      }
+    }
     banned {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
+      from {
+        id
+        User {
+          id
+          name
+          email
+        }
+      }
+    }
+    friends {
+      to(filter: { User: { email: $currentUserEmail } }) {
+        id
+        isFamily
+        User {
+          email
+        }
+      }
+    }
+    
+    bookAuthor {
+      id
+      email
+      name
+      banned {
+        from {
           id
           User {
             id
@@ -36,6 +91,8 @@ const String _user_ = r'''
           }
         }
       }
+    }
+    
   }
 ''';
 
@@ -52,63 +109,16 @@ const _story_ = r'''
     updated {
       formatted
     }
-    user {
-      email
-      name
-      home
-      image
-      isBook
-      bookAuthorEmail
+    reactions(filter: { from: { email: $currentUserEmail	} } ) {
       id
-      friends {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
-          isFamily
-          User {
-            email
-          }
-        }
-        to(filter: { User: { email_in: [$currentUserEmail] } }) {
-          isFamily
-          User {
-            email
-          }
-        }
-      }      
+      type
     }
-    originalUser {
-      email
-      name
-      home
-      image
-      id    
-      banned {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
-          id
-          User {
-            id
-            name
-            email
-          }
-        }
-        
-      }
-      friends {
-        from(filter: { User: { email_in: [$currentUserEmail] } }) {
-          id
-          isFamily
-          User {
-            email
-          }
-        }
-        to(filter: { User: { email_in: [$currentUserEmail] } }) {
-          id
-          isFamily
-          User {
-            email
-          }
-        }
-      }
-    }
+    user ''' +
+    _user_ +
+    r'''
+    originalUser ''' +
+    _user_ +
+    r'''
     comments {
       id
       audio
@@ -121,10 +131,6 @@ const _story_ = r'''
         formatted
       }
       status
-    }
-    reactions(filter: { from: { email: $currentUserEmail	} } ) {
-      id
-      type
     }
     totalReactions
     totalLikes
@@ -149,8 +155,8 @@ const _story_ = r'''
 ''';
 
 const String getUserByEmailQL = r'''
-query getUserByEmail($email: String!, $currentUserEmail: String!) {
-  getUserByEmail(email: $email, currentUserEmail: $currentUserEmail)''' +
+query getUserByEmail($currentUserEmail: String!) {
+  getUserByEmail(currentUserEmail: $currentUserEmail)''' +
     _user_ +
     '''
 }
@@ -166,7 +172,6 @@ query getUserByEmail($email: String!) {
     home
     image
     isBook
-    bookAuthorEmail
   }
 }
 ''';
@@ -207,7 +212,6 @@ storyReactions(
     email
     name
     home
-    bookAuthorEmail
     image
     isBook
     friend
@@ -216,7 +220,7 @@ storyReactions(
 ''';
 
 const String createUserQL = r'''
-mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, $isBook: Boolean!, $bookAuthorEmail: String!) {
+mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $image: String, $created: String!, $isBook: Boolean!) {
   CreateUser(
     id: $id
     name: $name
@@ -224,7 +228,6 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     home: $home
     image: $image
     isBook: $isBook
-    bookAuthorEmail: $bookAuthorEmail
     created: { 
       formatted: $created 
     }
@@ -236,7 +239,6 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
     home
     image
     isBook
-    bookAuthorEmail
     created {
       formatted
     }
@@ -395,7 +397,6 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
   home
   image
   isBook
-  bookAuthorEmail
   activities(
     email: $email
     first: $first
@@ -417,7 +418,6 @@ query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
         home
         image
         isBook
-        bookAuthorEmail
       }
     }
   }
@@ -565,164 +565,149 @@ query userSearchNotFriendsBooks($searchString: String!, $currentUserEmail: Strin
 ''';
 
 const String userSearchMeQL = r'''
-query userSearchMe($email: String!) {
-  User(email: $email)''' +
+query userSearchMe($currentUserEmail: String!) {
+  User(email: $currentUserEmail)''' +
     _user_ +
     '''  
 }
 ''';
 
-const String addUserMessagesQL = r'''
-mutation addUserMessages($from: ID!, $to: ID!, $id: ID!, $created: String!, $status: String!, $text: String!, $type: String!, $key1: String, $key2: String){
-  AddUserMessages (
-    from: {
-      id: $from
-    }
-    to: {
-      id: $to
-    }
-    data: {
-      id: $id
-      created: {
-        formatted: $created
-      }
-      status: $status
-      text: $text
-      type: $type  
-      key1: $key1 
-      key2: $key2
-    }
-  ) 
-  {
-    __typename
+const String createMessageQL = r'''
+mutation createMessage($id: ID!, $created: String!, $status: String!, $type: String!, $key1: String, $key2: String, $toEmail: String!, $fromEmail: String!){
+CreateMessage(
+  id: $id
+  created: { 
+      formatted: $created 
+  }
+  status: $status
+  type: $type
+  key1: $key1
+  key2: $key2
+  toEmail: $toEmail
+  fromEmail: $fromEmail
+) {
+  __typename
     id
+}
+   
+}
+''';
+
+const String addUserMessagesSentQL = r'''
+mutation addUseMessagesSent($from: _UserInput!, $to: _MessageInput! ){
+AddUserMessagesSent(
+  from: $from
+  to: $to
+) {
     from {
       id
-      name
-      email
     }
-    to {
+    to  {
       id
-      name
-      email
     }
   }
 }
 ''';
 
+const String addUserMessagesReceivedQL = r'''
+mutation addUserMessagesReceived($to: _UserInput!, $from: _MessageInput!, $currentUserEmail: String!) {
+AddUserMessagesReceived(
+  from: $from
+  to: $to
+) {
+    from {
+      id
+    }
+    to ''' +
+    _user_ +
+    r'''
+
+  }
+}
+''';
+
 const String updateUserMessageStatusByIdQL = r'''
-mutation updateUserMessageStatusById($email: String!, $id: String! $status: String!, $resolved: String!){
+mutation updateUserMessageStatusById($currentUserEmail: String!, $id: String! $status: String!, $resolved: String!){
   updateUserMessageStatusById(
-    email: $email
+    currentUserEmail: $currentUserEmail
     id: $id
     status: $status
     resolved: $resolved
   ){
     __typename
-    messageId
-    messageStatus
+    id
+    status
   }
 }
 ''';
 const String _message_ = r'''
  {
     __typename
-    messageId
-    messageType
-    messageCreated {
+    id
+    type
+    status
+    key1
+    key2
+    created {
       formatted
     }
-    messageText
-    messageKey1
-    messageStatus
-    userId
-    userEmail
-    userName
-    userHome
-    userImage
-    userIsBook
-    userBookAuthorEmail
+    fromEmail
+    toEmail
+    from ''' +
+    _user_ +
+    r'''
+    to ''' +
+    _user_ +
+    r'''    
   }
 ''';
 
-const String getUserMessagesQL = r'''
-query getUserMessages($email: String!, $status: String!, $cursor: String, $limit: String) {
-  userMessages(email: $email, status: $status, cursor: $cursor, limit: $limit)''' +
-    _message_ +
-    '''  
+const String getUserMessagesReceivedQL = r'''
+query getUserMessagesReceived($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!) {
+  userMessagesReceived(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit)
+    {
+    __typename
+    id
+    type
+    status
+    key1
+    key2
+    created {
+      formatted
+    }
+    from ''' +
+    _user_ +
+    r'''    
+  }
+}
+''';
+
+const String getUserMessagesSentQL = r'''
+query getUserMessagesSent($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!) {
+  userMessagesSent(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit)
+    {
+    __typename
+    id
+    type
+    status
+    key1
+    key2
+    created {
+      formatted
+    }
+    to ''' +
+    _user_ +
+    r'''    
+  }
 }
 ''';
 
 const String getUserMessagesByTypeQL = r'''
-query getUserMessagesByType($email: String!, $status: String!, $cursor: String, $limit: String, $type: String) {
-  userMessagesByType(email: $email, status: $status, cursor: $cursor, limit: $limit, type: $type)''' +
+query getUserMessagesByType($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!, $type: String!) {
+  userMessagesByType(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit, type: $type)''' +
     _message_ +
     '''  
 }
-''';
-
-const String getAllNewFriendRequestsToMe = r'''
-query getAllNewFriendRequests($email: String) {
-User(email: $email) {
-    __typename
-    id
-    messages {
-      from (filter: {
-        type: "friend-request"
-        status: "new"
-      })
-      
-      {
-        id
-        type
-        status
-        resolved{
-          formatted
-        }
-        created {
-          formatted
-        }
-        User {
-          id
-          name
-          email
-        }
-      } 
-      }
-    }
-  }
-''';
-
-const String getAllMyFriendRequests = r'''
-query getAllFriendRequests($email: String) {
-User(email: $email) {
-    __typename
-    id
-    messages {
-      to (filter: {
-        type: "friend-request"          
-      })
-      
-      {
-        __typename
-        id
-        type
-        status
-        resolved{
-          formatted
-        }
-        created {
-          formatted
-        }
-        User {
-          id
-          name
-          email
-        }
-      } 
-      }
-    }
-  }
 ''';
 
 const String newMessagesCount = r'''
@@ -771,7 +756,7 @@ userFriendsStoriesFriends(
   ''';
 
 const String updateUserQL = r'''
-mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, $isBook: Boolean!, $bookAuthorEmail: String!){
+mutation updateUser($id: ID!, $name: String!, $home: String!, $updated: String!, $image: String!, $isBook: Boolean!,){
 UpdateUser(
   id: $id
   name: $name
@@ -779,7 +764,6 @@ UpdateUser(
   updated: {formatted: $updated}
   image: $image
   isBook: $isBook
-  bookAuthorEmail: $bookAuthorEmail
 ) {
     id
     name
@@ -790,7 +774,6 @@ UpdateUser(
     home
     image
     isBook
-    bookAuthorEmail
     updated {
       formatted
     }
@@ -807,7 +790,7 @@ mutation createComment($commentId: ID!, $storyId: ID!, $audio: String!, $status:
     status: $status
     created: { 
       formatted: $created 
-      }
+    }
   ) {
     __typename
     id
@@ -955,7 +938,7 @@ mutation AddReactionFrom($userId: ID!, $reactionId: ID!) {
       email
     }
     to {
-        type
+      type
     }
     
   }
@@ -1174,26 +1157,26 @@ deleteBanned(
 
 ''';
 
-const String getUserQL = r'''
-query getUser($email: String!, $bannedByEmail: String!) {
-  User(email: $email) {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    isBook
-    bookAuthorEmail
-    banned {
-      from(filter: { User: { email_in: [$bannedByEmail] } }) {
-        id
-        User {
-          id
-          name
-          email
-        }
-      }
+const String addUserBookAuthorQL = r'''
+mutation addUserBookAuthor($from: ID!, $to: ID!, ){
+  AddUserBookAuthor (
+    from: {
+      id: $from
+    }
+    to: {
+      id: $to
+    }
+  ) 
+  {
+    from {
+      id
+      name
+      email
+    }
+    to {
+      id
+      name
+      email
     }
   }
 }

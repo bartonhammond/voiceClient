@@ -138,11 +138,11 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     });
 
     eventBus.on<GetUserMessagesEvent>().listen((event) async {
-      await _getUserMessages();
+      await _getUserMessagesReceived();
     });
 
     Future.delayed(const Duration(milliseconds: 500), () async {
-      await _getUserMessages();
+      await _getUserMessagesReceived();
     });
 
     WidgetsBinding.instance.addObserver(this);
@@ -162,7 +162,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     switch (state) {
       case AppLifecycleState.resumed:
         Future.delayed(const Duration(milliseconds: 500), () {
-          _getUserMessages();
+          _getUserMessagesReceived();
         });
         break;
       case AppLifecycleState.inactive:
@@ -174,14 +174,14 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     }
   }
 
-  Future<void> _getUserMessages() async {
+  Future<void> _getUserMessagesReceived() async {
     if (graphQLAuth.getUserMap() == null) {
       return;
     }
     if (!mounted) {
       return;
     }
-    final QueryResult queryResult = await getUserMessages(
+    final QueryResult queryResult = await getUserMessagesReceived(
         GraphQLProvider.of(context).value,
         graphQLAuth.getUserMap()['email'],
         DateTime.now().toIso8601String());
@@ -195,7 +195,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
       throw queryResult.exception;
     }
     setState(() {
-      _messageCount = queryResult.data['userMessages'].length;
+      _messageCount = queryResult.data['userMessagesReceived'].length;
     });
   }
 
