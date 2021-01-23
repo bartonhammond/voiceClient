@@ -177,7 +177,6 @@ class _StoriesPageState extends State<StoriesPage> {
     return await getUserByEmail(
       GraphQLProvider.of(context).value,
       getEmailFromParams(),
-      graphQLAuth.getUserMap()['email'],
     );
   }
 
@@ -310,18 +309,21 @@ class _StoriesPageState extends State<StoriesPage> {
       DropdownMenuItem(
         child: Text(
           Strings.storiesPageAll.i18n,
+          key: Key('storiesPageAll'),
         ),
         value: StoryFeedType.ALL,
       ),
       DropdownMenuItem(
         child: Text(
           Strings.storiesPageFamily.i18n,
+          key: Key('storiesPageFamily'),
         ),
         value: StoryFeedType.FAMILY,
       ),
       DropdownMenuItem(
         child: Text(
           Strings.storiesPageFriends.i18n,
+          key: Key('storiesPageFriends'),
         ),
         value: StoryFeedType.FRIENDS,
       ),
@@ -332,6 +334,7 @@ class _StoriesPageState extends State<StoriesPage> {
         DropdownMenuItem(
           child: Text(
             Strings.typeUserButtonMe.i18n,
+            key: Key('storiesPageMe'),
           ),
           value: StoryFeedType.ME,
         ),
@@ -344,6 +347,7 @@ class _StoriesPageState extends State<StoriesPage> {
   Widget getDropDownStoryTypeButtons() {
     return DropdownButtonHideUnderline(
       child: DropdownButton<StoryFeedType>(
+        key: Key('storiesPageDropDown'),
         value: _storyFeedType,
         items: getButtonItems(),
         onChanged: (value) {
@@ -366,7 +370,7 @@ class _StoriesPageState extends State<StoriesPage> {
       case DeviceScreenType.desktop:
       case DeviceScreenType.tablet:
         _staggeredViewSize = 1;
-        _crossAxisCount = 3;
+        _crossAxisCount = 2;
         break;
       case DeviceScreenType.watch:
         _crossAxisCount = 1;
@@ -465,7 +469,8 @@ class _StoriesPageState extends State<StoriesPage> {
                                 child: Container(
                                   child: Column(
                                     children: <Widget>[
-                                      Text(Strings.noResults.i18n),
+                                      Text(Strings.noResults.i18n,
+                                          key: Key('noMessages')),
                                     ],
                                   ),
                                 ),

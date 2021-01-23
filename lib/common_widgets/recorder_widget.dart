@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_animation_progress_bar/flutter_animation_progress_bar.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:simple_timer/simple_timer.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
@@ -60,6 +61,7 @@ class _RecorderWidgetState extends State<RecorderWidget>
   bool _stopButtonEnabled = true;
   String _localAudioPath;
   AuthServiceType _authServiceType;
+  FToast _fToast;
   @override
   void initState() {
     super.initState();
@@ -69,6 +71,8 @@ class _RecorderWidgetState extends State<RecorderWidget>
     if (!kIsWeb) {
       _init();
     }
+    _fToast = FToast();
+    _fToast.init(context);
   }
 
   Widget getRecordButton(bool _showIcon) {
@@ -151,15 +155,43 @@ class _RecorderWidgetState extends State<RecorderWidget>
           _localAudioPath = '';
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(Strings.mustAcceptPermissions.i18n),
-          duration: const Duration(seconds: 3),
-        ));
+        _showToast(Strings.mustAcceptPermissions.i18n);
       }
     } catch (e) {
       print(e);
     }
     return;
+  }
+
+  void _showToast(String message) {
+    final Widget toast = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(25.0),
+        color: Colors.black,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.check),
+          SizedBox(
+            width: 12.0,
+          ),
+          Text(message,
+              key: Key('recorderWidgetToast'),
+              style: TextStyle(
+                  backgroundColor: Colors.black,
+                  color: Colors.white,
+                  fontSize: 16.0))
+        ],
+      ),
+    );
+
+    _fToast.showToast(
+      child: toast,
+      gravity: ToastGravity.BOTTOM,
+      toastDuration: Duration(seconds: 3),
+    );
   }
 
   Future<void> _start() async {

@@ -28,8 +28,11 @@ Future<void> main(List<String> arguments) async {
 
   //Make everyone friends
   for (var userIndex = 0; userIndex < users.length; userIndex++) {
-    final Map<String, dynamic> user =
-        await q.getUserByEmail(graphQLClient, users[userIndex]['email']);
+    final Map<String, dynamic> user = await q.getUserByEmail(
+      graphQLClient,
+      users[userIndex]['email'],
+      'bartonhammond@gmail.com',
+    );
 
     final List friends = await q.getFriendsOfMineByEmail(
         graphQLClient, users[userIndex]['email']);

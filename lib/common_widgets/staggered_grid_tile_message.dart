@@ -1,7 +1,6 @@
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:flutter/material.dart';
-
 import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 
@@ -43,7 +42,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
               ),
             ),
             FriendWidget(
-              user: message['User'],
+              user: message['from'],
               showBorder: false,
               showMessage: message['type'] == 'message',
               message: message,

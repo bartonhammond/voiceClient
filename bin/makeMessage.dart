@@ -32,15 +32,16 @@ Future<void> main(List<String> arguments) async {
   final GraphQLClient graphQLClient =
       getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
 
-  const String _toEmail = 'bartonhammond@gmail.com';
-  final String _toId = await q.getUserIdByEmail(
-    graphQLClient,
-    _toEmail,
-  );
   const String _fromEmail = 'admin@myfamilyvoice.com';
   final String _fromId = await q.getUserIdByEmail(
     graphQLClient,
     _fromEmail,
+  );
+
+  const String _toEmail = 'bartonhammond@gmail.com'; //mom
+  final String _toId = await q.getUserIdByEmail(
+    graphQLClient,
+    _toEmail,
   );
 
   String storyId;
@@ -49,7 +50,7 @@ Future<void> main(List<String> arguments) async {
     storyId = 'e44ab8d0-ed45-11ea-8678-7da3b3f67897';
   }
   if (argResults['mode'] == 'dev') {
-    storyId = 'e44ab8d0-ed45-11ea-8678-7da3b3f67897';
+    storyId = '9a0426a0-340b-11eb-bdc6-7d2e6529153a';
   }
 
   final uuid = Uuid();
@@ -69,10 +70,9 @@ Future<void> main(List<String> arguments) async {
         _toId,
         uuid.v1(),
         'new',
-        'Comment',
         'comment',
         storyId,
-        _toEmail,
+        '',
       );
     }
   }
@@ -84,15 +84,14 @@ Future<void> main(List<String> arguments) async {
         _toId,
         uuid.v1(),
         'new',
-        'Friend Request',
         'friend-request',
         null,
-        _toEmail,
+        null,
       );
     }
   }
   const String mp3 =
-      'storage/yxF3c4-QB-ebce4820-221e-11eb-85c5-7bff015f4e79.mp3';
+      'storage/0i-WzcXKJ-d2b32ab0-50fc-11eb-b7aa-e12be0396ee7.mp3';
   if (argResults['type'] == 'message') {
     for (var i = 0; i < limit; i++) {
       await addUserMessages(
@@ -101,10 +100,9 @@ Future<void> main(List<String> arguments) async {
         _toId,
         uuid.v1(),
         'new',
-        'Message',
         'message',
         mp3,
-        _toEmail,
+        null,
       );
     }
   }

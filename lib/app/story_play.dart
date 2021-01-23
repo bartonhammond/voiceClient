@@ -145,6 +145,7 @@ class _StoryPlayState extends State<StoryPlay>
 
   void _showToast() {
     final Widget toast = Container(
+      key: Key('toastContainer'),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
@@ -158,7 +159,7 @@ class _StoryPlayState extends State<StoryPlay>
             width: 12.0,
           ),
           Text(Strings.saved.i18n,
-              key: Key('profileToast'),
+              key: Key('storyPlayToast'),
               style: TextStyle(
                   backgroundColor: Colors.black,
                   color: Colors.white,
@@ -175,7 +176,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setBook(String id) async {
-    print('storyPlay.setBook id: $id');
     if (id == null) {
       //remove the current book
       await changeStoriesUser(
@@ -186,7 +186,6 @@ class _StoryPlayState extends State<StoryPlay>
       );
     } else {
       if (_story['originalUser'] == null) {
-        print('storyPlay.setBook originalUser is null');
         //Merge Story w/ OriginalUser
         addStoryOriginalUser(
           graphQLClient,

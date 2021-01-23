@@ -47,9 +47,6 @@ class _FriendsPageState extends State<FriendsPage> {
   VoidCallback _refetchQuery;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
-  dynamic allMyFriendRequests;
-  dynamic allNewFriendRequestsToMe;
-
   int staggeredViewSize = 2;
 
   Map<int, bool> moreSearchResults = {
@@ -71,7 +68,6 @@ class _FriendsPageState extends State<FriendsPage> {
   };
   StreamSubscription proxyStartedSubscription;
   StreamSubscription proxyEndedSubscription;
-
   @override
   void initState() {
     _searchString = '*';
@@ -109,40 +105,6 @@ class _FriendsPageState extends State<FriendsPage> {
     super.dispose();
   }
 
-  Future<List<dynamic>> _getAllNewFriendRequestsToMe(
-      BuildContext context) async {
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getAllNewFriendRequestsToMe),
-      variables: <String, dynamic>{
-        'email': graphQLAuth.getUserMap()['email'],
-      },
-    );
-
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    return queryResult.data['User'][0]['messages']['from'];
-  }
-
-  Future<List<dynamic>> _getAllMyFriendRequests(BuildContext context) async {
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getAllMyFriendRequests),
-      variables: <String, dynamic>{
-        'email': graphQLAuth.getUserMap()['email'],
-      },
-    );
-
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    return queryResult.data['User'][0]['messages']['to'];
-  }
-
   Widget buildSearchField() {
     return Flexible(
       fit: FlexFit.loose,
@@ -178,34 +140,44 @@ class _FriendsPageState extends State<FriendsPage> {
         value: _typeUser,
         items: [
           DropdownMenuItem(
-            child: Text('All'),
+            child: Text(
+              Strings.storiesPageAll.i18n,
+              key: Key('usersPageAll'),
+            ),
             value: TypeUser.all,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonFamily.i18n,
+              key: Key('usersPageFamily'),
             ),
             value: TypeUser.family,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonFriends.i18n,
+              key: Key('usersPageFriends'),
             ),
             value: TypeUser.friends,
           ),
           DropdownMenuItem(
-            child: Text('Books'),
+            child: Text(
+              Strings.typeUserButtonBooks.i18n,
+              key: Key('usersPageBooks'),
+            ),
             value: TypeUser.books,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonUsers.i18n,
+              key: Key('usersPageUsers'),
             ),
             value: TypeUser.users,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonMe.i18n,
+              key: Key('usersPageMe'),
             ),
             value: TypeUser.me,
           ),
@@ -235,13 +207,10 @@ class _FriendsPageState extends State<FriendsPage> {
             toUser,
             _uuid.v1(),
             'new',
-            'Friend Request',
             'friend-request',
             null,
-            toUser['bookAuthorEmail']);
+            toUser['isBook'] ? toUser['bookAuthor']['email'] : null);
 
-        allMyFriendRequests = await _getAllMyFriendRequests(context);
-        allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
         setState(() {
           _refetchQuery();
         });
@@ -295,8 +264,6 @@ class _FriendsPageState extends State<FriendsPage> {
 
       await graphQLClient.mutate(options);
 
-      allMyFriendRequests = await _getAllMyFriendRequests(context);
-      allNewFriendRequestsToMe = await _getAllNewFriendRequestsToMe(context);
       setState(() {
         _refetchQuery();
       });
@@ -331,7 +298,7 @@ class _FriendsPageState extends State<FriendsPage> {
       case TypeUser.me:
         gqlString = userSearchMeQL;
         _variables = <String, dynamic>{
-          'email': graphQLAuth.getUser().email,
+          'currentUserEmail': graphQLAuth.getUser().email,
         };
         break;
 
@@ -357,31 +324,6 @@ class _FriendsPageState extends State<FriendsPage> {
       default:
         staggeredViewSize = 2;
     }
-    return FutureBuilder(
-      future: Future.wait([
-        _getAllMyFriendRequests(context),
-        _getAllNewFriendRequestsToMe(context),
-      ]),
-      builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          logger.createMessage(
-              userEmail: graphQLAuth.getUser().email,
-              source: 'friends_page',
-              shortMessage: snapshot.error.toString(),
-              stackTrace: StackTrace.current.toString());
-
-          return Text('\nErrors: \n  ' + snapshot.error.toString());
-        } else if (!snapshot.hasData) {
-          return _progressIndicator();
-        }
-        allMyFriendRequests = snapshot.data[0];
-        allNewFriendRequestsToMe = snapshot.data[1];
-        return _build();
-      },
-    );
-  }
-
-  Widget _build() {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
@@ -428,6 +370,7 @@ class _FriendsPageState extends State<FriendsPage> {
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
                 _refetchQuery = refetch;
+
                 final List<dynamic> friends = List<dynamic>.from(
                     result.data[searchResultsName[_typeUser.index]]);
 
@@ -437,7 +380,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
                 return Expanded(
                   child: friends == null || friends.isEmpty
-                      ? Text(Strings.noResults.i18n)
+                      ? Text(Strings.noResults.i18n, key: Key('noMessages'))
                       : StaggeredGridView.countBuilder(
                           controller: _scrollController,
                           itemCount: friends.length + 1,
@@ -448,14 +391,14 @@ class _FriendsPageState extends State<FriendsPage> {
                           itemBuilder: (context, index) {
                             return index < friends.length
                                 ? StaggeredGridTileFriend(
+                                    onBanned: () {
+                                      _refetchQuery();
+                                    },
                                     typeUser: _typeUser,
                                     onPush: widget.onPush,
                                     friend: friends[index],
                                     friendButton: getMessageButton(
-                                      allNewFriendRequestsToMe,
-                                      allMyFriendRequests,
-                                      friends,
-                                      index,
+                                      friends[index],
                                     ),
                                   )
                                 : moreSearchResults[_typeUser.index]
@@ -515,50 +458,53 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   TmpObj checkMyFriendRequests(
-    dynamic allMyFriendRequests,
-    dynamic friends,
-    int index,
+    dynamic friend,
     double _fontSize,
   ) {
     //Are there friend requests to others
-    if (allMyFriendRequests != null) {
-      for (var friend in allMyFriendRequests) {
-        if (friend['User']['id'] == friends[index]['id']) {
-          switch (friend['status']) {
-            case 'reject': //don't hurt feelings, ...
-            case 'new':
-              return TmpObj(
-                  button: MessageButton(
-                    key:
-                        Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
-                    text: Strings.pending.i18n,
-                    onPressed: null,
-                    fontSize: _fontSize,
-                    icon: Icon(
-                      MdiIcons.accountClockOutline,
-                      color: Colors.white,
-                    ),
-                  ),
-                  isFriend: false,
-                  ignore: false);
-              break;
-            default:
-          }
-        }
-      }
-    }
+    if (friend['messagesReceived'] != null &&
+        friend['messagesReceived'].length > 0) {
+      for (var i = 0; i < friend['messagesReceived'].length; i++) {
+        //pending message
+        final dynamic message = friend['messagesReceived'][i];
+
+        if (message['type'] == 'friend-request' &&
+            message['status'] == 'new' &&
+            message['from']['email'] == graphQLAuth.getUser().email) {
+          return TmpObj(
+              button: MessageButton(
+                key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
+                text: Strings.pending.i18n,
+                onPressed: null,
+                fontSize: _fontSize,
+                icon: Icon(
+                  MdiIcons.accountClockOutline,
+                  color: Colors.white,
+                ),
+              ),
+              isFriend: false,
+              ignore: false);
+        } //if
+      } //for
+    } //if
     return null;
   }
 
-  TmpObj pendingFriendRequestsToMe(dynamic allFriendRequestsToMe,
-      dynamic friends, int index, double _fontSize) {
-    //Do I have pending friend requests?
-    if (allFriendRequestsToMe != null) {
-      for (var friendRequestToMe in allFriendRequestsToMe) {
-        if (friendRequestToMe['User']['id'] == friends[index]['id']) {
+  TmpObj pendingFriendRequestsToMe(
+    dynamic friend,
+    double _fontSize,
+  ) {
+    if (friend['messagesSent'] != null && friend['messagesSent'].length > 0) {
+      for (var i = 0; i < friend['messagesSent'].length; i++) {
+        //pending message
+        final dynamic message = friend['messagesSent'][i];
+
+        if (message['type'] == 'friend-request' &&
+            message['status'] == 'new' &&
+            message['toEmail'] == graphQLAuth.getUser().email) {
           return TmpObj(
               button: MessageButton(
-                key: Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
+                key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
                 text: Strings.pending.i18n,
                 onPressed: null,
                 fontSize: _fontSize,
@@ -576,17 +522,16 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   TmpObj alreadyFriends(
-    dynamic friends,
-    int index,
+    dynamic friend,
     double _fontSize,
   ) {
-    if (friends[index]['friends'].containsKey('to') &&
-        friends[index]['friends']['to'].length == 1) {
+    if (friend['friends'].containsKey('to') &&
+        friend['friends']['to'].length == 1) {
       return TmpObj(
           button: MessageButton(
-            key: Key('${Keys.newFriendsButton}-$index'),
+            key: Key('${Keys.newFriendsButton}-$friend["id"]'),
             text: Strings.quitFriend.i18n,
-            onPressed: () => _quitFriendRequest(friends[index]['id']),
+            onPressed: () => _quitFriendRequest(friend['id']),
             fontSize: _fontSize,
             icon: Icon(
               MdiIcons.accountRemove,
@@ -599,12 +544,7 @@ class _FriendsPageState extends State<FriendsPage> {
     return null;
   }
 
-  TmpObj getMessageButton(
-    dynamic allFriendRequestsToMe,
-    dynamic allMyFriendRequests,
-    dynamic friends,
-    int index,
-  ) {
+  TmpObj getMessageButton(dynamic friend) {
     TmpObj button;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
@@ -617,20 +557,19 @@ class _FriendsPageState extends State<FriendsPage> {
         _fontSize = 20;
     }
     if (_typeUser == TypeUser.me ||
-        friends[index]['id'] == graphQLAuth.getUserMap()['id']) {
+        friend['id'] == graphQLAuth.getUserMap()['id']) {
       return TmpObj(button: Container(), isFriend: true, ignore: false);
     }
     //check if proxy is active and building for him/her
-    if (graphQLAuth.isProxy &&
-        friends[index]['id'] == graphQLAuth.getUserMap()['id']) {
+    if (graphQLAuth.isProxy && friend['id'] == graphQLAuth.getUserMap()['id']) {
       return TmpObj(button: Container(), isFriend: true, ignore: true);
     }
     if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {
       button = TmpObj(
           button: MessageButton(
-            key: Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
+            key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
             text: Strings.quitFriend.i18n,
-            onPressed: () => _quitFriendRequest(friends[index]['id']),
+            onPressed: () => _quitFriendRequest(friend['id']),
             fontSize: _fontSize,
             icon: Icon(
               MdiIcons.accountRemove,
@@ -640,19 +579,18 @@ class _FriendsPageState extends State<FriendsPage> {
           isFriend: true,
           ignore: false);
     } else {
-      button = alreadyFriends(friends, index, _fontSize);
+      button = alreadyFriends(friend, _fontSize);
 
-      button ??=
-          checkMyFriendRequests(allMyFriendRequests, friends, index, _fontSize);
+      //I have already sent a friend request to this person
+      button ??= checkMyFriendRequests(friend, _fontSize);
 
-      button ??= pendingFriendRequestsToMe(
-          allFriendRequestsToMe, friends, index, _fontSize);
+      button ??= pendingFriendRequestsToMe(friend, _fontSize);
 
       button ??= TmpObj(
           button: MessageButton(
-            key: Key('${Keys.newFriendsButton}-${friends[index]["id"]}'),
+            key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
             text: Strings.newFriend.i18n,
-            onPressed: () => _newFriendRequest(friends[index]),
+            onPressed: () => _newFriendRequest(friend),
             fontSize: _fontSize,
             icon: Icon(
               MdiIcons.accountPlusOutline,
@@ -663,17 +601,5 @@ class _FriendsPageState extends State<FriendsPage> {
           ignore: false);
     }
     return button;
-  }
-
-  Widget _progressIndicator() {
-    return SizedBox(
-      width: 200.0,
-      height: 300.0,
-      child: Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      ),
-    );
   }
 }

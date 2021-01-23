@@ -121,9 +121,9 @@ class Comments extends StatelessWidget {
         ));
       }
     }
-    double heightContainer = 150;
+    double heightContainer = 200;
     if (_comments.length > 1) {
-      heightContainer = 250;
+      heightContainer = 300;
     }
     return Container(
       decoration: BoxDecoration(

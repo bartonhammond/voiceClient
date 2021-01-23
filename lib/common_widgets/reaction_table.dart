@@ -95,7 +95,6 @@ class _State extends State<ReactionTable> {
           reaction['id'],
           _uuid.v1(),
           'new',
-          'Friend Request',
           'friend-request',
           null,
           reaction['email'],

@@ -98,7 +98,6 @@ class _ProfilePageState extends State<ProfilePage> {
         'audio': '',
         'home': '',
         'isBook': widget.isBook,
-        'bookAuthorEmail': ''
       };
     } else if (graphQLAuth.getUserMap() == null) {
       //must be new user
@@ -109,7 +108,6 @@ class _ProfilePageState extends State<ProfilePage> {
         'audio': '',
         'home': '',
         'isBook': false,
-        'bookAuthorEmail': ''
       };
     } else {
       //existing user
@@ -142,6 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _showToast() {
     final Widget toast = Container(
+      key: Key('toastContainer'),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25.0),
@@ -310,9 +309,8 @@ class _ProfilePageState extends State<ProfilePage> {
         name: nameFormFieldController.text,
         home: homeFormFieldController.text,
         isBook: isBook,
-        bookAuthorEmail: graphQLAuth.originalUser.email,
+        bookAuthorId: isBook ? graphQLAuth.getOriginalUserMap()['id'] : '',
       );
-
       if (queryResult.hasException) {
         logger.createMessage(
           userEmail: graphQLAuth.getUser().email,
@@ -718,6 +716,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
 
     _isWeb = AppConfig.of(context).isWeb;
+
     graphQLAuth = locator<GraphQLAuth>();
     graphQLClientFileServer =
         graphQLAuth.getGraphQLClient(GraphQLClientType.FileServer);

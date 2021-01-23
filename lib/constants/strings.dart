@@ -124,7 +124,7 @@ class Strings {
   static const String selectBookTitle = 'Select Book';
   static const String selectBookDescription = 'Only one book can be selected';
   static const String quitManagingTitle = 'Quit Managing?';
-  static const String writtenByTitle = 'Story author';
+  static const String writtenByTitle = 'Author';
   static const String areYouSureYouWantToBan = 'Are you sure you want to ban?';
   static const String banUser = 'Ban:';
   static const String unbanUser = 'Unban:';
@@ -183,6 +183,7 @@ class Strings {
   static const String messagesPageMessageComments = 'Comments';
   static const String messagesPageMessageFriendRequests = 'Friend Requests';
   static const String messagesPageManage = 'Manage';
+  static const String messagesPageViewStory = 'View Story';
 
   static const String storiesPageAll = 'All';
   static const String storiesPageFamily = 'Family';
