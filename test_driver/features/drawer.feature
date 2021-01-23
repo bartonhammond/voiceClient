@@ -253,3 +253,70 @@ Feature: Drawer
         And I tap the text that contains the text "Stories"
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
+
+    @sixth
+    Scenario: Login as Test User and exercise all the dropdown menu options
+        Given I open the drawer
+        And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        # Exercise the Stories dropdowns
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        Given I tap the widget that contains the text "All"
+        Then I expect the text "Family" to be present
+        Given I tap the "storiesPageFamily" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the "storiesPageFamily" text
+        Given I tap the "storiesPageFriends" text without scrolling it into view
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        Given I tap the "storiesPageFriends" text
+        And I tap the "storiesPageMe" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        #Exercise the Users dropdowns
+        Given I tap the text that contains the text "Users"
+        Then I expect the "userName-Admin MyFamilyVoice" to be "Admin MyFamilyVoice"
+        Given I tap the widget that contains the text "All"
+        Then I expect the text "Family" to be present
+        Given I tap the "usersPageFamily" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the "usersPageFamily" text
+        Given I tap the "usersPageFriends" text without scrolling it into view
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        Given I tap the "usersPageFriends" text
+        Given I tap the "usersPageBooks" text without scrolling it into view
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        Given I tap the "usersPageBooks" text
+        Given I tap the "usersPageUsers" text without scrolling it into view
+        Then I expect the "userName-Admin MyFamilyVoice" to be "Admin MyFamilyVoice"
+        Given I tap the "usersPageUsers" text
+        Given I tap the "usersPageMe" text without scrolling it into view
+        Then I expect the "userName-Test Name" to be "Test Name"
+        #Exercise the Notices dropdowns
+        Given I tap the text that contains the text "Notices"
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the widget that contains the text "All"
+        Given I tap the "messagesPageAttention" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the "messagesPageAttention" text
+        Given I tap the "messagesPageMessage" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the "messagesPageMessage" text
+        Given I tap the "messagesPageComment" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the "messagesPageComment" text
+        Given I tap the "messagesPageFriendRequest" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the "messagesPageFriendRequest" text
+        Given I tap the "messagesPageManage" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+
+
+
+
+
+

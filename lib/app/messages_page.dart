@@ -59,7 +59,7 @@ class _MessagesPageState extends State<MessagesPage> {
     2: 'userMessagesByType',
     3: 'userMessagesByType',
     4: 'userMessagesByType',
-    5: 'userMessagesByType,'
+    5: 'userMessagesByType'
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
   StreamSubscription proxyStartedSubscription;
@@ -401,27 +401,39 @@ class _MessagesPageState extends State<MessagesPage> {
         value: _messageType,
         items: [
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessageAll.i18n),
+            child: Text(
+              Strings.messagesPageMessageAll.i18n,
+              key: Key('messagesPageAll'),
+            ),
             value: MessageType.ALL,
           ),
           DropdownMenuItem(
-            child: Text(Strings.storyPlayAttention.i18n),
+            child: Text(
+              Strings.storyPlayAttention.i18n,
+              key: Key('messagesPageAttention'),
+            ),
             value: MessageType.ATTENTION,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessage.i18n),
+            child: Text(
+              Strings.messagesPageMessage.i18n,
+              key: Key('messagesPageMessage'),
+            ),
             value: MessageType.MESSAGE,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessageComments.i18n),
+            child: Text(Strings.messagesPageMessageComments.i18n,
+                key: Key('messagesPageComment')),
             value: MessageType.COMMENT,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageMessageFriendRequests.i18n),
+            child: Text(Strings.messagesPageMessageFriendRequests.i18n,
+                key: Key('messagesPageFriendRequest')),
             value: MessageType.FRIEND_REQUEST,
           ),
           DropdownMenuItem(
-            child: Text(Strings.messagesPageManage.i18n),
+            child: Text(Strings.messagesPageManage.i18n,
+                key: Key('messagesPageManage')),
             value: MessageType.MANAGE,
           ),
         ],
@@ -537,6 +549,10 @@ class _MessagesPageState extends State<MessagesPage> {
                       stackTrace: StackTrace.current.toString());
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
+                print('_messageType.index: ${_messageType.index}');
+                print(
+                    'searchResultsName[_messageType.index]: ${searchResultsName[_messageType.index]}');
+
                 final List<dynamic> messages = List<dynamic>.from(
                     result.data[searchResultsName[_messageType.index]]);
 

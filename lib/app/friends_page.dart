@@ -140,34 +140,44 @@ class _FriendsPageState extends State<FriendsPage> {
         value: _typeUser,
         items: [
           DropdownMenuItem(
-            child: Text('All'),
+            child: Text(
+              Strings.storiesPageAll.i18n,
+              key: Key('usersPageAll'),
+            ),
             value: TypeUser.all,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonFamily.i18n,
+              key: Key('usersPageFamily'),
             ),
             value: TypeUser.family,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonFriends.i18n,
+              key: Key('usersPageFriends'),
             ),
             value: TypeUser.friends,
           ),
           DropdownMenuItem(
-            child: Text('Books'),
+            child: Text(
+              Strings.typeUserButtonBooks.i18n,
+              key: Key('usersPageBooks'),
+            ),
             value: TypeUser.books,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonUsers.i18n,
+              key: Key('usersPageUsers'),
             ),
             value: TypeUser.users,
           ),
           DropdownMenuItem(
             child: Text(
               Strings.typeUserButtonMe.i18n,
+              key: Key('usersPageMe'),
             ),
             value: TypeUser.me,
           ),
@@ -370,7 +380,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
                 return Expanded(
                   child: friends == null || friends.isEmpty
-                      ? Text(Strings.noResults.i18n)
+                      ? Text(Strings.noResults.i18n, key: Key('noMessages'))
                       : StaggeredGridView.countBuilder(
                           controller: _scrollController,
                           itemCount: friends.length + 1,

@@ -37,7 +37,7 @@ Future<void> main(List<String> arguments) async {
   parser.addOption(
     'runTag',
     help: 'which tag to run?',
-    allowed: ['all', 'first', 'second', 'third', 'fourth', 'fifth'],
+    allowed: ['all', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth'],
   );
 
   if (arguments == null || arguments.isEmpty) {
