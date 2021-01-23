@@ -549,9 +549,6 @@ class _MessagesPageState extends State<MessagesPage> {
                       stackTrace: StackTrace.current.toString());
                   return Text('\nErrors: \n  ' + result.exception.toString());
                 }
-                print('_messageType.index: ${_messageType.index}');
-                print(
-                    'searchResultsName[_messageType.index]: ${searchResultsName[_messageType.index]}');
 
                 final List<dynamic> messages = List<dynamic>.from(
                     result.data[searchResultsName[_messageType.index]]);
