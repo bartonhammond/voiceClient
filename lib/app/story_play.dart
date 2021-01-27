@@ -144,6 +144,9 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   void _showToast() {
+    if (!mounted) {
+      return;
+    }
     final Widget toast = Container(
       key: Key('toastContainer'),
       padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),

@@ -5,6 +5,7 @@ Feature: Drawer
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         And I tap the "submitButton" button
+        And I close the drawer
         #Now on Profile page
         Then I expect the "emailFormField" to be "testname@myfamilyvoice.com"
         Given I tap the "storyPageGalleryButton" button
@@ -99,6 +100,7 @@ Feature: Drawer
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
         Given I tap the "submitButton" button
+        And I close the drawer
         Then I expect the widget "Stories" to be present within 10 seconds
         #Make friendRequest to Book
         And I tap the text that contains the text "Users"
@@ -118,6 +120,7 @@ Feature: Drawer
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         Given I tap the "submitButton" button
+        And I close the drawer
         Then I expect the widget "Stories" to be present within 10 seconds
         #Check notices
         And I tap the text that contains the text "Notices"
@@ -162,6 +165,7 @@ Feature: Drawer
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
         Given I tap the "submitButton" button
+        And I close the drawer
         Then I expect the widget "Stories" to be present within 10 seconds
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
@@ -190,6 +194,7 @@ Feature: Drawer
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         Given I tap the "submitButton" button
+        And I close the drawer
         Then I expect the widget "Stories" to be present within 10 seconds
         #Find the new Book User
         And I tap the text that contains the text "Users"
@@ -229,6 +234,7 @@ Feature: Drawer
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
         Given I tap the "submitButton" button
+        And I close the drawer
         Then I expect the widget "Stories" to be present within 10 seconds
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
@@ -253,14 +259,134 @@ Feature: Drawer
         And I tap the text that contains the text "Stories"
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
+        #Log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
     @sixth
+    Scenario: test family.
+        #create a user "familystoryProvider" that makes one story for family
+        Given I open the drawer
+        And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        #Now on Profile page
+        Then I expect the "emailFormField" to be "familystoryprovider@myfamilyvoice.com"
+        Given I tap the "storyPageGalleryButton" button
+        And I fill the "nameFormField" field with "Family Story Provider"
+        And I fill the "homeFormField" field with "Home City, State"
+        And I pause for 1 seconds
+        And I tap the "profilePageUploadButton" button
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        #Create a Story which is Family
+        Given I tap the "mainFloatingActionButton" widget
+        And I tap the "storyFloatingActionButton" widget
+        And I tap the "storyPageGalleryButton" button
+        And I tap the "recorderWidgetRecordButton" button
+        And I pause for 3 seconds
+        And I tap the "recorderWidgetStopButton" button
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        Then I expect the widget "deleteStoryButton" to be present within 3 seconds
+        Then I tap the "radioGroupFamily" widget
+        And I pause for 1 seconds
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        And I tap the "backButton" button
+        #Log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #create a new user "familystoryFriend" that request friend to "familystoryprovider"
+        Given I open the drawer
+        And I fill the "emailTextField" field with "familystoryfriend@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        #Now on Profile page
+        Then I expect the "emailFormField" to be "familystoryfriend@myfamilyvoice.com"
+        Given I tap the "storyPageGalleryButton" button
+        And I fill the "nameFormField" field with "Family Story Friend"
+        And I fill the "homeFormField" field with "Home City, State"
+        And I pause for 1 seconds
+        And I tap the "profilePageUploadButton" button
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        #Find the Family Story Provider
+        And I tap the text that contains the text "Users"
+        And I fill the "searchField" field with "Provider"
+        And I tap the "newFriendsButton-familystoryprovider@myfamilyvoice.com" button
+        And I pause for 1 seconds
+        Given I tap the "alertDefault" button
+        And I pause for 1 seconds
+        Then I expect the text "Pending" to be present
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #log in as familystoryprovider and approve friend request
+        Given I open the drawer
+        And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        Given I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Friend Request"
+        And I tap the "friend-request-approve-familystoryfriend@myfamilyvoice.com" widget
+        Then I expect the widget "approveFriendRequest" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the "noMessages" to be "No results"
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #log back in as "familystoryFriend" and confirm Stories is "No Results"
+        Given I open the drawer
+        And I fill the "emailTextField" field with "familystoryfriend@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "noMessages" to be "No results"
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #log back in as "familystoryProvider" and change "familystoryFriend" to be family
+        And I open the drawer
+        And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        And I tap the text that contains the text "Users"
+        And I fill the "searchField" field with "Friend"
+        And I tap the "familyCheckbox-familystoryfriend@myfamilyvoice.com" widget
+        #log back in as "familyStoryFriend" and confirm Stories now sees one Story which is "Family"
+        Given I open the drawer
+        And I fill the "emailTextField" field with "familystoryfriend@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        And I tap the text that contains the text "Stories"
+        Then I expect the "userName-Family Story Provider" to be "Family Story Provider"
+        And I expect the "userHome-Family Story Provider" to be "Home City, State"
+        And I expect the "storyPlayAudience" to be "FAMILY"
+        #logout
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+
+
+    @seventh
     Scenario: Login as Test User and exercise all the dropdown menu options
+        # Exercise the Stories dropdowns
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         Given I tap the "submitButton" button
         And I close the drawer
-        # Exercise the Stories dropdowns
         Then I expect the widget "Stories" to be present within 10 seconds
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
@@ -275,7 +401,42 @@ Feature: Drawer
         Given I tap the "storiesPageFriends" text
         And I tap the "storiesPageMe" text without scrolling it into view
         Then I expect the "noMessages" to be "No results"
+        #logout
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #Do same tests except w/ user that is a Family
+        Given I open the drawer
+        And I fill the "emailTextField" field with "familystoryfriend@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        And I tap the text that contains the text "Stories"
+        Then I expect the "userName-Family Story Provider" to be "Family Story Provider"
+        And I expect the "userHome-Family Story Provider" to be "Home City, State"
+        Given I tap the widget that contains the text "All"
+        Then I expect the text "Family" to be present
+        Given I tap the "storiesPageFamily" text without scrolling it into view
+        Then I expect the "userName-Family Story Provider" to be "Family Story Provider"
+        And I expect the "userHome-Family Story Provider" to be "Home City, State"
+        Given I tap the "storiesPageFamily" text
+        Given I tap the "storiesPageFriends" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        Given I tap the "storiesPageFriends" text
+        And I tap the "storiesPageMe" text without scrolling it into view
+        Then I expect the "noMessages" to be "No results"
+        #logout
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
         #Exercise the Users dropdowns
+        Given I open the drawer
+        And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
         Given I tap the text that contains the text "Users"
         Then I expect the "userName-Admin MyFamilyVoice" to be "Admin MyFamilyVoice"
         Given I tap the widget that contains the text "All"
@@ -314,6 +475,29 @@ Feature: Drawer
         Given I tap the "messagesPageFriendRequest" text
         Given I tap the "messagesPageManage" text without scrolling it into view
         Then I expect the "noMessages" to be "No results"
+        #logout
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #login as provider and verify users.family shows familystoryfriend
+        And I open the drawer
+        And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        Given I tap the text that contains the text "Users"
+        Given I tap the widget that contains the text "All"
+        Then I expect the text "Family" to be present
+        Given I tap the "usersPageFamily" text without scrolling it into view
+        Then I expect the "userName-Family Story Friend" to be "Family Story Friend"
+        And I expect the "userHome-Family Story Friend" to be "Home City, State"
+        #Log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
 
 

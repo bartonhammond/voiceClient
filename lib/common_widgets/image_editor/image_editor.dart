@@ -6,6 +6,7 @@ import 'package:MyFamilyVoice/common_widgets/image_editor/crop_editor_helper.dar
 import 'package:MyFamilyVoice/common_widgets/image_editor/screen_util.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -49,6 +50,7 @@ class _ImageEditorState extends State<ImageEditor> {
   void initState() {
     _aspectRatio = _aspectRatios.first;
     _cornerPainter = const ExtendedImageCropLayerPainterNinetyDegreesCorner();
+    eventBus.fire(HideStoryBanner());
     super.initState();
   }
 

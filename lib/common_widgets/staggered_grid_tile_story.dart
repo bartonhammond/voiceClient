@@ -234,7 +234,10 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                     SizedBox(
                       width: 10,
                     ),
-                    Text(widget.story['type']),
+                    Text(
+                      widget.story['type'],
+                      key: Key('storyPlayAudience'),
+                    ),
                   ],
                 ),
               ),
