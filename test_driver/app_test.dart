@@ -34,10 +34,25 @@ Future<void> main(List<String> arguments) async {
     help: 'delete the banned?',
     allowed: ['yes', 'no'],
   );
+
+  parser.addOption(
+    'deleteFamilyTestUsers',
+    help: 'delete the users created for testing family?',
+    allowed: ['yes', 'no'],
+  );
   parser.addOption(
     'runTag',
     help: 'which tag to run?',
-    allowed: ['all', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth'],
+    allowed: [
+      'all',
+      'first',
+      'second',
+      'third',
+      'fourth',
+      'fifth',
+      'sixth',
+      'seventh',
+    ],
   );
 
   if (arguments == null || arguments.isEmpty) {
@@ -52,7 +67,8 @@ Future<void> main(List<String> arguments) async {
   print('deleteBooksMessages ${argResults["deleteBooksMessages"] == "yes"}');
   print('deleteBanned ${argResults["deleteBanned"] == "yes"}');
   print('runTag ${argResults["runTag"]}');
-
+  print(
+      'deleteFamilyTestUsers ${argResults["deleteFamilyTestUsers"] == "yes"}');
   final GraphQLClient graphQLClient =
       graphql.getGraphQLClient(GraphQLClientType.ApolloServer);
 
@@ -97,7 +113,16 @@ Future<void> main(List<String> arguments) async {
       'bartonhammond@gmail.com',
     );
   }
-
+  if (argResults['deleteFamilyTestUsers'] == 'yes') {
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Family Story Provider',
+    );
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Family Story Friend',
+    );
+  }
   final Iterable<StepDefinitionGeneric<World>> steps = [
     expectTextFormFieldToHaveValue(),
   ];

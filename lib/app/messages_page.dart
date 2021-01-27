@@ -114,6 +114,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
   Future<void> _approveFriendRequest(Map<String, dynamic> message) async {
     final bool approveFriendRequest = await PlatformAlertDialog(
+      key: Key('approveFriendRequest'),
       title: Strings.approveFriendshipRequest.i18n,
       content: Strings.areYouSure.i18n,
       cancelActionText: Strings.cancel.i18n,
@@ -189,7 +190,7 @@ class _MessagesPageState extends State<MessagesPage> {
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
-            key: Key('${Keys.approveFriendRequestButton}-$index'),
+            key: Key('friend-request-approve-${message["from"]["email"]}'),
             text: Strings.approveFriendButton.i18n,
             fontSize: 16,
             onPressed: () => _approveFriendRequest(message),

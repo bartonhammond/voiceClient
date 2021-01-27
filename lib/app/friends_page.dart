@@ -525,21 +525,30 @@ class _FriendsPageState extends State<FriendsPage> {
     dynamic friend,
     double _fontSize,
   ) {
+    bool foundFriend = false;
     if (friend['friends'].containsKey('to') &&
-        friend['friends']['to'].length == 1) {
-      return TmpObj(
-          button: MessageButton(
-            key: Key('${Keys.newFriendsButton}-$friend["id"]'),
-            text: Strings.quitFriend.i18n,
-            onPressed: () => _quitFriendRequest(friend['id']),
-            fontSize: _fontSize,
-            icon: Icon(
-              MdiIcons.accountRemove,
-              color: Colors.white,
+        friend['friends']['to'].length > 0) {
+      for (Map aFriend in friend['friends']['to']) {
+        if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+          foundFriend = true;
+          break;
+        }
+      }
+      if (foundFriend) {
+        return TmpObj(
+            button: MessageButton(
+              key: Key('${Keys.newFriendsButton}-$friend["id"]'),
+              text: Strings.quitFriend.i18n,
+              onPressed: () => _quitFriendRequest(friend['id']),
+              fontSize: _fontSize,
+              icon: Icon(
+                MdiIcons.accountRemove,
+                color: Colors.white,
+              ),
             ),
-          ),
-          isFriend: true,
-          ignore: false);
+            isFriend: true,
+            ignore: false);
+      }
     }
     return null;
   }
@@ -588,7 +597,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
       button ??= TmpObj(
           button: MessageButton(
-            key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
+            key: Key('newFriendsButton-${friend["email"]}'),
             text: Strings.newFriend.i18n,
             onPressed: () => _newFriendRequest(friend),
             fontSize: _fontSize,

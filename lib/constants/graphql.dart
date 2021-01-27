@@ -59,7 +59,14 @@ const String _user_ = r'''
       }
     }
     friends {
-      to(filter: { User: { email: $currentUserEmail } }) {
+      to {
+        id
+        isFamily
+        User {
+          email
+        }
+      }
+      from {
         id
         isFamily
         User {

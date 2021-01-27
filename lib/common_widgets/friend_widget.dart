@@ -444,6 +444,8 @@ class _FriendWidgetState extends State<FriendWidget> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Checkbox(
+                              key:
+                                  Key('familyCheckbox-${widget.user["email"]}'),
                               value: checkIfIsFamily(),
                               onChanged: (bool newValue) async {
                                 await updateUserIsFamily(
@@ -671,8 +673,13 @@ class _FriendWidgetState extends State<FriendWidget> {
           widget.story['originalUser'] != null &&
           widget.story['originalUser'].containsKey('friends') &&
           widget.story['originalUser']['friends'].containsKey('to') &&
-          widget.story['originalUser']['friends']['to'].length == 1) {
-        showBannedBox = false;
+          widget.story['originalUser']['friends']['to'].length > 0) {
+        for (Map aFriend in widget.story['originalUser']['friends']['to']) {
+          if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+            showBannedBox = false;
+            break;
+          }
+        }
       }
 
       userNameBanned = widget.story['originalUser']['name'];
@@ -680,37 +687,47 @@ class _FriendWidgetState extends State<FriendWidget> {
       banned = false;
 
       return getOriginalUserDetail(
-          _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
+          fontSize: _fontSize,
+          showBannedBox: showBannedBox,
+          banned: banned,
+          showUserDetail: true,
+          userNameBanned: userNameBanned,
+          userIdBanned: userIdBanned);
     }
     return Container();
   }
 
-  Widget getOriginalUserDetail(
-    double _fontSize,
+  Widget getOriginalUserDetail({
+    double fontSize,
     bool showBannedBox,
     bool banned,
+    bool showUserDetail,
     String userNameBanned,
     String userIdBanned,
-  ) {
+  }) {
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         mainAxisSize: MainAxisSize.max,
         children: <Widget>[
-          Text(Strings.writtenByTitle.i18n,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: _fontSize,
-              )),
-          Text(
-            userNameBanned,
-            key: Key('originalUser-$userNameBanned'),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: _fontSize,
-            ),
-          ),
+          showUserDetail
+              ? Text(Strings.writtenByTitle.i18n,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ))
+              : Container(),
+          showUserDetail
+              ? Text(
+                  userNameBanned,
+                  key: Key('originalUser-$userNameBanned'),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                  ),
+                )
+              : Container(),
           showBannedBox
               ? getBanRow(banned, userNameBanned, userIdBanned)
               : Container()
@@ -744,53 +761,80 @@ class _FriendWidgetState extends State<FriendWidget> {
     if (widget.user == null) {
       return Container();
     }
-    //Is current author the original
-    if (widget.user['isBook'] &&
-        widget.user['bookAuthor']['email'] ==
-            graphQLAuth.getUserMap()['email']) {
+    if (widget.user['email'] == graphQLAuth.getUserMap()['email']) {
       return Container();
     }
 
-    bool showBannedBox = false;
-    bool banned = false;
-    String userNameBanned = 'None';
-    String userIdBanned = 'None';
+    //The bookAuthor can be banned if they are not friends
+    bool isFriend = false;
+    if (widget.user['isBook']) {
+      if (widget.user['bookAuthor']['friends']['to'].length > 0) {
+        for (Map aFriend in widget.user['bookAuthor']['friends']['to']) {
+          if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+            isFriend = true;
+            break;
+          }
+        }
+      }
+      if (isFriend) {
+        return Container();
+      }
+      const bool showBannedBox = true;
+      bool banned = false;
+      const bool showUserDetail = true;
+      final String userNameBanned = widget.user['bookAuthor']['name'];
+      final String userIdBanned = widget.user['bookAuthor']['id'];
 
-    //Is the banned user being display?
-    if (widget.user['banned']['from'] != null &&
-        widget.user['banned']['from'].length == 1) {
-      userNameBanned = widget.user['name'];
-      userIdBanned = widget.user['id'];
-      banned = true;
-      showBannedBox = true;
-    } else if (widget.user['isBook']) {
-      //Looking at book, so should ban the author?
-      userNameBanned = widget.user['bookAuthor']['name'];
-      userIdBanned = widget.user['bookAuthor']['id'];
-      //Only show banned box if your are friends w/ the book
-      //already friends, don't ban
-      if (widget.user['friends']['to'].length == 0 ||
-          widget.user['bookAuthor']['friends']['to'].length == 1) {
-        showBannedBox = false;
-      } else {
-        showBannedBox = true;
-        banned = false;
-        //The filter doesn't work so have to loop through
-        for (int i = 0;
-            i < widget.user['bookAuthor']['banned']['from'].length;
-            i++) {
-          if (widget.user['bookAuthor']['banned']['from'][i]['User']['email'] ==
-              graphQLAuth.getUserMap()['email']) {
+      if (widget.user['bookAuthor']['banned'] != null &&
+          widget.user['bookAuthor']['banned']['from'].length > 0) {
+        for (Map userBan in widget.user['bookAuthor']['banned']['from']) {
+          if (userBan['User']['email'] == graphQLAuth.getUserMap()['email']) {
             banned = true;
             break;
           }
         }
       }
-    } else {
-      return Container();
+      return getOriginalUserDetail(
+          fontSize: _fontSize,
+          showBannedBox: showBannedBox,
+          banned: banned,
+          showUserDetail: showUserDetail,
+          userNameBanned: userNameBanned,
+          userIdBanned: userIdBanned);
+    } //isBook
+
+    //Are you friends?  Don't ban if friends
+    if (widget.user['friends'] != null &&
+        widget.user['friends']['to'] != null &&
+        widget.user['friends']['to'].length > 0) {
+      for (Map aFriend in widget.user['friends']['to']) {
+        if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+          return Container();
+        }
+      }
     }
 
+    const bool showBannedBox = true;
+    bool banned = false;
+    const bool showUserDetail = false;
+    String userNameBanned;
+    String userIdBanned;
+
+    if (widget.user['banned'] != null &&
+        widget.user['banned']['from'].length > 0) {
+      for (Map aUser in widget.user['banned']['from']) {
+        if (aUser['User']['email'] == graphQLAuth.getUserMap()['email']) {
+          banned = true;
+          break;
+        }
+      }
+    }
     return getOriginalUserDetail(
-        _fontSize, showBannedBox, banned, userNameBanned, userIdBanned);
+        fontSize: _fontSize,
+        showBannedBox: showBannedBox,
+        banned: banned,
+        showUserDetail: showUserDetail,
+        userNameBanned: userNameBanned,
+        userIdBanned: userIdBanned);
   }
 }

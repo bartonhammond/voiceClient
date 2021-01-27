@@ -30,6 +30,7 @@ class RadioGroupWidget extends State<RadioGroup> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Radio<StoryType>(
+              key: Key('radioGroupFriends'),
               value: StoryType.FRIENDS,
               groupValue: _storyType,
               onChanged: (StoryType val) {
@@ -44,6 +45,7 @@ class RadioGroupWidget extends State<RadioGroup> {
               style: TextStyle(fontSize: 17.0),
             ),
             Radio<StoryType>(
+              key: Key('radioGroupFamily'),
               value: StoryType.FAMILY,
               groupValue: _storyType,
               onChanged: (val) {
