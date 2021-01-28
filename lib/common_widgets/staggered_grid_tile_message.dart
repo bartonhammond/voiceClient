@@ -41,6 +41,16 @@ class StaggeredGridTileMessage extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
             ),
+            message['book'] == null
+                ? Container()
+                : FriendWidget(
+                    user: message['book'],
+                    showBorder: false,
+                    showMessage: false,
+                    message: message,
+                    showFamilyCheckbox: false,
+                    allowExpandToggle: false,
+                  ),
             FriendWidget(
               user: message['from'],
               showBorder: false,
@@ -57,7 +67,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
                         PlayerWidget(
                           key: Key("playWidget${message['id']}"),
                           url: host(
-                            message['key1'],
+                            message['key'],
                           ),
                           //width: _width,
                         ),

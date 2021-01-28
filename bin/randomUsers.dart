@@ -81,24 +81,22 @@ Future<void> main(List<String> arguments) async {
           user['id'],
         );
         await addUserMessages(
-          graphQLClientApolloServer,
-          user,
-          _user,
-          uuid.v1(),
-          'new',
-          'friend-request',
-          null,
-          users[_userIndex]['email'],
+          graphQLClient: graphQLClientApolloServer,
+          fromUser: user,
+          toUser: _user,
+          messageId: uuid.v1(),
+          status: 'new',
+          type: 'friend-request',
+          key: null,
         );
         await addUserMessages(
-          graphQLClientApolloServer,
-          user,
-          _user,
-          uuid.v1(),
-          'new',
-          'comment',
-          null,
-          users[_userIndex]['email'],
+          graphQLClient: graphQLClientApolloServer,
+          fromUser: user,
+          toUser: _user,
+          messageId: uuid.v1(),
+          status: 'new',
+          type: 'comment',
+          key: null,
         );
       }
       //For 10 Stories

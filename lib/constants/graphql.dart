@@ -22,11 +22,8 @@ const String _user_ = r'''
       created {
         formatted
       }
-      fromEmail
-      toEmail
       status
-      key1
-      key2
+      key
       from {
         id
         email
@@ -38,11 +35,21 @@ const String _user_ = r'''
       created {
         formatted
       }
-      fromEmail
-      toEmail
       status
-      key1
-      key2
+      key
+      from {
+        id
+        email
+      }
+    }
+    messagesTopic(filter: {status: "new" }) {
+      id
+      type
+      created {
+        formatted
+      }
+      status
+      key
       from {
         id
         email
@@ -580,7 +587,7 @@ query userSearchMe($currentUserEmail: String!) {
 ''';
 
 const String createMessageQL = r'''
-mutation createMessage($id: ID!, $created: String!, $status: String!, $type: String!, $key1: String, $key2: String, $toEmail: String!, $fromEmail: String!){
+mutation createMessage($id: ID!, $created: String!, $status: String!, $type: String!, $key: String,){
 CreateMessage(
   id: $id
   created: { 
@@ -588,10 +595,7 @@ CreateMessage(
   }
   status: $status
   type: $type
-  key1: $key1
-  key2: $key2
-  toEmail: $toEmail
-  fromEmail: $fromEmail
+  key: $key
 ) {
   __typename
     id
@@ -633,6 +637,23 @@ AddUserMessagesReceived(
 }
 ''';
 
+const String addMessageBookQL = r'''
+mutation addMessageBook($to: _UserInput!, $from: _MessageInput!, $currentUserEmail: String!) {
+AddMessageBook(
+  from: $from
+  to: $to
+) {
+    from {
+      id
+    }
+    to ''' +
+    _user_ +
+    r'''
+
+  }
+}
+''';
+
 const String updateUserMessageStatusByIdQL = r'''
 mutation updateUserMessageStatusById($currentUserEmail: String!, $id: String! $status: String!, $resolved: String!){
   updateUserMessageStatusById(
@@ -653,17 +674,17 @@ const String _message_ = r'''
     id
     type
     status
-    key1
-    key2
+    key
     created {
       formatted
     }
-    fromEmail
-    toEmail
     from ''' +
     _user_ +
     r'''
     to ''' +
+    _user_ +
+    r''' 
+    book ''' +
     _user_ +
     r'''    
   }
@@ -677,14 +698,16 @@ query getUserMessagesReceived($currentUserEmail: String!, $status: String!, $cur
     id
     type
     status
-    key1
-    key2
+    key
     created {
       formatted
     }
     from ''' +
     _user_ +
-    r'''    
+    r'''  
+    book ''' +
+    _user_ +
+    r'''  
   }
 }
 ''';
@@ -697,8 +720,7 @@ query getUserMessagesSent($currentUserEmail: String!, $status: String!, $cursor:
     id
     type
     status
-    key1
-    key2
+    key
     created {
       formatted
     }

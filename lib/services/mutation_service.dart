@@ -302,8 +302,8 @@ Future<void> _addUserMessages(
   String messageId,
   String status,
   String type,
-  String key1,
-  String key2,
+  String key,
+  Map<String, dynamic> bookUser,
 ) async {
   final DateTime now = DateTime.now();
   MutationOptions options = MutationOptions(
@@ -313,10 +313,7 @@ Future<void> _addUserMessages(
       'created': now.toIso8601String(),
       'status': status,
       'type': type,
-      'key1': key1,
-      'key2': key2,
-      'fromEmail': fromUser['email'],
-      'toEmail': toUser['email'],
+      'key': key,
     },
   );
 
@@ -358,64 +355,64 @@ Future<void> _addUserMessages(
   if (result.hasException) {
     throw result.exception;
   }
+
+  if (bookUser != null) {
+    //create messageBook
+    final String toBookUserId = bookUser['id'];
+    final _toBookUser = {'id': toBookUserId};
+
+    options = MutationOptions(
+      documentNode: gql(addMessageBookQL),
+      variables: <String, dynamic>{
+        'to': _toBookUser,
+        'from': _fromMessage,
+        'currentUserEmail': fromUser['email']
+      },
+    );
+    result = await graphQLClient.mutate(options);
+    if (result.hasException) {
+      throw result.exception;
+    }
+  }
   return;
 }
 
-Future<void> addUserMessages(
+Future<void> addUserMessages({
   GraphQLClient graphQLClient,
   Map<String, dynamic> fromUser,
   Map<String, dynamic> toUser,
   String messageId,
   String status,
   String type,
-  String key1,
-  String key2,
-) async {
-  await _addUserMessages(
-    graphQLClient,
-    fromUser,
-    toUser,
-    messageId,
-    status,
-    type,
-    key1,
-    key2,
-  );
-  //A message type 'manage' will be
-  //from the book
+  String key,
+}) async {
   if (toUser['isBook'] == true) {
-    final QueryResult result = await getUserMessagesReceived(
+    final Map user = await getUserByEmail(
       graphQLClient,
       toUser['bookAuthor']['email'],
-      DateTime.now().toIso8601String(),
     );
-
-    //look for type an existing manage
-    bool foundManageTypeForUser = false;
-    for (var message in result.data['userMessagesReceived']) {
-      if (message['type'] == 'manage' && message['status'] == 'new') {
-        foundManageTypeForUser = true;
-        break;
-      }
-    }
-    if (!foundManageTypeForUser) {
-      final Map user = await getUserByEmail(
+    await _addUserMessages(
         graphQLClient,
-        toUser['bookAuthor']['email'],
-      );
-      final _messageId = Uuid().v1();
-      await _addUserMessages(
-        graphQLClient,
-        toUser, //the book
+        fromUser,
         user, // the books author
-        _messageId,
-        'new',
-        'manage',
-        key1,
-        user['email'],
-      );
-    }
+        messageId,
+        status,
+        type,
+        key,
+        toUser);
+  } else {
+    await _addUserMessages(
+      graphQLClient,
+      fromUser,
+      toUser,
+      messageId,
+      status,
+      type,
+      key,
+      null,
+    );
   }
+
   return;
 }
 
@@ -757,14 +754,13 @@ Future<void> doCommentUploads(
   }
 
   await addUserMessages(
-    graphQLClientApolloServer,
-    graphQLAuth.getUserMap(),
-    _story['user'],
-    _uuid.v1(),
-    'new',
-    'comment',
-    _story['id'],
-    _story['user']['email'],
+    graphQLClient: graphQLClientApolloServer,
+    fromUser: graphQLAuth.getUserMap(),
+    toUser: _story['user'],
+    messageId: _uuid.v1(),
+    status: 'new',
+    type: 'comment',
+    key: _story['id'],
   );
   return;
 }
@@ -807,14 +803,13 @@ Future<void> doMessageUploads(
   );
 
   await addUserMessages(
-    graphQLClientApolloServer,
-    graphQLAuth.getUserMap(),
-    toUser,
-    _messageId,
-    'new',
-    'message',
-    _audioFilePath,
-    toUser['email'],
+    graphQLClient: graphQLClientApolloServer,
+    fromUser: graphQLAuth.getUserMap(),
+    toUser: toUser,
+    messageId: _messageId,
+    status: 'new',
+    type: 'message',
+    key: _audioFilePath,
   );
   return;
 }
@@ -869,14 +864,13 @@ Future<void> addStoryTag(
   );
 
   await addUserMessages(
-    graphQLClient,
-    user,
-    _tag['user'],
-    _uuid.v1(),
-    'new',
-    'attention',
-    _story['id'],
-    _tag['user']['email'],
+    graphQLClient: graphQLClient,
+    fromUser: user,
+    toUser: _tag['user'],
+    messageId: _uuid.v1(),
+    status: 'new',
+    type: 'attention',
+    key: _story['id'],
   );
 
   return;

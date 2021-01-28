@@ -210,36 +210,6 @@ class _FriendWidgetState extends State<FriendWidget> {
     );
   }
 
-  Widget getProxyButton() {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    double _fontSize = 20;
-    switch (deviceType) {
-      case DeviceScreenType.watch:
-        _fontSize = 12;
-        break;
-      default:
-        _fontSize = 20;
-    }
-
-    return MessageButton(
-      key: Key('manageButton-${widget.user["name"]}'),
-      text: Strings.manageBook.i18n,
-      onPressed: () async {
-        await graphQLAuth.setProxy(widget.user['email']);
-        setState(() {});
-        eventBus.fire(ProxyStarted());
-        //Check if there are pending messages
-        eventBus.fire(GetUserMessagesEvent());
-      },
-      fontSize: _fontSize,
-      icon: Icon(
-        Icons.collections_bookmark,
-        color: Colors.white,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     _isWeb = AppConfig.of(context).isWeb;
@@ -525,26 +495,10 @@ class _FriendWidgetState extends State<FriendWidget> {
               height: 7.toDouble(),
             ),
             widget.user['isBook'] &&
-                    widget.user['bookAuthor']['email'] ==
-                        graphQLAuth.getUserMap()['email']
-                ? graphQLAuth.isProxy
-                    ? Container()
-                    : getProxyButton()
-                : Container(),
-            widget.user['isBook'] &&
-                    widget.user['bookAuthor']['email'] ==
-                        graphQLAuth.getUserMap()['email']
-                ? SizedBox(
-                    height: 7.toDouble(),
-                  )
-                : Container(),
-            widget.user['isBook'] &&
                     _showDeleteButton &&
                     widget.user['bookAuthor']['email'] ==
                         graphQLAuth.getUserMap()['email']
-                ? graphQLAuth.isProxy
-                    ? Container()
-                    : getDeleteButton()
+                ? getDeleteButton()
                 : Container(),
             widget.user['isBook'] &&
                     _showDeleteButton &&
@@ -681,9 +635,10 @@ class _FriendWidgetState extends State<FriendWidget> {
           }
         }
       }
-
-      userNameBanned = widget.story['originalUser']['name'];
-      userIdBanned = widget.story['originalUser']['id'];
+      if (widget.story['originalUser'] != null) {
+        userNameBanned = widget.story['originalUser']['name'];
+        userIdBanned = widget.story['originalUser']['id'];
+      }
       banned = false;
 
       return getOriginalUserDetail(
@@ -759,6 +714,9 @@ class _FriendWidgetState extends State<FriendWidget> {
   Widget getUserBookColumn(double _fontSize) {
     //When reading messages there are neither story or user
     if (widget.user == null) {
+      return Container();
+    }
+    if (widget.message != null) {
       return Container();
     }
     if (widget.user['email'] == graphQLAuth.getUserMap()['email']) {

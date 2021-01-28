@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -50,7 +49,6 @@ class _MessagesPageState extends State<MessagesPage> {
     2: true,
     3: true,
     4: true,
-    5: true,
   };
 
   Map<int, String> searchResultsName = {
@@ -59,27 +57,17 @@ class _MessagesPageState extends State<MessagesPage> {
     2: 'userMessagesByType',
     3: 'userMessagesByType',
     4: 'userMessagesByType',
-    5: 'userMessagesByType'
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-  StreamSubscription proxyStartedSubscription;
-  StreamSubscription proxyEndedSubscription;
+
   @override
   void initState() {
     _messageType = MessageType.ALL;
     super.initState();
-    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      setState(() {});
-    });
-    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      setState(() {});
-    });
   }
 
   @override
   void dispose() {
-    proxyStartedSubscription.cancel();
-    proxyEndedSubscription.cancel();
     super.dispose();
   }
 
@@ -126,12 +114,16 @@ class _MessagesPageState extends State<MessagesPage> {
         await addUserFriend(
           graphQLClient,
           message['from']['id'],
-          graphQLAuth.getUserMap()['id'],
+          message['book'] == null
+              ? graphQLAuth.getUserMap()['id']
+              : message['book']['id'],
         );
 
         await addUserFriend(
           graphQLClient,
-          graphQLAuth.getUserMap()['id'],
+          message['book'] == null
+              ? graphQLAuth.getUserMap()['id']
+              : message['book']['id'],
           message['from']['id'],
         );
 
@@ -224,7 +216,7 @@ class _MessagesPageState extends State<MessagesPage> {
             onPressed: () {
               widget.onPush(
                 <String, dynamic>{
-                  'id': message['key1'],
+                  'id': message['key'],
                   'onFinish': () {
                     callBack(message);
                   },
@@ -281,7 +273,7 @@ class _MessagesPageState extends State<MessagesPage> {
             onPressed: () {
               widget.onPush(
                 <String, dynamic>{
-                  'id': message['key1'],
+                  'id': message['key'],
                   'onFinish': () {
                     callBack(message);
                   },
@@ -306,25 +298,6 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         );
         break;
-      case 'manage':
-        return StaggeredGridTileMessage(
-          title: Strings.messagesPageManage,
-          key: Key('${Keys.messageGridTile}_$index'),
-          message: message,
-          approveButton: MessageButton(
-            key: Key('${Keys.clearCommentButton}-$index'),
-            text: Strings.clearCommentButton.i18n,
-            fontSize: 16,
-            onPressed: () => callBack(message),
-            icon: Icon(
-              MdiIcons.accountRemove,
-              color: Colors.white,
-            ),
-          ),
-          rejectButton: null,
-        );
-        break;
-
       default:
         return Text('invalid message type ${message['type']}');
     }
@@ -432,11 +405,6 @@ class _MessagesPageState extends State<MessagesPage> {
                 key: Key('messagesPageFriendRequest')),
             value: MessageType.FRIEND_REQUEST,
           ),
-          DropdownMenuItem(
-            child: Text(Strings.messagesPageManage.i18n,
-                key: Key('messagesPageManage')),
-            value: MessageType.MANAGE,
-          ),
         ],
         onChanged: (value) {
           setState(() {
@@ -472,10 +440,6 @@ class _MessagesPageState extends State<MessagesPage> {
         gqlString = getUserMessagesByTypeQL;
         _variables['type'] = 'message';
         break;
-      case MessageType.MANAGE:
-        gqlString = getUserMessagesByTypeQL;
-        _variables['type'] = 'manage';
-        break;
       case MessageType.FRIEND_REQUEST:
         gqlString = getUserMessagesByTypeQL;
         _variables['type'] = 'friend-request';
@@ -510,10 +474,6 @@ class _MessagesPageState extends State<MessagesPage> {
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
-        actions: checkProxy(
-          graphQLAuth,
-          context,
-        ),
       ),
       drawer: DrawerWidget(),
       body: Container(

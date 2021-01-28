@@ -12,7 +12,6 @@ class GraphQLAuth {
   User user;
   User originalUser;
   String token;
-  bool isProxy = false;
   Map<String, dynamic> _userMap;
   Map<String, dynamic> _originalUserMap;
 
@@ -44,18 +43,6 @@ class GraphQLAuth {
       default:
         throw Exception('invalid parameter: $type');
     }
-  }
-
-  Future<void> setProxy(String email) async {
-    user = User(uid: 'ignore', email: email);
-    isProxy = true;
-    await setupEnvironment();
-  }
-
-  Future<void> removeProxy() async {
-    isProxy = false;
-    user = originalUser;
-    await setupEnvironment();
   }
 
   Map<String, dynamic> getUserMap() {

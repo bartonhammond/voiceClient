@@ -90,14 +90,13 @@ class _State extends State<ReactionTable> {
       final _uuid = Uuid();
       try {
         await addUserMessages(
-          GraphQLProvider.of(context).value,
-          locator<GraphQLAuth>().getUserMap()['id'],
-          reaction['id'],
-          _uuid.v1(),
-          'new',
-          'friend-request',
-          null,
-          reaction['email'],
+          graphQLClient: GraphQLProvider.of(context).value,
+          fromUser: locator<GraphQLAuth>().getUserMap()['id'],
+          toUser: reaction['id'],
+          messageId: _uuid.v1(),
+          status: 'new',
+          type: 'friend-request',
+          key: null,
         );
       } catch (e) {
         logger.createMessage(
