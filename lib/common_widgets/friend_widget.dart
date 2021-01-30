@@ -257,28 +257,35 @@ class _FriendWidgetState extends State<FriendWidget> {
 
     return widget.allowExpandToggle && globals.collapseFriendWidget
         ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-                GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        globals.collapseFriendWidget =
-                            !globals.collapseFriendWidget;
-                      });
-                    },
-                    child: Icon(
-                      Icons.expand_more,
-                      color: Color(0xff00bcd4),
-                      size: 20,
-                    )),
-                Text(
-                  widget.user['name'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: _fontSize,
+              GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      globals.collapseFriendWidget =
+                          !globals.collapseFriendWidget;
+                    });
+                  },
+                  child: Icon(
+                    Icons.expand_more,
+                    color: Color(0xff00bcd4),
+                    size: 20,
+                  )),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(right: 13.0),
+                  child: Text(
+                    widget.user['name'],
+                    overflow: TextOverflow.clip,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: _fontSize,
+                    ),
                   ),
                 ),
-              ])
+              ),
+            ],
+          )
         : getCard(
             _width,
             _height,
@@ -726,6 +733,9 @@ class _FriendWidgetState extends State<FriendWidget> {
     //The bookAuthor can be banned if they are not friends
     bool isFriend = false;
     if (widget.user['isBook']) {
+      final String userNameBanned = widget.user['bookAuthor']['name'];
+      final String userIdBanned = widget.user['bookAuthor']['id'];
+
       if (widget.user['bookAuthor']['friends']['to'].length > 0) {
         for (Map aFriend in widget.user['bookAuthor']['friends']['to']) {
           if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
@@ -735,13 +745,19 @@ class _FriendWidgetState extends State<FriendWidget> {
         }
       }
       if (isFriend) {
-        return Container();
+        //show the author info
+        return getOriginalUserDetail(
+          fontSize: _fontSize,
+          showBannedBox: false,
+          banned: false,
+          showUserDetail: true,
+          userNameBanned: userNameBanned,
+          userIdBanned: userIdBanned,
+        );
       }
       const bool showBannedBox = true;
       bool banned = false;
       const bool showUserDetail = true;
-      final String userNameBanned = widget.user['bookAuthor']['name'];
-      final String userIdBanned = widget.user['bookAuthor']['id'];
 
       if (widget.user['bookAuthor']['banned'] != null &&
           widget.user['bookAuthor']['banned']['from'].length > 0) {

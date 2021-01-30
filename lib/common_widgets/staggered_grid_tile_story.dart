@@ -422,21 +422,20 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                                 await createReaction(
                                   graphQLClient,
                                   _reactionId,
-                                  widget.story['id'],
                                   reactionTypes[reaction.id - 1],
+                                );
+
+                                //from story
+                                await addReactionStory(
+                                  graphQLClient,
+                                  widget.story['id'],
+                                  _reactionId,
                                 );
 
                                 //from user
                                 await addReactionFrom(
                                   graphQLClient,
                                   graphQLAuth.getUserMap()['id'],
-                                  _reactionId,
-                                );
-
-                                //from story
-                                await addStoryReaction(
-                                  graphQLClient,
-                                  widget.story['id'],
                                   _reactionId,
                                 );
                               }

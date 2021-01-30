@@ -619,7 +619,6 @@ Future<void> deleteUserReactionToStory(
 Future<void> createReaction(
   GraphQLClient graphQLClient,
   String id,
-  String storyId,
   String type,
 ) async {
   final DateTime now = DateTime.now();
@@ -627,7 +626,6 @@ Future<void> createReaction(
     documentNode: gql(createReactionQL),
     variables: <String, dynamic>{
       'id': id,
-      'storyId': storyId,
       'created': now.toIso8601String(),
       'type': type,
     },
@@ -662,13 +660,13 @@ Future<void> addReactionFrom(
   return;
 }
 
-Future<void> addStoryReaction(
+Future<void> addReactionStory(
   GraphQLClient graphQLClient,
   String storyId,
   String reactionId,
 ) async {
   final MutationOptions options = MutationOptions(
-    documentNode: gql(addStoryReactionQL),
+    documentNode: gql(addReactionStoryQL),
     variables: <String, dynamic>{
       'storyId': storyId,
       'reactionId': reactionId,

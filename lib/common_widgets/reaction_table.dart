@@ -38,7 +38,7 @@ class _State extends State<ReactionTable> {
       documentNode: gql(getStoryReactionsByIdQL),
       variables: <String, dynamic>{
         'id': widget.story['id'],
-        'email': graphQLAuth.getUserMap()['email'],
+        'currentUserEmail': graphQLAuth.getUserMap()['email'],
       },
     );
 
@@ -91,13 +91,14 @@ class _State extends State<ReactionTable> {
       try {
         await addUserMessages(
           graphQLClient: GraphQLProvider.of(context).value,
-          fromUser: locator<GraphQLAuth>().getUserMap()['id'],
-          toUser: reaction['id'],
+          fromUser: graphQLAuth.getUserMap(),
+          toUser: reaction['from'],
           messageId: _uuid.v1(),
           status: 'new',
           type: 'friend-request',
           key: null,
         );
+        setState(() {});
       } catch (e) {
         logger.createMessage(
             userEmail: graphQLAuth.getUser().email,
@@ -110,7 +111,31 @@ class _State extends State<ReactionTable> {
     return;
   }
 
+  bool isFriend(Map reaction) {
+    if (reaction['from']['friends']['to'] != null) {
+      for (var _reaction in reaction['from']['friends']['to']) {
+        if (_reaction['User']['email'] == graphQLAuth.getUser().email) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool isPendingFriendRequest(Map reaction) {
+    if (reaction['from']['messagesReceived'] != null) {
+      for (var _message in reaction['from']['messagesReceived']) {
+        if (_message['type'] == 'friend-request' &&
+            _message['from']['email'] == graphQLAuth.getUser().email) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   Widget getSingleScrollView(List reactions) {
+    const double columnSize = 150;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
@@ -186,6 +211,7 @@ class _State extends State<ReactionTable> {
                 headingRowHeight: 0.0,
                 sortColumnIndex: 0,
                 dataRowHeight: 80.0,
+                horizontalMargin: 0.0,
                 columns: const <DataColumn>[
                   DataColumn(
                     label: Text(''),
@@ -208,51 +234,65 @@ class _State extends State<ReactionTable> {
                         cells: [
                           DataCell(
                             Container(
-                              width: 150,
+                              width: columnSize,
                               child: getCard(reaction),
                             ),
                           ),
-                          reaction['friend']
-                              //if friend, do nothing
+                          isFriend(reaction)
+                              //if friend, show message
                               ? DataCell(
-                                  MessageButton(
-                                    key: Key(
-                                        '${Keys.reactionTableMessageButton}'),
-                                    text: Strings.reactionTableMessage.i18n,
-                                    onPressed: () async {
-                                      Navigator.push<dynamic>(
-                                          context,
-                                          MaterialPageRoute<dynamic>(
-                                            builder: (BuildContext context) =>
-                                                FriendMessagePage(
-                                              user: reaction,
-                                            ),
-                                            fullscreenDialog: false,
-                                          ));
-                                    },
-                                    fontSize: 20,
-                                    icon: null,
+                                  Container(
+                                    width: columnSize,
+                                    child: MessageButton(
+                                      key: Key(
+                                          '${Keys.reactionTableMessageButton}'),
+                                      text: Strings.reactionTableMessage.i18n,
+                                      onPressed: () async {
+                                        Navigator.push<dynamic>(
+                                            context,
+                                            MaterialPageRoute<dynamic>(
+                                              builder: (BuildContext context) =>
+                                                  FriendMessagePage(
+                                                user: reaction['from'],
+                                              ),
+                                              fullscreenDialog: false,
+                                            ));
+                                      },
+                                      fontSize: 15,
+                                      icon: null,
+                                    ),
                                   ),
                                 )
-                              : reaction['userId'] ==
+                              : reaction['from']['id'] ==
                                       graphQLAuth.getUserMap()['id']
                                   //if its you, do nothing
                                   ? DataCell(
-                                      Text(''),
-                                    )
+                                      Container(
+                                        width: columnSize,
+                                        child: Text(''),
+                                      ),
+                                      placeholder: true)
                                   //if not a friend
                                   : DataCell(
-                                      MessageButton(
-                                        key: Key(
-                                            '${Keys.reactionTableNewFriendsButton}'),
-                                        text: Strings.newFriend.i18n,
-                                        onPressed: () {
-                                          _newFriendRequest(
-                                            reaction,
-                                          );
-                                        },
-                                        fontSize: 20,
-                                        icon: null,
+                                      Container(
+                                        width: columnSize,
+                                        child: MessageButton(
+                                          key: Key(
+                                              '${Keys.reactionTableNewFriendsButton}'),
+                                          text: isPendingFriendRequest(reaction)
+                                              ? Strings.pending
+                                              : Strings.newFriend.i18n,
+                                          onPressed:
+                                              isPendingFriendRequest(reaction)
+                                                  ? null
+                                                  : () {
+                                                      _newFriendRequest(
+                                                        reaction,
+                                                      );
+                                                    },
+                                          fontSize: 20,
+                                          icon: null,
+                                        ),
                                       ),
                                     ),
                         ],
@@ -279,7 +319,7 @@ class _State extends State<ReactionTable> {
           child: FadeInImage.memoryNetwork(
             placeholder: kTransparentImage,
             image: host(
-              reaction['image'],
+              reaction['from']['image'],
               width: 30,
               height: 30,
               resizingType: 'fit',
@@ -289,7 +329,7 @@ class _State extends State<ReactionTable> {
         ),
       ),
       title: AutoSizeText(
-        reaction['name'],
+        reaction['from']['name'],
         maxLines: 2,
       ),
       subtitle: Image.asset(

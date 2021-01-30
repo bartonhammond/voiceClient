@@ -168,6 +168,25 @@ const _story_ = r'''
 
 ''';
 
+const String _reaction_ = r'''
+{
+  id
+  story {
+    id
+  }
+  from ''' +
+    _user_ +
+    r'''
+  created {
+    formatted
+  }
+  type
+  updated {
+    formatted
+  }
+}
+''';
+
 const String getUserByEmailQL = r'''
 query getUserByEmail($currentUserEmail: String!) {
   getUserByEmail(currentUserEmail: $currentUserEmail)''' +
@@ -209,28 +228,13 @@ getStoryById(
 ''';
 
 const String getStoryReactionsByIdQL = r'''
-query storyReactions($id: String!, $email: String!) {
+query storyReactions($id: String!, $currentUserEmail: String!) {
 storyReactions(
-  email: $email, 
-  id: $id
-  orderBy: [
-    type_asc
-  ]
-  ){
-    id
-    type
-    created{
-      formatted
-    }
-    userId
-    email
-    name
-    home
-    image
-    isBook
-    friend
+  id: $id,
+  currentUserEmail: $currentUserEmail)''' +
+    _reaction_ +
+    r'''
   }
-}
 ''';
 
 const String createUserQL = r'''
@@ -935,10 +939,9 @@ mutation addStoryComments($storyId: ID!, $commentId: ID!) {
 ''';
 
 const String createReactionQL = r'''
-mutation CreateReaction($id: ID!, $storyId: ID!, $created: String!, $type: ReactionType!) {
+mutation CreateReaction($id: ID!, $created: String!, $type: ReactionType!) {
   CreateReaction(
     id: $id
-    story: $storyId
     created: {
       formatted: $created
     }
@@ -974,12 +977,12 @@ mutation AddReactionFrom($userId: ID!, $reactionId: ID!) {
 }
 ''';
 
-const String addStoryReactionQL = r'''
-mutation AddStoryReaction($storyId: ID!, $reactionId: ID!) {
-  AddStoryReactions(
+const String addReactionStoryQL = r'''
+mutation addReactionStory($storyId: ID!, $reactionId: ID!) {
+  AddReactionStory(
     from: {
       id: $storyId
-    }
+    } 
     to: {
       id: $reactionId
     }
