@@ -78,7 +78,7 @@ Future<Map> getUserByName(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['userByNamed'];
+  return queryResult.data['getUserByName'];
 }
 
 Future<void> quitFriendship(
@@ -135,6 +135,69 @@ Future<void> deleteBanned(
     documentNode: gql(deleteBannedQL),
     variables: <String, dynamic>{
       'email': email,
+    },
+  );
+
+  final QueryResult queryResult =
+      await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return;
+}
+
+Future<List<dynamic>> getUserStories(
+  GraphQLClient graphQLClient,
+  String currentUserEmail,
+  String limit,
+) async {
+  final QueryOptions _queryOptions = QueryOptions(
+    documentNode: gql(getUserFriendsStoriesQL),
+    variables: <String, dynamic>{
+      'currentUserEmail': currentUserEmail,
+      'limit': limit,
+      'cursor': DateTime.now().toIso8601String(),
+    },
+  );
+
+  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return queryResult.data['userFriendsStories'];
+}
+
+Future<void> deleteUserReactionToStory(
+  GraphQLClient graphQLClient,
+  String email,
+  String storyId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(deleteUserReactionToStoryQL),
+    variables: <String, dynamic>{
+      'email': email,
+      'storyId': storyId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> deleteMessage(
+  GraphQLClient graphQLClientApolloServer,
+  String messageId,
+) async {
+  //delete the message
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(deleteMessageQL),
+    variables: <String, dynamic>{
+      'id': messageId,
     },
   );
 

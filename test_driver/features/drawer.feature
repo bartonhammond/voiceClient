@@ -1,7 +1,7 @@
 Feature: Drawer
 
     @first
-    Scenario: login as new user
+    Scenario: create book and story and assign story to book
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         And I tap the "submitButton" button
@@ -24,20 +24,6 @@ Feature: Drawer
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I tap the back button
-        #Find the new Book User
-        And I tap the text that contains the text "Users"
-        And I fill the "searchField" field with "Book"
-        #Become the Book
-        And I tap the "manageButton-Book Name" button
-        And I tap the text that contains the text "Profile"
-        Then I expect the "nameFormField" "TextFormField" to be "Book Name"
-        And I expect the "homeFormField" "TextFormField" to be "Book Home City, State"
-        #Quit Manage the Book
-        Then I tap the "proxyButton" button
-        And I tap the "alertDefault" button
-        And I pause for 1 seconds
-        Then I expect the "nameFormField" "TextFormField" to be "Test Name"
-        And I expect the "homeFormField" "TextFormField" to be "Home City, State"
         #Create a Story
         Given I tap the "mainFloatingActionButton" widget
         And I tap the "storyFloatingActionButton" widget
@@ -47,7 +33,7 @@ Feature: Drawer
         And I tap the "recorderWidgetStopButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I expect the widget "deleteStoryButton" to be present within 3 seconds
-        # On Story add attention to Book which should send a "attention" notification to the Book and a manage to the bookAuthor
+        # On Story add attention to Book which should send a "attention" notification to the Book
         And I tap the "storyPlayAttentionButton" button
         And I fill the "tagFriendsPageSearch" field with "Book"
         And I tap the "tagFriendsPage-Book Name" widget
@@ -66,25 +52,12 @@ Feature: Drawer
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         And I tap the "backButton" button
-        #Expect testname@myfamilyvoice.com to have a "Manage" notification
-        And I tap the text that contains the text "Notices"
-        Then I expect the "message-title" to be "Manage"
-        #Manage the Book
-        And I tap the "manageButton-Book Name" button
-        # Now, as the Manager of Book, Verify a message was sent from the Attention
+        #Expect testname@myfamilyvoice.com to have a notification
         And I tap the text that contains the text "Notices"
         Then I expect the "message-title" to be "Attention"
         And I expect the "userName-Test Name" to be "Test Name"
         And I expect the "userHome-Test Name" to be "Home City, State"
         #Clear the messages and validate there are no others
-        Given I tap the button that contains the text "Clear"
-        Then I expect the "noMessages" to be "No results"
-        #Quit proxy while still  on Notices
-        Then I tap the "proxyButton" button
-        And I tap the "alertDefault" button
-        Then I expect the "message-title" to be "Manage"
-        Then I expect the "userName-Book Name" to be "Book Name"
-        And I expect the "userHome-Book Name" to be "Book Home City, State"
         Given I tap the button that contains the text "Clear"
         Then I expect the "noMessages" to be "No results"
         #Log out
@@ -124,33 +97,17 @@ Feature: Drawer
         Then I expect the widget "Stories" to be present within 10 seconds
         #Check notices
         And I tap the text that contains the text "Notices"
-        Then I expect the "userName-Book Name" to be "Book Name"
-        And I expect the "userHome-Book Name" to be "Book Home City, State"
-        And I tap the "manageButton-Book Name" button
-        And I tap the text that contains the text "Profile"
-        Then I expect the "nameFormField" "TextFormField" to be "Book Name"
-        And I expect the "homeFormField" "TextFormField" to be "Book Home City, State"
-        #Accept the Friend Request
-        Given I tap the text that contains the text "Notices"
         Then I expect the "message-title" to be "Friend Request"
+        And I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
         And I expect the "userName-Barton Hammond" to be "Barton Hammond"
         And I expect the "userHome-Barton Hammond" to be "Fond du Lac, WI"
         #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Approve"
         And I tap the "alertDefault" button
         Then I expect the "noMessages" to be "No results"
-        #Quit Manage the Book
-        Then I tap the "proxyButton" button
-        And I tap the "alertDefault" button
-        And I tap the text that contains the text "Profile"
-        Then I expect the "nameFormField" "TextFormField" to be "Test Name"
-        And I expect the "homeFormField" "TextFormField" to be "Home City, State"
-        #Clear the existing Manage notificiation
+        #Clear the existing notificiation
         And I tap the text that contains the text "Notices"
-        Then I expect the "message-title" to be "Manage"
-        Then I expect the "userName-Book Name" to be "Book Name"
-        And I expect the "userHome-Book Name" to be "Book Home City, State"
-        Given I tap the button that contains the text "Clear"
         Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
@@ -160,7 +117,7 @@ Feature: Drawer
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
     @third
-    Scenario: login as Barton
+    Scenario: login as Barton, verify attention and add comment
         #Log in as Barton
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -176,6 +133,7 @@ Feature: Drawer
         Then I expect the "itemText-Book Name" to be "Book Name"
         Given I tap the "attentionButton-Book Name" button
         And I wait until the widget of type "Tags" is absent
+        #make comment
         Given I tap the "commentButton-0" text
         And I tap the "recorderWidgetRecordButton" button
         And I pause for 3 seconds
@@ -190,19 +148,12 @@ Feature: Drawer
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
     @fourth
-    Scenario: Login as test user, manage the book and confirm the comment message
+    Scenario: Login as test user and confirm the comment message
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         Given I tap the "submitButton" button
         And I close the drawer
         Then I expect the widget "Stories" to be present within 10 seconds
-        #Find the new Book User
-        And I tap the text that contains the text "Users"
-        And I fill the "searchField" field with "Book"
-        And I tap the "manageButton-Book Name" button
-        And I tap the text that contains the text "Profile"
-        Then I expect the "nameFormField" "TextFormField" to be "Book Name"
-        And I expect the "homeFormField" "TextFormField" to be "Book Home City, State"
         #Verify the Comment
         Given I tap the text that contains the text "Notices"
         Then I expect the "message-title" to be "Comment"
@@ -212,14 +163,6 @@ Feature: Drawer
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         #go back
         And I tap the "backButton" button
-        Then I expect the "noMessages" to be "No results"
-        #Quit proxy while still  on Notices
-        Then I tap the "proxyButton" button
-        And I tap the "alertDefault" button
-        Then I expect the "message-title" to be "Manage"
-        Then I expect the "userName-Book Name" to be "Book Name"
-        And I expect the "userHome-Book Name" to be "Book Home City, State"
-        Given I tap the button that contains the text "Clear"
         Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
@@ -472,9 +415,6 @@ Feature: Drawer
         Given I tap the "messagesPageComment" text
         Given I tap the "messagesPageFriendRequest" text without scrolling it into view
         Then I expect the "noMessages" to be "No results"
-        Given I tap the "messagesPageFriendRequest" text
-        Given I tap the "messagesPageManage" text without scrolling it into view
-        Then I expect the "noMessages" to be "No results"
         #logout
         And I open the drawer
         And I tap the "signOutTile" widget
@@ -499,8 +439,111 @@ Feature: Drawer
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
-
-
+    @eighth
+    Scenario: Validate the Reactions table
+        #Login as bartonhammond
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        #Scroll down to see the Like button and click the "like"
+        Then I swipe down by 150 pixels on the "storiesPageColumn"
+        And I long press the 'reaction-0' widget
+        And I pause for 1 seconds
+        And I tap the first 'ReactionsBoxItem' of parent type 'ReactionsBox'
+        #Log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #Log in as testname and verify the reactions
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "testname@myfamilyvoice.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        #Scroll down to see the reaction totals
+        Then I swipe down by 150 pixels on the "storiesPageColumn"
+        And I tap the "reactionTotals-0" widget
+        Then I swipe down by 200 pixels on the "storiesPageColumn"
+        And I expect the text "Friend?" to be present
+        #make a friend request
+        Then I tap the widget that contains the text "Friend?"
+        Then I expect the widget "reactionTableFriendRequest" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        And I expect the text "Pending" to be present
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Log in as bartonhammond@gmail and approve the friend request
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Check notices for friend request
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Friend Request"
+        And I expect the "userName-Test Name" to be "Test Name"
+        And I expect the "userHome-Test Name" to be "Home City, State"
+        #approve friend request
+        Given I tap the button that contains the text "Approve"
+        And I tap the "alertDefault" button
+        Then I expect the "noMessages" to be "No results"
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Log in as testname and verify the reactions shows Message for bartonhammond
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "testname@myfamilyvoice.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Scroll down to see the reaction totals
+        Then I swipe down by 150 pixels on the "storiesPageColumn"
+        And I tap the "reactionTotals-0" widget
+        Then I swipe down by 200 pixels on the "storiesPageColumn"
+        And I expect the text "Message?" to be present
+        #Click the Message button and verify barton hammond is displayed
+        Then I tap the widget that contains the text "Message?"
+        Then I expect the "userName-Barton Hammond" to be "Barton Hammond"
+        And I expect the "userHome-Barton Hammond" to be "Fond du Lac, WI"
+        And I tap the 'message-display' widget
+        #Record a message
+        And I expect the text "Record Message" to be present
+        And I tap the "recorderWidgetRecordButton" button
+        And I pause for 3 seconds
+        And I tap the "recorderWidgetStopButton" button
+        And I expect the text "Record Message" to be absent
+        Then I tap the back button
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Log in as testname and verify the reactions shows Message for bartonhammond
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Check notices for friend request
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Message"
+        And I expect the "userName-Test Name" to be "Test Name"
+        And I expect the "userHome-Test Name" to be "Home City, State"
+        Given I tap the text that contains the text "Delete Message"
+        Then I expect the "noMessages" to be "No results"
 
 
 

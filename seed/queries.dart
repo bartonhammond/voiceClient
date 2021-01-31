@@ -132,7 +132,7 @@ Future<List> getMessagesQuery(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['userMessages'];
+  return queryResult.data['userMessagesReceived'];
 }
 
 Future<List> getStoryReactions(
@@ -248,6 +248,71 @@ Future<void> addUserBookAuthor(
     variables: <String, dynamic>{
       'from': fromUserId,
       'to': toUserId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> createReaction(
+  GraphQLClient graphQLClient,
+  String id,
+  String type,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(createReactionQL),
+    variables: <String, dynamic>{
+      'id': id,
+      'created': now.toIso8601String(),
+      'type': type,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addReactionStory(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String reactionId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addReactionStoryQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
+      'reactionId': reactionId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addReactionFrom(
+  GraphQLClient graphQLClient,
+  String userId,
+  String reactionId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addReactionFromQL),
+    variables: <String, dynamic>{
+      'userId': userId,
+      'reactionId': reactionId,
     },
   );
 

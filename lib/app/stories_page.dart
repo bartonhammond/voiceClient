@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/app/ads_global.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
-import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:firebase_admob/firebase_admob.dart';
@@ -58,8 +57,6 @@ class _StoriesPageState extends State<StoriesPage> {
 
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
-  StreamSubscription proxyStartedSubscription;
-  StreamSubscription proxyEndedSubscription;
   StreamSubscription storyWasAssignedToBookSubscription;
 
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -115,20 +112,6 @@ class _StoriesPageState extends State<StoriesPage> {
   @override
   void initState() {
     super.initState();
-    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      setState(() {
-        if (_refetchQuery != null) {
-          _refetchQuery();
-        }
-      });
-    });
-    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      setState(() {
-        if (_refetchQuery != null) {
-          _refetchQuery();
-        }
-      });
-    });
     storyWasAssignedToBookSubscription =
         eventBus.on<StoryWasAssignedToBook>().listen((event) {
       setState(() {
@@ -151,8 +134,6 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   void dispose() {
-    proxyStartedSubscription.cancel();
-    proxyEndedSubscription.cancel();
     storyWasAssignedToBookSubscription.cancel();
     super.dispose();
   }
@@ -404,12 +385,12 @@ class _StoriesPageState extends State<StoriesPage> {
             title: Text(
               Strings.MFV.i18n,
             ),
-            actions: checkProxy(graphQLAuth, context),
           ),
           drawer: getEmailFromParams() == null ? DrawerWidget() : null,
           body: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
+              key: Key('storiesPageColumn'),
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[

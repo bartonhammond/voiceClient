@@ -20,7 +20,6 @@ import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
-import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
@@ -83,8 +82,6 @@ class _StoryPlayState extends State<StoryPlay>
   DeviceScreenType deviceType;
   bool _showIcons = false;
 
-  StreamSubscription proxyStartedSubscription;
-  StreamSubscription proxyEndedSubscription;
   StreamSubscription bannerSubscription;
 
   GraphQLClient graphQLClient;
@@ -94,12 +91,6 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   void initState() {
     _id = _uuid.v1();
-    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      setState(() {});
-    });
-    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      setState(() {});
-    });
     bannerSubscription = eventBus.on<HideStoryBanner>().listen((event) {
       _bannerAd?.dispose();
       _bannerAd = null;
@@ -111,8 +102,6 @@ class _StoryPlayState extends State<StoryPlay>
 
   @override
   void dispose() {
-    proxyStartedSubscription.cancel();
-    proxyEndedSubscription.cancel();
     bannerSubscription.cancel();
     _bannerAd?.dispose();
     _bannerAd = null;
@@ -384,10 +373,6 @@ class _StoryPlayState extends State<StoryPlay>
               appBar: AppBar(
                 title: Text(
                   Strings.MFV.i18n,
-                ),
-                actions: checkProxy(
-                  graphQLAuth,
-                  context,
                 ),
                 backgroundColor: Color(0xff00bcd4),
                 leading: IconButton(
@@ -753,11 +738,6 @@ class _StoryPlayState extends State<StoryPlay>
 
                 final String id = _story['id'];
                 await deleteStory(
-                  graphQLClient,
-                  id,
-                );
-
-                await deleteMessage(
                   graphQLClient,
                   id,
                 );

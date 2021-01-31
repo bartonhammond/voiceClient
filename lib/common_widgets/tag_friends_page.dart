@@ -2,9 +2,7 @@ import 'dart:async';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
-import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
-import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -81,9 +79,6 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   };
 
   final List<Map<String, dynamic>> _tagItems = [];
-  StreamSubscription proxyStartedSubscription;
-  StreamSubscription proxyEndedSubscription;
-  VoidCallback _refetchQuery;
 
   @override
   void initState() {
@@ -105,24 +100,13 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         }
       }
     }
-    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      setState(() {
-        _refetchQuery();
-      });
-    });
-    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      setState(() {
-        _refetchQuery();
-      });
-    });
+
     super.initState();
   }
 
   @override
   void dispose() {
     _debouncer.stop();
-    proxyStartedSubscription.cancel();
-    proxyEndedSubscription.cancel();
     super.dispose();
   }
 
@@ -432,10 +416,6 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         appBar: AppBar(
           backgroundColor: Color(0xff00bcd4),
           title: Text(Strings.MFV.i18n),
-          actions: checkProxy(
-            graphQLAuth,
-            context,
-          ),
         ),
         body: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -478,7 +458,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                         stackTrace: StackTrace.current.toString());
                     return Text('\nErrors: \n  ' + result.exception.toString());
                   }
-                  _refetchQuery = refetch;
+
                   List<dynamic> friends;
                   if (widget.isBook) {
                     friends = List<dynamic>.from(

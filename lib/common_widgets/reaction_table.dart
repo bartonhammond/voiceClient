@@ -3,7 +3,6 @@ import 'package:MyFamilyVoice/common_widgets/friend_message_page.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
-import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
@@ -38,7 +37,7 @@ class _State extends State<ReactionTable> {
       documentNode: gql(getStoryReactionsByIdQL),
       variables: <String, dynamic>{
         'id': widget.story['id'],
-        'email': graphQLAuth.getUserMap()['email'],
+        'currentUserEmail': graphQLAuth.getUserMap()['email'],
       },
     );
 
@@ -81,6 +80,7 @@ class _State extends State<ReactionTable> {
 
   Future<void> _newFriendRequest(Map<String, dynamic> reaction) async {
     final bool addNewFriend = await PlatformAlertDialog(
+      key: Key('reactionTableFriendRequest'),
       title: Strings.requestFriendship.i18n,
       content: Strings.areYouSure.i18n,
       cancelActionText: Strings.cancel.i18n,
@@ -90,15 +90,15 @@ class _State extends State<ReactionTable> {
       final _uuid = Uuid();
       try {
         await addUserMessages(
-          GraphQLProvider.of(context).value,
-          locator<GraphQLAuth>().getUserMap()['id'],
-          reaction['id'],
-          _uuid.v1(),
-          'new',
-          'friend-request',
-          null,
-          reaction['email'],
+          graphQLClient: GraphQLProvider.of(context).value,
+          fromUser: graphQLAuth.getUserMap(),
+          toUser: reaction['from'],
+          messageId: _uuid.v1(),
+          status: 'new',
+          type: 'friend-request',
+          key: null,
         );
+        setState(() {});
       } catch (e) {
         logger.createMessage(
             userEmail: graphQLAuth.getUser().email,
@@ -111,14 +111,38 @@ class _State extends State<ReactionTable> {
     return;
   }
 
+  bool isFriend(Map reaction) {
+    if (reaction['from']['friends']['to'] != null) {
+      for (var _reaction in reaction['from']['friends']['to']) {
+        if (_reaction['User']['email'] == graphQLAuth.getUser().email) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  bool isPendingFriendRequest(Map reaction) {
+    if (reaction['from']['messagesReceived'] != null) {
+      for (var _message in reaction['from']['messagesReceived']) {
+        if (_message['type'] == 'friend-request' &&
+            _message['from']['email'] == graphQLAuth.getUser().email) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   Widget getSingleScrollView(List reactions) {
+    const double columnSize = 150;
     return SingleChildScrollView(
       scrollDirection: Axis.vertical,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Reactions',
+            Strings.reactionTableTitle.i18n,
             style: TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.bold,
@@ -187,6 +211,7 @@ class _State extends State<ReactionTable> {
                 headingRowHeight: 0.0,
                 sortColumnIndex: 0,
                 dataRowHeight: 80.0,
+                horizontalMargin: 0.0,
                 columns: const <DataColumn>[
                   DataColumn(
                     label: Text(''),
@@ -209,51 +234,65 @@ class _State extends State<ReactionTable> {
                         cells: [
                           DataCell(
                             Container(
-                              width: 150,
+                              width: columnSize,
                               child: getCard(reaction),
                             ),
                           ),
-                          reaction['friend']
-                              //if friend, do nothing
+                          isFriend(reaction)
+                              //if friend, show message
                               ? DataCell(
-                                  MessageButton(
-                                    key: Key(
-                                        '${Keys.reactionTableMessageButton}'),
-                                    text: Strings.reactionTableMessage.i18n,
-                                    onPressed: () async {
-                                      Navigator.push<dynamic>(
-                                          context,
-                                          MaterialPageRoute<dynamic>(
-                                            builder: (BuildContext context) =>
-                                                FriendMessagePage(
-                                              user: reaction,
-                                            ),
-                                            fullscreenDialog: false,
-                                          ));
-                                    },
-                                    fontSize: 20,
-                                    icon: null,
+                                  Container(
+                                    width: columnSize,
+                                    child: MessageButton(
+                                      key: Key(
+                                          'messageButton-message-${reaction["from"]["email"]}'),
+                                      text: Strings.reactionTableMessage.i18n,
+                                      onPressed: () async {
+                                        Navigator.push<dynamic>(
+                                            context,
+                                            MaterialPageRoute<dynamic>(
+                                              builder: (BuildContext context) =>
+                                                  FriendMessagePage(
+                                                user: reaction['from'],
+                                              ),
+                                              fullscreenDialog: false,
+                                            ));
+                                      },
+                                      fontSize: 15,
+                                      icon: null,
+                                    ),
                                   ),
                                 )
-                              : reaction['userId'] ==
+                              : reaction['from']['id'] ==
                                       graphQLAuth.getUserMap()['id']
                                   //if its you, do nothing
                                   ? DataCell(
-                                      Text(''),
-                                    )
+                                      Container(
+                                        width: columnSize,
+                                        child: Text(''),
+                                      ),
+                                      placeholder: true)
                                   //if not a friend
                                   : DataCell(
-                                      MessageButton(
-                                        key: Key(
-                                            '${Keys.reactionTableNewFriendsButton}'),
-                                        text: Strings.newFriend.i18n,
-                                        onPressed: () {
-                                          _newFriendRequest(
-                                            reaction,
-                                          );
-                                        },
-                                        fontSize: 20,
-                                        icon: null,
+                                      Container(
+                                        width: columnSize,
+                                        child: MessageButton(
+                                          key: Key(
+                                              'messageButton-friend-${reaction["from"]["email"]}'),
+                                          text: isPendingFriendRequest(reaction)
+                                              ? Strings.pending
+                                              : Strings.newFriend.i18n,
+                                          onPressed:
+                                              isPendingFriendRequest(reaction)
+                                                  ? null
+                                                  : () {
+                                                      _newFriendRequest(
+                                                        reaction,
+                                                      );
+                                                    },
+                                          fontSize: 20,
+                                          icon: null,
+                                        ),
                                       ),
                                     ),
                         ],
@@ -280,7 +319,7 @@ class _State extends State<ReactionTable> {
           child: FadeInImage.memoryNetwork(
             placeholder: kTransparentImage,
             image: host(
-              reaction['image'],
+              reaction['from']['image'],
               width: 30,
               height: 30,
               resizingType: 'fit',
@@ -290,7 +329,7 @@ class _State extends State<ReactionTable> {
         ),
       ),
       title: AutoSizeText(
-        reaction['name'],
+        reaction['from']['name'],
         maxLines: 2,
       ),
       subtitle: Image.asset(

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/constants/TmpObj.dart';
-import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:flutter/material.dart';
@@ -66,8 +65,7 @@ class _FriendsPageState extends State<FriendsPage> {
     4: 'userSearchBooks',
     5: 'User'
   };
-  StreamSubscription proxyStartedSubscription;
-  StreamSubscription proxyEndedSubscription;
+
   @override
   void initState() {
     _searchString = '*';
@@ -82,16 +80,7 @@ class _FriendsPageState extends State<FriendsPage> {
         _refetchQuery();
       });
     });
-    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      setState(() {
-        _refetchQuery();
-      });
-    });
-    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      setState(() {
-        _refetchQuery();
-      });
-    });
+
     super.initState();
   }
 
@@ -100,8 +89,7 @@ class _FriendsPageState extends State<FriendsPage> {
     _debouncer.stop();
     bookWasDeletedSubscription.cancel();
     bookWasAddedSubscription.cancel();
-    proxyStartedSubscription.cancel();
-    proxyEndedSubscription.cancel();
+
     super.dispose();
   }
 
@@ -202,14 +190,14 @@ class _FriendsPageState extends State<FriendsPage> {
       final _uuid = Uuid();
       try {
         await addUserMessages(
-            GraphQLProvider.of(context).value,
-            graphQLAuth.getUserMap(),
-            toUser,
-            _uuid.v1(),
-            'new',
-            'friend-request',
-            null,
-            toUser['isBook'] ? toUser['bookAuthor']['email'] : null);
+          graphQLClient: GraphQLProvider.of(context).value,
+          fromUser: graphQLAuth.getUserMap(),
+          toUser: toUser,
+          messageId: _uuid.v1(),
+          status: 'new',
+          type: 'friend-request',
+          key: null,
+        );
 
         setState(() {
           _refetchQuery();
@@ -328,10 +316,6 @@ class _FriendsPageState extends State<FriendsPage> {
       appBar: AppBar(
         backgroundColor: Color(0xff00bcd4),
         title: Text(Strings.MFV.i18n),
-        actions: checkProxy(
-          graphQLAuth,
-          context,
-        ),
       ),
       drawer: DrawerWidget(),
       body: Container(
@@ -494,14 +478,21 @@ class _FriendsPageState extends State<FriendsPage> {
     dynamic friend,
     double _fontSize,
   ) {
-    if (friend['messagesSent'] != null && friend['messagesSent'].length > 0) {
-      for (var i = 0; i < friend['messagesSent'].length; i++) {
+    String searchKey = 'messagesSent';
+    String fromToEmail = 'to';
+
+    if (friend['isBook']) {
+      searchKey = 'messagesTopic';
+      fromToEmail = 'from';
+    }
+    if (friend[searchKey] != null && friend[searchKey].length > 0) {
+      for (var i = 0; i < friend[searchKey].length; i++) {
         //pending message
-        final dynamic message = friend['messagesSent'][i];
+        final dynamic message = friend[searchKey][i];
 
         if (message['type'] == 'friend-request' &&
             message['status'] == 'new' &&
-            message['toEmail'] == graphQLAuth.getUser().email) {
+            message[fromToEmail]['email'] == graphQLAuth.getUser().email) {
           return TmpObj(
               button: MessageButton(
                 key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
@@ -569,10 +560,7 @@ class _FriendsPageState extends State<FriendsPage> {
         friend['id'] == graphQLAuth.getUserMap()['id']) {
       return TmpObj(button: Container(), isFriend: true, ignore: false);
     }
-    //check if proxy is active and building for him/her
-    if (graphQLAuth.isProxy && friend['id'] == graphQLAuth.getUserMap()['id']) {
-      return TmpObj(button: Container(), isFriend: true, ignore: true);
-    }
+
     if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {
       button = TmpObj(
           button: MessageButton(
