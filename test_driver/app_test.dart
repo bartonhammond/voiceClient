@@ -150,9 +150,10 @@ Future<void> main(List<String> arguments) async {
     final Map<String, dynamic> bartonNameUser = await graphql.getUserByName(
         graphQLClient, 'Barton Hammond', 'bartonhammond@gmail.com');
 
-    await graphql.quitFriendship(
-        graphQLClient, testNameUser['id'], bartonNameUser['id']);
-
+    if (testNameUser != null && bartonNameUser != null) {
+      await graphql.quitFriendship(
+          graphQLClient, testNameUser['id'], bartonNameUser['id']);
+    }
     List<dynamic> messages = await queries.getMessagesQuery(
       graphQLClient,
       'bartonhammond@gmail.com',
