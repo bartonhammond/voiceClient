@@ -40,9 +40,11 @@ class _HomePageState extends State<HomePage> {
       _areTabsEnabled = true;
     }
     eventBus.on<ProfileEvent>().listen((event) {
-      setState(() {
-        _areTabsEnabled = event.isComplete;
-      });
+      if (mounted) {
+        setState(() {
+          _areTabsEnabled = event.isComplete;
+        });
+      }
     });
     super.initState();
   }
@@ -56,9 +58,11 @@ class _HomePageState extends State<HomePage> {
   };
 
   void _selectedTab(int tabIndex) {
-    setState(() {
-      _currentTab = TabItem.values[tabIndex];
-    });
+    if (mounted) {
+      setState(() {
+        _currentTab = TabItem.values[tabIndex];
+      });
+    }
   }
 
   Widget _buildFab(BuildContext context) {
@@ -82,7 +86,9 @@ class _HomePageState extends State<HomePage> {
                   Navigator.push<dynamic>(context,
                       MaterialPageRoute<dynamic>(builder: (context) {
                     params['onFinish'] = () {
-                      setState(() {});
+                      if (mounted) {
+                        setState(() {});
+                      }
                     };
                     return StoryPlay(
                       key: Key('storyPlay'),

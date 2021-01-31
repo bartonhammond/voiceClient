@@ -210,36 +210,6 @@ class _FriendWidgetState extends State<FriendWidget> {
     );
   }
 
-  Widget getProxyButton() {
-    final DeviceScreenType deviceType =
-        getDeviceType(MediaQuery.of(context).size);
-    double _fontSize = 20;
-    switch (deviceType) {
-      case DeviceScreenType.watch:
-        _fontSize = 12;
-        break;
-      default:
-        _fontSize = 20;
-    }
-
-    return MessageButton(
-      key: Key('manageButton-${widget.user["name"]}'),
-      text: Strings.manageBook.i18n,
-      onPressed: () async {
-        await graphQLAuth.setProxy(widget.user['email']);
-        setState(() {});
-        eventBus.fire(ProxyStarted());
-        //Check if there are pending messages
-        eventBus.fire(GetUserMessagesEvent());
-      },
-      fontSize: _fontSize,
-      icon: Icon(
-        Icons.collections_bookmark,
-        color: Colors.white,
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     _isWeb = AppConfig.of(context).isWeb;
@@ -287,28 +257,35 @@ class _FriendWidgetState extends State<FriendWidget> {
 
     return widget.allowExpandToggle && globals.collapseFriendWidget
         ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-                GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        globals.collapseFriendWidget =
-                            !globals.collapseFriendWidget;
-                      });
-                    },
-                    child: Icon(
-                      Icons.expand_more,
-                      color: Color(0xff00bcd4),
-                      size: 20,
-                    )),
-                Text(
-                  widget.user['name'],
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: _fontSize,
+              GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      globals.collapseFriendWidget =
+                          !globals.collapseFriendWidget;
+                    });
+                  },
+                  child: Icon(
+                    Icons.expand_more,
+                    color: Color(0xff00bcd4),
+                    size: 20,
+                  )),
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.only(right: 13.0),
+                  child: Text(
+                    widget.user['name'],
+                    overflow: TextOverflow.clip,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: _fontSize,
+                    ),
                   ),
                 ),
-              ])
+              ),
+            ],
+          )
         : getCard(
             _width,
             _height,
@@ -502,6 +479,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                           ),
                           const SizedBox(width: 10),
                           InkWell(
+                              key: Key('message-display'),
                               child: Text(Strings.friendWidgetMessage.i18n),
                               onTap: () {
                                 setState(() {
@@ -525,26 +503,10 @@ class _FriendWidgetState extends State<FriendWidget> {
               height: 7.toDouble(),
             ),
             widget.user['isBook'] &&
-                    widget.user['bookAuthor']['email'] ==
-                        graphQLAuth.getUserMap()['email']
-                ? graphQLAuth.isProxy
-                    ? Container()
-                    : getProxyButton()
-                : Container(),
-            widget.user['isBook'] &&
-                    widget.user['bookAuthor']['email'] ==
-                        graphQLAuth.getUserMap()['email']
-                ? SizedBox(
-                    height: 7.toDouble(),
-                  )
-                : Container(),
-            widget.user['isBook'] &&
                     _showDeleteButton &&
                     widget.user['bookAuthor']['email'] ==
                         graphQLAuth.getUserMap()['email']
-                ? graphQLAuth.isProxy
-                    ? Container()
-                    : getDeleteButton()
+                ? getDeleteButton()
                 : Container(),
             widget.user['isBook'] &&
                     _showDeleteButton &&
@@ -681,9 +643,10 @@ class _FriendWidgetState extends State<FriendWidget> {
           }
         }
       }
-
-      userNameBanned = widget.story['originalUser']['name'];
-      userIdBanned = widget.story['originalUser']['id'];
+      if (widget.story['originalUser'] != null) {
+        userNameBanned = widget.story['originalUser']['name'];
+        userIdBanned = widget.story['originalUser']['id'];
+      }
       banned = false;
 
       return getOriginalUserDetail(
@@ -761,6 +724,9 @@ class _FriendWidgetState extends State<FriendWidget> {
     if (widget.user == null) {
       return Container();
     }
+    if (widget.message != null) {
+      return Container();
+    }
     if (widget.user['email'] == graphQLAuth.getUserMap()['email']) {
       return Container();
     }
@@ -768,6 +734,9 @@ class _FriendWidgetState extends State<FriendWidget> {
     //The bookAuthor can be banned if they are not friends
     bool isFriend = false;
     if (widget.user['isBook']) {
+      final String userNameBanned = widget.user['bookAuthor']['name'];
+      final String userIdBanned = widget.user['bookAuthor']['id'];
+
       if (widget.user['bookAuthor']['friends']['to'].length > 0) {
         for (Map aFriend in widget.user['bookAuthor']['friends']['to']) {
           if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
@@ -777,13 +746,19 @@ class _FriendWidgetState extends State<FriendWidget> {
         }
       }
       if (isFriend) {
-        return Container();
+        //show the author info
+        return getOriginalUserDetail(
+          fontSize: _fontSize,
+          showBannedBox: false,
+          banned: false,
+          showUserDetail: true,
+          userNameBanned: userNameBanned,
+          userIdBanned: userIdBanned,
+        );
       }
       const bool showBannedBox = true;
       bool banned = false;
       const bool showUserDetail = true;
-      final String userNameBanned = widget.user['bookAuthor']['name'];
-      final String userIdBanned = widget.user['bookAuthor']['id'];
 
       if (widget.user['bookAuthor']['banned'] != null &&
           widget.user['bookAuthor']['banned']['from'].length > 0) {

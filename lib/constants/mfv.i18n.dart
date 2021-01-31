@@ -524,6 +524,10 @@ extension Localization on String {
         'es': 'Eliminar exitoso',
       } +
       {
+        'en': Strings.reactionTableTitle,
+        'es': 'Reacciones',
+      } +
+      {
         'en': Strings.reactionLike,
         'es': 'Gusta',
       } +

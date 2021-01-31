@@ -4,7 +4,6 @@ import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/banner.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
-import 'package:MyFamilyVoice/services/check_proxy.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -78,9 +77,6 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController emailFormFieldController = TextEditingController();
   TextEditingController nameFormFieldController = TextEditingController();
   TextEditingController homeFormFieldController = TextEditingController();
-
-  StreamSubscription proxyStartedSubscription;
-  StreamSubscription proxyEndedSubscription;
   StreamSubscription hideBannerSubscription;
   StreamSubscription showBannerSubscription;
 
@@ -123,12 +119,6 @@ class _ProfilePageState extends State<ProfilePage> {
     _fToast = FToast();
     _fToast.init(context);
 
-    proxyStartedSubscription = eventBus.on<ProxyStarted>().listen((event) {
-      setState(() {});
-    });
-    proxyEndedSubscription = eventBus.on<ProxyEnded>().listen((event) {
-      setState(() {});
-    });
     hideBannerSubscription = eventBus.on<HideProfileBanner>().listen((event) {
       _bannerAd?.dispose();
       _bannerAd = null;
@@ -175,8 +165,6 @@ class _ProfilePageState extends State<ProfilePage> {
     emailFormFieldController.dispose();
     nameFormFieldController.dispose();
     homeFormFieldController.dispose();
-    proxyStartedSubscription.cancel();
-    proxyEndedSubscription.cancel();
     hideBannerSubscription.cancel();
     showBannerSubscription.cancel();
     _bannerAd?.dispose();
@@ -762,12 +750,9 @@ class _ProfilePageState extends State<ProfilePage> {
             key: _scaffoldKey,
             drawer: isBook ? null : DrawerWidget(),
             appBar: AppBar(
-                title: Text(Strings.MFV.i18n),
-                backgroundColor: Constants.backgroundColor,
-                actions: checkProxy(
-                  graphQLAuth,
-                  context,
-                )),
+              title: Text(Strings.MFV.i18n),
+              backgroundColor: Constants.backgroundColor,
+            ),
             body: getForm(),
           );
         });

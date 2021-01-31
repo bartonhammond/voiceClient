@@ -307,6 +307,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
+                      key: Key('reactionTotals-${widget.index}'),
                       onTap: () {
                         setState(() {
                           _showReactionTotals = !_showReactionTotals;
@@ -400,7 +401,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                         builder: (BuildContext c) {
                           return FlutterReactionButtonCheck(
                             isChecked: false,
-                            key: Key('reaction-${widget.story['id']}'),
+                            key: Key('reaction-${widget.index}'),
                             boxAlignment: getAlignment(),
                             onReactionChanged: (reaction, isChecked) async {
                               final GraphQLClient graphQLClient =
@@ -422,21 +423,20 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                                 await createReaction(
                                   graphQLClient,
                                   _reactionId,
-                                  widget.story['id'],
                                   reactionTypes[reaction.id - 1],
+                                );
+
+                                //from story
+                                await addReactionStory(
+                                  graphQLClient,
+                                  widget.story['id'],
+                                  _reactionId,
                                 );
 
                                 //from user
                                 await addReactionFrom(
                                   graphQLClient,
                                   graphQLAuth.getUserMap()['id'],
-                                  _reactionId,
-                                );
-
-                                //from story
-                                await addStoryReaction(
-                                  graphQLClient,
-                                  widget.story['id'],
                                   _reactionId,
                                 );
                               }

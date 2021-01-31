@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:args/args.dart';
+import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:graphql/client.dart';
+
+import '../seed/queries.dart' as queries;
 import 'graphQL.dart' as graphql;
 import 'steps/expectTextFormFieldToHaveValue.dart';
+import 'steps/tap_positional_widget_of_type.dart';
 
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser();
@@ -40,6 +44,12 @@ Future<void> main(List<String> arguments) async {
     help: 'delete the users created for testing family?',
     allowed: ['yes', 'no'],
   );
+
+  parser.addOption(
+    'deleteStoryReactions',
+    help: 'delete the stories reactions created from eighth?',
+    allowed: ['yes', 'no'],
+  );
   parser.addOption(
     'runTag',
     help: 'which tag to run?',
@@ -52,6 +62,7 @@ Future<void> main(List<String> arguments) async {
       'fifth',
       'sixth',
       'seventh',
+      'eighth'
     ],
   );
 
@@ -66,6 +77,7 @@ Future<void> main(List<String> arguments) async {
   print('deleteBook ${argResults["deleteBook"] == "yes"}');
   print('deleteBooksMessages ${argResults["deleteBooksMessages"] == "yes"}');
   print('deleteBanned ${argResults["deleteBanned"] == "yes"}');
+  print('deleteStoryReactions ${argResults["deleteStoryReactions"] == "yes"}');
   print('runTag ${argResults["runTag"]}');
   print(
       'deleteFamilyTestUsers ${argResults["deleteFamilyTestUsers"] == "yes"}');
@@ -123,8 +135,50 @@ Future<void> main(List<String> arguments) async {
       'Family Story Friend',
     );
   }
+  if (argResults['deleteStoryReactions'] == 'yes') {
+    final List<dynamic> stories = await graphql.getUserStories(
+        graphQLClient, 'bartonhammond@gmail.com', '1');
+
+    await graphql.deleteUserReactionToStory(
+      graphQLClient,
+      'bartonhammond@gmail.com',
+      stories[0]['id'],
+    );
+    final Map<String, dynamic> testNameUser = await graphql.getUserByName(
+        graphQLClient, 'Test Name', 'bartonhammond@gmail.com');
+
+    final Map<String, dynamic> bartonNameUser = await graphql.getUserByName(
+        graphQLClient, 'Barton Hammond', 'bartonhammond@gmail.com');
+
+    if (testNameUser != null && bartonNameUser != null) {
+      await graphql.quitFriendship(
+          graphQLClient, testNameUser['id'], bartonNameUser['id']);
+    }
+    List<dynamic> messages = await queries.getMessagesQuery(
+      graphQLClient,
+      'bartonhammond@gmail.com',
+      100,
+      '2022-02-02',
+    );
+
+    for (Map message in messages) {
+      await graphql.deleteMessage(graphQLClient, message['id']);
+    }
+
+    messages = await queries.getMessagesQuery(
+      graphQLClient,
+      'testname@myfamilyvoice.com',
+      100,
+      '2022-02-02',
+    );
+
+    for (Map message in messages) {
+      await graphql.deleteMessage(graphQLClient, message['id']);
+    }
+  }
   final Iterable<StepDefinitionGeneric<World>> steps = [
     expectTextFormFieldToHaveValue(),
+    tapPositionalWidgetOfType(),
   ];
   FlutterTestConfiguration config;
   if (argResults['runTag'] == 'all') {

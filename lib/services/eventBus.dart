@@ -22,10 +22,6 @@ class ShowProfileBanner {}
 
 class HideStoryBanner {}
 
-class ProxyStarted {}
-
-class ProxyEnded {}
-
 class BookWasAdded {}
 
 class BookWasDeleted {}
