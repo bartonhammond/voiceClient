@@ -390,6 +390,7 @@ class _StoriesPageState extends State<StoriesPage> {
           body: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Column(
+              key: Key('storiesPageColumn'),
               mainAxisAlignment: MainAxisAlignment.start,
               mainAxisSize: MainAxisSize.max,
               children: <Widget>[

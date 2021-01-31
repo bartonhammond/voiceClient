@@ -3,7 +3,6 @@ import 'package:MyFamilyVoice/common_widgets/friend_message_page.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
-import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
@@ -81,6 +80,7 @@ class _State extends State<ReactionTable> {
 
   Future<void> _newFriendRequest(Map<String, dynamic> reaction) async {
     final bool addNewFriend = await PlatformAlertDialog(
+      key: Key('reactionTableFriendRequest'),
       title: Strings.requestFriendship.i18n,
       content: Strings.areYouSure.i18n,
       cancelActionText: Strings.cancel.i18n,
@@ -142,7 +142,7 @@ class _State extends State<ReactionTable> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Reactions',
+            Strings.reactionTableTitle.i18n,
             style: TextStyle(
               fontSize: 16.0,
               fontWeight: FontWeight.bold,
@@ -245,7 +245,7 @@ class _State extends State<ReactionTable> {
                                     width: columnSize,
                                     child: MessageButton(
                                       key: Key(
-                                          '${Keys.reactionTableMessageButton}'),
+                                          'messageButton-message-${reaction["from"]["email"]}'),
                                       text: Strings.reactionTableMessage.i18n,
                                       onPressed: () async {
                                         Navigator.push<dynamic>(
@@ -278,7 +278,7 @@ class _State extends State<ReactionTable> {
                                         width: columnSize,
                                         child: MessageButton(
                                           key: Key(
-                                              '${Keys.reactionTableNewFriendsButton}'),
+                                              'messageButton-friend-${reaction["from"]["email"]}'),
                                           text: isPendingFriendRequest(reaction)
                                               ? Strings.pending
                                               : Strings.newFriend.i18n,

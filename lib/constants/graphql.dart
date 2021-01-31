@@ -1013,8 +1013,8 @@ mutation deleteStory($storyId: String!) {
 ''';
 
 const String deleteMessageQL = r'''
-mutation deleteMessage($storyId: String!) {
-  deleteMessage(storyId: $storyId)
+mutation deleteMessage($id: String!) {
+  deleteMessage(id: $id)
 }
 ''';
 

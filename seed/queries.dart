@@ -132,7 +132,7 @@ Future<List> getMessagesQuery(
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
-  return queryResult.data['userMessages'];
+  return queryResult.data['userMessagesReceived'];
 }
 
 Future<List> getStoryReactions(

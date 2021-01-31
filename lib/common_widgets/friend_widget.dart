@@ -479,6 +479,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                           ),
                           const SizedBox(width: 10),
                           InkWell(
+                              key: Key('message-display'),
                               child: Text(Strings.friendWidgetMessage.i18n),
                               onTap: () {
                                 setState(() {

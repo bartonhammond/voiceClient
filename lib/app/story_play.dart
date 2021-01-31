@@ -742,11 +742,6 @@ class _StoryPlayState extends State<StoryPlay>
                   id,
                 );
 
-                await deleteMessage(
-                  graphQLClient,
-                  id,
-                );
-
                 if (widget.params.isNotEmpty &&
                     widget.params.containsKey('onDelete')) {
                   widget.params['onDelete']();

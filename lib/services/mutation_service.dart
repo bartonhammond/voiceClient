@@ -220,13 +220,13 @@ Future<void> addStoryOriginalUser(
 
 Future<void> deleteMessage(
   GraphQLClient graphQLClientApolloServer,
-  String storyId,
+  String messageId,
 ) async {
   //delete the message
   final MutationOptions _mutationOptions = MutationOptions(
     documentNode: gql(deleteMessageQL),
     variables: <String, dynamic>{
-      'storyId': storyId,
+      'id': messageId,
     },
   );
 

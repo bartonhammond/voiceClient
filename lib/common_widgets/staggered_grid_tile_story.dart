@@ -307,6 +307,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     InkWell(
+                      key: Key('reactionTotals-${widget.index}'),
                       onTap: () {
                         setState(() {
                           _showReactionTotals = !_showReactionTotals;
@@ -400,7 +401,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                         builder: (BuildContext c) {
                           return FlutterReactionButtonCheck(
                             isChecked: false,
-                            key: Key('reaction-${widget.story['id']}'),
+                            key: Key('reaction-${widget.index}'),
                             boxAlignment: getAlignment(),
                             onReactionChanged: (reaction, isChecked) async {
                               final GraphQLClient graphQLClient =

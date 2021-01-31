@@ -169,6 +169,7 @@ class Strings {
   static const String deleted = 'Delete successful';
 
   //Reactions
+  static const String reactionTableTitle = 'Reactions';
   static const String reactionLike = 'Like';
   static const String reactionHaha = 'HaHa';
   static const String reactionJoy = 'Joy';

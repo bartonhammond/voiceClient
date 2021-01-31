@@ -439,8 +439,111 @@ Feature: Drawer
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
 
-
-
+    @eighth
+    Scenario: Validate the Reactions table
+        #Login as bartonhammond
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        #Scroll down to see the Like button and click the "like"
+        Then I swipe down by 150 pixels on the "storiesPageColumn"
+        And I long press the 'reaction-0' widget
+        And I pause for 1 seconds
+        And I tap the first 'ReactionsBoxItem' of parent type 'ReactionsBox'
+        #Log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        #Log in as testname and verify the reactions
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "testname@myfamilyvoice.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
+        #Scroll down to see the reaction totals
+        Then I swipe down by 150 pixels on the "storiesPageColumn"
+        And I tap the "reactionTotals-0" widget
+        Then I swipe down by 200 pixels on the "storiesPageColumn"
+        And I expect the text "Friend?" to be present
+        #make a friend request
+        Then I tap the widget that contains the text "Friend?"
+        Then I expect the widget "reactionTableFriendRequest" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        And I expect the text "Pending" to be present
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Log in as bartonhammond@gmail and approve the friend request
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Check notices for friend request
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Friend Request"
+        And I expect the "userName-Test Name" to be "Test Name"
+        And I expect the "userHome-Test Name" to be "Home City, State"
+        #approve friend request
+        Given I tap the button that contains the text "Approve"
+        And I tap the "alertDefault" button
+        Then I expect the "noMessages" to be "No results"
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Log in as testname and verify the reactions shows Message for bartonhammond
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "testname@myfamilyvoice.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Scroll down to see the reaction totals
+        Then I swipe down by 150 pixels on the "storiesPageColumn"
+        And I tap the "reactionTotals-0" widget
+        Then I swipe down by 200 pixels on the "storiesPageColumn"
+        And I expect the text "Message?" to be present
+        #Click the Message button and verify barton hammond is displayed
+        Then I tap the widget that contains the text "Message?"
+        Then I expect the "userName-Barton Hammond" to be "Barton Hammond"
+        And I expect the "userHome-Barton Hammond" to be "Fond du Lac, WI"
+        And I tap the 'message-display' widget
+        #Record a message
+        And I expect the text "Record Message" to be present
+        And I tap the "recorderWidgetRecordButton" button
+        And I pause for 3 seconds
+        And I tap the "recorderWidgetStopButton" button
+        And I expect the text "Record Message" to be absent
+        Then I tap the back button
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Log in as testname and verify the reactions shows Message for bartonhammond
+        Given I open the drawer
+        Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Check notices for friend request
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Message"
+        And I expect the "userName-Test Name" to be "Test Name"
+        And I expect the "userHome-Test Name" to be "Home City, State"
+        Given I tap the text that contains the text "Delete Message"
+        Then I expect the "noMessages" to be "No results"
 
 
 
