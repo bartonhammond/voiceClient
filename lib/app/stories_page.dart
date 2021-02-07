@@ -1,8 +1,16 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/app/ads_global.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
+import 'package:MyFamilyVoice/ql/story/story_comments.dart';
+import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
+import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
+import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story/story_tags.dart';
+import 'package:MyFamilyVoice/ql/story/story_user.dart';
+import 'package:MyFamilyVoice/ql/story_ql.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
-import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';
@@ -16,7 +24,6 @@ import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_story.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
@@ -109,9 +116,27 @@ class _StoriesPageState extends State<StoriesPage> {
 
   VoidCallback _refetchQuery;
 
+  final StoryUser storyUser = StoryUser();
+  final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
+  final StoryComments storyComments = StoryComments();
+  final StoryReactions storyReactions = StoryReactions(useFilter: true);
+  final StoryTags storyTags = StoryTags();
+
+  StoryQl storyQl;
+
   @override
   void initState() {
     super.initState();
+
+    storyQl = StoryQl(
+      core: true,
+      storyUser: storyUser,
+      storyOriginalUser: storyOriginalUser,
+      storyComments: storyComments,
+      storyReactions: storyReactions,
+      storyTags: storyTags,
+    );
+
     storyWasAssignedToBookSubscription =
         eventBus.on<StoryWasAssignedToBook>().listen((event) {
       setState(() {
@@ -154,11 +179,20 @@ class _StoriesPageState extends State<StoriesPage> {
     if (widget.params == null || getEmailFromParams() == null) {
       return user;
     }
-
-    return await getUserByEmail(
+    final UserQl userQL = UserQl(core: true);
+    final UserSearch userSearch = UserSearch.init(
       GraphQLProvider.of(context).value,
-      getEmailFromParams(),
+      userQL,
+      'bartonhammond@gmail.com',
     );
+    userSearch.setQueryName('getUserByEmail');
+    userSearch.setVariables(<String, dynamic>{
+      'currentUserEmail': 'String!',
+    });
+
+    return await userSearch.getItem(<String, dynamic>{
+      'currentUserEmail': 'bartonhammond@gmail.com',
+    });
   }
 
   String getCursor(List<dynamic> _list) {
@@ -217,43 +251,53 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
-    String gqlString;
     final _variables = <String, dynamic>{
       'currentUserEmail': graphQLAuth.getUser().email,
       'limit': nStories.toString(),
       'cursor': DateTime.now().toIso8601String(),
     };
-
+    final StorySearch storySearch = StorySearch.init(
+      null,
+      storyQl,
+      'bartonhammond@gmail.com',
+    );
     switch (_typeStoryView) {
       case TypeStoriesView.allFriends:
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
-            gqlString = getUserFriendsStoriesQL;
+            storySearch.setQueryName('userFriendsStories');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.FAMILY:
-            gqlString = getUserFriendsStoriesFamilyQL;
+            storySearch.setQueryName('userFriendsStoriesFamily');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.FRIENDS:
-            gqlString = getUserFriendsStoriesFriendsQL;
+            storySearch.setQueryName('userFriendsStoriesFriends');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.ME:
-            gqlString = getUserStoriesMeQL;
+            storySearch.setQueryName('userStoriesMe');
+            return storySearch.getQueryOptions(_variables);
         }
         break;
 
       case TypeStoriesView.oneFriend:
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
-            gqlString = getUserStoriesQL;
             _variables['currentUserEmail'] = user['email'];
+            storySearch.setQueryName('userStories');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.FAMILY:
-            gqlString = getUserStoriesFamilyQL;
             _variables['currentUserEmail'] = user['email'];
+            storySearch.setQueryName('userStoriesFamily');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.FRIENDS:
-            gqlString = getUserStoriesFriendsQL;
             _variables['currentUserEmail'] = user['email'];
+            storySearch.setQueryName('userStoriesFriends');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.ME:
             // never happens
@@ -264,13 +308,16 @@ class _StoriesPageState extends State<StoriesPage> {
       case TypeStoriesView.me:
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
-            gqlString = getUserStoriesMeQL;
+            storySearch.setQueryName('userStoriesMe');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.FAMILY:
-            gqlString = getUserStoriesMeFamilyQL;
+            storySearch.setQueryName('userStoriesMeFamily');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.FRIENDS:
-            gqlString = getUserStoriesFriendsQL;
+            storySearch.setQueryName('userStoriesFriends');
+            return storySearch.getQueryOptions(_variables);
             break;
           case StoryFeedType.ME:
             // never happens
@@ -279,10 +326,7 @@ class _StoriesPageState extends State<StoriesPage> {
         break;
     }
 
-    return QueryOptions(
-      documentNode: gql(gqlString),
-      variables: _variables,
-    );
+    return null;
   }
 
   List<DropdownMenuItem<StoryFeedType>> getButtonItems() {

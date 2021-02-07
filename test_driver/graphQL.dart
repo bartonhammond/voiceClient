@@ -127,15 +127,12 @@ GraphQLClient getGraphQLClient(GraphQLClientType type) {
   return graphQLClient;
 }
 
-Future<void> deleteBanned(
+Future<void> deleteAllBans(
   GraphQLClient graphQLClientApolloServer,
-  String email,
 ) async {
   final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(deleteBannedQL),
-    variables: <String, dynamic>{
-      'email': email,
-    },
+    documentNode: gql(deleteAllBansQL),
+    variables: <String, dynamic>{},
   );
 
   final QueryResult queryResult =

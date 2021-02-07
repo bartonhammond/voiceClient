@@ -2,9 +2,10 @@ import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_message_page.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
+import 'package:MyFamilyVoice/ql/reaction/reaction_search.dart';
+import 'package:MyFamilyVoice/ql/reaction_ql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
@@ -24,30 +25,41 @@ class ReactionTable extends StatefulWidget {
 }
 
 class _State extends State<ReactionTable> {
+  ReactionQl reactionQl;
   @override
   void initState() {
     super.initState();
+
+    reactionQl = ReactionQl();
   }
 
   ReactionType _filter;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   Future<List> getReactions() async {
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getStoryReactionsByIdQL),
-      variables: <String, dynamic>{
-        'id': widget.story['id'],
-        'currentUserEmail': graphQLAuth.getUserMap()['email'],
+    final ReactionSearch reactionSearch = ReactionSearch.init(
+      null,
+      reactionQl,
+      graphQLAuth.getUserMap()['email'],
+    );
+
+    reactionSearch.setVariables(
+      <String, dynamic>{
+        'id': 'String!',
+        'currentUserEmail': 'String!',
       },
     );
 
-    final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+    final Map values = <String, dynamic>{
+      'id': widget.story['id'],
+      'currentUserEmail': graphQLAuth.getUserMap()['email'],
+    };
 
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-    return queryResult.data['storyReactions'];
+    reactionSearch.setQueryName('storyReactions');
+    return await reactionSearch.getListFromQuery(
+      GraphQLProvider.of(context).value,
+      values,
+    );
   }
 
   @override

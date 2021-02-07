@@ -120,9 +120,8 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (argResults['deleteBanned'] == 'yes') {
-    await graphql.deleteBanned(
+    await graphql.deleteAllBans(
       graphQLClient,
-      'bartonhammond@gmail.com',
     );
   }
   if (argResults['deleteFamilyTestUsers'] == 'yes') {

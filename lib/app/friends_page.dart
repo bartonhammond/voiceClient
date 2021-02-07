@@ -1,7 +1,15 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/constants/TmpObj.dart';
+import 'package:MyFamilyVoice/ql/user/user_ban.dart';
+import 'package:MyFamilyVoice/ql/user/user_search_me.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
+import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -46,6 +54,12 @@ class _FriendsPageState extends State<FriendsPage> {
   VoidCallback _refetchQuery;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
+  final UserBookAuthor userBookAuthor = UserBookAuthor();
+  final UserFriends userFriends = UserFriends();
+  final UserMessagesReceived userMessagesReceived = UserMessagesReceived();
+  final UserBan userBan = UserBan();
+  UserQl userQl;
+
   int staggeredViewSize = 2;
 
   Map<int, bool> moreSearchResults = {
@@ -80,6 +94,13 @@ class _FriendsPageState extends State<FriendsPage> {
         _refetchQuery();
       });
     });
+
+    userQl = UserQl(
+      userMessagesReceived: userMessagesReceived,
+      userFriends: userFriends,
+      userBookAuthor: userBookAuthor,
+      userBan: userBan,
+    );
 
     super.initState();
   }
@@ -259,7 +280,6 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   QueryOptions getQueryOptions() {
-    String gqlString;
     _skip = 0;
     var _variables = <String, dynamic>{
       'searchString': _searchString,
@@ -267,35 +287,46 @@ class _FriendsPageState extends State<FriendsPage> {
       'limit': _nFriends.toString(),
       'skip': _skip.toString(),
     };
+    final UserSearch userSearch = UserSearch.init(
+      null,
+      userQl,
+      graphQLAuth.getUser().email,
+    );
     switch (_typeUser) {
       case TypeUser.all:
-        gqlString = userSearchQL;
+        userSearch.setQueryName('userSearch');
+        return userSearch.getQueryOptions(_variables);
         break;
       case TypeUser.family:
-        gqlString = userSearchFamilyQL;
+        userSearch.setQueryName('userSearchFamily');
+        return userSearch.getQueryOptions(_variables);
         break;
       case TypeUser.friends:
-        gqlString = userSearchFriendsQL;
+        userSearch.setQueryName('userSearchFriends');
+        return userSearch.getQueryOptions(_variables);
         break;
       case TypeUser.users:
-        gqlString = userSearchNotFriendsQL;
+        userSearch.setQueryName('userSearchNotFriends');
+        return userSearch.getQueryOptions(_variables);
         break;
       case TypeUser.books:
-        gqlString = userSearchBooksQL;
+        userSearch.setQueryName('userSearchBooks');
+        return userSearch.getQueryOptions(_variables);
         break;
       case TypeUser.me:
-        gqlString = userSearchMeQL;
         _variables = <String, dynamic>{
-          'currentUserEmail': graphQLAuth.getUser().email,
+          'email': graphQLAuth.getUser().email,
         };
+        return UserSearchMe.init(
+          null,
+          userQl,
+          graphQLAuth.getUser().email,
+        ).getQueryOptions(_variables);
         break;
 
       default:
     }
-    return QueryOptions(
-      documentNode: gql(gqlString),
-      variables: _variables,
-    );
+    return null;
   }
 
   @override
@@ -545,6 +576,7 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   TmpObj getMessageButton(dynamic friend) {
+    printJson('friendsPage.getMessageButton', friend);
     TmpObj button;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);

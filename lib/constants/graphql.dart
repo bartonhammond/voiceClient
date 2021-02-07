@@ -16,7 +16,8 @@ const String _user_ = r'''
     created{
       formatted
     }
-    messagesReceived(filter: {status: "new" }) {
+  
+    messagesReceived {
      	id
       type
       created {
@@ -29,7 +30,7 @@ const String _user_ = r'''
         email
       }
     }
-    messagesSent(filter: {status: "new" }) {
+    messagesSent {
       id
       type
       created {
@@ -37,12 +38,12 @@ const String _user_ = r'''
       }
       status
       key
-      from {
+      to {
         id
         email
       }
     }
-    messagesTopic(filter: {status: "new" }) {
+    messagesTopic {
       id
       type
       created {
@@ -56,7 +57,7 @@ const String _user_ = r'''
       }
     }
     banned {
-      from {
+      from(filter: { User: { email: "_currentUserEmail_" } } ) {
         id
         User {
           id
@@ -66,28 +67,20 @@ const String _user_ = r'''
       }
     }
     friends {
-      to {
+      to (filter: { User: { email: "_currentUserEmail_" } } ){
         id
         isFamily
         User {
           email
         }
       }
-      from {
-        id
-        isFamily
-        User {
-          email
-        }
-      }
-    }
-    
+    }  
     bookAuthor {
       id
       email
       name
       banned {
-        from {
+        from(filter: { User: { email: "_currentUserEmail_" } } )  {
           id
           User {
             id
@@ -97,7 +90,7 @@ const String _user_ = r'''
         }
       }
       friends {
-        to(filter: { User: { email_in: [$currentUserEmail] } }) {
+        to(filter: { User: { email: "_currentUserEmail_" } }) {
           id
           isFamily
           User {
@@ -105,8 +98,7 @@ const String _user_ = r'''
           }
         }
       }
-    }
-    
+    }    
   }
 ''';
 
@@ -123,7 +115,7 @@ const _story_ = r'''
     updated {
       formatted
     }
-    reactions(filter: { from: { email: $currentUserEmail	} } ) {
+    reactions(filter: { from: { email: "_currentUserEmail_"	} } ) {
       id
       type
     }
@@ -608,11 +600,15 @@ CreateMessage(
 }
 ''';
 
-const String addUserMessagesSentQL = r'''
-mutation addUseMessagesSent($from: _UserInput!, $to: _MessageInput! ){
-AddUserMessagesSent(
-  from: $from
-  to: $to
+const String addMessageSenderQL = r'''
+mutation addMessageSender($from: ID!, $to: ID! ){
+AddMessageSender(
+  from: {
+    id: $from
+  }
+  to: {
+    id: $to
+  }
 ) {
     from {
       id
@@ -624,35 +620,42 @@ AddUserMessagesSent(
 }
 ''';
 
-const String addUserMessagesReceivedQL = r'''
-mutation addUserMessagesReceived($to: _UserInput!, $from: _MessageInput!, $currentUserEmail: String!) {
-AddUserMessagesReceived(
-  from: $from
-  to: $to
+const String addMessageReceiverQL = r'''
+mutation addMessageReceiver($to: ID!, $from: ID!) {
+AddMessageReceiver(
+  from: {
+    id: $from
+  }
+  to: {
+    id: $to
+  }
 ) {
     from {
       id
     }
-    to ''' +
-    _user_ +
-    r'''
-
+    to {
+      id
+    }
   }
 }
 ''';
 
 const String addMessageBookQL = r'''
-mutation addMessageBook($to: _UserInput!, $from: _MessageInput!, $currentUserEmail: String!) {
+mutation addMessageBook($to: ID!, $from: ID!) {
 AddMessageBook(
-  from: $from
-  to: $to
+  from: {
+    id: $from
+  }
+  to: {
+    id: $to
+  }
 ) {
     from {
       id
     }
-    to ''' +
-    _user_ +
-    r'''
+    to {
+      id
+    }
 
   }
 }
@@ -1115,9 +1118,18 @@ mutation deleteUserMessagesByName($name: String!) {
 
 const String getUserByNameQL = r'''
 query getUserByName($name: String!, $currentUserEmail: String!) {
-getUserByName(name: $name, currentUserEmail: $currentUserEmail)''' +
-    _user_ +
-    '''
+getUserByName(name: $name, currentUserEmail: $currentUserEmail) {
+    __typename
+    id
+    name
+    email
+    home
+    image
+    isBook   
+    created{
+      formatted
+    }
+  }
 }
 ''';
 
@@ -1138,11 +1150,20 @@ userFriend(email: $email, otherEmail: $otherEmail) {
 ''';
 
 const String addUserBannedQL = r'''
-mutation addUserBanned($from: _UserInput!, $to: _UserInput!, $data: _BannedInput!) {
+mutation addUserBanned($fromUserId: ID!, $toUserId: ID!, $id: ID!, $created: String!) {
 AddUserBanned(
-  from: $from, 
-  to: $to,
-  data: $data
+  from: {
+    id: $fromUserId
+  },
+  to: { 
+    id: $toUserId
+  },
+  data: {
+    id: $id,
+    created: {
+      formatted: $created
+    }
+  }
   ) {
     from {
       email
@@ -1161,32 +1182,18 @@ AddUserBanned(
 }
 ''';
 
-const String removeUserBannedQL = r'''
-mutation removeUserBanned($from: _UserInput!, $to: _UserInput!) {
-RemoveUserBanned(
-  from: $from, 
-  to: $to
-  ) {
-    from {
-      email
-      name
-    }
-    to {
-      email
-      id
-      name
-    }
-  }
+const String deleteBanQL = r'''
+mutation deleteBan($id: String!) {
+deleteBan(
+  id: $id
+  )
 }
 ''';
 
-const String deleteBannedQL = r'''
-mutation deleteBanned($email: String!) {
-deleteBanned(
-  email: $email
-  )
+const String deleteAllBansQL = r'''
+mutation deleteAllBans() {
+deleteAllBans()
 }
-
 ''';
 
 const String addUserBookAuthorQL = r'''
@@ -1209,6 +1216,138 @@ mutation addUserBookAuthor($from: ID!, $to: ID!, ){
       id
       name
       email
+    }
+  }
+}
+''';
+
+const String createFriendQL = r'''
+mutation createFriend($id: ID!, $created: String!, $isFamily: Boolean!) {
+  CreateFriend(
+    id: $id
+    created: {
+      formatted: $created
+    }
+    isFamily: $isFamily
+  ) {
+    id
+    isFamily
+    created {
+      formatted
+    }
+  }
+}
+''';
+
+const String addFriendFromQL = r'''
+  mutation addFriendFrom($fromUserInput: ID!, $toFriendInput: ID!) {
+  AddFriendFrom(
+    from: { id: $fromUserInput }
+    to: { id: $toFriendInput }
+  ) {
+    from {
+      id
+      email
+    }
+    to {
+     id
+     isFamily
+    }
+  }
+}
+''';
+
+const String addFriendToQL = r'''
+  mutation addFriendTo($toUserInput: ID!, $fromFriendInput: ID!) {
+  AddFriendTo(
+    from: { id: $fromFriendInput }
+    to: { id: $toUserInput }  
+  ) {
+    from {
+      id
+      isFamily
+    }
+    to {
+      id
+      email
+    }
+  }
+}
+''';
+
+const String addUserFriendsQL = r'''
+  mutation addUserFriends($id: ID!, $fromUserId: ID!, $toUserId: ID!, $isFamily: Boolean!, $created: String) {
+  AddUserFriends(
+    from: { 
+      id: $fromUserId 
+    }
+    to: { 
+      id: $toUserId
+    }
+    data: {
+      id: $id
+      created: {
+        formatted: $created
+      }
+      isFamily: $isFamily
+    }
+  ) {
+      id
+    }
+  }
+''';
+
+const String createBanQL = r'''
+mutation createBan($banId: ID!, $created: String!) {
+  CreateBan(
+    id: $banId
+    created: {
+      formatted: $created
+    }
+    
+  ) {
+    id
+    created {
+      formatted
+    }
+  }
+}
+''';
+const String addBanBannerQL = r'''
+mutation AddBanBanner($toBanId: ID!, $fromUserId: ID!) {
+  AddBanBanner(
+    from: {
+      id: $fromUserId
+    } 
+    to: {
+      id: $toBanId
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      id
+    }
+  }
+}
+''';
+
+const String addBanBannedQL = r'''
+mutation AddBanBanned($fromBanId: ID!, $toUserId: ID!) {
+  AddBanBanned(
+    from: {
+      id: $fromBanId
+    } 
+    to: {
+      id: $toUserId
+    }
+  ) {
+    from {
+      id
+    }
+    to {
+      id
     }
   }
 }

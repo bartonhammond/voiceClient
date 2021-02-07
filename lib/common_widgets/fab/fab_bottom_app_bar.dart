@@ -175,6 +175,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   }
 
   Future<void> _getUserMessagesReceived() async {
+    return;
     if (graphQLAuth.getUserMap() == null) {
       return;
     }
@@ -203,7 +204,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   Widget build(BuildContext context) {
     graphQLAuth = locator<GraphQLAuth>();
     websocket = AppConfig.of(context).websocket;
-    reconnect();
+    //reconnect();
     final List<Widget> items = List.generate(widget.items.length, (int index) {
       Color iconColor;
       if (index == 2 && _messageCount > 0) {

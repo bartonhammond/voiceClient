@@ -2,6 +2,12 @@ import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/common_widgets/radio_group.dart';
+import 'package:MyFamilyVoice/ql/story/story_comments.dart';
+import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
+import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story/story_tags.dart';
+import 'package:MyFamilyVoice/ql/story/story_user.dart';
+import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
@@ -340,7 +346,6 @@ class _StoryPlayState extends State<StoryPlay>
             );
           }
           _story = snapshot.data[0];
-
           if (_story == null) {
             _storyType ??= StoryType.FAMILY;
           } else {
@@ -402,20 +407,33 @@ class _StoryPlayState extends State<StoryPlay>
       return null;
     }
 
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getStoryByIdQL),
-      variables: <String, dynamic>{
-        'id': _storyWasSaved ? _id : widget.params['id'],
-        'currentUserEmail': graphQLAuth.getUserMap()['email']
-      },
+    final StoryTags storyTags = StoryTags();
+    final StoryUser storyUser = StoryUser();
+    final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
+    final StoryComments storyComments = StoryComments();
+    final StoryQl storyQl = StoryQl(
+      storyTags: storyTags,
+      storyUser: storyUser,
+      storyOriginalUser: storyOriginalUser,
+      storyComments: storyComments,
     );
 
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    if (queryResult.hasException) {
-      throw queryResult.exception;
-    }
-
-    return queryResult.data['getStoryById'];
+    final StorySearch storySearch = StorySearch.init(
+      graphQLClient,
+      storyQl,
+      graphQLAuth.getUserMap()['email'],
+    );
+    storySearch.setQueryName('getStoryById');
+    storySearch.setVariables(
+      <String, dynamic>{
+        'id': 'String!',
+        'currentUserEmail': 'String!',
+      },
+    );
+    return await storySearch.getItem(<String, dynamic>{
+      'id': _storyWasSaved ? _id : widget.params['id'],
+      'currentUserEmail': graphQLAuth.getUserMap()['email']
+    });
   }
 
   Future<void> doImageUpload() async {

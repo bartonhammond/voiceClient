@@ -150,15 +150,15 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   bool checkIfIsFamily() {
     if (widget.user.containsKey('friends') &&
-        widget.user['friends'].containsKey('from') &&
-        widget.user['friends']['from'].length > 0) {
-      for (var i = 0; i < widget.user['friends']['from'].length; i++) {
-        if (widget.user['friends']['from'][i].containsKey('isFamily')) {
-          if (widget.user['friends']['from'][i]['isFamily']) {
-            if (widget.user['friends']['from'][i].containsKey('User')) {
-              if (widget.user['friends']['from'][i]['User']
+        widget.user['friends'].containsKey('to') &&
+        widget.user['friends']['to'].length > 0) {
+      for (var i = 0; i < widget.user['friends']['to'].length; i++) {
+        if (widget.user['friends']['to'][i].containsKey('isFamily')) {
+          if (widget.user['friends']['to'][i]['isFamily']) {
+            if (widget.user['friends']['to'][i].containsKey('User')) {
+              if (widget.user['friends']['to'][i]['User']
                       .containsKey('email') &&
-                  widget.user['friends']['from'][i]['User']['email'] ==
+                  widget.user['friends']['to'][i]['User']['email'] ==
                       graphQLAuth.getUserMap()['email']) {
                 return true;
               }
@@ -574,6 +574,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     bool banned,
     String userNameBanned,
     String userIdBanned,
+    String banId,
   ) async {
     if (!banned) {
       final bool ban = await PlatformAlertDialog(
@@ -584,7 +585,7 @@ class _FriendWidgetState extends State<FriendWidget> {
         defaultActionText: Strings.yes.i18n,
       ).show(context);
       if (ban == true) {
-        await addUserBanned(
+        await addBanned(
           graphQLClient,
           graphQLAuth.getUserMap()['id'],
           userIdBanned,
@@ -602,10 +603,9 @@ class _FriendWidgetState extends State<FriendWidget> {
         defaultActionText: Strings.yes.i18n,
       ).show(context);
       if (banRemove == true) {
-        await removeUserBanned(
+        await deleteBanned(
           graphQLClient,
-          graphQLAuth.getUserMap()['id'],
-          userIdBanned,
+          banId,
         );
         if (widget.onBanned != null) {
           widget.onBanned();
@@ -667,6 +667,7 @@ class _FriendWidgetState extends State<FriendWidget> {
     bool showUserDetail,
     String userNameBanned,
     String userIdBanned,
+    String banId,
   }) {
     return Container(
       padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
@@ -692,14 +693,19 @@ class _FriendWidgetState extends State<FriendWidget> {
                 )
               : Container(),
           showBannedBox
-              ? getBanRow(banned, userNameBanned, userIdBanned)
+              ? getBanRow(banned, userNameBanned, userIdBanned, banId)
               : Container()
         ],
       ),
     );
   }
 
-  Widget getBanRow(bool banned, String userNameBanned, String userIdBanned) {
+  Widget getBanRow(
+    bool banned,
+    String userNameBanned,
+    String userIdBanned,
+    String banId,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -711,7 +717,13 @@ class _FriendWidgetState extends State<FriendWidget> {
             key: Key('originalUserBan-$userNameBanned'),
             value: banned,
             onChanged: (bool bannedValue) {
-              _confirmBan(context, !bannedValue, userNameBanned, userIdBanned);
+              _confirmBan(
+                context,
+                !bannedValue,
+                userNameBanned,
+                userIdBanned,
+                banId,
+              );
             },
           ),
         ),
@@ -759,11 +771,14 @@ class _FriendWidgetState extends State<FriendWidget> {
       const bool showBannedBox = true;
       bool banned = false;
       const bool showUserDetail = true;
+      String banId = '';
 
-      if (widget.user['bookAuthor']['banned'] != null &&
-          widget.user['bookAuthor']['banned']['from'].length > 0) {
-        for (Map userBan in widget.user['bookAuthor']['banned']['from']) {
-          if (userBan['User']['email'] == graphQLAuth.getUserMap()['email']) {
+      if (widget.user['bookAuthor'] != null &&
+          widget.user['bookAuthor']['banned'] != null &&
+          widget.user['bookAuthor']['banned'].length > 0) {
+        for (Map userBan in widget.user['bookAuthor']['banned']) {
+          if (userBan['banner']['email'] == graphQLAuth.getUserMap()['email']) {
+            banId = userBan['id'];
             banned = true;
             break;
           }
@@ -775,7 +790,8 @@ class _FriendWidgetState extends State<FriendWidget> {
           banned: banned,
           showUserDetail: showUserDetail,
           userNameBanned: userNameBanned,
-          userIdBanned: userIdBanned);
+          userIdBanned: userIdBanned,
+          banId: banId);
     } //isBook
 
     //Are you friends?  Don't ban if friends
@@ -791,15 +807,16 @@ class _FriendWidgetState extends State<FriendWidget> {
 
     const bool showBannedBox = true;
     bool banned = false;
+    String banId = '';
     const bool showUserDetail = false;
-    String userNameBanned;
-    String userIdBanned;
+    final String userNameBanned = widget.user['name'];
+    final String userIdBanned = widget.user['id'];
 
-    if (widget.user['banned'] != null &&
-        widget.user['banned']['from'].length > 0) {
-      for (Map aUser in widget.user['banned']['from']) {
-        if (aUser['User']['email'] == graphQLAuth.getUserMap()['email']) {
+    if (widget.user['banned'] != null && widget.user['banned'].length > 0) {
+      for (Map aUser in widget.user['banned']) {
+        if (aUser['banner']['email'] == graphQLAuth.getUserMap()['email']) {
           banned = true;
+          banId = aUser['id'];
           break;
         }
       }
@@ -810,6 +827,7 @@ class _FriendWidgetState extends State<FriendWidget> {
         banned: banned,
         showUserDetail: showUserDetail,
         userNameBanned: userNameBanned,
-        userIdBanned: userIdBanned);
+        userIdBanned: userIdBanned,
+        banId: banId);
   }
 }
