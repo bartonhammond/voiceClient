@@ -1,5 +1,12 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/constants/TmpObj.dart';
+import 'package:MyFamilyVoice/ql/user/user_ban.dart';
+import 'package:MyFamilyVoice/ql/user/user_search_me.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
+import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:flutter/material.dart';
@@ -46,6 +53,12 @@ class _FriendsPageState extends State<FriendsPage> {
   VoidCallback _refetchQuery;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
+  final UserBookAuthor userBookAuthor = UserBookAuthor();
+  final UserFriends userFriends = UserFriends();
+  final UserMessagesReceived userMessagesReceived = UserMessagesReceived();
+  final UserBan userBan = UserBan();
+  UserQl userQl;
+
   int staggeredViewSize = 2;
 
   Map<int, bool> moreSearchResults = {
@@ -80,6 +93,13 @@ class _FriendsPageState extends State<FriendsPage> {
         _refetchQuery();
       });
     });
+
+    userQl = UserQl(
+      userMessagesReceived: userMessagesReceived,
+      userFriends: userFriends,
+      userBookAuthor: userBookAuthor,
+      userBan: userBan,
+    );
 
     super.initState();
   }
@@ -259,43 +279,53 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   QueryOptions getQueryOptions() {
-    String gqlString;
     _skip = 0;
-    var _variables = <String, dynamic>{
+    var _values = <String, dynamic>{
       'searchString': _searchString,
       'currentUserEmail': graphQLAuth.getUser().email,
       'limit': _nFriends.toString(),
       'skip': _skip.toString(),
     };
+    final UserSearch userSearch = UserSearch.init(
+      null,
+      userQl,
+      graphQLAuth.getUser().email,
+    );
     switch (_typeUser) {
       case TypeUser.all:
-        gqlString = userSearchQL;
+        userSearch.setQueryName('userSearch');
+        return userSearch.getQueryOptions(_values);
         break;
       case TypeUser.family:
-        gqlString = userSearchFamilyQL;
+        userSearch.setQueryName('userSearchFamily');
+        return userSearch.getQueryOptions(_values);
         break;
       case TypeUser.friends:
-        gqlString = userSearchFriendsQL;
+        userSearch.setQueryName('userSearchFriends');
+        return userSearch.getQueryOptions(_values);
         break;
       case TypeUser.users:
-        gqlString = userSearchNotFriendsQL;
+        userSearch.setQueryName('userSearchNotFriends');
+        return userSearch.getQueryOptions(_values);
         break;
       case TypeUser.books:
-        gqlString = userSearchBooksQL;
+        userSearch.setQueryName('userSearchBooks');
+        return userSearch.getQueryOptions(_values);
         break;
       case TypeUser.me:
-        gqlString = userSearchMeQL;
-        _variables = <String, dynamic>{
-          'currentUserEmail': graphQLAuth.getUser().email,
+        _values = <String, dynamic>{
+          'email': graphQLAuth.getUser().email,
         };
+        return UserSearchMe.init(
+          null,
+          userQl,
+          graphQLAuth.getUser().email,
+        ).getQueryOptions(_values);
         break;
 
       default:
     }
-    return QueryOptions(
-      documentNode: gql(gqlString),
-      variables: _variables,
-    );
+    return null;
   }
 
   @override
@@ -445,6 +475,9 @@ class _FriendsPageState extends State<FriendsPage> {
     dynamic friend,
     double _fontSize,
   ) {
+    if (friend['isBook']) {
+      friend = friend['bookAuthor'];
+    }
     //Are there friend requests to others
     if (friend['messagesReceived'] != null &&
         friend['messagesReceived'].length > 0) {
@@ -454,7 +487,7 @@ class _FriendsPageState extends State<FriendsPage> {
 
         if (message['type'] == 'friend-request' &&
             message['status'] == 'new' &&
-            message['from']['email'] == graphQLAuth.getUser().email) {
+            message['sender']['email'] == graphQLAuth.getUser().email) {
           return TmpObj(
               button: MessageButton(
                 key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
@@ -478,11 +511,12 @@ class _FriendsPageState extends State<FriendsPage> {
     dynamic friend,
     double _fontSize,
   ) {
-    String searchKey = 'messagesSent';
+    String searchKey = 'messagesReceived';
     String fromToEmail = 'to';
 
+    //Need to look at the message to the bookAuthor
     if (friend['isBook']) {
-      searchKey = 'messagesTopic';
+      searchKey = 'messagesReceived';
       fromToEmail = 'from';
     }
     if (friend[searchKey] != null && friend[searchKey].length > 0) {
@@ -517,10 +551,9 @@ class _FriendsPageState extends State<FriendsPage> {
     double _fontSize,
   ) {
     bool foundFriend = false;
-    if (friend['friends'].containsKey('to') &&
-        friend['friends']['to'].length > 0) {
-      for (Map aFriend in friend['friends']['to']) {
-        if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+    if (friend['friendsTo'].length > 0) {
+      for (Map aFriend in friend['friendsTo']) {
+        if (aFriend['receiver']['email'] == graphQLAuth.getUserMap()['email']) {
           foundFriend = true;
           break;
         }

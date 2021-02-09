@@ -1,14 +1,13 @@
 import 'dart:async';
 
 import 'package:MyFamilyVoice/app_config.dart';
-import 'package:MyFamilyVoice/services/queries_service.dart';
+import 'package:MyFamilyVoice/ql/message/message_search.dart';
+import 'package:MyFamilyVoice/ql/message_ql.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:MyFamilyVoice/services/logger.dart' as logger;
-import 'package:web_socket_channel/io.dart';
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.enabled, this.iconData, this.text});
@@ -48,7 +47,6 @@ class FABBottomAppBar extends StatefulWidget {
 
 class FABBottomAppBarState extends State<FABBottomAppBar>
     with WidgetsBindingObserver {
-  IOWebSocketChannel channel;
   int _selectedIndex = 0;
   int _messageCount = 0;
   AppLifecycleState currentLifeCycle;
@@ -61,53 +59,6 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
       _selectedIndex = index;
     });
     return;
-  }
-
-  Future<void> wserror(dynamic err) async {
-    logger.createMessage(
-        userEmail: graphQLAuth.getUser().email,
-        source: 'fab_bottom_app_bar',
-        shortMessage: err.toString(),
-        stackTrace: StackTrace.current.toString());
-    channel = null;
-    await reconnect();
-    return;
-  }
-
-  Future<void> reconnect() async {
-    try {
-      if (channel != null) {
-        return;
-      }
-
-      graphQLAuth ?? locator<GraphQLAuth>();
-
-      if (graphQLAuth.getUserMap() == null) {
-        return;
-      }
-      if (mounted) {
-        channel = IOWebSocketChannel.connect(websocket);
-        channel.sink.add(graphQLAuth.getUserMap()['email']);
-        channel.stream.listen(
-          (dynamic data) => processMessage(),
-          onDone: reconnect,
-          onError: wserror,
-          cancelOnError: true,
-        );
-      } else {
-        await Future<dynamic>.delayed(Duration(seconds: 4));
-        if (graphQLAuth.getUserMap() != null &&
-            graphQLAuth.getUserMap().isNotEmpty) {
-          return reconnect();
-        }
-      }
-    } catch (err) {
-      logger.createMessage(
-          userEmail: graphQLAuth.getUser().email,
-          source: 'fab_bottom_app_bar',
-          shortMessage: err.toString(),
-          stackTrace: StackTrace.current.toString());
-    }
   }
 
   void processMessage() {
@@ -151,8 +102,6 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    channel?.sink?.close();
-    channel = null;
     super.dispose();
   }
 
@@ -181,21 +130,28 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     if (!mounted) {
       return;
     }
-    final QueryResult queryResult = await getUserMessagesReceived(
-        GraphQLProvider.of(context).value,
-        graphQLAuth.getUserMap()['email'],
-        DateTime.now().toIso8601String());
+    final MessageQl messageQl = MessageQl();
+    final MessageSearch messageSearch = MessageSearch.init(
+      GraphQLProvider.of(context).value,
+      messageQl,
+      graphQLAuth.getUser().email,
+    );
+    messageSearch.setQueryName('userMessagesReceived');
+    messageSearch.setVariables(<String, dynamic>{
+      'currentUserEmail': 'String!',
+      'status': 'String!',
+      'limit': 'String!',
+      'cursor': 'String!',
+    });
+    final List messages = await messageSearch.getList(<String, dynamic>{
+      'currentUserEmail': graphQLAuth.getUser().email,
+      'status': 'new',
+      'limit': '1',
+      'cursor': DateTime.now().toIso8601String(),
+    });
 
-    if (queryResult.hasException) {
-      logger.createMessage(
-          userEmail: graphQLAuth.getUser().email,
-          source: 'fab_bottom_app_bar',
-          shortMessage: queryResult.exception.toString(),
-          stackTrace: StackTrace.current.toString());
-      throw queryResult.exception;
-    }
     setState(() {
-      _messageCount = queryResult.data['userMessagesReceived'].length;
+      _messageCount = messages.length;
     });
   }
 
@@ -203,7 +159,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   Widget build(BuildContext context) {
     graphQLAuth = locator<GraphQLAuth>();
     websocket = AppConfig.of(context).websocket;
-    reconnect();
+    //reconnect();
     final List<Widget> items = List.generate(widget.items.length, (int index) {
       Color iconColor;
       if (index == 2 && _messageCount > 0) {

@@ -1,5 +1,8 @@
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:graphql/client.dart';
 
 Future<void> deleteBook(
@@ -67,18 +70,28 @@ Future<Map> getUserByName(
   String name,
   String currentUserEmail,
 ) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByNameQL),
-    variables: <String, dynamic>{
-      'name': name,
-      'currentUserEmail': currentUserEmail,
-    },
+  final UserMessagesReceived userMessagesReceived =
+      UserMessagesReceived(useFilter: false);
+
+  final UserQl userQL = UserQl(
+    userMessagesReceived: userMessagesReceived,
   );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['getUserByName'];
+
+  final UserSearch userSearch = UserSearch.init(
+    graphQLClient,
+    userQL,
+    currentUserEmail,
+  );
+  userSearch.setQueryName('getUserByName');
+  userSearch.setVariables(<String, dynamic>{
+    'currentUserEmail': 'String!',
+    'name': 'String!',
+  });
+
+  return await userSearch.getItem(<String, dynamic>{
+    'currentUserEmail': currentUserEmail,
+    'name': name,
+  });
 }
 
 Future<void> quitFriendship(
@@ -125,26 +138,6 @@ GraphQLClient getGraphQLClient(GraphQLClientType type) {
   );
 
   return graphQLClient;
-}
-
-Future<void> deleteBanned(
-  GraphQLClient graphQLClientApolloServer,
-  String email,
-) async {
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(deleteBannedQL),
-    variables: <String, dynamic>{
-      'email': email,
-    },
-  );
-
-  final QueryResult queryResult =
-      await graphQLClientApolloServer.mutate(_mutationOptions);
-
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return;
 }
 
 Future<List<dynamic>> getUserStories(

@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:MyFamilyVoice/ql/message/message_search.dart';
+import 'package:MyFamilyVoice/ql/message_ql.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -10,7 +12,6 @@ import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_message.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
@@ -59,6 +60,8 @@ class _MessagesPageState extends State<MessagesPage> {
     4: 'userMessagesByType',
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
+
+  MessageQl messageQl = MessageQl();
 
   @override
   void initState() {
@@ -111,20 +114,12 @@ class _MessagesPageState extends State<MessagesPage> {
     if (approveFriendRequest) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
       try {
-        await addUserFriend(
+        await addUserFriends(
           graphQLClient,
-          message['from']['id'],
-          message['book'] == null
+          fromUserId: message['sender']['id'],
+          toUserId: message['book'] == null
               ? graphQLAuth.getUserMap()['id']
               : message['book']['id'],
-        );
-
-        await addUserFriend(
-          graphQLClient,
-          message['book'] == null
-              ? graphQLAuth.getUserMap()['id']
-              : message['book']['id'],
-          message['from']['id'],
         );
 
         await updateUserMessageStatusById(
@@ -137,7 +132,7 @@ class _MessagesPageState extends State<MessagesPage> {
         logger.createMessage(
             userEmail: graphQLAuth.getUser().email,
             source: 'messages_page',
-            shortMessage: e.exception.toString(),
+            shortMessage: e.toString(),
             stackTrace: StackTrace.current.toString());
         rethrow;
       }
@@ -182,7 +177,7 @@ class _MessagesPageState extends State<MessagesPage> {
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
           approveButton: MessageButton(
-            key: Key('friend-request-approve-${message["from"]["email"]}'),
+            key: Key('friend-request-approve-${message["sender"]["email"]}'),
             text: Strings.approveFriendButton.i18n,
             fontSize: 16,
             onPressed: () => _approveFriendRequest(message),
@@ -416,39 +411,79 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   QueryOptions getQueryOptions() {
-    String gqlString;
-
-    final _variables = <String, dynamic>{
+    final _values = <String, dynamic>{
       'currentUserEmail': graphQLAuth.getUser().email,
       'status': 'new',
       'limit': '20',
       'cursor': DateTime.now().toIso8601String(),
     };
+    final MessageSearch messageSearch = MessageSearch.init(
+      null,
+      messageQl,
+      graphQLAuth.getUser().email,
+    );
     switch (_messageType) {
       case MessageType.ALL:
-        gqlString = getUserMessagesReceivedQL;
+        messageSearch.setQueryName('userMessagesReceived');
+        messageSearch.setVariables(<String, dynamic>{
+          'currentUserEmail': 'String!',
+          'status': 'String!',
+          'limit': 'String!',
+          'cursor': 'String!',
+        });
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.ATTENTION:
-        gqlString = getUserMessagesByTypeQL;
-        _variables['type'] = 'attention';
+        _values['type'] = 'attention';
+        messageSearch.setVariables(<String, dynamic>{
+          'currentUserEmail': 'String!',
+          'status': 'String!',
+          'limit': 'String!',
+          'cursor': 'String!',
+          'type': 'String!'
+        });
+        messageSearch.setQueryName('userMessagesByType');
+
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.COMMENT:
-        gqlString = getUserMessagesByTypeQL;
-        _variables['type'] = 'comment';
+        _values['type'] = 'comment';
+        messageSearch.setVariables(<String, dynamic>{
+          'currentUserEmail': 'String!',
+          'status': 'String!',
+          'limit': 'String!',
+          'cursor': 'String!',
+          'type': 'String!'
+        });
+        messageSearch.setQueryName('userMessagesByType');
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.MESSAGE:
-        gqlString = getUserMessagesByTypeQL;
-        _variables['type'] = 'message';
+        _values['type'] = 'message';
+        messageSearch.setVariables(<String, dynamic>{
+          'currentUserEmail': 'String!',
+          'status': 'String!',
+          'limit': 'String!',
+          'cursor': 'String!',
+          'type': 'String!'
+        });
+        messageSearch.setQueryName('userMessagesByType');
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.FRIEND_REQUEST:
-        gqlString = getUserMessagesByTypeQL;
-        _variables['type'] = 'friend-request';
+        _values['type'] = 'friend-request';
+        messageSearch.setVariables(<String, dynamic>{
+          'currentUserEmail': 'String!',
+          'status': 'String!',
+          'limit': 'String!',
+          'cursor': 'String!',
+          'type': 'String!'
+        });
+        messageSearch.setQueryName('userMessagesByType');
+        return messageSearch.getQueryOptions(_values);
         break;
     }
-    return QueryOptions(
-      documentNode: gql(gqlString),
-      variables: _variables,
-    );
+    return null;
   }
 
   @override

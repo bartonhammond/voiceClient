@@ -52,7 +52,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
                     allowExpandToggle: false,
                   ),
             FriendWidget(
-              user: message['from'],
+              user: message['sender'],
               showBorder: false,
               showMessage: message['type'] == 'message',
               message: message,

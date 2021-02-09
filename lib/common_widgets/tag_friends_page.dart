@@ -2,6 +2,11 @@ import 'dart:async';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +15,6 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
@@ -28,8 +32,8 @@ class TagFriendsPage extends StatefulWidget {
   final Map<String, dynamic> story;
   final VoidCallback onSaved;
   final bool isBook;
-  final Future<void> Function(String) onBookSave;
 
+  final Future<void> Function(String) onBookSave;
   @override
   _TagFriendsPageState createState() => _TagFriendsPageState();
 }
@@ -39,6 +43,12 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   final _nFriends = 20;
   int _skip = 0;
   bool _tagsHaveChanged = false;
+
+  final UserBookAuthor userBookAuthor = UserBookAuthor();
+  final UserFriends userFriends = UserFriends();
+  final UserMessagesReceived userMessagesReceived =
+      UserMessagesReceived(useFilter: true);
+  UserQl userQl;
 
   final ScrollController _scrollController = ScrollController();
   String _searchString;
@@ -100,6 +110,11 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         }
       }
     }
+    userQl = UserQl(
+      userMessagesReceived: userMessagesReceived,
+      userFriends: userFriends,
+      userBookAuthor: userBookAuthor,
+    );
 
     super.initState();
   }
@@ -161,8 +176,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
         ),
         value: TypeUser.family,
       ));
-      if (widget.story['type'] == 'FRIENDS' ||
-          widget.story['type'] == 'GLOBAL') {
+      if (widget.story['type'] == 'FRIENDS') {
         items.add(
           DropdownMenuItem(
             child: Text(
@@ -191,53 +205,61 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   }
 
   QueryOptions getQueryOptions() {
-    String gqlString;
     _skip = 0;
-    var _variables = <String, dynamic>{
+    final _variables = <String, dynamic>{
       'searchString': _searchString,
       'currentUserEmail': graphQLAuth.getUser().email,
       'limit': _nFriends.toString(),
       'skip': _skip.toString(),
     };
+
+    final UserSearch userSearch = UserSearch.init(
+      null,
+      userQl,
+      graphQLAuth.getUser().email,
+    );
+
     switch (_typeUser) {
       case TypeUser.family:
         if (widget.isBook) {
-          gqlString = userSearchFamilyBooksQL;
+          userSearch.setQueryName('userSearchFamilyBooks');
+          return userSearch.getQueryOptions(_variables);
         } else {
-          gqlString = userSearchFamilyQL;
+          userSearch.setQueryName('userSearchFamily');
+          return userSearch.getQueryOptions(_variables);
         }
         break;
       case TypeUser.friends:
         if (widget.isBook) {
           //Only books who are friends
-          gqlString = userSearchFriendsBooksQL;
+          userSearch.setQueryName('userSearchFriendsBooks');
+          return userSearch.getQueryOptions(_variables);
         } else {
-          gqlString = userSearchFriendsQL;
+          userSearch.setQueryName('userSearchFriends');
+          return userSearch.getQueryOptions(_variables);
         }
         break;
       case TypeUser.users:
         if (widget.isBook) {
-          gqlString = userSearchNotFriendsBooksQL;
+          userSearch.setQueryName('userSearchNotFriendsBooks');
+          return userSearch.getQueryOptions(_variables);
         } else {
-          gqlString = userSearchNotFriendsQL;
+          userSearch.setQueryName('userSearchNotFriends');
+          return userSearch.getQueryOptions(_variables);
         }
         break;
       case TypeUser.books:
-        gqlString = userSearchBooksQL;
+        userSearch.setQueryName('userSearchBooks');
+        return userSearch.getQueryOptions(_variables);
         break;
       case TypeUser.me:
-        gqlString = userSearchMeQL;
-        _variables = <String, dynamic>{
-          'email': graphQLAuth.getUser().email,
-        };
+        userSearch.setQueryName('User');
+        return userSearch.getQueryOptions(_variables);
         break;
 
       default:
     }
-    return QueryOptions(
-      documentNode: gql(gqlString),
-      variables: _variables,
-    );
+    return null;
   }
 
   bool haveTagsChanged() {

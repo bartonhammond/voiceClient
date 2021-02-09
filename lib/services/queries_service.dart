@@ -1,22 +1,27 @@
 import 'package:MyFamilyVoice/constants/graphql.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 Future<Map> getUserByEmail(
   GraphQLClient graphQLClient,
   String currentUserEmail,
 ) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmailQL),
-    variables: <String, dynamic>{
-      'currentUserEmail': currentUserEmail,
-    },
-  );
+  final UserQl userQL = UserQl();
 
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['getUserByEmail'];
+  final UserSearch userSearch = UserSearch.init(
+    graphQLClient,
+    userQL,
+    currentUserEmail,
+  );
+  userSearch.setQueryName('getUserByEmail');
+  userSearch.setVariables(<String, dynamic>{
+    'currentUserEmail': 'String!',
+  });
+
+  return await userSearch.getItem(<String, dynamic>{
+    'currentUserEmail': 'bartonhammond@gmail.com',
+  });
 }
 
 Future<Map> getUserById(

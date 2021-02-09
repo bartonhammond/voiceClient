@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/ql/user/user_ban.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
 import 'package:MyFamilyVoice/ql/user/user_friends.dart';
@@ -25,32 +26,33 @@ Future<void> main(List<String> arguments) async {
   final GraphQLClient graphQLClient =
       getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
 
-  final UserBookAuthor userBookAuthor = UserBookAuthor(useFilter: true);
-
-  final UserFriends userFriends = UserFriends(useFilter: true);
-
+  final UserBookAuthor userBookAuthor = UserBookAuthor();
+  final UserFriends userFriends = UserFriends();
   final UserMessagesReceived userMessagesReceived =
       UserMessagesReceived(useFilter: true);
+  final UserBan userBan = UserBan();
 
   final UserQl userQL = UserQl(
+    userBookAuthor: userBookAuthor,
     userMessagesReceived: userMessagesReceived,
     userFriends: userFriends,
-    userBookAuthor: userBookAuthor,
+    userBan: userBan,
   );
 
   final UserSearch userSearch = UserSearch.init(
     graphQLClient,
     userQL,
-    'bartonhammond@gmail.com',
+    'marilyn_hammond@zoho.com',
   );
-  userSearch.setQueryName('getUserByEmail');
-  userSearch.setVariables(<String, dynamic>{
-    'currentUserEmail': 'String!',
-  });
+  final Map searchValues = <String, dynamic>{
+    'currentUserEmail': 'bartonhammond@gmail.com',
+    'searchString': '*',
+    'limit': '10',
+    'skip': '0'
+  };
 
-  final Map user = await userSearch.getItem(<String, dynamic>{
-    'currentUserEmail': 'ba06c590-68d9-11eb-bb0f-b9c0bc16898b',
-  });
-
-  printJson('${user["name"]}', user);
+  final List users = await userSearch.getList(searchValues);
+  for (var user in users) {
+    printJson('${user["name"]}', user);
+  }
 }
