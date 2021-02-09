@@ -285,27 +285,23 @@ CreateStory(
 ''';
 
 const String updateStoryQL = r'''
-mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!) {
+mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!,) {
 UpdateStory(
-  id: $id
-  image: $image
-  audio: $audio
-  type: $type
-  created: {formatted: $created}
-  updated: {formatted: $updated}
-) {
-   __typename
+    id: $id
+    image: $image
+    audio: $audio
+    type: $type
+    created: {
+      formatted: $created
+    } 
+    updated: {
+      formatted: $updated
+    }
+  ) {
     id
-    image 
-    audio
-    created { 
-      formatted
-    }
-    updated { 
-      formatted
-    }
-  } 
+  }
 }
+  
 ''';
 
 const String mergeUserStories = r'''
@@ -600,14 +596,14 @@ CreateMessage(
 }
 ''';
 
-const String addMessageSenderQL = r'''
-mutation addMessageSender($from: ID!, $to: ID! ){
-AddMessageSender(
+const String addUserMessagesSentQL = r'''
+mutation addUserMessagesSent($fromUserId: ID!, $toMessageId: ID! ){
+AddUserMessagesSent(
   from: {
-    id: $from
+    id: $fromUserId
   }
   to: {
-    id: $to
+    id: $toMessageId
   }
 ) {
     from {
@@ -620,14 +616,14 @@ AddMessageSender(
 }
 ''';
 
-const String addMessageReceiverQL = r'''
-mutation addMessageReceiver($to: ID!, $from: ID!) {
-AddMessageReceiver(
+const String addUserMessagesReceivedQL = r'''
+mutation addUserMessagesReceived($toUserId: ID!, $fromMessageId: ID!) {
+AddUserMessagesReceived(
   from: {
-    id: $from
+    id: $fromMessageId
   }
   to: {
-    id: $to
+    id: $toUserId
   }
 ) {
     from {
@@ -640,14 +636,14 @@ AddMessageReceiver(
 }
 ''';
 
-const String addMessageBookQL = r'''
-mutation addMessageBook($to: ID!, $from: ID!) {
-AddMessageBook(
+const String addUserMessagesTopicQL = r'''
+mutation addUserMessagesTopic($toUserId: ID!, $fromMessageId: ID!) {
+AddUserMessagesTopic(
   from: {
-    id: $from
+    id: $fromMessageId
   }
   to: {
-    id: $to
+    id: $toUserId
   }
 ) {
     from {
@@ -1133,22 +1129,6 @@ getUserByName(name: $name, currentUserEmail: $currentUserEmail) {
 }
 ''';
 
-const String getUserFriendQL = r'''
-query getUserFriend($email: String!, $otherEmail: String!) {
-userFriend(email: $email, otherEmail: $otherEmail) {
-    id
-    email
-    name
-    home
-    created {
-      formatted
-    }
-    image
-    isFriend
-  }
-}
-''';
-
 const String addUserBannedQL = r'''
 mutation addUserBanned($fromUserId: ID!, $toUserId: ID!, $id: ID!, $created: String!) {
 AddUserBanned(
@@ -1187,12 +1167,6 @@ mutation deleteBan($id: String!) {
 deleteBan(
   id: $id
   )
-}
-''';
-
-const String deleteAllBansQL = r'''
-mutation deleteAllBans() {
-deleteAllBans()
 }
 ''';
 
@@ -1239,11 +1213,15 @@ mutation createFriend($id: ID!, $created: String!, $isFamily: Boolean!) {
 }
 ''';
 
-const String addFriendFromQL = r'''
-  mutation addFriendFrom($fromUserInput: ID!, $toFriendInput: ID!) {
-  AddFriendFrom(
-    from: { id: $fromUserInput }
-    to: { id: $toFriendInput }
+const String addFriendSenderQL = r'''
+  mutation addFriendSender($fromUserId: ID!, $toFriendId: ID!) {
+  AddFriendSender(
+    from: { 
+      id: $fromUserId 
+    }
+    to: { 
+      id: $toFriendId 
+    }
   ) {
     from {
       id
@@ -1257,11 +1235,15 @@ const String addFriendFromQL = r'''
 }
 ''';
 
-const String addFriendToQL = r'''
-  mutation addFriendTo($toUserInput: ID!, $fromFriendInput: ID!) {
-  AddFriendTo(
-    from: { id: $fromFriendInput }
-    to: { id: $toUserInput }  
+const String addFriendReceiverQL = r'''
+  mutation addFriendReceiver($toUserId: ID!, $fromFriendId: ID!) {
+  AddFriendReceiver(
+    from: { 
+      id: $fromFriendId 
+    }
+    to: { 
+      id: $toUserId 
+    }  
   ) {
     from {
       id

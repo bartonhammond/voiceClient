@@ -8,11 +8,18 @@ import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
+import 'package:MyFamilyVoice/ql/user/user_ban.dart';
+import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
@@ -136,10 +143,33 @@ class _FriendWidgetState extends State<FriendWidget> {
 
   Future<void> callBack() async {
     try {
-      final user = await getUserByEmail(
-        graphQLClient,
-        widget.user['email'],
+      final UserMessagesReceived userMessagesReceived =
+          UserMessagesReceived(useFilter: true);
+      final UserBookAuthor userBookAuthor = UserBookAuthor(useFilter: true);
+      final UserBan userBan = UserBan();
+      final UserFriends userFriends = UserFriends(useFilter: true);
+      final UserQl userQL = UserQl(
+        userMessagesReceived: userMessagesReceived,
+        userFriends: userFriends,
+        userBookAuthor: userBookAuthor,
+        userBan: userBan,
       );
+
+      final UserSearch userSearch = UserSearch.init(
+        graphQLClient,
+        userQL,
+        graphQLAuth.getUserMap()['email'],
+      );
+
+      userSearch.setQueryName('getUserByEmail');
+      userSearch.setVariables(<String, dynamic>{
+        'currentUserEmail': 'String!',
+      });
+
+      final Map user = await userSearch.getItem(<String, dynamic>{
+        'currentUserEmail': widget.user['email'],
+      });
+
       setState(() {
         widget.user = user;
       });
@@ -149,21 +179,11 @@ class _FriendWidgetState extends State<FriendWidget> {
   }
 
   bool checkIfIsFamily() {
-    if (widget.user.containsKey('friends') &&
-        widget.user['friends'].containsKey('to') &&
-        widget.user['friends']['to'].length > 0) {
-      for (var i = 0; i < widget.user['friends']['to'].length; i++) {
-        if (widget.user['friends']['to'][i].containsKey('isFamily')) {
-          if (widget.user['friends']['to'][i]['isFamily']) {
-            if (widget.user['friends']['to'][i].containsKey('User')) {
-              if (widget.user['friends']['to'][i]['User']
-                      .containsKey('email') &&
-                  widget.user['friends']['to'][i]['User']['email'] ==
-                      graphQLAuth.getUserMap()['email']) {
-                return true;
-              }
-            }
-          }
+    if (widget.user.containsKey('friendsFrom') &&
+        widget.user['friendsFrom'].length > 0) {
+      for (var friend in widget.user['friendsFrom']) {
+        if (friend['sender']['email'] == graphQLAuth.getUserMap()['email']) {
+          return friend['isFamily'];
         }
       }
     }
@@ -405,7 +425,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                       fontSize: 10.0,
                     ),
                   ),
-            widget.story != null && widget.user['isBook']
+            widget.story != null && widget.story['user']['isBook']
                 ? getStoryBookColumn(_fontSize)
                 : Container(),
             widget.story == null ? getUserBookColumn(_fontSize) : Container(),
@@ -749,9 +769,10 @@ class _FriendWidgetState extends State<FriendWidget> {
       final String userNameBanned = widget.user['bookAuthor']['name'];
       final String userIdBanned = widget.user['bookAuthor']['id'];
 
-      if (widget.user['bookAuthor']['friends']['to'].length > 0) {
-        for (Map aFriend in widget.user['bookAuthor']['friends']['to']) {
-          if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+      if (widget.user['bookAuthor']['friendsTo'].length > 0) {
+        for (Map aFriend in widget.user['bookAuthor']['friendsTo']) {
+          if (aFriend['receiver']['email'] ==
+              graphQLAuth.getUserMap()['email']) {
             isFriend = true;
             break;
           }

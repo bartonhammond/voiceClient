@@ -10,7 +10,9 @@ class UserBookAuthor extends NodeQl {
   });
   bool useFilter;
 
-  UserMessagesReceived userMessagesReceived = UserMessagesReceived();
+  //Don't use the filter here because it breaks the friendsTo
+  UserMessagesReceived userMessagesReceived =
+      UserMessagesReceived(useFilter: false);
   UserFriends userFriends = UserFriends();
   UserBan userBan = UserBan();
 
@@ -37,6 +39,6 @@ class UserBookAuthor extends NodeQl {
     if (useFilter) {
       return _gql.replaceAll(RegExp(r'_filter_'), filter);
     }
-    return _gql;
+    return _gql.replaceAll(RegExp(r'_filter_'), '');
   }
 }

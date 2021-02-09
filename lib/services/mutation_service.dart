@@ -1,7 +1,6 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -239,35 +238,77 @@ Future<void> deleteMessage(
   return;
 }
 
-Future<void> addUserFriend(
-  GraphQLClient graphQLClientApolloServer,
-  String fromUserId,
-  String toUserId,
-) async {
-  final uuid = Uuid();
-  final String _friendsId = uuid.v1();
-
+Future<void> _addUserFriends(GraphQLClient graphQLClient, String friendId,
+    String fromUserId, String toUserId, bool isFamily) async {
   final DateTime now = DateTime.now();
-
   //Create the Story
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(addUserFriendsQL),
+  MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(createFriendQL),
     variables: <String, dynamic>{
-      'id': _friendsId,
-      'fromUserId': fromUserId,
-      'toUserId': toUserId,
+      'id': friendId,
       'created': now.toIso8601String(),
-      'isFamily': false,
+      'isFamily': isFamily,
     },
   );
 
-  final QueryResult queryResult =
-      await graphQLClientApolloServer.mutate(_mutationOptions);
+  QueryResult queryResult = await graphQLClient.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  //Create Sender
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addFriendSenderQL),
+    variables: <String, dynamic>{
+      'toFriendId': friendId,
+      'fromUserId': fromUserId,
+    },
+  );
+  queryResult = await graphQLClient.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  //Create Receiver
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addFriendReceiverQL),
+    variables: <String, dynamic>{
+      'fromFriendId': friendId,
+      'toUserId': toUserId,
+    },
+  );
+  queryResult = await graphQLClient.mutate(_mutationOptions);
 
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
   return;
+}
+
+Future<void> addUserFriends(
+  GraphQLClient graphQLClient, {
+  String fromUserId,
+  String toUserId,
+  bool isFamily = false,
+}) async {
+  final Uuid uuid = Uuid();
+  //from to
+  await _addUserFriends(
+    graphQLClient,
+    uuid.v1(),
+    fromUserId,
+    toUserId,
+    isFamily,
+  );
+  //to from
+  await _addUserFriends(
+    graphQLClient,
+    uuid.v1(),
+    toUserId,
+    fromUserId,
+    isFamily,
+  );
 }
 
 Future<void> updateUserMessageStatusById(
@@ -321,10 +362,10 @@ Future<void> _addUserMessages(
     throw result.exception;
   }
   options = MutationOptions(
-    documentNode: gql(addMessageSenderQL),
+    documentNode: gql(addUserMessagesSentQL),
     variables: <String, dynamic>{
-      'from': fromUser['id'],
-      'to': messageId,
+      'fromUserId': fromUser['id'],
+      'toMessageId': messageId,
     },
   );
   result = await graphQLClient.mutate(options);
@@ -333,10 +374,10 @@ Future<void> _addUserMessages(
   }
 
   options = MutationOptions(
-    documentNode: gql(addMessageReceiverQL),
+    documentNode: gql(addUserMessagesReceivedQL),
     variables: <String, dynamic>{
-      'to': toUser['id'],
-      'from': messageId,
+      'toUserId': toUser['id'],
+      'fromMessageId': messageId,
     },
   );
   result = await graphQLClient.mutate(options);
@@ -347,10 +388,10 @@ Future<void> _addUserMessages(
   if (bookUser != null) {
     //create messageBook
     options = MutationOptions(
-      documentNode: gql(addMessageBookQL),
+      documentNode: gql(addUserMessagesTopicQL),
       variables: <String, dynamic>{
-        'to': bookUser['id'],
-        'from': messageId,
+        'toUserId': bookUser['id'],
+        'fromMessageId': messageId,
       },
     );
     result = await graphQLClient.mutate(options);
@@ -370,9 +411,7 @@ Future<void> addUserMessages({
   String type,
   String key,
 }) async {
-  printJson('addUserMessages', toUser);
   if (toUser['isBook'] == true) {
-    print('send message to book Author');
     await _addUserMessages(
         graphQLClient,
         fromUser,
@@ -383,7 +422,6 @@ Future<void> addUserMessages({
         key,
         toUser);
   } else {
-    print('send messsage to user');
     await _addUserMessages(
       graphQLClient,
       fromUser,

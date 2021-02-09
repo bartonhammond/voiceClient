@@ -9,6 +9,13 @@ import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/ql/story/story_comments.dart';
+import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
+import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
+import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story/story_tags.dart';
+import 'package:MyFamilyVoice/ql/story/story_user.dart';
+import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
@@ -21,7 +28,6 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/constants/transparent_image.dart';
@@ -72,22 +78,42 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   Future<void> callBack() async {
     try {
-      final QueryOptions _queryOptions = QueryOptions(
-        documentNode: gql(getStoryByIdQL),
-        variables: <String, dynamic>{
-          'id': widget.story['id'],
-          'currentUserEmail': graphQLAuth.getUserMap()['email']
+      //any changes here need to be coordinated w/ stories_page
+      final StoryUser storyUser = StoryUser();
+      final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
+      final StoryComments storyComments = StoryComments();
+      final StoryReactions storyReactions = StoryReactions(useFilter: true);
+      final StoryTags storyTags = StoryTags();
+
+      final StoryQl storyQl = StoryQl(
+        core: true,
+        storyUser: storyUser,
+        storyOriginalUser: storyOriginalUser,
+        storyComments: storyComments,
+        storyReactions: storyReactions,
+        storyTags: storyTags,
+      );
+      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
+
+      final StorySearch storySearch = StorySearch.init(
+        graphQLClient,
+        storyQl,
+        'bartonhammond@gmail.com',
+      );
+      storySearch.setQueryName('getStoryById');
+      storySearch.setVariables(
+        <String, dynamic>{
+          'id': 'String!',
+          'currentUserEmail': 'String!',
         },
       );
 
-      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
-      final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-      if (queryResult.hasException) {
-        throw queryResult.exception;
-      }
+      final Map story = await storySearch.getItem(<String, dynamic>{
+        'id': widget.story['id'],
+        'currentUserEmail': graphQLAuth.getUserMap()['email'],
+      });
       setState(() {
-        widget.story = queryResult.data['getStoryById'];
+        widget.story = story;
       });
     } catch (e) {
       print('sgts.callback faled $e');

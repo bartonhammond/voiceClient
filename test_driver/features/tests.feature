@@ -31,6 +31,7 @@ Feature: Drawer
         And I tap the "recorderWidgetRecordButton" button
         And I pause for 3 seconds
         And I tap the "recorderWidgetStopButton" button
+        And I pause for 3 seconds
         Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I expect the widget "deleteStoryButton" to be present within 3 seconds
         # On Story add attention to Book which should send a "attention" notification to the Book

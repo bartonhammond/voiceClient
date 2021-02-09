@@ -57,8 +57,6 @@ void _isolateEncodeImage(SendPort port) {
 
 Future<List<int>> cropImageDataWithDartLibrary(
     {ExtendedImageEditorState state}) async {
-  print('dart library start cropping');
-
   ///crop rect base on raw image
   final Rect cropRect = state.getCropRect();
 
@@ -84,8 +82,6 @@ Future<List<int>> cropImageDataWithDartLibrary(
 
   final EditActionDetails editAction = state.editAction;
 
-  final DateTime time1 = DateTime.now();
-
   /// it costs much time and blocks ui.
   //Image src = decodeImage(data);
 
@@ -100,10 +96,6 @@ Future<List<int>> cropImageDataWithDartLibrary(
     lb = await loadBalancer;
     src = await lb.run<Image, List<int>>(decodeImage, data);
   }
-
-  final DateTime time2 = DateTime.now();
-
-  print('${time2.difference(time1)} : decode');
 
   //clear orientation
   src = bakeOrientation(src);
@@ -129,9 +121,6 @@ Future<List<int>> cropImageDataWithDartLibrary(
     src = copyRotate(src, editAction.rotateAngle);
   }
 
-  final DateTime time3 = DateTime.now();
-  print('${time3.difference(time2)} : crop/flip/rotate');
-
   /// you can encode your image
   ///
   /// it costs much time and blocks ui.
@@ -147,16 +136,11 @@ Future<List<int>> cropImageDataWithDartLibrary(
     fileData = await lb.run<List<int>, Image>(encodeJpg, src);
   }
 
-  final DateTime time4 = DateTime.now();
-  print('${time4.difference(time3)} : encode');
-  print('${time4.difference(time1)} : total time');
   return fileData;
 }
 
 Future<List<int>> cropImageDataWithNativeLibrary(
     {ExtendedImageEditorState state}) async {
-  print('native library start cropping');
-
   final Rect cropRect = state.getCropRect();
   final EditActionDetails action = state.editAction;
 
@@ -180,13 +164,11 @@ Future<List<int>> cropImageDataWithNativeLibrary(
     option.addOption(RotateOption(rotateAngle));
   }
 
-  final DateTime start = DateTime.now();
   final Uint8List result = await ImageEditor.editImage(
     image: img,
     imageEditorOption: option,
   );
 
-  print('${DateTime.now().difference(start)} ：total time');
   return result;
 }
 
@@ -201,7 +183,6 @@ Future<Uint8List> _loadNetwork(ExtendedNetworkImageProvider key) async {
         cancelToken: key.cancelToken);
     return response.bodyBytes;
   } on OperationCanceledError catch (_) {
-    print('User cancel request ${key.url}.');
     return Future<Uint8List>.error(
         StateError('User cancel request ${key.url}.'));
   } catch (e) {

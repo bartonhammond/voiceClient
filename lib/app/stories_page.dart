@@ -8,6 +8,8 @@ import 'package:MyFamilyVoice/ql/story/story_search.dart';
 import 'package:MyFamilyVoice/ql/story/story_tags.dart';
 import 'package:MyFamilyVoice/ql/story/story_user.dart';
 import 'package:MyFamilyVoice/ql/story_ql.dart';
+import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
@@ -117,6 +119,7 @@ class _StoriesPageState extends State<StoriesPage> {
   VoidCallback _refetchQuery;
 
   final StoryUser storyUser = StoryUser();
+
   final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
   final StoryComments storyComments = StoryComments();
   final StoryReactions storyReactions = StoryReactions(useFilter: true);
@@ -127,7 +130,7 @@ class _StoriesPageState extends State<StoriesPage> {
   @override
   void initState() {
     super.initState();
-
+    //If update this, then also coordinate w/ sgts callback()
     storyQl = StoryQl(
       core: true,
       storyUser: storyUser,
@@ -179,11 +182,18 @@ class _StoriesPageState extends State<StoriesPage> {
     if (widget.params == null || getEmailFromParams() == null) {
       return user;
     }
-    final UserQl userQL = UserQl(core: true);
+    final UserBookAuthor userBookAuthor = UserBookAuthor();
+    final UserFriends userFriends = UserFriends();
+    final UserQl userQL = UserQl(
+      core: true,
+      userBookAuthor: userBookAuthor,
+      userFriends: userFriends,
+    );
+
     final UserSearch userSearch = UserSearch.init(
       GraphQLProvider.of(context).value,
       userQL,
-      'bartonhammond@gmail.com',
+      getEmailFromParams(),
     );
     userSearch.setQueryName('getUserByEmail');
     userSearch.setVariables(<String, dynamic>{
@@ -191,7 +201,7 @@ class _StoriesPageState extends State<StoriesPage> {
     });
 
     return await userSearch.getItem(<String, dynamic>{
-      'currentUserEmail': 'bartonhammond@gmail.com',
+      'currentUserEmail': getEmailFromParams(),
     });
   }
 

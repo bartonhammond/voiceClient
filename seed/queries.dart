@@ -184,10 +184,10 @@ Future<void> addUserMessages(
   }
 
   options = MutationOptions(
-    documentNode: gql(addMessageSenderQL),
+    documentNode: gql(addUserMessagesSentQL),
     variables: <String, dynamic>{
-      'from': fromUserId,
-      'to': messageId,
+      'fromUserId': fromUserId,
+      'toMessageId': messageId,
     },
   );
   result = await graphQLClient.mutate(options);
@@ -195,10 +195,10 @@ Future<void> addUserMessages(
     throw result.exception;
   }
   options = MutationOptions(
-    documentNode: gql(addMessageReceiverQL),
+    documentNode: gql(addUserMessagesReceivedQL),
     variables: <String, dynamic>{
-      'to': toUserId,
-      'from': messageId,
+      'toUserId': toUserId,
+      'fromMessageId': messageId,
     },
   );
   result = await graphQLClient.mutate(options);
@@ -326,19 +326,44 @@ Future<void> addUserFriends(
 }) async {
   final DateTime now = DateTime.now();
   //Create the Story
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(addUserFriendsQL),
+  MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(createFriendQL),
     variables: <String, dynamic>{
       'id': friendId,
-      'fromUserID': fromUserId,
-      'toUserId': toUserId,
       'created': now.toIso8601String(),
-      'isFamily': false,
+      'isFamily': isFamily,
     },
   );
 
-  final QueryResult queryResult =
+  QueryResult queryResult =
       await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  //Create Sender
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addFriendSenderQL),
+    variables: <String, dynamic>{
+      'toFriendId': friendId,
+      'fromUserId': fromUserId,
+    },
+  );
+  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  //Create Receiver
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addFriendReceiverQL),
+    variables: <String, dynamic>{
+      'fromFriendId': friendId,
+      'toUserId': toUserId,
+    },
+  );
+  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
 
   if (queryResult.hasException) {
     throw queryResult.exception;

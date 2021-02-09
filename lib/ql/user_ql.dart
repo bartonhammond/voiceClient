@@ -40,6 +40,7 @@ class UserQl extends NodeQl {
     if (userFriends != null) {
       rtn += userFriends.gql;
     }
+
     return rtn;
   }
 

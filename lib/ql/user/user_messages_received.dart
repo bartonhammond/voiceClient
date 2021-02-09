@@ -36,6 +36,6 @@ class UserMessagesReceived extends NodeQl {
     if (useFilter) {
       return _gql.replaceAll(RegExp(r'_filter_'), filter);
     }
-    return _gql;
+    return _gql.replaceAll(RegExp(r'_filter_'), '');
   }
 }

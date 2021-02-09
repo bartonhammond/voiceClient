@@ -5,29 +5,48 @@ class UserFriends extends NodeQl {
     this.useFilter = true,
   });
   bool useFilter;
-  String filter = r'''(filter: { 
-        User: { 
+  String filterTo = r'''(filter: { 
+        receiver: { 
+          email: "_currentUserEmail_" 
+        } 
+      })''';
+  String filterFrom = r'''(filter: { 
+        sender: { 
           email: "_currentUserEmail_" 
         } 
       })''';
 
   final _gql = r'''
-    friends {
-      to _filter_ {
+    friendsTo _filterTo_ {
+      id
+      isFamily
+      receiver {
         id
-        isFamily
-        User {
-          email
-        }
+        name
+        email
       }
     }
+    friendsFrom _filterFrom_ {
+      id
+      isFamily
+      sender {
+        id
+        name
+        email
+      }
+    }
+    
   ''';
 
   @override
   String get gql {
     if (useFilter) {
-      return _gql.replaceAll(RegExp(r'_filter_'), filter);
+      return _gql
+          .replaceAll(RegExp(r'_filterTo_'), filterTo)
+          .replaceAll(RegExp(r'_filterFrom_'), filterFrom);
     }
-    return _gql;
+    return _gql
+        .replaceAll(RegExp(r'_filterTo_'), '')
+        .replaceAll(RegExp(r'_filterFrom_'), '');
   }
 }

@@ -2,12 +2,18 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/ql/story/story_comments.dart';
+import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
+import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
+import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story/story_tags.dart';
+import 'package:MyFamilyVoice/ql/story/story_user.dart';
+import 'package:MyFamilyVoice/ql/story_ql.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:args/args.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:graphql/client.dart';
-
-import '../seed/queries.dart' as queries;
 import 'graphQL.dart' as graphql;
 import 'steps/expectTextFormFieldToHaveValue.dart';
 import 'steps/tap_positional_widget_of_type.dart';
@@ -78,9 +84,9 @@ Future<void> main(List<String> arguments) async {
   print('deleteBooksMessages ${argResults["deleteBooksMessages"] == "yes"}');
   print('deleteBanned ${argResults["deleteBanned"] == "yes"}');
   print('deleteStoryReactions ${argResults["deleteStoryReactions"] == "yes"}');
-  print('runTag ${argResults["runTag"]}');
   print(
       'deleteFamilyTestUsers ${argResults["deleteFamilyTestUsers"] == "yes"}');
+  print('runTag ${argResults["runTag"]}');
   final GraphQLClient graphQLClient =
       graphql.getGraphQLClient(GraphQLClientType.ApolloServer);
 
@@ -120,9 +126,12 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (argResults['deleteBanned'] == 'yes') {
+    /*
     await graphql.deleteAllBans(
       graphQLClient,
+      'bartonhammond@gmail.com',
     );
+    */
   }
   if (argResults['deleteFamilyTestUsers'] == 'yes') {
     await graphql.deleteBookByName(
@@ -135,8 +144,31 @@ Future<void> main(List<String> arguments) async {
     );
   }
   if (argResults['deleteStoryReactions'] == 'yes') {
-    final List<dynamic> stories = await graphql.getUserStories(
-        graphQLClient, 'bartonhammond@gmail.com', '1');
+    final StoryUser storyUser = StoryUser();
+    final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
+    final StoryComments storyComments = StoryComments();
+    final StoryReactions storyReactions = StoryReactions(useFilter: true);
+    final StoryTags storyTags = StoryTags();
+
+    final StoryQl storyQl = StoryQl(
+        core: true,
+        storyUser: storyUser,
+        storyOriginalUser: storyOriginalUser,
+        storyComments: storyComments,
+        storyReactions: storyReactions,
+        storyTags: storyTags);
+
+    final StorySearch storySearch = StorySearch.init(
+      graphQLClient,
+      storyQl,
+      'bartonhammond@gmail.com',
+    );
+    final Map searchValues = <String, dynamic>{
+      'currentUserEmail': 'bartonhammond@gmail.com',
+      'limit': '1',
+      'cursor': '2022-01-01'
+    };
+    final List stories = await storySearch.getList(searchValues);
 
     await graphql.deleteUserReactionToStory(
       graphQLClient,
@@ -153,25 +185,12 @@ Future<void> main(List<String> arguments) async {
       await graphql.quitFriendship(
           graphQLClient, testNameUser['id'], bartonNameUser['id']);
     }
-    List<dynamic> messages = await queries.getMessagesQuery(
-      graphQLClient,
-      'bartonhammond@gmail.com',
-      100,
-      '2022-02-02',
-    );
-
-    for (Map message in messages) {
-      await graphql.deleteMessage(graphQLClient, message['id']);
+    if (testNameUser != null) {
+      for (Map message in testNameUser['messagesReceived']) {
+        await graphql.deleteMessage(graphQLClient, message['id']);
+      }
     }
-
-    messages = await queries.getMessagesQuery(
-      graphQLClient,
-      'testname@myfamilyvoice.com',
-      100,
-      '2022-02-02',
-    );
-
-    for (Map message in messages) {
+    for (Map message in bartonNameUser['messagesReceived']) {
       await graphql.deleteMessage(graphQLClient, message['id']);
     }
   }

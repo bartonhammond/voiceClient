@@ -59,7 +59,10 @@ class UserSearchMe extends Query {
         substitution,
       );
     }
-    return gql;
+    return gql.replaceAll(
+      RegExp(r'_currentUserEmail_'),
+      '',
+    );
   }
 
   @override

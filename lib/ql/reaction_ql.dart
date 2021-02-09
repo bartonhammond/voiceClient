@@ -1,5 +1,6 @@
 import 'package:MyFamilyVoice/ql/node_ql.dart';
 import 'package:MyFamilyVoice/ql/user/user_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 
 class ReactionQl extends NodeQl {
@@ -8,13 +9,17 @@ class ReactionQl extends NodeQl {
   });
   bool core;
 
-  UserFriends userFriends = UserFriends(useFilter: true);
+  UserMessagesReceived userMessagesReceived = UserMessagesReceived();
+  UserFriends userFriends = UserFriends(
+    useFilter: true,
+  );
 
   @override
   String get gql {
     final UserQl userQl = UserQl(
       core: true,
       userFriends: userFriends,
+      userMessagesReceived: userMessagesReceived,
     );
     return r'''
     id

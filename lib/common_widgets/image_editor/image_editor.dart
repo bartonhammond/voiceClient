@@ -62,15 +62,12 @@ class _ImageEditorState extends State<ImageEditor> {
     switch (deviceType) {
       case DeviceScreenType.desktop:
       case DeviceScreenType.tablet:
-        print('imageEditor desktop');
         fontSize = 24.0;
         break;
       case DeviceScreenType.mobile:
-        print('imageEditor mobile');
         fontSize = 14.0;
         break;
       case DeviceScreenType.watch:
-        print('imageEditor watch');
         fontSize = 10.0;
         break;
       default:

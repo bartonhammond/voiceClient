@@ -10,6 +10,7 @@ import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
@@ -124,9 +125,9 @@ class _State extends State<ReactionTable> {
   }
 
   bool isFriend(Map reaction) {
-    if (reaction['from']['friends']['to'] != null) {
-      for (var _reaction in reaction['from']['friends']['to']) {
-        if (_reaction['User']['email'] == graphQLAuth.getUser().email) {
+    if (reaction['from']['friendsTo'] != null) {
+      for (var _reaction in reaction['from']['friendsTo']) {
+        if (_reaction['receiver']['email'] == graphQLAuth.getUser().email) {
           return true;
         }
       }
@@ -138,7 +139,8 @@ class _State extends State<ReactionTable> {
     if (reaction['from']['messagesReceived'] != null) {
       for (var _message in reaction['from']['messagesReceived']) {
         if (_message['type'] == 'friend-request' &&
-            _message['from']['email'] == graphQLAuth.getUser().email) {
+            _message['status'] == 'new' &&
+            _message['sender']['email'] == graphQLAuth.getUser().email) {
           return true;
         }
       }

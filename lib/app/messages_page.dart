@@ -114,20 +114,12 @@ class _MessagesPageState extends State<MessagesPage> {
     if (approveFriendRequest) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
       try {
-        await addUserFriend(
+        await addUserFriends(
           graphQLClient,
-          message['sender']['id'],
-          message['book'] == null
+          fromUserId: message['sender']['id'],
+          toUserId: message['book'] == null
               ? graphQLAuth.getUserMap()['id']
               : message['book']['id'],
-        );
-
-        await addUserFriend(
-          graphQLClient,
-          message['book'] == null
-              ? graphQLAuth.getUserMap()['id']
-              : message['book']['id'],
-          message['sender']['id'],
         );
 
         await updateUserMessageStatusById(
@@ -419,7 +411,7 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   QueryOptions getQueryOptions() {
-    final _variables = <String, dynamic>{
+    final _values = <String, dynamic>{
       'currentUserEmail': graphQLAuth.getUser().email,
       'status': 'new',
       'limit': '20',
@@ -433,10 +425,16 @@ class _MessagesPageState extends State<MessagesPage> {
     switch (_messageType) {
       case MessageType.ALL:
         messageSearch.setQueryName('userMessagesReceived');
-        return messageSearch.getQueryOptions(_variables);
+        messageSearch.setVariables(<String, dynamic>{
+          'currentUserEmail': 'String!',
+          'status': 'String!',
+          'limit': 'String!',
+          'cursor': 'String!',
+        });
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.ATTENTION:
-        _variables['type'] = 'attention';
+        _values['type'] = 'attention';
         messageSearch.setVariables(<String, dynamic>{
           'currentUserEmail': 'String!',
           'status': 'String!',
@@ -445,17 +443,11 @@ class _MessagesPageState extends State<MessagesPage> {
           'type': 'String!'
         });
         messageSearch.setQueryName('userMessagesByType');
-        messageSearch.setVariables(<String, dynamic>{
-          'currentUserEmail': 'String!',
-          'status': 'String!',
-          'limit': 'String!',
-          'cursor': 'String!',
-          'type': 'String!'
-        });
-        return messageSearch.getQueryOptions(_variables);
+
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.COMMENT:
-        _variables['type'] = 'comment';
+        _values['type'] = 'comment';
         messageSearch.setVariables(<String, dynamic>{
           'currentUserEmail': 'String!',
           'status': 'String!',
@@ -464,10 +456,10 @@ class _MessagesPageState extends State<MessagesPage> {
           'type': 'String!'
         });
         messageSearch.setQueryName('userMessagesByType');
-        return messageSearch.getQueryOptions(_variables);
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.MESSAGE:
-        _variables['type'] = 'message';
+        _values['type'] = 'message';
         messageSearch.setVariables(<String, dynamic>{
           'currentUserEmail': 'String!',
           'status': 'String!',
@@ -476,10 +468,10 @@ class _MessagesPageState extends State<MessagesPage> {
           'type': 'String!'
         });
         messageSearch.setQueryName('userMessagesByType');
-        return messageSearch.getQueryOptions(_variables);
+        return messageSearch.getQueryOptions(_values);
         break;
       case MessageType.FRIEND_REQUEST:
-        _variables['type'] = 'friend-request';
+        _values['type'] = 'friend-request';
         messageSearch.setVariables(<String, dynamic>{
           'currentUserEmail': 'String!',
           'status': 'String!',
@@ -488,7 +480,7 @@ class _MessagesPageState extends State<MessagesPage> {
           'type': 'String!'
         });
         messageSearch.setQueryName('userMessagesByType');
-        return messageSearch.getQueryOptions(_variables);
+        return messageSearch.getQueryOptions(_values);
         break;
     }
     return null;

@@ -1,4 +1,5 @@
 import 'package:MyFamilyVoice/ql/node_ql.dart';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 
 class MessageQl extends NodeQl {
@@ -6,10 +7,14 @@ class MessageQl extends NodeQl {
     this.core = true,
   });
   bool core;
-  UserQl userQl = UserQl(core: true);
+  UserFriends userFriends = UserFriends();
 
   @override
   String get gql {
+    final UserQl userQl = UserQl(
+      core: true,
+      userFriends: userFriends,
+    );
     return r'''
     __typename
     id

@@ -28,7 +28,7 @@ Future<void> main(List<String> arguments) async {
   print(Directory.current.absolute);
 
   final List friends =
-      json.decode(await File('seed/DevFriends.json').readAsString());
+      json.decode(await File('seed/prodFriends.json').readAsString());
   print('friends: ${friends.length}');
   final Uuid uuid = Uuid();
   final List fromTos = <String>[];
@@ -36,14 +36,14 @@ Future<void> main(List<String> arguments) async {
   for (var friend in friends) {
     final String fromTo =
         friend['u']['properties']['id'] + friend['o']['properties']['id'];
+
     if (fromTos.contains(fromTo)) {
       continue;
     }
-    fromTos.add(fromTo);
-
     //create reaction
     final friendId = uuid.v1();
-    print('add user friend');
+    print(
+        'add user friend from: ${friend['u']['properties']['id']} to:${friend['o']['properties']['id']}');
     //create friend
     await q.addUserFriends(
       graphQLClient,
@@ -52,5 +52,8 @@ Future<void> main(List<String> arguments) async {
       toUserId: friend['o']['properties']['id'],
       isFamily: friend['f']['properties']['isFamily'],
     );
+    final String _fromTo =
+        friend['u']['properties']['id'] + friend['o']['properties']['id'];
+    fromTos.add(_fromTo);
   }
 }

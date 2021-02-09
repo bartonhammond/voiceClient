@@ -61,6 +61,11 @@ class _HomePageState extends State<HomePage> {
     if (mounted) {
       setState(() {
         _currentTab = TabItem.values[tabIndex];
+        if (_currentTab == TabItem.friends ||
+            _currentTab == TabItem.stories ||
+            _currentTab == TabItem.profile) {
+          eventBus.fire(GetUserMessagesEvent());
+        }
       });
     }
   }
