@@ -1,7 +1,6 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/queries_service.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -239,36 +238,77 @@ Future<void> deleteMessage(
   return;
 }
 
-Future<void> addUserFriend(
-  GraphQLClient graphQLClientApolloServer,
-  String fromUserId,
-  String toUserId,
-) async {
-  final uuid = Uuid();
-  final String _friendsId = uuid.v1();
-
+Future<void> _addUserFriends(GraphQLClient graphQLClient, String friendId,
+    String fromUserId, String toUserId, bool isFamily) async {
   final DateTime now = DateTime.now();
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
-
   //Create the Story
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(mergeUserFriends),
+  MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(createFriendQL),
     variables: <String, dynamic>{
-      'id': _friendsId,
-      'from': fromUserId,
-      'to': toUserId,
-      'created': formattedDate
+      'id': friendId,
+      'created': now.toIso8601String(),
+      'isFamily': isFamily,
     },
   );
 
-  final QueryResult queryResult =
-      await graphQLClientApolloServer.mutate(_mutationOptions);
+  QueryResult queryResult = await graphQLClient.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  //Create Sender
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addFriendSenderQL),
+    variables: <String, dynamic>{
+      'toFriendId': friendId,
+      'fromUserId': fromUserId,
+    },
+  );
+  queryResult = await graphQLClient.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  //Create Receiver
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addFriendReceiverQL),
+    variables: <String, dynamic>{
+      'fromFriendId': friendId,
+      'toUserId': toUserId,
+    },
+  );
+  queryResult = await graphQLClient.mutate(_mutationOptions);
 
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
   return;
+}
+
+Future<void> addUserFriends(
+  GraphQLClient graphQLClient, {
+  String fromUserId,
+  String toUserId,
+  bool isFamily = false,
+}) async {
+  final Uuid uuid = Uuid();
+  //from to
+  await _addUserFriends(
+    graphQLClient,
+    uuid.v1(),
+    fromUserId,
+    toUserId,
+    isFamily,
+  );
+  //to from
+  await _addUserFriends(
+    graphQLClient,
+    uuid.v1(),
+    toUserId,
+    fromUserId,
+    isFamily,
+  );
 }
 
 Future<void> updateUserMessageStatusById(
@@ -321,34 +361,23 @@ Future<void> _addUserMessages(
   if (result.hasException) {
     throw result.exception;
   }
-
-  //create from
-  final String fromUserId = fromUser['id'];
-  final _fromUser = {'id': fromUserId};
-  final _toMessage = {'id': messageId};
-
   options = MutationOptions(
     documentNode: gql(addUserMessagesSentQL),
     variables: <String, dynamic>{
-      'from': _fromUser,
-      'to': _toMessage,
+      'fromUserId': fromUser['id'],
+      'toMessageId': messageId,
     },
   );
   result = await graphQLClient.mutate(options);
   if (result.hasException) {
     throw result.exception;
   }
-  //create to
-  final String toUserId = toUser['id'];
-  final _toUser = {'id': toUserId};
-  final _fromMessage = {'id': messageId};
 
   options = MutationOptions(
     documentNode: gql(addUserMessagesReceivedQL),
     variables: <String, dynamic>{
-      'to': _toUser,
-      'from': _fromMessage,
-      'currentUserEmail': fromUser['email']
+      'toUserId': toUser['id'],
+      'fromMessageId': messageId,
     },
   );
   result = await graphQLClient.mutate(options);
@@ -358,15 +387,11 @@ Future<void> _addUserMessages(
 
   if (bookUser != null) {
     //create messageBook
-    final String toBookUserId = bookUser['id'];
-    final _toBookUser = {'id': toBookUserId};
-
     options = MutationOptions(
-      documentNode: gql(addMessageBookQL),
+      documentNode: gql(addUserMessagesTopicQL),
       variables: <String, dynamic>{
-        'to': _toBookUser,
-        'from': _fromMessage,
-        'currentUserEmail': fromUser['email']
+        'toUserId': bookUser['id'],
+        'fromMessageId': messageId,
       },
     );
     result = await graphQLClient.mutate(options);
@@ -387,14 +412,10 @@ Future<void> addUserMessages({
   String key,
 }) async {
   if (toUser['isBook'] == true) {
-    final Map user = await getUserByEmail(
-      graphQLClient,
-      toUser['bookAuthor']['email'],
-    );
     await _addUserMessages(
         graphQLClient,
         fromUser,
-        user, // the books author
+        toUser['bookAuthor'], // the books author
         messageId,
         status,
         type,
@@ -979,55 +1000,65 @@ Future<void> deleteBook(
   return;
 }
 
-Future<void> addUserBanned(
-  GraphQLClient graphQLClientApolloServer,
+Future<Map<String, dynamic>> addBanned(
+  GraphQLClient graphQLClient,
   String fromUserId,
   String toUserId,
 ) async {
-  //Create the Ban
   final uuid = Uuid();
-  final String _bannedId = uuid.v1();
+  final banId = uuid.v1();
   final DateTime now = DateTime.now();
-  final DateFormat formatter = DateFormat('yyyy-MM-dd');
-  final String formattedDate = formatter.format(now);
 
-  final fromUserInput = {'id': fromUserId};
-  final toUserInput = {'id': toUserId};
-  final data = {
-    'id': _bannedId,
-    'created': {'formatted': formattedDate}
-  };
-  final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(addUserBannedQL),
+  //Create ban
+  MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(createBanQL),
     variables: <String, dynamic>{
-      'from': fromUserInput,
-      'to': toUserInput,
-      'data': data,
+      'banId': banId,
+      'created': now.toIso8601String(),
     },
   );
-  final QueryResult queryResult =
-      await graphQLClientApolloServer.mutate(_mutationOptions);
-
-  if (queryResult.hasException) {
-    throw queryResult.exception;
+  QueryResult result = await graphQLClient.mutate(_mutationOptions);
+  if (result.hasException) {
+    throw result.exception;
   }
 
-  return;
+  //Create banner
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addBanBannerQL),
+    variables: <String, dynamic>{
+      'toBanId': banId,
+      'fromUserId': fromUserId,
+    },
+  );
+  result = await graphQLClient.mutate(_mutationOptions);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+//Create banned
+  _mutationOptions = MutationOptions(
+    documentNode: gql(addBanBannedQL),
+    variables: <String, dynamic>{
+      'fromBanId': banId,
+      'toUserId': toUserId,
+    },
+  );
+  result = await graphQLClient.mutate(_mutationOptions);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return result.data[0];
 }
 
-Future<void> removeUserBanned(
+Future<void> deleteBanned(
   GraphQLClient graphQLClientApolloServer,
-  String fromUserId,
-  String toUserId,
+  String banId,
 ) async {
-  final fromUserInput = {'id': fromUserId};
-  final toUserInput = {'id': toUserId};
-
   final MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(removeUserBannedQL),
+    documentNode: gql(deleteBanQL),
     variables: <String, dynamic>{
-      'from': fromUserInput,
-      'to': toUserInput,
+      'id': banId,
     },
   );
 

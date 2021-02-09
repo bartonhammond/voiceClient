@@ -32,7 +32,7 @@ final configuredApp = AppConfig(
 ```
 
 *  Testing w/ Gherkin
-   *  `flutter run -d 8F6E7E74-D953-4AB4-942B-4590972A5398 -t lib/main_integration_test.dart --verbose`
+   *  `flutter run -d CA0BCD8D-1EB0-4DFD-B452-BDA42C313C9A -t lib/main_integration_test.dart --verbose`
    *  take uri and update app_test
-   *  `dart app_test.dart --deleteTestUser=no --deleteBook=no --deleteBooksMessages=no --deleteBanned=no --deleteFamilyTestUsers=no deleteStoryReactions=no --runTag=all --uri=`
+   *  `dart app_test.dart --deleteTestUser=yes --deleteBook=yes --deleteBooksMessages=yes --deleteBanned=yes --deleteFamilyTestUsers=yes --deleteStoryReactions=yes --runTag=all --uri=`
    *  `cp report.json ~/flutter/cucumber` and run `node index.js`

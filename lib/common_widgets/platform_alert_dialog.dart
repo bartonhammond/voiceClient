@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:MyFamilyVoice/common_widgets/platform_widget.dart';
+import 'package:MyFamilyVoice/services/platform_widget.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';

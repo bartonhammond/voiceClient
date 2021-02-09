@@ -313,16 +313,18 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (isBook) {
         //make friends
-        await addUserFriend(
+        await addUserFriends(
           graphQLClient,
-          userId,
-          graphQLAuth.getOriginalUserMap()['id'],
+          fromUserId: userId,
+          toUserId: graphQLAuth.getOriginalUserMap()['id'],
+          isFamily: false,
         );
 
-        await addUserFriend(
+        await addUserFriends(
           graphQLClient,
-          graphQLAuth.getOriginalUserMap()['id'],
-          userId,
+          fromUserId: graphQLAuth.getOriginalUserMap()['id'],
+          toUserId: userId,
+          isFamily: false,
         );
       }
       shouldCreateUser = false;

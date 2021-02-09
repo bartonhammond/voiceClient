@@ -2,17 +2,13 @@ import 'dart:io' show Platform;
 import 'package:MyFamilyVoice/common_widgets/image_editor/screen_util.dart';
 import 'package:MyFamilyVoice/constants/admob.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/queries_service.dart';
-import 'package:background_fetch/background_fetch.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -70,56 +66,6 @@ class MyApp extends StatelessWidget {
     return false;
   }
 
-  Future<void> _onBackgroundFetch(String taskId) async {
-    final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-    if (graphQLAuth.getUserMap() == null || graphQLAuth.getUserMap().isEmpty) {
-      return;
-    }
-    final QueryResult queryResult = await getUserMessagesReceived(
-        graphQLAuth.getGraphQLClient(GraphQLClientType.ApolloServer),
-        graphQLAuth.getUserMap()['email'],
-        DateTime.now().toIso8601String());
-
-    if (queryResult.hasException) {
-      logger.createMessage(
-          userEmail: graphQLAuth.getUser().email,
-          source: 'fab_bottom_app_bar',
-          shortMessage: queryResult.exception.toString(),
-          stackTrace: StackTrace.current.toString());
-      throw queryResult.exception;
-    }
-    FlutterAppBadger.updateBadgeCount(
-        queryResult.data['userMessagesReceived'].length);
-    BackgroundFetch.finish(taskId);
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    //If the MessagesEvent is fired, it means the user clicked
-    //on Notices so clear the badge
-    eventBus.on<MessagesEvent>().listen((event) {});
-    // Configure BackgroundFetch.
-    BackgroundFetch.configure(
-            BackgroundFetchConfig(
-              minimumFetchInterval: 15,
-              forceAlarmManager: false,
-              stopOnTerminate: false,
-              startOnBoot: true,
-              enableHeadless: true,
-              requiresBatteryNotLow: false,
-              requiresCharging: false,
-              requiresStorageNotLow: false,
-              requiresDeviceIdle: false,
-              requiredNetworkType: NetworkType.NONE,
-            ),
-            _onBackgroundFetch)
-        .then((int status) {
-      //noop
-    }).catchError((dynamic e) {
-      print('[BackgroundFetch] configure ERROR: $e');
-    });
-  }
-
   MultiProvider getMultiProvider(BuildContext context, Locale locale) {
     return MultiProvider(
         providers: [
@@ -153,7 +99,6 @@ class MyApp extends StatelessWidget {
             AsyncSnapshot<User> userSnapshot,
           ) {
             setupServiceLocator(context);
-            initPlatformState();
             if (isTesting) {
               return testing(context, locale);
             }
