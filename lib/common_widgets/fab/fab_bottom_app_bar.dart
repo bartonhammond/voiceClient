@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:MyFamilyVoice/app_config.dart';
-import 'package:MyFamilyVoice/services/queries_service.dart';
+import 'package:MyFamilyVoice/ql/message/message_search.dart';
+import 'package:MyFamilyVoice/ql/message_ql.dart';
 import 'package:flutter/material.dart';
-import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:MyFamilyVoice/services/logger.dart' as logger;
+import 'package:graphql_flutter/graphql_flutter.dart';
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.enabled, this.iconData, this.text});
@@ -130,21 +130,28 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     if (!mounted) {
       return;
     }
-    final QueryResult queryResult = await getUserMessagesReceived(
-        GraphQLProvider.of(context).value,
-        graphQLAuth.getUserMap()['email'],
-        DateTime.now().toIso8601String());
+    final MessageQl messageQl = MessageQl();
+    final MessageSearch messageSearch = MessageSearch.init(
+      GraphQLProvider.of(context).value,
+      messageQl,
+      graphQLAuth.getUser().email,
+    );
+    messageSearch.setQueryName('userMessagesReceived');
+    messageSearch.setVariables(<String, dynamic>{
+      'currentUserEmail': 'String!',
+      'status': 'String!',
+      'limit': 'String!',
+      'cursor': 'String!',
+    });
+    final List messages = await messageSearch.getList(<String, dynamic>{
+      'currentUserEmail': graphQLAuth.getUser().email,
+      'status': 'new',
+      'limit': '1',
+      'cursor': DateTime.now().toIso8601String(),
+    });
 
-    if (queryResult.hasException) {
-      logger.createMessage(
-          userEmail: graphQLAuth.getUser().email,
-          source: 'fab_bottom_app_bar',
-          shortMessage: queryResult.exception.toString(),
-          stackTrace: StackTrace.current.toString());
-      throw queryResult.exception;
-    }
     setState(() {
-      _messageCount = queryResult.data['userMessagesReceived'].length;
+      _messageCount = messages.length;
     });
   }
 

@@ -10,7 +10,6 @@ import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
