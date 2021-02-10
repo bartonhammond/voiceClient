@@ -19,6 +19,7 @@ import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -82,11 +83,10 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       final StoryUser storyUser = StoryUser();
       final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
       final StoryComments storyComments = StoryComments();
-      final StoryReactions storyReactions = StoryReactions(useFilter: true);
+      final StoryReactions storyReactions = StoryReactions();
       final StoryTags storyTags = StoryTags();
 
       final StoryQl storyQl = StoryQl(
-        core: true,
         storyUser: storyUser,
         storyOriginalUser: storyOriginalUser,
         storyComments: storyComments,
@@ -196,6 +196,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   @override
   Widget build(BuildContext context) {
+    printJson('sgts.build', widget.story);
     _isWeb = AppConfig.of(context).isWeb;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);

@@ -11,13 +11,18 @@ class StoryReactions extends NodeQl {
     if (useFilter) {
       return _gql.replaceAll(RegExp(r'_filter_'), filter);
     }
-    return _gql;
+    return _gql.replaceAll(RegExp(r'_filter_'), '');
   }
 
   final String _gql = r'''
     reactions _filter_ {
       id
-      type
+      type 
+      from {
+        id
+        email
+        name
+      }
     }
     totalReactions
     totalLikes
