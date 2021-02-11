@@ -8,10 +8,8 @@ import 'package:MyFamilyVoice/ql/story/story_search.dart';
 import 'package:MyFamilyVoice/ql/story/story_tags.dart';
 import 'package:MyFamilyVoice/ql/story/story_user.dart';
 import 'package:MyFamilyVoice/ql/story_ql.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
-import 'package:MyFamilyVoice/banner.dart';
 import 'package:MyFamilyVoice/common_widgets/comments.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
@@ -32,7 +30,6 @@ import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -54,7 +51,6 @@ class StoryPlay extends StatefulWidget {
 
 class _StoryPlayState extends State<StoryPlay>
     with SingleTickerProviderStateMixin {
-  BannerAd _bannerAd;
   bool _showComments = false;
   Map<String, dynamic> _story;
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -88,8 +84,6 @@ class _StoryPlayState extends State<StoryPlay>
   DeviceScreenType deviceType;
   bool _showIcons = false;
 
-  StreamSubscription bannerSubscription;
-
   GraphQLClient graphQLClient;
   GraphQLClient graphQLClientFileServer;
   FToast _fToast;
@@ -97,10 +91,7 @@ class _StoryPlayState extends State<StoryPlay>
   @override
   void initState() {
     _id = _uuid.v1();
-    bannerSubscription = eventBus.on<HideStoryBanner>().listen((event) {
-      _bannerAd?.dispose();
-      _bannerAd = null;
-    });
+
     _fToast = FToast();
     _fToast.init(context);
     super.initState();
@@ -108,9 +99,6 @@ class _StoryPlayState extends State<StoryPlay>
 
   @override
   void dispose() {
-    bannerSubscription.cancel();
-    _bannerAd?.dispose();
-    _bannerAd = null;
     super.dispose();
   }
 
@@ -301,25 +289,6 @@ class _StoryPlayState extends State<StoryPlay>
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb) {
-      _bannerAd ??= createBannerAdd([
-        'heritage',
-        'history',
-        'pets',
-        'children',
-        'vacation',
-        'marriage',
-        'photography',
-        'train',
-        'home',
-        'automobile',
-      ])
-        ..load();
-      _bannerAd?.show(
-        anchorOffset: 60.0,
-        anchorType: AnchorType.top,
-      );
-    }
     _isWeb = AppConfig.of(context).isWeb;
     graphQLClient = GraphQLProvider.of(context).value;
     graphQLClientFileServer =
@@ -812,7 +781,6 @@ class _StoryPlayState extends State<StoryPlay>
                         size: 20,
                       ),
                       onPressed: () {
-                        eventBus.fire(HideStoryBanner());
                         Navigator.push<dynamic>(
                           context,
                           MaterialPageRoute<dynamic>(
@@ -865,7 +833,6 @@ class _StoryPlayState extends State<StoryPlay>
                     size: 20,
                   ),
                   onPressed: () async {
-                    eventBus.fire(HideStoryBanner());
                     Navigator.push<dynamic>(
                       context,
                       MaterialPageRoute<dynamic>(
@@ -923,7 +890,7 @@ class _StoryPlayState extends State<StoryPlay>
       key: Key('storyPlayScrollView'),
       child: Container(
         padding: const EdgeInsets.only(
-            left: 10.0, top: 60.0, right: 10.0, bottom: 10.0),
+            left: 10.0, top: 0.0, right: 10.0, bottom: 10.0),
         child: Form(
           key: _formKey,
           child: Column(

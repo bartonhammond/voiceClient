@@ -25,7 +25,8 @@ class StaggeredGridTileFriend extends StatelessWidget {
       onFriendPush:
           !friendButton.ignore && friendButton.isFriend ? onPush : null,
       showMessage: !friendButton.ignore && friendButton.isFriend,
-      showFamilyCheckbox: !friendButton.ignore && friendButton.isFriend,
+      showFamilyCheckbox:
+          !friend['isBook'] && !friendButton.ignore && friendButton.isFriend,
       allowExpandToggle: false,
       onBanned: onBanned,
     );

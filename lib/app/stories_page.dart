@@ -13,7 +13,6 @@ import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';

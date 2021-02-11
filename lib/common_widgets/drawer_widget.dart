@@ -2,7 +2,6 @@ import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/getDialog.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
-import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:flutter/material.dart';
@@ -35,12 +34,10 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   @override
   void initState() {
     super.initState();
-    eventBus.fire(HideProfileBanner());
   }
 
   @override
   void dispose() {
-    eventBus.fire(ShowProfileBanner());
     super.dispose();
   }
 
