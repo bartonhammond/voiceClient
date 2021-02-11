@@ -30,6 +30,7 @@ import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -161,8 +162,9 @@ class _StoryPlayState extends State<StoryPlay>
     );
   }
 
-  Future<void> setBook(String id) async {
-    if (id == null) {
+  Future<void> setBook(Map<String, dynamic> user) async {
+    printJson('storyPlay.setBook', user);
+    if (user == null) {
       //remove the current book
       await changeStoriesUser(
         graphQLClient,
@@ -182,8 +184,18 @@ class _StoryPlayState extends State<StoryPlay>
       await changeStoriesUser(
         graphQLClient,
         _story['user']['id'], //currentUser
-        id, //new
+        user['id'], //new
         _story['id'],
+      );
+
+      await addUserMessages(
+        graphQLClient: graphQLClient,
+        fromUser: graphQLAuth.getUserMap(),
+        toUser: user,
+        messageId: _uuid.v1(),
+        status: 'new',
+        type: 'book',
+        key: _story['id'],
       );
     }
     eventBus.fire(StoryWasAssignedToBook());
@@ -327,11 +339,13 @@ class _StoryPlayState extends State<StoryPlay>
                 break;
             }
           }
-
+          //new story?
           if (_story == null ||
               (_story != null &&
                   _story['user'] != null &&
+                  //story written by currentUser
                   (_story['user']['id'] == graphQLAuth.getUserMap()['id'] ||
+                      //story is book and the original user is currentUser
                       _story['user']['isBook'] == true &&
                           _story['originalUser']['id'] ==
                               graphQLAuth.getUserMap()['id']))) {
@@ -820,7 +834,13 @@ class _StoryPlayState extends State<StoryPlay>
               height: 10,
             )
           : Container(),
-      _isCurrentUserAuthor && _story != null
+      _isCurrentUserAuthor && _story != null ||
+              //story is book and book author is current user so they
+              //can manage which stories they want on the book
+              _story != null &&
+                  _story['user']['isBook'] == true &&
+                  _story['user']['bookAuthor']['id'] ==
+                      graphQLAuth.getUserMap()['id']
           ? Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

@@ -151,7 +151,7 @@ Future<void> deleteStory(
 }
 
 Future<void> changeStoriesUser(
-  GraphQLClient graphQLClientApolloServer,
+  GraphQLClient graphQLClient,
   String currentUserId,
   String newUserId,
   String storyId,
@@ -168,8 +168,7 @@ Future<void> changeStoriesUser(
     },
   );
 
-  QueryResult queryResult =
-      await graphQLClientApolloServer.mutate(_mutationOptions);
+  QueryResult queryResult = await graphQLClient.mutate(_mutationOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
@@ -185,7 +184,7 @@ Future<void> changeStoriesUser(
     },
   );
 
-  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
+  queryResult = await graphQLClient.mutate(_mutationOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
@@ -335,16 +334,15 @@ Future<void> updateUserMessageStatusById(
   return;
 }
 
-Future<void> _addUserMessages(
-  GraphQLClient graphQLClient,
-  Map<String, dynamic> fromUser,
-  Map<String, dynamic> toUser,
-  String messageId,
-  String status,
-  String type,
-  String key,
-  Map<String, dynamic> bookUser,
-) async {
+Future<void> addUserMessagesById(
+    {GraphQLClient graphQLClient,
+    String fromUserId,
+    String toUserId,
+    String messageId,
+    String status,
+    String type,
+    String key,
+    Map<String, dynamic> bookUser}) async {
   final DateTime now = DateTime.now();
   MutationOptions options = MutationOptions(
     documentNode: gql(createMessageQL),
@@ -364,7 +362,7 @@ Future<void> _addUserMessages(
   options = MutationOptions(
     documentNode: gql(addUserMessagesSentQL),
     variables: <String, dynamic>{
-      'fromUserId': fromUser['id'],
+      'fromUserId': fromUserId,
       'toMessageId': messageId,
     },
   );
@@ -376,7 +374,7 @@ Future<void> _addUserMessages(
   options = MutationOptions(
     documentNode: gql(addUserMessagesReceivedQL),
     variables: <String, dynamic>{
-      'toUserId': toUser['id'],
+      'toUserId': toUserId,
       'fromMessageId': messageId,
     },
   );
@@ -412,25 +410,25 @@ Future<void> addUserMessages({
   String key,
 }) async {
   if (toUser['isBook'] == true) {
-    await _addUserMessages(
-        graphQLClient,
-        fromUser,
-        toUser['bookAuthor'], // the books author
-        messageId,
-        status,
-        type,
-        key,
-        toUser);
+    await addUserMessagesById(
+        graphQLClient: graphQLClient,
+        fromUserId: fromUser['id'],
+        toUserId: toUser['bookAuthor']['id'], // the books author
+        messageId: messageId,
+        status: status,
+        type: type,
+        key: key,
+        bookUser: toUser);
   } else {
-    await _addUserMessages(
-      graphQLClient,
-      fromUser,
-      toUser,
-      messageId,
-      status,
-      type,
-      key,
-      null,
+    await addUserMessagesById(
+      graphQLClient: graphQLClient,
+      fromUserId: fromUser['id'],
+      toUserId: toUser['id'],
+      messageId: messageId,
+      status: status,
+      type: type,
+      key: key,
+      bookUser: null,
     );
   }
 

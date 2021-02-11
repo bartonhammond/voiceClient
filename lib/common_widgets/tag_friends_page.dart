@@ -33,7 +33,7 @@ class TagFriendsPage extends StatefulWidget {
   final VoidCallback onSaved;
   final bool isBook;
 
-  final Future<void> Function(String) onBookSave;
+  final Future<void> Function(Map<String, dynamic>) onBookSave;
   @override
   _TagFriendsPageState createState() => _TagFriendsPageState();
 }
@@ -344,7 +344,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
   Widget getSaveButton({bool showIcon = true}) {
     return CustomRaisedButton(
       key: Key('tagFreindsPageSave'),
-      text: 'Save',
+      text: Strings.upload.i18n,
       icon: showIcon
           ? Icon(
               Icons.save,
@@ -357,7 +357,9 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                 if (widget.onBookSave != null) {
                   //assign to book
                   if (_tagItems.length == 1) {
-                    await widget.onBookSave(_tagItems[0]['user']['id']);
+                    await widget.onBookSave(
+                      _tagItems[0]['user'],
+                    );
                     setState(() {
                       _tagsHaveChanged = false;
                     });
@@ -421,10 +423,10 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
       onWillPop: () async {
         if (_tagsHaveChanged) {
           final bool saveChanges = await PlatformAlertDialog(
-                  title: 'There are pending changes',
-                  content: 'Stay on page to save changes?',
-                  cancelActionText: 'No',
-                  defaultActionText: 'Stay')
+                  title: Strings.tagFriendsPendingChanges.i18n,
+                  content: Strings.tagFriendsStayOnPage.i18n,
+                  cancelActionText: Strings.no.i18n,
+                  defaultActionText: Strings.tagFriendsStay.i18n)
               .show(context);
           if (saveChanges == true) {
             return false;

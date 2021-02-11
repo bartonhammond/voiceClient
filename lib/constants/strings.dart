@@ -4,6 +4,7 @@ class Strings {
 
   // Generic strings
   static const String ok = 'OK';
+  static const String no = 'No';
   static const String cancel = 'Cancel';
   static const String areYouSure = 'Are you sure?';
   static const String yes = 'Yes';
@@ -183,6 +184,9 @@ class Strings {
   static const String messagesPageMessageMessages = 'Messages';
   static const String messagesPageMessageComments = 'Comments';
   static const String messagesPageMessageFriendRequests = 'Friend Requests';
+  static const String messagesPageMessageStoryAssignedToBook =
+      'Story assigned to Book';
+  static const String messagesPageMessageBook = 'Book';
   static const String messagesPageManage = 'Manage';
   static const String messagesPageViewStory = 'View Story';
 
@@ -253,4 +257,9 @@ class Strings {
   static const String landingFeatureFourExplain =
       'When you select your picture, you can crop it, adjust its position, and reframe it.  Easily too.';
   static const String proxyQuitManaging = 'Quit Managing?';
+
+  //Tag Friends page
+  static const String tagFriendsPendingChanges = 'There are pending changes';
+  static const String tagFriendsStayOnPage = 'Stay on page to save changes?';
+  static const String tagFriendsStay = 'Stay';
 }
