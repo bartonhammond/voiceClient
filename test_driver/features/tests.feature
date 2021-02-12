@@ -43,6 +43,16 @@ Feature: Drawer
         And I swipe up by 500 pixels on the "storyPlayScrollView"
         Then I expect the "userName-Test Name" to be "Test Name"
         And I expect the "userHome-Test Name" to be "Home City, State"
+        And I tap the "backButton" button
+        #Expect testname@myfamilyvoice.com to have a notification
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Attention"
+        #Clear the messages and validate there are no others
+        Given I tap the button that contains the text "Clear"
+        Then I expect the "noMessages" to be "No results"
+        #go back to the story
+        And I tap the text that contains the text "Stories"
+        And I tap the "friend_widget_clipRRect" widget
         # Assign the story to a Book
         Given I tap the "storyPlayBookButton" button
         And I fill the "tagFriendsPageSearch" field with "Book"
@@ -55,7 +65,7 @@ Feature: Drawer
         And I tap the "backButton" button
         #Expect testname@myfamilyvoice.com to have a notification
         And I tap the text that contains the text "Notices"
-        Then I expect the "message-title" to be "Attention"
+        Then I expect the "message-title" to be "Story assigned to Book"
         And I expect the "userName-Test Name" to be "Test Name"
         And I expect the "userHome-Test Name" to be "Home City, State"
         #Clear the messages and validate there are no others
@@ -545,6 +555,140 @@ Feature: Drawer
         And I expect the "userHome-Test Name" to be "Home City, State"
         Given I tap the text that contains the text "Delete Message"
         Then I expect the "noMessages" to be "No results"
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
 
-
+    @nineth
+    Scenario: Confirm bookAuthor can remove stories from his book
+        Given I open the drawer
+        And I fill the "emailTextField" field with "bookAuthor@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        #Now on Profile page
+        Then I expect the "emailFormField" to be "bookAuthor@myfamilyvoice.com"
+        Given I tap the "storyPageGalleryButton" button
+        And I fill the "nameFormField" field with "Book Author Name"
+        And I fill the "homeFormField" field with "Book Author Home City, State"
+        And I pause for 1 seconds
+        And I tap the "profilePageUploadButton" button
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        #Create a Book
+        Given I tap the "mainFloatingActionButton" widget
+        Given I tap the "bookFloatingActionButton" widget
+        Given I tap the "storyPageGalleryButton" button
+        And I fill the "nameFormField" field with "Something Name"
+        And I fill the "homeFormField" field with "Something Home City, State"
+        And I pause for 1 seconds
+        And I tap the "profilePageUploadButton" button
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        Then I tap the back button
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Login in as basicuser
+        Given I open the drawer
+        And I fill the "emailTextField" field with "basicuser@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        #Now on Profile page
+        Then I expect the "emailFormField" to be "basicuser@myfamilyvoice.com"
+        Given I tap the "storyPageGalleryButton" button
+        And I fill the "nameFormField" field with "Basic User Name"
+        And I fill the "homeFormField" field with "Basic User Home City, State"
+        And I pause for 1 seconds
+        And I tap the "profilePageUploadButton" button
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        #Make friendRequest to Book
+        And I tap the text that contains the text "Users"
+        And I fill the "searchField" field with "Something"
+        And I pause for 1 seconds
+        Then I tap the button that contains the text "Friend?"
+        Given I tap the "alertDefault" button
+        And I pause for 1 seconds
+        Then I expect the text "Pending" to be present
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Log in as the person who had created the book
+        Given I open the drawer
+        And I fill the "emailTextField" field with "bookAuthor@myfamilyvoice.com"
+        Given I tap the "submitButton" button
+        And I close the drawer
+        Then I expect the widget "Stories" to be present within 10 seconds
+        #Check notices
+        #as bookAuthor approve Friend
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Friend Request"
+        And I expect the "userName-Something Name" to be "Something Name"
+        And I expect the "userHome-Something Name" to be "Something Home City, State"
+        And I expect the "userName-Basic User Name" to be "Basic User Name"
+        And I expect the "userHome-Basic User Name" to be "Basic User Home City, State"
+        #Clear the messages and validate there are no others
+        Given I tap the button that contains the text "Approve"
+        And I tap the "alertDefault" button
+        Then I expect the "noMessages" to be "No results"
+        #Login in as basicuser and create story and assign to book
+        Given I open the drawer
+        And I fill the "emailTextField" field with "bookAuthor@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        #Create a Story
+        Given I tap the "mainFloatingActionButton" widget
+        And I tap the "storyFloatingActionButton" widget
+        And I tap the "storyPageGalleryButton" button
+        And I tap the "recorderWidgetRecordButton" button
+        And I pause for 3 seconds
+        And I tap the "recorderWidgetStopButton" button
+        And I pause for 3 seconds
+        Then I expect the text "Save successful" to be present within the "toastContainer"
+        Then I expect the widget "deleteStoryButton" to be present within 3 seconds
+        # Assign the story to a Book
+        Given I tap the "storyPlayBookButton" button
+        And I fill the "tagFriendsPageSearch" field with "Something"
+        And I tap the "tagFriendsPage-Something Name" widget
+        And I pause for 1 seconds
+        And I tap the "tagFreindsPageSave" button
+        And I swipe up by 500 pixels on the "storyPlayScrollView"
+        Then I expect the "userName-Something Name" to be "Something Name"
+        And I expect the "userHome-Something Name" to be "Something Home City, State"
+        And I tap the "backButton" button
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
+        #Login as bookAuthor
+        Given I open the drawer
+        And I fill the "emailTextField" field with "bookAuthor@myfamilyvoice.com"
+        And I tap the "submitButton" button
+        And I close the drawer
+        #Verify message 'Book'
+        #Check notices
+        And I tap the text that contains the text "Notices"
+        Then I expect the "message-title" to be "Story assigned to Book"
+        And I expect the "userName-Something Name" to be "Something Name"
+        And I expect the "userHome-Something Name" to be "Something Home City, State"
+        And I expect the "userName-Book Author Name" to be "Book Author Name"
+        And I expect the "userHome-Book Author Name" to be "Book Author Home City, State"
+        #Confirm you can tap the view story and see the story
+        Given I tap the button that contains the text "View Story"
+        #Should be on storyPlay
+        Then I expect the "userName-Something Name" to be "Something Name"
+        And I expect the "userHome-Something Name" to be "Something Home City, State"
+        #Tap the Book button and clear the current selection
+        Given I tap the "storyPlayBookButton" button
+        And I tap the 'icon-clear-0' icon
+        And I pause for 1 seconds
+        And I tap the "tagFreindsPageSave" button
+        And I pause for 1 seconds
+        And I tap the "backButton" button
+        #Check notices are cleared
+        Then I expect the "noMessages" to be "No results"
 

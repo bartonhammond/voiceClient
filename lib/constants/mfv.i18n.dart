@@ -456,6 +456,10 @@ extension Localization on String {
         'es': 'Ver historia',
       } +
       {
+        'en': Strings.messagesPageMessageStoryAssignedToBook,
+        'es': 'Historia asignada al libro',
+      } +
+      {
         'en': Strings.commentRequest,
         'es': 'Comentario',
       } +

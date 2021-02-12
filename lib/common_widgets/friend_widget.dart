@@ -370,6 +370,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                       )
                     : Container(),
                 ClipRRect(
+                  key: Key('friend_widget_clipRRect'),
                   borderRadius: BorderRadius.circular(25.0),
                   child: FadeInImage.memoryNetwork(
                     height: _height.toDouble(),

@@ -370,6 +370,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                     setState(() {
                       _tagsHaveChanged = false;
                     });
+                    Navigator.pop(context);
                   }
                 }
               } else {

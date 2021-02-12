@@ -30,7 +30,6 @@ import 'package:MyFamilyVoice/services/host.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -163,7 +162,6 @@ class _StoryPlayState extends State<StoryPlay>
   }
 
   Future<void> setBook(Map<String, dynamic> user) async {
-    printJson('storyPlay.setBook', user);
     if (user == null) {
       //remove the current book
       await changeStoriesUser(
