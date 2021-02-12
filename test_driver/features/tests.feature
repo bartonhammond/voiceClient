@@ -691,4 +691,9 @@ Feature: Drawer
         And I tap the "backButton" button
         #Check notices are cleared
         Then I expect the "noMessages" to be "No results"
+        #log out
+        And I open the drawer
+        And I tap the "signOutTile" widget
+        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Given I tap the "alertDefault" button
 
