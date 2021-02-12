@@ -16,12 +16,6 @@ class BookHasNoStories {
   String id;
 }
 
-class HideProfileBanner {}
-
-class ShowProfileBanner {}
-
-class HideStoryBanner {}
-
 class BookWasAdded {}
 
 class BookWasDeleted {}

@@ -34,5 +34,10 @@ final configuredApp = AppConfig(
 *  Testing w/ Gherkin
    *  `flutter run -d CA0BCD8D-1EB0-4DFD-B452-BDA42C313C9A -t lib/main_integration_test.dart --verbose`
    *  take uri and update app_test
-   *  `dart app_test.dart --deleteTestUser=yes --deleteBook=yes --deleteBooksMessages=yes --deleteBanned=yes --deleteFamilyTestUsers=yes --deleteStoryReactions=yes --runTag=all --uri=`
+   *  `dart app_test.dart --deleteTestUser=yes --deleteBook=yes --deleteBooksMessages=yes --deleteBanned=yes --deleteFamilyTestUsers=yes --deleteStoryReactions=yes --deleteNineth=yes --runTag=all --uri=`
+   * OR
+   *   `dart app_test.dart --deleteTestUser=no --deleteBook=no --deleteBooksMessages=no --deleteBanned=no --deleteFamilyTestUsers=no --deleteStoryReactions=no --deleteNineth=yes --runTag=nineth --uri=`
+   * Build report by running this
    *  `cp report.json ~/flutter/cucumber` and run `node index.js`
+   * Then in `~/flutter/cucumber`, commit the changes and push
+   * View the report: `https://bartonhammond.github.io/mfv-gherkin/`

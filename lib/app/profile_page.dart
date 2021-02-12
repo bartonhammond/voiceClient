@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
-import 'package:MyFamilyVoice/banner.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:firebase_admob/firebase_admob.dart';
@@ -77,8 +76,6 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController emailFormFieldController = TextEditingController();
   TextEditingController nameFormFieldController = TextEditingController();
   TextEditingController homeFormFieldController = TextEditingController();
-  StreamSubscription hideBannerSubscription;
-  StreamSubscription showBannerSubscription;
 
   FToast _fToast;
 
@@ -118,14 +115,6 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _fToast = FToast();
     _fToast.init(context);
-
-    hideBannerSubscription = eventBus.on<HideProfileBanner>().listen((event) {
-      _bannerAd?.dispose();
-      _bannerAd = null;
-    });
-    showBannerSubscription = eventBus.on<ShowProfileBanner>().listen((event) {
-      setState(() {});
-    });
   }
 
   void _showToast() {
@@ -165,8 +154,6 @@ class _ProfilePageState extends State<ProfilePage> {
     emailFormFieldController.dispose();
     nameFormFieldController.dispose();
     homeFormFieldController.dispose();
-    hideBannerSubscription.cancel();
-    showBannerSubscription.cancel();
     _bannerAd?.dispose();
     _bannerAd = null;
     super.dispose();
@@ -381,7 +368,7 @@ class _ProfilePageState extends State<ProfilePage> {
         key: _formKey,
         child: Container(
           padding: const EdgeInsets.only(
-              left: 10.0, top: 60.0, right: 10.0, bottom: 10.0),
+              left: 10.0, top: 0.0, right: 10.0, bottom: 10.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -678,33 +665,8 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  BannerAd getBannerAd() {
-    return createBannerAdd([
-      'ancestory',
-      'memories',
-      'family',
-      'travel',
-      'stories',
-      'reunion',
-      'camera',
-      'anniversary',
-      'airline',
-      'insurance'
-    ])
-      ..load();
-  }
-
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb) {
-      _bannerAd ??= getBannerAd();
-    }
-
-    _bannerAd?.show(
-      anchorOffset: 60.0,
-      anchorType: AnchorType.top,
-    );
-
     _isWeb = AppConfig.of(context).isWeb;
 
     graphQLAuth = locator<GraphQLAuth>();

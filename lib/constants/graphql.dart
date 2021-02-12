@@ -286,17 +286,13 @@ CreateStory(
 
 const String updateStoryQL = r'''
 mutation updateStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!,) {
-UpdateStory(
+updateStory(
     id: $id
     image: $image
     audio: $audio
     type: $type
-    created: {
-      formatted: $created
-    } 
-    updated: {
-      formatted: $updated
-    }
+    created: $created
+    updated: $updated
   ) {
     id
   }
@@ -814,10 +810,9 @@ UpdateUser(
 ''';
 
 const String createCommentQL = r'''
-mutation createComment($commentId: ID!, $storyId: ID!, $audio: String!, $status: String!, $created: String!, ) {
+mutation createComment($commentId: ID!, $audio: String!, $status: String!, $created: String!, ) {
   CreateComment(
     id: $commentId
-    story: $storyId
     audio: $audio
     status: $status
     created: { 
@@ -826,12 +821,6 @@ mutation createComment($commentId: ID!, $storyId: ID!, $audio: String!, $status:
   ) {
     __typename
     id
-    story
-    audio
-    status
-    created {
-      formatted
-    }
   }
 }
 ''';
@@ -890,9 +879,9 @@ mutation deleteComment($commentId: ID!, ) {
 }
 ''';
 
-const String mergeCommentFromQL = r'''
-mutation mergeCommentFrom($userId: ID!, $commentId: ID!) {
-  MergeCommentFrom(
+const String addUserCommentsQL = r'''
+mutation addUserComments($userId: ID!, $commentId: ID!) {
+  AddUserComments(
     from: {
       id: $userId,
     }
@@ -1027,27 +1016,22 @@ mutation updateUserIsFamily($emailFrom: String!, $emailTo: String!, $isFamily: B
 ''';
 
 const String createTagQL = r'''
-mutation createTag($tagId: ID!, $storyId: ID!, $created: String!, ) {
+mutation createTag($tagId: ID!, $created: String!, ) {
   CreateTag(
     id: $tagId
-    story: $storyId
     created: { 
       formatted: $created 
       }
   ) {
     __typename
     id
-    story
-    created {
-      formatted
-    }
   }
 }
 ''';
 
-const String addStoryTagsQL = r'''
-mutation addStoryTags($storyId: ID!, $tagId: ID!) {
-  AddStoryTags(
+const String addTagStoryQL = r'''
+mutation addTagStory($storyId: ID!, $tagId: ID!) {
+  AddTagStory(
     from: {
       id: $storyId,
     }
@@ -1066,9 +1050,9 @@ mutation addStoryTags($storyId: ID!, $tagId: ID!) {
 }
 ''';
 
-const String addUserTagsQL = r'''
-mutation addUserTags($userId: ID!, $tagId: ID!) {
-  AddUserTags(
+const String addTagUserQL = r'''
+mutation addTagUser($userId: ID!, $tagId: ID!) {
+  AddTagUser(
     from: {
       id: $userId
     }

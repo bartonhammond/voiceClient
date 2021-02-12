@@ -151,7 +151,7 @@ Future<void> deleteStory(
 }
 
 Future<void> changeStoriesUser(
-  GraphQLClient graphQLClientApolloServer,
+  GraphQLClient graphQLClient,
   String currentUserId,
   String newUserId,
   String storyId,
@@ -168,8 +168,7 @@ Future<void> changeStoriesUser(
     },
   );
 
-  QueryResult queryResult =
-      await graphQLClientApolloServer.mutate(_mutationOptions);
+  QueryResult queryResult = await graphQLClient.mutate(_mutationOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
@@ -185,7 +184,7 @@ Future<void> changeStoriesUser(
     },
   );
 
-  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
+  queryResult = await graphQLClient.mutate(_mutationOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
@@ -335,16 +334,15 @@ Future<void> updateUserMessageStatusById(
   return;
 }
 
-Future<void> _addUserMessages(
-  GraphQLClient graphQLClient,
-  Map<String, dynamic> fromUser,
-  Map<String, dynamic> toUser,
-  String messageId,
-  String status,
-  String type,
-  String key,
-  Map<String, dynamic> bookUser,
-) async {
+Future<void> addUserMessagesById(
+    {GraphQLClient graphQLClient,
+    String fromUserId,
+    String toUserId,
+    String messageId,
+    String status,
+    String type,
+    String key,
+    Map<String, dynamic> bookUser}) async {
   final DateTime now = DateTime.now();
   MutationOptions options = MutationOptions(
     documentNode: gql(createMessageQL),
@@ -364,7 +362,7 @@ Future<void> _addUserMessages(
   options = MutationOptions(
     documentNode: gql(addUserMessagesSentQL),
     variables: <String, dynamic>{
-      'fromUserId': fromUser['id'],
+      'fromUserId': fromUserId,
       'toMessageId': messageId,
     },
   );
@@ -376,7 +374,7 @@ Future<void> _addUserMessages(
   options = MutationOptions(
     documentNode: gql(addUserMessagesReceivedQL),
     variables: <String, dynamic>{
-      'toUserId': toUser['id'],
+      'toUserId': toUserId,
       'fromMessageId': messageId,
     },
   );
@@ -412,25 +410,25 @@ Future<void> addUserMessages({
   String key,
 }) async {
   if (toUser['isBook'] == true) {
-    await _addUserMessages(
-        graphQLClient,
-        fromUser,
-        toUser['bookAuthor'], // the books author
-        messageId,
-        status,
-        type,
-        key,
-        toUser);
+    await addUserMessagesById(
+        graphQLClient: graphQLClient,
+        fromUserId: fromUser['id'],
+        toUserId: toUser['bookAuthor']['id'], // the books author
+        messageId: messageId,
+        status: status,
+        type: type,
+        key: key,
+        bookUser: toUser);
   } else {
-    await _addUserMessages(
-      graphQLClient,
-      fromUser,
-      toUser,
-      messageId,
-      status,
-      type,
-      key,
-      null,
+    await addUserMessagesById(
+      graphQLClient: graphQLClient,
+      fromUserId: fromUser['id'],
+      toUserId: toUser['id'],
+      messageId: messageId,
+      status: status,
+      type: type,
+      key: key,
+      bookUser: null,
     );
   }
 
@@ -487,7 +485,6 @@ Future<QueryResult> createOrUpdateUserInfo(
 Future<void> createComment(
   GraphQLClient graphQLClient,
   String commentId,
-  String storyId,
   String audio,
   String status,
 ) async {
@@ -496,7 +493,6 @@ Future<void> createComment(
     documentNode: gql(createCommentQL),
     variables: <String, dynamic>{
       'commentId': commentId,
-      'storyId': storyId,
       'audio': audio,
       'status': status,
       'created': now.toIso8601String()
@@ -574,13 +570,13 @@ Future<void> deleteComment(
   return;
 }
 
-Future<void> mergeCommentFrom(
+Future<void> addUserComments(
   GraphQLClient graphQLClient,
   String userId,
   String commentId,
 ) async {
   final MutationOptions options = MutationOptions(
-    documentNode: gql(mergeCommentFromQL),
+    documentNode: gql(addUserCommentsQL),
     variables: <String, dynamic>{
       'userId': userId,
       'commentId': commentId,
@@ -740,12 +736,11 @@ Future<void> doCommentUploads(
   await createComment(
     graphQLClientApolloServer,
     _commentId,
-    _story['id'],
     _audioFilePath,
     'new',
   );
 
-  await mergeCommentFrom(
+  await addUserComments(
     graphQLClientApolloServer,
     graphQLAuth.getUserMap()['id'],
     _commentId,
@@ -867,16 +862,15 @@ Future<void> addStoryTag(
   await createTag(
     graphQLClient,
     _tagId,
-    _story['id'],
   );
 
-  await addStoryTags(
+  await addTagStory(
     graphQLClient,
     _story['id'],
     _tagId,
   );
 
-  await addUserTags(
+  await addTagUser(
     graphQLClient,
     _tag['user']['id'],
     _tagId,
@@ -898,14 +892,12 @@ Future<void> addStoryTag(
 Future<void> createTag(
   GraphQLClient graphQLClient,
   String tagId,
-  String storyId,
 ) async {
   final DateTime now = DateTime.now();
   final MutationOptions options = MutationOptions(
     documentNode: gql(createTagQL),
     variables: <String, dynamic>{
       'tagId': tagId,
-      'storyId': storyId,
       'created': now.toIso8601String()
     },
   );
@@ -918,13 +910,13 @@ Future<void> createTag(
   return;
 }
 
-Future<void> addStoryTags(
+Future<void> addTagStory(
   GraphQLClient graphQLClient,
   String storyId,
   String tagId,
 ) async {
   final MutationOptions options = MutationOptions(
-    documentNode: gql(addStoryTagsQL),
+    documentNode: gql(addTagStoryQL),
     variables: <String, dynamic>{
       'storyId': storyId,
       'tagId': tagId,
@@ -939,13 +931,13 @@ Future<void> addStoryTags(
   return;
 }
 
-Future<void> addUserTags(
+Future<void> addTagUser(
   GraphQLClient graphQLClient,
   String userId,
   String tagId,
 ) async {
   final MutationOptions options = MutationOptions(
-    documentNode: gql(addUserTagsQL),
+    documentNode: gql(addTagUserQL),
     variables: <String, dynamic>{
       'userId': userId,
       'tagId': tagId,

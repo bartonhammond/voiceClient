@@ -29,11 +29,10 @@ Future<void> main(List<String> arguments) async {
   final StoryUser storyUser = StoryUser();
   final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
   final StoryComments storyComments = StoryComments();
-  final StoryReactions storyReactions = StoryReactions(useFilter: true);
+  final StoryReactions storyReactions = StoryReactions();
   final StoryTags storyTags = StoryTags();
 
   final StoryQl storyQl = StoryQl(
-      core: true,
       storyUser: storyUser,
       storyOriginalUser: storyOriginalUser,
       storyComments: storyComments,
@@ -43,11 +42,11 @@ Future<void> main(List<String> arguments) async {
   final StorySearch storySearch = StorySearch.init(
     graphQLClient,
     storyQl,
-    'bartonhammond@gmail.com',
+    'bartonhammond@yahoo.com',
   );
   final Map searchValues = <String, dynamic>{
-    'currentUserEmail': 'bartonhammond@gmail.com',
-    'limit': '10',
+    'currentUserEmail': 'bartonhammond@yahoo.com',
+    'limit': '1',
     'cursor': '2022-01-01'
   };
   final List stories = await storySearch.getList(searchValues);

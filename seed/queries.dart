@@ -370,3 +370,135 @@ Future<void> addUserFriends(
   }
   return;
 }
+
+Future<void> createComment(
+  GraphQLClient graphQLClient,
+  String commentId,
+  String storyId,
+  String audio,
+  String status,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(createCommentQL),
+    variables: <String, dynamic>{
+      'commentId': commentId,
+      'storyId': storyId,
+      'audio': audio,
+      'status': status,
+      'created': now.toIso8601String()
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addStoryComments(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String commentId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addStoryCommentsQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
+      'commentId': commentId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addUserComments(
+  GraphQLClient graphQLClient,
+  String userId,
+  String commentId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addUserCommentsQL),
+    variables: <String, dynamic>{
+      'userId': userId,
+      'commentId': commentId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> createTag(
+  GraphQLClient graphQLClient,
+  String tagId,
+) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(createTagQL),
+    variables: <String, dynamic>{
+      'tagId': tagId,
+      'created': now.toIso8601String()
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addTagStory(
+  GraphQLClient graphQLClient,
+  String storyId,
+  String tagId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addTagStoryQL),
+    variables: <String, dynamic>{
+      'storyId': storyId,
+      'tagId': tagId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> addTagUser(
+  GraphQLClient graphQLClient,
+  String userId,
+  String tagId,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(addTagUserQL),
+    variables: <String, dynamic>{
+      'userId': userId,
+      'tagId': tagId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
