@@ -25,9 +25,9 @@ Future<void> main(List<String> arguments) async {
   final GraphQLClient graphQLClient =
       getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
 
-  final UserBookAuthor userBookAuthor = UserBookAuthor(useFilter: true);
+  final UserBookAuthor userBookAuthor = UserBookAuthor();
 
-  final UserFriends userFriends = UserFriends(useFilter: true);
+  final UserFriends userFriends = UserFriends();
 
   final UserMessagesReceived userMessagesReceived =
       UserMessagesReceived(useFilter: true);

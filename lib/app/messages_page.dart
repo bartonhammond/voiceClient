@@ -50,6 +50,7 @@ class _MessagesPageState extends State<MessagesPage> {
     2: true,
     3: true,
     4: true,
+    5: true,
   };
 
   Map<int, String> searchResultsName = {
@@ -58,6 +59,7 @@ class _MessagesPageState extends State<MessagesPage> {
     2: 'userMessagesByType',
     3: 'userMessagesByType',
     4: 'userMessagesByType',
+    5: 'userMessagesByType',
   };
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
@@ -282,6 +284,43 @@ class _MessagesPageState extends State<MessagesPage> {
             ),
           ),
           rejectButton: MessageButton(
+            key: Key('${Keys.clearCommentButton}_$index'),
+            text: Strings.clearCommentButton.i18n,
+            fontSize: 16,
+            onPressed: () => callBack(message),
+            icon: Icon(
+              MdiIcons.accountRemove,
+              color: Colors.white,
+            ),
+          ),
+        );
+        break;
+      case 'book':
+        return StaggeredGridTileMessage(
+          title: Strings.messagesPageMessageStoryAssignedToBook,
+          key: Key('${Keys.messageGridTile}_book_$index'),
+          message: message,
+          approveButton: MessageButton(
+            key: Key('viewBook-$index'),
+            text: Strings.messagesPageViewStory,
+            fontSize: 16,
+            onPressed: () {
+              widget.onPush(
+                <String, dynamic>{
+                  'id': message['key'],
+                  'onFinish': () {
+                    callBack(message);
+                  },
+                },
+              );
+            },
+            icon: Icon(
+              Icons.group_add,
+              size: 20,
+              color: Colors.white,
+            ),
+          ),
+          rejectButton: MessageButton(
             key: Key('${Keys.clearCommentButton}-$index'),
             text: Strings.clearCommentButton.i18n,
             fontSize: 16,
@@ -400,6 +439,11 @@ class _MessagesPageState extends State<MessagesPage> {
                 key: Key('messagesPageFriendRequest')),
             value: MessageType.FRIEND_REQUEST,
           ),
+          DropdownMenuItem(
+            child: Text(Strings.messagesPageMessageBook.i18n,
+                key: Key('messagesPageBook')),
+            value: MessageType.BOOK,
+          ),
         ],
         onChanged: (value) {
           setState(() {
@@ -472,6 +516,18 @@ class _MessagesPageState extends State<MessagesPage> {
         break;
       case MessageType.FRIEND_REQUEST:
         _values['type'] = 'friend-request';
+        messageSearch.setVariables(<String, dynamic>{
+          'currentUserEmail': 'String!',
+          'status': 'String!',
+          'limit': 'String!',
+          'cursor': 'String!',
+          'type': 'String!'
+        });
+        messageSearch.setQueryName('userMessagesByType');
+        return messageSearch.getQueryOptions(_values);
+        break;
+      case MessageType.BOOK:
+        _values['type'] = 'book';
         messageSearch.setVariables(<String, dynamic>{
           'currentUserEmail': 'String!',
           'status': 'String!',

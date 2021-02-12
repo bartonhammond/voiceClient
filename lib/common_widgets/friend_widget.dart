@@ -370,6 +370,7 @@ class _FriendWidgetState extends State<FriendWidget> {
                       )
                     : Container(),
                 ClipRRect(
+                  key: Key('friend_widget_clipRRect'),
                   borderRadius: BorderRadius.circular(25.0),
                   child: FadeInImage.memoryNetwork(
                     height: _height.toDouble(),
@@ -764,6 +765,10 @@ class _FriendWidgetState extends State<FriendWidget> {
     //The bookAuthor can be banned if they are not friends
     bool isFriend = false;
     if (widget.user['isBook']) {
+      if (widget.user['bookAuthor']['email'] ==
+          graphQLAuth.getUserMap()['email']) {
+        return Container();
+      }
       final String userNameBanned = widget.user['bookAuthor']['name'];
       final String userIdBanned = widget.user['bookAuthor']['id'];
 

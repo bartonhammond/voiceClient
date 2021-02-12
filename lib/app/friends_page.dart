@@ -578,6 +578,14 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   TmpObj getMessageButton(dynamic friend) {
+    if (friend['isBook'] &&
+        friend['bookAuthor']['email'] == graphQLAuth.getUserMap()['email']) {
+      return TmpObj(
+        button: Container(),
+        isFriend: false, //show that the family checkbox is not shown
+        ignore: false,
+      );
+    }
     TmpObj button;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
@@ -591,7 +599,11 @@ class _FriendsPageState extends State<FriendsPage> {
     }
     if (_typeUser == TypeUser.me ||
         friend['id'] == graphQLAuth.getUserMap()['id']) {
-      return TmpObj(button: Container(), isFriend: true, ignore: false);
+      return TmpObj(
+        button: Container(),
+        isFriend: true,
+        ignore: false,
+      );
     }
 
     if (_typeUser == TypeUser.friends || _typeUser == TypeUser.family) {

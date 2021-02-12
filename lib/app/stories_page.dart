@@ -122,7 +122,7 @@ class _StoriesPageState extends State<StoriesPage> {
 
   final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
   final StoryComments storyComments = StoryComments();
-  final StoryReactions storyReactions = StoryReactions(useFilter: true);
+  final StoryReactions storyReactions = StoryReactions();
   final StoryTags storyTags = StoryTags();
 
   StoryQl storyQl;
@@ -132,7 +132,6 @@ class _StoriesPageState extends State<StoriesPage> {
     super.initState();
     //If update this, then also coordinate w/ sgts callback()
     storyQl = StoryQl(
-      core: true,
       storyUser: storyUser,
       storyOriginalUser: storyOriginalUser,
       storyComments: storyComments,
@@ -261,7 +260,7 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   QueryOptions getQueryOptions(GraphQLAuth graphQLAuth) {
-    final _variables = <String, dynamic>{
+    final _values = <String, dynamic>{
       'currentUserEmail': graphQLAuth.getUser().email,
       'limit': nStories.toString(),
       'cursor': DateTime.now().toIso8601String(),
@@ -275,39 +274,80 @@ class _StoriesPageState extends State<StoriesPage> {
       case TypeStoriesView.allFriends:
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+            });
             storySearch.setQueryName('userFriendsStories');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.FAMILY:
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+            });
             storySearch.setQueryName('userFriendsStoriesFamily');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.FRIENDS:
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+            });
             storySearch.setQueryName('userFriendsStoriesFriends');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.ME:
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+            });
             storySearch.setQueryName('userStoriesMe');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
         }
         break;
 
       case TypeStoriesView.oneFriend:
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
-            _variables['currentUserEmail'] = user['email'];
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+              'friendEmail': 'String!',
+            });
+            _values['currentUserEmail'] = graphQLAuth.getUser().email;
+            _values['friendEmail'] = user['email'];
             storySearch.setQueryName('userStories');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.FAMILY:
-            _variables['currentUserEmail'] = user['email'];
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+              'friendEmail': 'String!',
+            });
+            _values['currentUserEmail'] = graphQLAuth.getUser().email;
+            _values['friendEmail'] = user['email'];
             storySearch.setQueryName('userStoriesFamily');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.FRIENDS:
-            _variables['currentUserEmail'] = user['email'];
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+              'friendEmail': 'String!',
+            });
+            _values['currentUserEmail'] = graphQLAuth.getUser().email;
+            _values['friendEmail'] = user['email'];
             storySearch.setQueryName('userStoriesFriends');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.ME:
             // never happens
@@ -318,16 +358,31 @@ class _StoriesPageState extends State<StoriesPage> {
       case TypeStoriesView.me:
         switch (_storyFeedType) {
           case StoryFeedType.ALL:
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+            });
             storySearch.setQueryName('userStoriesMe');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.FAMILY:
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+            });
             storySearch.setQueryName('userStoriesMeFamily');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.FRIENDS:
+            storySearch.setVariables(<String, dynamic>{
+              'currentUserEmail': 'String!',
+              'limit': 'String!',
+              'cursor': 'String!',
+            });
             storySearch.setQueryName('userStoriesFriends');
-            return storySearch.getQueryOptions(_variables);
+            return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.ME:
             // never happens

@@ -55,6 +55,13 @@ Future<void> main(List<String> arguments) async {
     help: 'delete the stories reactions created from eighth?',
     allowed: ['yes', 'no'],
   );
+
+  parser.addOption(
+    'deleteNineth',
+    help: 'delete the data created during the nineth scenario?',
+    allowed: ['yes', 'no'],
+  );
+
   parser.addOption(
     'runTag',
     help: 'which tag to run?',
@@ -67,7 +74,8 @@ Future<void> main(List<String> arguments) async {
       'fifth',
       'sixth',
       'seventh',
-      'eighth'
+      'eighth',
+      'nineth'
     ],
   );
 
@@ -85,6 +93,7 @@ Future<void> main(List<String> arguments) async {
   print('deleteStoryReactions ${argResults["deleteStoryReactions"] == "yes"}');
   print(
       'deleteFamilyTestUsers ${argResults["deleteFamilyTestUsers"] == "yes"}');
+  print('deleteNineth ${argResults["deleteNineth"] == "yes"}');
   print('runTag ${argResults["runTag"]}');
   final GraphQLClient graphQLClient =
       graphql.getGraphQLClient(GraphQLClientType.ApolloServer);
@@ -192,6 +201,30 @@ Future<void> main(List<String> arguments) async {
     for (Map message in bartonNameUser['messagesReceived']) {
       await graphql.deleteMessage(graphQLClient, message['id']);
     }
+  }
+  if (argResults['deleteNineth'] == 'yes') {
+    final Map<String, dynamic> bookAuthorNameUser = await graphql.getUserByName(
+        graphQLClient, 'Book Author Name', 'bartonhammond@gmail.com');
+
+    final Map<String, dynamic> basicNameUser = await graphql.getUserByName(
+        graphQLClient, 'Basic User Name', 'bartonhammond@gmail.com');
+
+    if (bookAuthorNameUser != null && basicNameUser != null) {
+      await graphql.quitFriendship(
+          graphQLClient, bookAuthorNameUser['id'], basicNameUser['id']);
+    }
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Something Name',
+    );
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Book Author Name',
+    );
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Basic User Name',
+    );
   }
   final Iterable<StepDefinitionGeneric<World>> steps = [
     expectTextFormFieldToHaveValue(),

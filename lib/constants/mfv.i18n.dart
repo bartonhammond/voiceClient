@@ -12,6 +12,10 @@ extension Localization on String {
         'es': 'De acuerdo',
       } +
       {
+        'en': Strings.no,
+        'es': 'No',
+      } +
+      {
         'en': Strings.cancel,
         'es': 'Cancelar',
       } +
@@ -452,6 +456,10 @@ extension Localization on String {
         'es': 'Ver historia',
       } +
       {
+        'en': Strings.messagesPageMessageStoryAssignedToBook,
+        'es': 'Historia asignada al libro',
+      } +
+      {
         'en': Strings.commentRequest,
         'es': 'Comentario',
       } +
@@ -574,6 +582,10 @@ extension Localization on String {
       {
         'en': Strings.messagesPageMessageMessages,
         'es': 'Mensajes',
+      } +
+      {
+        'en': Strings.messagesPageMessageBook,
+        'es': 'Libro',
       } +
       {
         'en': Strings.storiesPageAll,
@@ -758,6 +770,14 @@ extension Localization on String {
       {
         'en': Strings.proxyQuitManaging,
         'es': '¿Dejar de administrar?',
+      } +
+      {
+        'en': Strings.tagFriendsPendingChanges,
+        'es': 'Hay cambios pendientes',
+      } +
+      {
+        'en': Strings.tagFriendsStayOnPage,
+        'es': '¿Quedate en la pagina?',
       };
 
   String get i18n => localize(this, _t);

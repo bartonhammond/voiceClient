@@ -87,7 +87,6 @@ class _HomePageState extends State<HomePage> {
           child: Icon(Icons.history),
           onPressed: _areTabsEnabled
               ? () {
-                  eventBus.fire(HideProfileBanner());
                   Navigator.push<dynamic>(context,
                       MaterialPageRoute<dynamic>(builder: (context) {
                     params['onFinish'] = () {

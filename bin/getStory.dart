@@ -1,6 +1,11 @@
 import 'dart:io';
 import 'package:MyFamilyVoice/constants/enums.dart';
+import 'package:MyFamilyVoice/ql/story/story_comments.dart';
+import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
+import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
 import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story/story_tags.dart';
+import 'package:MyFamilyVoice/ql/story/story_user.dart';
 import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:args/args.dart';
@@ -21,13 +26,22 @@ Future<void> main(List<String> arguments) async {
 
   final GraphQLClient graphQLClient =
       getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
-
-  final StoryQl storyQl = StoryQl();
-
+  final StoryReactions storyReactions = StoryReactions();
+  final StoryUser storyUser = StoryUser();
+  final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
+  final StoryComments storyComments = StoryComments();
+  final StoryTags storyTags = StoryTags();
+  final StoryQl storyQl = StoryQl(
+    storyTags: storyTags,
+    storyOriginalUser: storyOriginalUser,
+    storyUser: storyUser,
+    storyComments: storyComments,
+    storyReactions: storyReactions,
+  );
   final StorySearch storySearch = StorySearch.init(
     graphQLClient,
     storyQl,
-    'bartonhammond@gmail.com',
+    'bartonhammond@yahoo.com',
   );
   storySearch.setQueryName('getStoryById');
   storySearch.setVariables(
@@ -38,8 +52,8 @@ Future<void> main(List<String> arguments) async {
   );
 
   final Map story = await storySearch.getItem(<String, dynamic>{
-    'id': 'ba0b98c0-5fdf-11eb-9efe-afe2c5951ee4',
-    'currentUserEmail': 'bartonhammond@gmail.com',
+    'id': '9981d610-5fe3-11eb-a316-7ddfac28bd86',
+    'currentUserEmail': 'bartonhammond@yahoo.com',
   });
 
   printJson('${story["id"]}', story);

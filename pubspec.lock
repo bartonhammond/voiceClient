@@ -424,15 +424,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.19.1"
-  flutter_tags:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "46850fead8d3f3975993b59d58f88297489438f3"
-      url: "https://github.com/bartonhammond/flutter_tags.git"
-    source: git
-    version: "0.4.8+2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
