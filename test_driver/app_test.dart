@@ -61,6 +61,11 @@ Future<void> main(List<String> arguments) async {
     help: 'delete the data created during the nineth scenario?',
     allowed: ['yes', 'no'],
   );
+  parser.addOption(
+    'deleteTenth',
+    help: 'delete the data created during the tenth scenario?',
+    allowed: ['yes', 'no'],
+  );
 
   parser.addOption(
     'runTag',
@@ -75,7 +80,8 @@ Future<void> main(List<String> arguments) async {
       'sixth',
       'seventh',
       'eighth',
-      'nineth'
+      'nineth',
+      'tenth'
     ],
   );
 
@@ -94,6 +100,7 @@ Future<void> main(List<String> arguments) async {
   print(
       'deleteFamilyTestUsers ${argResults["deleteFamilyTestUsers"] == "yes"}');
   print('deleteNineth ${argResults["deleteNineth"] == "yes"}');
+  print('deleteTenth ${argResults["deleteTenth"] == "yes"}');
   print('runTag ${argResults["runTag"]}');
   final GraphQLClient graphQLClient =
       graphql.getGraphQLClient(GraphQLClientType.ApolloServer);
@@ -224,6 +231,20 @@ Future<void> main(List<String> arguments) async {
     await graphql.deleteBookByName(
       graphQLClient,
       'Basic User Name',
+    );
+  }
+  if (argResults['deleteTenth'] == 'yes') {
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Album Maker',
+    );
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Album Name',
+    );
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Friend To Album',
     );
   }
   final Iterable<StepDefinitionGeneric<World>> steps = [

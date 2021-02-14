@@ -7,7 +7,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
-import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/message_button.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_message.dart';
@@ -64,6 +64,7 @@ class _MessagesPageState extends State<MessagesPage> {
   final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
 
   MessageQl messageQl = MessageQl();
+  bool familyCheckboxValue = false;
 
   @override
   void initState() {
@@ -105,7 +106,10 @@ class _MessagesPageState extends State<MessagesPage> {
     }
   }
 
-  Future<void> _approveFriendRequest(Map<String, dynamic> message) async {
+  Future<void> _approveFriendRequest(
+      Map<String, dynamic> message, bool familyCheckboxValue) async {
+    print(
+        'messagesPage._approveFriendRequest familyCheckboxValue: $familyCheckboxValue');
     final bool approveFriendRequest = await PlatformAlertDialog(
       key: Key('approveFriendRequest'),
       title: Strings.approveFriendshipRequest.i18n,
@@ -122,6 +126,16 @@ class _MessagesPageState extends State<MessagesPage> {
           toUserId: message['book'] == null
               ? graphQLAuth.getUserMap()['id']
               : message['book']['id'],
+          isFamily: false,
+        );
+
+        await addUserFriends(
+          graphQLClient,
+          toUserId: message['sender']['id'],
+          fromUserId: message['book'] == null
+              ? graphQLAuth.getUserMap()['id']
+              : message['book']['id'],
+          isFamily: familyCheckboxValue,
         );
 
         await updateUserMessageStatusById(
@@ -141,6 +155,11 @@ class _MessagesPageState extends State<MessagesPage> {
     }
     setState(() {});
     return;
+  }
+
+  void onFamilyCheckboxClicked(bool value) {
+    print('messagesPage.onFamilyCheckboxClicked $value');
+    familyCheckboxValue = value;
   }
 
   ///
@@ -178,11 +197,13 @@ class _MessagesPageState extends State<MessagesPage> {
           title: Strings.friendRequest.i18n,
           key: Key('${Keys.messageGridTile}_$index'),
           message: message,
+          onFamilyCheckboxClicked: onFamilyCheckboxClicked,
           approveButton: MessageButton(
             key: Key('friend-request-approve-${message["sender"]["email"]}'),
             text: Strings.approveFriendButton.i18n,
             fontSize: 16,
-            onPressed: () => _approveFriendRequest(message),
+            onPressed: () =>
+                _approveFriendRequest(message, familyCheckboxValue),
             icon: Icon(
               MdiIcons.accountPlus,
               color: Colors.white,

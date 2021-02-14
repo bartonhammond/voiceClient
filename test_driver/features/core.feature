@@ -1,4 +1,4 @@
-Feature: Drawer
+Feature: Core
 
     @first
     Scenario: create book and story and assign story to book
