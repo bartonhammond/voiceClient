@@ -80,7 +80,6 @@ class _StaggeredGridTileMessageState extends State<StaggeredGridTileMessage> {
                     onChanged: (bool newValue) async {
                       setState(() {
                         familyCheckboxValue = newValue;
-                        print('sgtm familyCheckboxValue: $familyCheckboxValue');
                       });
                       if (widget.onFamilyCheckboxClicked != null) {
                         widget.onFamilyCheckboxClicked(newValue);

@@ -1,6 +1,6 @@
 Feature: All Basic
 
-    @first
+    @allBasic
     Scenario: create book and story and assign story to book
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -77,9 +77,6 @@ Feature: All Basic
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-    @second
-    Scenario: login as Barton and make FriendRequest to Book
         #Log in as user
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -126,9 +123,6 @@ Feature: All Basic
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-    @third
-    Scenario: login as Barton, verify attention and add comment
         #Log in as Barton
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -157,9 +151,7 @@ Feature: All Basic
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-    @fourth
-    Scenario: Login as test user and confirm the comment message
+        #Login as testName
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
         Given I tap the "submitButton" button
@@ -181,9 +173,6 @@ Feature: All Basic
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-    @fifth
-    Scenario: login as Barton and ban Test Name and then unban him
         #Log in as Barton
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -219,9 +208,6 @@ Feature: All Basic
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-    @sixth
-    Scenario: test family.
         #create a user "familystoryProvider" that makes one story for family
         Given I open the drawer
         And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
@@ -332,10 +318,6 @@ Feature: All Basic
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-
-    @seventh
-    Scenario: Login as Test User and exercise all the dropdown menu options
         # Exercise the Stories dropdowns
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -449,9 +431,6 @@ Feature: All Basic
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
         Then I expect the widget "sendLinkButton" to be present within 2 seconds
-
-    @eighth
-    Scenario: Validate the Reactions table
         #Login as bartonhammond
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -560,9 +539,6 @@ Feature: All Basic
         And I tap the "signOutTile" widget
         Then I expect the widget "signOutConfirmation" to be present within 2 seconds
         Given I tap the "alertDefault" button
-
-    @nineth
-    Scenario: Confirm bookAuthor can remove stories from his book
         Given I open the drawer
         And I fill the "emailTextField" field with "bookAuthor@myfamilyvoice.com"
         And I tap the "submitButton" button

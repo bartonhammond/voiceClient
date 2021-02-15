@@ -1,6 +1,6 @@
 Feature: Book
 
-    @tenth
+    @book
     Scenario: One book, two contributors (one is family) verify stories shown on Users page
         #create a User album_maker@mfv.com "Album Maker"
         #create a book called "Album Name"

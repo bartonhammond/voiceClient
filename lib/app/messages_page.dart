@@ -108,8 +108,6 @@ class _MessagesPageState extends State<MessagesPage> {
 
   Future<void> _approveFriendRequest(
       Map<String, dynamic> message, bool familyCheckboxValue) async {
-    print(
-        'messagesPage._approveFriendRequest familyCheckboxValue: $familyCheckboxValue');
     final bool approveFriendRequest = await PlatformAlertDialog(
       key: Key('approveFriendRequest'),
       title: Strings.approveFriendshipRequest.i18n,
@@ -158,7 +156,6 @@ class _MessagesPageState extends State<MessagesPage> {
   }
 
   void onFamilyCheckboxClicked(bool value) {
-    print('messagesPage.onFamilyCheckboxClicked $value');
     familyCheckboxValue = value;
   }
 
