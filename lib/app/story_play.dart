@@ -726,6 +726,7 @@ class _StoryPlayState extends State<StoryPlay>
                 : null,
             onPressed: () async {
               final bool _deleteStory = await PlatformAlertDialog(
+                key: Key('deleteStory'),
                 title: Strings.deleteStoryQuestion.i18n,
                 content: Strings.areYouSure.i18n,
                 cancelActionText: Strings.cancel.i18n,

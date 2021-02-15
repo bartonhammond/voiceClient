@@ -1,4 +1,4 @@
-import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/message_button.dart';
 import 'package:MyFamilyVoice/common_widgets/friend_message_page.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';

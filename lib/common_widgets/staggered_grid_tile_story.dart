@@ -19,6 +19,7 @@ import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -47,10 +48,12 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.onBanned,
     this.index,
     this.crossAxisCount,
+    this.showCollapsed = false,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
+  final bool showCollapsed;
   final VoidCallback onDelete;
   final VoidCallback onBanned;
   final int index;
@@ -97,7 +100,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       final StorySearch storySearch = StorySearch.init(
         graphQLClient,
         storyQl,
-        'bartonhammond@gmail.com',
+        graphQLAuth.getUserMap()['email'],
       );
       storySearch.setQueryName('getStoryById');
       storySearch.setVariables(
@@ -115,7 +118,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         widget.story = story;
       });
     } catch (e) {
-      print('sgts.callback faled $e');
+      print('sgts.callback failed $e');
     }
   }
 
@@ -195,6 +198,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
   @override
   Widget build(BuildContext context) {
+    printJson('sgts.build', widget.story);
     _isWeb = AppConfig.of(context).isWeb;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
@@ -225,6 +229,18 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
     final config = AppConfig.of(context);
     final String apiBaseUrl = config.apiBaseUrl;
+    Reaction _initialReaction = react.defaultInitialReaction;
+
+    if (widget.story['reactions'] != null &&
+        widget.story['reactions'].length > 0) {
+      for (var reaction in widget.story['reactions']) {
+        if (reaction['from']['email'] == graphQLAuth.getUserMap()['email']) {
+          _initialReaction =
+              react.reactions[reactionTypes.indexOf(reaction['type'])];
+          break;
+        }
+      }
+    }
 
     return Card(
         key: _key,
@@ -469,12 +485,8 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
                               callBack();
                             },
                             reactions: react.reactions,
-                            initialReaction:
-                                widget.story['reactions'].length == 1
-                                    ? react.reactions[reactionTypes.indexOf(
-                                        widget.story['reactions'][0]['type'])]
-                                    : react.defaultInitialReaction,
-                            selectedReaction: react.defaultInitialReaction,
+                            initialReaction: _initialReaction,
+                            //selectedReaction: react.defaultInitialReaction,
                           );
                         },
                       ),

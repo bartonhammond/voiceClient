@@ -16,7 +16,7 @@ import 'package:material_design_icons_flutter/material_design_icons_flutter.dart
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:uuid/uuid.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
-import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/message_button.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_friend.dart';
@@ -582,7 +582,7 @@ class _FriendsPageState extends State<FriendsPage> {
         friend['bookAuthor']['email'] == graphQLAuth.getUserMap()['email']) {
       return TmpObj(
         button: Container(),
-        isFriend: false, //show that the family checkbox is not shown
+        isFriend: true, //show that the family checkbox is not shown
         ignore: false,
       );
     }

@@ -300,14 +300,6 @@ Future<void> addUserFriends(
     toUserId,
     isFamily,
   );
-  //to from
-  await _addUserFriends(
-    graphQLClient,
-    uuid.v1(),
-    toUserId,
-    fromUserId,
-    isFamily,
-  );
 }
 
 Future<void> updateUserMessageStatusById(
