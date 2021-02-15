@@ -1,10 +1,12 @@
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
+import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/material.dart';
-import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/message_button.dart';
 import 'package:MyFamilyVoice/services/host.dart';
+import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
-class StaggeredGridTileMessage extends StatelessWidget {
+class StaggeredGridTileMessage extends StatefulWidget {
   const StaggeredGridTileMessage({
     Key key,
     @required this.title,
@@ -12,6 +14,7 @@ class StaggeredGridTileMessage extends StatelessWidget {
     @required this.approveButton,
     @required this.rejectButton,
     this.isAudio = false,
+    this.onFamilyCheckboxClicked,
   }) : super(key: key);
 
   final String title;
@@ -19,7 +22,15 @@ class StaggeredGridTileMessage extends StatelessWidget {
   final MessageButton approveButton;
   final MessageButton rejectButton;
   final bool isAudio;
+  final void Function(bool) onFamilyCheckboxClicked;
 
+  @override
+  _StaggeredGridTileMessageState createState() =>
+      _StaggeredGridTileMessageState();
+}
+
+class _StaggeredGridTileMessageState extends State<StaggeredGridTileMessage> {
+  bool familyCheckboxValue = false;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -36,38 +47,56 @@ class StaggeredGridTileMessage extends StatelessWidget {
             SizedBox(height: 10),
             Center(
               child: Text(
-                title,
+                widget.title,
                 key: Key('message-title'),
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
               ),
             ),
-            message['book'] == null
+            widget.message['book'] == null
                 ? Container()
                 : FriendWidget(
-                    user: message['book'],
+                    user: widget.message['book'],
                     showBorder: false,
                     showMessage: false,
-                    message: message,
+                    message: widget.message,
                     showFamilyCheckbox: false,
                     allowExpandToggle: false,
                   ),
             FriendWidget(
-              user: message['sender'],
+              user: widget.message['sender'],
               showBorder: false,
-              showMessage: message['type'] == 'message',
-              message: message,
+              showMessage: widget.message['type'] == 'message',
+              message: widget.message,
               showFamilyCheckbox: false,
               allowExpandToggle: false,
             ),
-            isAudio
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Checkbox(
+                    key: Key(
+                        'familyCheckbox-${widget.message["sender"]["email"]}'),
+                    value: familyCheckboxValue,
+                    onChanged: (bool newValue) async {
+                      setState(() {
+                        familyCheckboxValue = newValue;
+                      });
+                      if (widget.onFamilyCheckboxClicked != null) {
+                        widget.onFamilyCheckboxClicked(newValue);
+                      }
+                    }),
+                Text(Strings.storiesPageFamily.i18n),
+              ],
+            ),
+            widget.isAudio
                 ? Padding(
                     padding: const EdgeInsets.all(4.0),
                     child: Column(
                       children: <Widget>[
                         PlayerWidget(
-                          key: Key("playWidget${message['id']}"),
+                          key: Key("playWidget${widget.message['id']}"),
                           url: host(
-                            message['key'],
+                            widget.message['key'],
                           ),
                           //width: _width,
                         ),
@@ -79,8 +108,10 @@ class StaggeredGridTileMessage extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               buttonHeight: 20,
               children: <Widget>[
-                approveButton == null ? Container() : approveButton,
-                rejectButton == null ? Container() : rejectButton,
+                widget.approveButton == null
+                    ? Container()
+                    : widget.approveButton,
+                widget.rejectButton == null ? Container() : widget.rejectButton,
               ],
             )
           ],

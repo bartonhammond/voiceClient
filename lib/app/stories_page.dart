@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/app/ads_global.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
+import 'package:MyFamilyVoice/constants/globals.dart';
 import 'package:MyFamilyVoice/ql/story/story_comments.dart';
 import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
 import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
@@ -599,11 +600,26 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   Widget getStaggered(List<dynamic> stories, int index, int _crossAxisCount) {
+    //if email is available, we're looking at the stories
+    //of one person, basically you're on the Users page
+    //after clicking on a user
+    //If the story is from a book and the original author
+    //is not who we're looking at, show who the author is
+    final bool bookOriginalUserIsCurrent = getEmailFromParams() != null &&
+        stories[index]['user']['isBook'] &&
+        stories[index]['originalUser']['email'] != getEmailFromParams();
+    final bool showFriend =
+        getEmailFromParams() == null || bookOriginalUserIsCurrent;
+
+    //see globals
+    if (bookOriginalUserIsCurrent) {
+      collapseFriendWidget = true;
+    }
     return StaggeredGridTileStory(
       index: index,
       crossAxisCount: _crossAxisCount,
       onPush: widget.onPush,
-      showFriend: getEmailFromParams() == null,
+      showFriend: showFriend,
       onDelete: () {
         setState(() {});
       },

@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io' as io;
 import 'dart:typed_data';
-import 'package:MyFamilyVoice/app/sign_in/message_button.dart';
+import 'package:MyFamilyVoice/common_widgets/message_button.dart';
 import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/recorder_widget.dart';
@@ -75,6 +75,7 @@ class _FriendWidgetState extends State<FriendWidget> {
   @override
   void initState() {
     super.initState();
+
     bookHasNoStories = eventBus.on<BookHasNoStories>().listen((event) {
       if (event.id == widget.user['id']) {
         setState(() {
@@ -206,6 +207,7 @@ class _FriendWidgetState extends State<FriendWidget> {
       text: Strings.deleteBookButton,
       onPressed: () async {
         final bool delete = await PlatformAlertDialog(
+          key: Key('delete'),
           title: Strings.deleteBookTitle.i18n,
           content: Strings.areYouSure.i18n,
           cancelActionText: Strings.cancel.i18n,
@@ -278,6 +280,7 @@ class _FriendWidgetState extends State<FriendWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               GestureDetector(
+                  key: Key('friendWidget-expand'),
                   onTap: () {
                     setState(() {
                       globals.collapseFriendWidget =
@@ -356,6 +359,7 @@ class _FriendWidgetState extends State<FriendWidget> {
               children: <Widget>[
                 widget.allowExpandToggle
                     ? GestureDetector(
+                        key: Key('friendWidget-collapse'),
                         onTap: () {
                           setState(() {
                             globals.collapseFriendWidget =
@@ -652,11 +656,11 @@ class _FriendWidgetState extends State<FriendWidget> {
       //already friends w/ the originalUser, then don't ban
       if (widget.story.containsKey('originalUser') &&
           widget.story['originalUser'] != null &&
-          widget.story['originalUser'].containsKey('friends') &&
-          widget.story['originalUser']['friends'].containsKey('to') &&
-          widget.story['originalUser']['friends']['to'].length > 0) {
-        for (Map aFriend in widget.story['originalUser']['friends']['to']) {
-          if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+          widget.story['originalUser'].containsKey('friendsTo') &&
+          widget.story['originalUser']['friendsTo'].length > 0) {
+        for (Map aFriend in widget.story['originalUser']['friendsTo']) {
+          if (aFriend['receiver']['email'] ==
+              graphQLAuth.getUserMap()['email']) {
             showBannedBox = false;
             break;
           }
@@ -819,11 +823,10 @@ class _FriendWidgetState extends State<FriendWidget> {
     } //isBook
 
     //Are you friends?  Don't ban if friends
-    if (widget.user['friends'] != null &&
-        widget.user['friends']['to'] != null &&
-        widget.user['friends']['to'].length > 0) {
-      for (Map aFriend in widget.user['friends']['to']) {
-        if (aFriend['User']['email'] == graphQLAuth.getUserMap()['email']) {
+    if (widget.user['friendsTo'] != null &&
+        widget.user['friendsTo'].length > 0) {
+      for (Map aFriend in widget.user['friendsTo']) {
+        if (aFriend['receiver']['email'] == graphQLAuth.getUserMap()['email']) {
           return Container();
         }
       }
