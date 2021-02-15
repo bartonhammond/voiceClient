@@ -1,4 +1,4 @@
-Feature: Core
+Feature: All Basic
 
     @first
     Scenario: create book and story and assign story to book

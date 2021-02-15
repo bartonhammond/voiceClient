@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/app/ads_global.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
+import 'package:MyFamilyVoice/constants/globals.dart';
 import 'package:MyFamilyVoice/ql/story/story_comments.dart';
 import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
 import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
@@ -13,6 +14,7 @@ import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';
@@ -599,11 +601,28 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   Widget getStaggered(List<dynamic> stories, int index, int _crossAxisCount) {
+    printJson('storiesPage.getStaggered', stories[index]);
+    print('getEmailFromParams: ${getEmailFromParams()}');
+    //if email is available, we're looking at the stories
+    //of one person, basically you're on the Users page
+    //after clicking on a user
+    //If the story is from a book and the original author
+    //is not who we're looking at, show who the author is
+    final bool bookOriginalUserIsCurrent = getEmailFromParams() != null &&
+        stories[index]['user']['isBook'] &&
+        stories[index]['originalUser']['email'] != getEmailFromParams();
+    final bool showFriend =
+        getEmailFromParams() == null || bookOriginalUserIsCurrent;
+
+    //see globals
+    if (bookOriginalUserIsCurrent) {
+      collapseFriendWidget = true;
+    }
     return StaggeredGridTileStory(
       index: index,
       crossAxisCount: _crossAxisCount,
       onPush: widget.onPush,
-      showFriend: getEmailFromParams() == null,
+      showFriend: showFriend,
       onDelete: () {
         setState(() {});
       },

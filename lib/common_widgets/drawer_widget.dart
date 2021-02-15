@@ -1,5 +1,6 @@
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/getDialog.dart';
+import 'package:MyFamilyVoice/constants/globals.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
@@ -139,6 +140,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                               key: Key('submitButton'),
                               text: 'Submit',
                               onPressed: () async {
+                                //just for testing - get back to a consistent state
+                                collapseFriendWidget = false;
                                 //During testing, the "Book Name" is created so email is generated
                                 final bool emailValid = RegExp(
                                         r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")

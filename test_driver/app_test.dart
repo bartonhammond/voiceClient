@@ -246,6 +246,10 @@ Future<void> main(List<String> arguments) async {
       graphQLClient,
       'Friend To Album',
     );
+    await graphql.deleteBookByName(
+      graphQLClient,
+      'Another',
+    );
   }
   final Iterable<StepDefinitionGeneric<World>> steps = [
     expectTextFormFieldToHaveValue(),

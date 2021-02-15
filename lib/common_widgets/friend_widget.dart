@@ -75,6 +75,7 @@ class _FriendWidgetState extends State<FriendWidget> {
   @override
   void initState() {
     super.initState();
+
     bookHasNoStories = eventBus.on<BookHasNoStories>().listen((event) {
       if (event.id == widget.user['id']) {
         setState(() {
@@ -279,6 +280,7 @@ class _FriendWidgetState extends State<FriendWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               GestureDetector(
+                  key: Key('friendWidget-expand'),
                   onTap: () {
                     setState(() {
                       globals.collapseFriendWidget =
@@ -357,6 +359,7 @@ class _FriendWidgetState extends State<FriendWidget> {
               children: <Widget>[
                 widget.allowExpandToggle
                     ? GestureDetector(
+                        key: Key('friendWidget-collapse'),
                         onTap: () {
                           setState(() {
                             globals.collapseFriendWidget =

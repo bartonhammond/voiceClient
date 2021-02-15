@@ -47,10 +47,12 @@ class StaggeredGridTileStory extends StatefulWidget {
     @required this.onBanned,
     this.index,
     this.crossAxisCount,
+    this.showCollapsed = false,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
+  final bool showCollapsed;
   final VoidCallback onDelete;
   final VoidCallback onBanned;
   final int index;

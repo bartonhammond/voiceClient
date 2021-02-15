@@ -1,8 +1,6 @@
 import 'package:MyFamilyVoice/common_widgets/friend_widget.dart';
-
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/common_widgets/message_button.dart';
 import 'package:MyFamilyVoice/services/host.dart';
@@ -35,7 +33,6 @@ class _StaggeredGridTileMessageState extends State<StaggeredGridTileMessage> {
   bool familyCheckboxValue = false;
   @override
   Widget build(BuildContext context) {
-    printJson('sgtm.build', widget.message);
     return Container(
       child: Card(
         shape: RoundedRectangleBorder(
