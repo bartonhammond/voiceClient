@@ -1,6 +1,6 @@
-Feature: All Basic
+Feature: All
 
-    @allBasic
+    @all
     Scenario: create book and story and assign story to book
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -11,7 +11,7 @@ Feature: All Basic
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Test Name"
         And I fill the "homeFormField" field with "Home City, State"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         #Create a Book
@@ -20,7 +20,7 @@ Feature: All Basic
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Book Name"
         And I fill the "homeFormField" field with "Book Home City, State"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I tap the back button
@@ -33,12 +33,12 @@ Feature: All Basic
         And I tap the "recorderWidgetStopButton" button
         And I pause for 3 seconds
         Then I expect the text "Save successful" to be present within the "toastContainer"
-        Then I expect the widget "deleteStoryButton" to be present within 3 seconds
+        Then I expect the widget "deleteStoryButton" to be present within 5 seconds
         # On Story add attention to Book which should send a "attention" notification to the Book
         And I tap the "storyPlayAttentionButton" button
         And I fill the "tagFriendsPageSearch" field with "Book"
         And I tap the "tagFriendsPage-Book Name" widget
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "tagFreindsPageSave" button
         And I swipe up by 500 pixels on the "storyPlayScrollView"
         Then I expect the "userName-Test Name" to be "Test Name"
@@ -57,7 +57,7 @@ Feature: All Basic
         Given I tap the "storyPlayBookButton" button
         And I fill the "tagFriendsPageSearch" field with "Book"
         And I tap the "tagFriendsPage-Book Name" widget
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "tagFreindsPageSave" button
         And I swipe up by 500 pixels on the "storyPlayScrollView"
         Then I expect the "userName-Book Name" to be "Book Name"
@@ -74,9 +74,9 @@ Feature: All Basic
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Log in as user
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -86,17 +86,17 @@ Feature: All Basic
         #Make friendRequest to Book
         And I tap the text that contains the text "Users"
         And I fill the "searchField" field with "Book"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         Then I tap the button that contains the text "Friend?"
         Given I tap the "alertDefault" button
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         Then I expect the text "Pending" to be present
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Log in as the person who had created the book
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -120,9 +120,9 @@ Feature: All Basic
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Log in as Barton
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -148,9 +148,9 @@ Feature: All Basic
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Login as testName
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -170,9 +170,9 @@ Feature: All Basic
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Log in as Barton
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -185,17 +185,17 @@ Feature: All Basic
         And I swipe down by 225 pixels on the "storiesPageExpanded"
         Then I expect the "originalUser-Test Name" to be "Test Name"
         And I tap the "originalUserBan-Test Name" widget
-        Then I expect the widget "banConfirmation" to be present within 2 seconds
+        Then I expect the widget "banConfirmation" to be present within 5 seconds
         Then I expect the text "Are you sure you want to ban?" to be present
         And I tap the "alertDefault" button
-        And I pause for 2 seconds
+        And I pause for 3 seconds
         #Find the new banned book
         And I tap the text that contains the text "Users"
         And I fill the "searchField" field with "Book"
         Then I expect the "originalUser-Test Name" to be "Test Name"
         #Tap the "Ban" button and confirm that the dalog is to "Remove"
         Given I tap the "originalUserBan-Test Name" widget
-        Then I expect the widget "banConfirmation" to be present within 2 seconds
+        Then I expect the widget "banConfirmation" to be present within 5 seconds
         And I expect the text "Unban: 'Test Name'" to be present
         Then I tap the "alertDefault" button
         #Verify the story written by Test Name is now presented
@@ -205,9 +205,9 @@ Feature: All Basic
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #create a user "familystoryProvider" that makes one story for family
         Given I open the drawer
         And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
@@ -218,7 +218,7 @@ Feature: All Basic
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Family Story Provider"
         And I fill the "homeFormField" field with "Home City, State"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         #Create a Story which is Family
@@ -229,17 +229,17 @@ Feature: All Basic
         And I pause for 3 seconds
         And I tap the "recorderWidgetStopButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
-        Then I expect the widget "deleteStoryButton" to be present within 3 seconds
+        Then I expect the widget "deleteStoryButton" to be present within 5 seconds
         Then I tap the "radioGroupFamily" widget
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         Then I expect the text "Save successful" to be present within the "toastContainer"
         And I tap the "backButton" button
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #create a new user "familystoryFriend" that request friend to "familystoryprovider"
         Given I open the drawer
         And I fill the "emailTextField" field with "familystoryfriend@myfamilyvoice.com"
@@ -250,22 +250,22 @@ Feature: All Basic
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Family Story Friend"
         And I fill the "homeFormField" field with "Home City, State"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         #Find the Family Story Provider
         And I tap the text that contains the text "Users"
         And I fill the "searchField" field with "Provider"
         And I tap the "newFriendsButton-familystoryprovider@myfamilyvoice.com" button
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         Given I tap the "alertDefault" button
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         Then I expect the text "Pending" to be present
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #log in as familystoryprovider and approve friend request
         Given I open the drawer
         And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
@@ -274,15 +274,15 @@ Feature: All Basic
         Given I tap the text that contains the text "Notices"
         Then I expect the "message-title" to be "Friend Request"
         And I tap the "friend-request-approve-familystoryfriend@myfamilyvoice.com" widget
-        Then I expect the widget "approveFriendRequest" to be present within 2 seconds
+        Then I expect the widget "approveFriendRequest" to be present within 5 seconds
         Given I tap the "alertDefault" button
         Then I expect the "noMessages" to be "No results"
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #log back in as "familystoryFriend" and confirm Stories is "No Results"
         Given I open the drawer
         And I fill the "emailTextField" field with "familystoryfriend@myfamilyvoice.com"
@@ -292,9 +292,9 @@ Feature: All Basic
         Then I expect the "noMessages" to be "No results"
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #log back in as "familystoryProvider" and change "familystoryFriend" to be family
         And I open the drawer
         And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
@@ -315,9 +315,9 @@ Feature: All Basic
         #logout
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         # Exercise the Stories dropdowns
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -340,9 +340,9 @@ Feature: All Basic
         #logout
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Do same tests except w/ user that is a Family
         Given I open the drawer
         And I fill the "emailTextField" field with "familystoryfriend@myfamilyvoice.com"
@@ -365,9 +365,9 @@ Feature: All Basic
         #logout
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Exercise the Users dropdowns
         Given I open the drawer
         And I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -411,9 +411,9 @@ Feature: All Basic
         #logout
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #login as provider and verify users.family shows familystoryfriend
         And I open the drawer
         And I fill the "emailTextField" field with "familystoryprovider@myfamilyvoice.com"
@@ -428,9 +428,9 @@ Feature: All Basic
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Login as bartonhammond
         Given I open the drawer
         Given I fill the "emailTextField" field with "bartonhammond@gmail.com"
@@ -442,14 +442,14 @@ Feature: All Basic
         #Scroll down to see the Like button and click the "like"
         Then I swipe down by 150 pixels on the "storiesPageColumn"
         And I long press the 'reaction-0' widget
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the first 'ReactionsBoxItem' of parent type 'ReactionsBox'
         #Log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
-        Then I expect the widget "sendLinkButton" to be present within 2 seconds
+        Then I expect the widget "sendLinkButton" to be present within 5 seconds
         #Log in as testname and verify the reactions
         Given I open the drawer
         Given I fill the "emailTextField" field with "testname@myfamilyvoice.com"
@@ -465,13 +465,13 @@ Feature: All Basic
         And I expect the text "Friend?" to be present
         #make a friend request
         Then I tap the widget that contains the text "Friend?"
-        Then I expect the widget "reactionTableFriendRequest" to be present within 2 seconds
+        Then I expect the widget "reactionTableFriendRequest" to be present within 5 seconds
         Given I tap the "alertDefault" button
         And I expect the text "Pending" to be present
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
         #Log in as bartonhammond@gmail and approve the friend request
         Given I open the drawer
@@ -491,7 +491,7 @@ Feature: All Basic
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
         #Log in as testname and verify the reactions shows Message for bartonhammond
         Given I open the drawer
@@ -519,7 +519,7 @@ Feature: All Basic
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
         #Log in as testname and verify the reactions shows Message for bartonhammond
         Given I open the drawer
@@ -537,7 +537,7 @@ Feature: All Basic
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
         Given I open the drawer
         And I fill the "emailTextField" field with "bookAuthor@myfamilyvoice.com"
@@ -548,7 +548,7 @@ Feature: All Basic
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Book Author Name"
         And I fill the "homeFormField" field with "Book Author Home City, State"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         #Create a Book
@@ -557,14 +557,14 @@ Feature: All Basic
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Something Name"
         And I fill the "homeFormField" field with "Something Home City, State"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I tap the back button
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
         #Login in as basicuser
         Given I open the drawer
@@ -576,21 +576,21 @@ Feature: All Basic
         Given I tap the "storyPageGalleryButton" button
         And I fill the "nameFormField" field with "Basic User Name"
         And I fill the "homeFormField" field with "Basic User Home City, State"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "profilePageUploadButton" button
         Then I expect the text "Save successful" to be present within the "toastContainer"
         #Make friendRequest to Book
         And I tap the text that contains the text "Users"
         And I fill the "searchField" field with "Something"
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         Then I tap the button that contains the text "Friend?"
         Given I tap the "alertDefault" button
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         Then I expect the text "Pending" to be present
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
         #Log in as the person who had created the book
         Given I open the drawer
@@ -624,12 +624,12 @@ Feature: All Basic
         And I tap the "recorderWidgetStopButton" button
         And I pause for 3 seconds
         Then I expect the text "Save successful" to be present within the "toastContainer"
-        Then I expect the widget "deleteStoryButton" to be present within 3 seconds
+        Then I expect the widget "deleteStoryButton" to be present within 5 seconds
         # Assign the story to a Book
         Given I tap the "storyPlayBookButton" button
         And I fill the "tagFriendsPageSearch" field with "Something"
         And I tap the "tagFriendsPage-Something Name" widget
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "tagFreindsPageSave" button
         And I swipe up by 500 pixels on the "storyPlayScrollView"
         Then I expect the "userName-Something Name" to be "Something Name"
@@ -638,7 +638,7 @@ Feature: All Basic
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
         #Login as bookAuthor
         Given I open the drawer
@@ -661,15 +661,15 @@ Feature: All Basic
         #Tap the Book button and clear the current selection
         Given I tap the "storyPlayBookButton" button
         And I tap the 'icon-clear-0' icon
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "tagFreindsPageSave" button
-        And I pause for 1 seconds
+        And I pause for 3 seconds
         And I tap the "backButton" button
         #Check notices are cleared
         Then I expect the "noMessages" to be "No results"
         #log out
         And I open the drawer
         And I tap the "signOutTile" widget
-        Then I expect the widget "signOutConfirmation" to be present within 2 seconds
+        Then I expect the widget "signOutConfirmation" to be present within 5 seconds
         Given I tap the "alertDefault" button
 
