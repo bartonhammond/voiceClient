@@ -1318,3 +1318,53 @@ mutation AddBanBanned($fromBanId: ID!, $toUserId: ID!) {
   }
 }
 ''';
+
+const String createFriendsTQL = r'''
+#this is reciprical
+mutation createFriends(
+  $id: ID!, 
+  $created: String!, 
+  $userId1: ID!,
+  $userId2: ID!,
+  $isFamily: Boolean!,
+  ) {
+  #Friend
+  CreateFriend(
+    id: $id
+    created: {
+      formatted: $created
+    }
+    isFamily: $isFamily
+  ) 
+  {
+    __typename
+  }
+
+  #Sender
+  AddFriendSender(
+    from: { 
+      id: $userId1
+    }
+    to: { 
+      id: $id 
+    }
+  )
+  {
+    __typename
+  }
+
+  #Receiver
+  AddFriendReceiver(
+    from: { 
+      id: $id 
+    }
+    to: { 
+      id: $userId2
+    }  
+  )
+  {
+    __typename
+  }
+ 
+}
+''';

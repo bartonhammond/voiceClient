@@ -1075,3 +1075,32 @@ Future<void> addUserBookAuthor(
   }
   return;
 }
+
+Future<void> addUserFriendsTrans(
+  GraphQLClient graphQLClient, {
+  String userId1,
+  String userId2,
+  bool isFamily,
+}) async {
+  final Uuid uuid = Uuid();
+  final DateTime now = DateTime.now();
+  //Create the Story
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(createFriendsTQL),
+    variables: <String, dynamic>{
+      'id': uuid.v1(),
+      'userId1': userId1,
+      'userId2': userId2,
+      'isFamily': isFamily,
+      'created': now.toIso8601String(),
+    },
+  );
+
+  final QueryResult queryResult = await graphQLClient.mutate(_mutationOptions);
+
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  return;
+}
