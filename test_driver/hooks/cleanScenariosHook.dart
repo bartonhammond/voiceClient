@@ -31,8 +31,8 @@ class CleanSceanariosHook extends Hook {
     Iterable<Tag> tags,
   ) async {
     print("running hook before scenario '$scenario'");
-    utility.deleteScenarioAllBasic(graphQLClient);
-    utility.deleteScenarioBook(graphQLClient);
+    await utility.deleteScenarioAllBasic(graphQLClient);
+    await utility.deleteScenarioBook(graphQLClient);
   }
 
   /// Run after a scenario has executed

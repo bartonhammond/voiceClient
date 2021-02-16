@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:MyFamilyVoice/ql/story/story_comments.dart';
 import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
 import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
@@ -5,6 +7,10 @@ import 'package:MyFamilyVoice/ql/story/story_search.dart';
 import 'package:MyFamilyVoice/ql/story/story_tags.dart';
 import 'package:MyFamilyVoice/ql/story/story_user.dart';
 import 'package:MyFamilyVoice/ql/story_ql.dart';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:graphql/client.dart';
 import '../graphQL.dart' as graphql;
 
@@ -23,16 +29,14 @@ Future<void> deleteScenarioBook(GraphQLClient graphQLClient) async {
 }
 
 Future<void> deleteTestOne(GraphQLClient graphQLClient) async {
-  Map<String, dynamic> result = await graphql.getUserByName(
+  final Map<String, dynamic> fromUser = await graphql.getUserByName(
       graphQLClient, 'Test Name', 'bartonhammond@gmail.com');
-  if (result != null) {
-    final String toId = result['id'];
-    result = await graphql.getUserByName(
-        graphQLClient, 'Book Name', 'bartonhammond@gmail.com');
-    if (result != null) {
-      final String fromId = result['id'];
-      await graphql.quitFriendship(graphQLClient, toId, fromId);
-    }
+
+  final Map<String, dynamic> toUser = await graphql.getUserByName(
+      graphQLClient, 'Book Name', 'bartonhammond@gmail.com');
+
+  if (fromUser != null && toUser != null) {
+    await quitFriendships(graphQLClient, fromUser, toUser);
   }
 }
 
@@ -91,8 +95,11 @@ Future<void> deleteNinth(
       graphQLClient, 'Basic User Name', 'bartonhammond@gmail.com');
 
   if (bookAuthorNameUser != null && basicNameUser != null) {
-    await graphql.quitFriendship(
-        graphQLClient, bookAuthorNameUser['id'], basicNameUser['id']);
+    await quitFriendships(
+      graphQLClient,
+      bookAuthorNameUser,
+      basicNameUser,
+    );
   }
   await _deleteBookByName(
     graphQLClient,
@@ -168,8 +175,11 @@ Future<void> deleteStoryReactions(GraphQLClient graphQLClient) async {
       graphQLClient, 'Barton Hammond', 'bartonhammond@gmail.com');
 
   if (testNameUser != null && bartonNameUser != null) {
-    await graphql.quitFriendship(
-        graphQLClient, testNameUser['id'], bartonNameUser['id']);
+    await quitFriendships(
+      graphQLClient,
+      testNameUser,
+      bartonNameUser,
+    );
   }
   if (testNameUser != null) {
     for (Map message in testNameUser['messagesReceived']) {
@@ -180,4 +190,53 @@ Future<void> deleteStoryReactions(GraphQLClient graphQLClient) async {
     await graphql.deleteMessage(graphQLClient, message['id']);
   }
   return;
+}
+
+Future<void> quitFriendships(
+  GraphQLClient graphQLClient,
+  Map<String, dynamic> fromUser,
+  Map<String, dynamic> toUser,
+) async {
+  final UserFriends userFriends = UserFriends();
+
+  final UserQl userQL = UserQl(
+    userFriends: userFriends,
+  );
+  final UserSearch userSearch = UserSearch.init(
+    graphQLClient,
+    userQL,
+    toUser['email'],
+  );
+
+  userSearch.setQueryName('getUserByEmail');
+  userSearch.setVariables(<String, dynamic>{
+    'currentUserEmail': 'String!',
+  });
+
+  final Map user = await userSearch.getItem(<String, dynamic>{
+    'currentUserEmail': fromUser['email'],
+  });
+
+  for (var friend in user['friendsTo']) {
+    if (friend['receiver']['email'] == toUser['email']) {
+      await graphql.quitFriendship(
+        graphQLClient,
+        friendId: friend['id'],
+        fromUserId: fromUser['id'],
+        toUserId: toUser['id'],
+      );
+      break;
+    }
+  }
+  for (var friend in user['friendsFrom']) {
+    if (friend['sender']['email'] == toUser['email']) {
+      await graphql.quitFriendship(
+        graphQLClient,
+        friendId: friend['id'],
+        toUserId: fromUser['id'],
+        fromUserId: toUser['id'],
+      );
+      break;
+    }
+  }
 }

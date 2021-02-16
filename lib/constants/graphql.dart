@@ -374,11 +374,11 @@ const String mergeUserFriends = r'''
 }
 ''';
 
-const String removeUserFriends = r'''
-  mutation removeUserFriends($from: ID!, $to: ID!) {
-  RemoveUserFriends(
-    from: { id: $from }
-    to: { id: $to }
+const String removeUserFriendsFromQL = r'''
+  mutation removeUserFriendsFrom($fromFriendInput: ID!, $toUserInput: ID!) {
+  RemoveUserFriendsFrom(
+    from: { id: $fromFriendInput }
+    to: { id: $toUserInput }
   ) {
     __typename
     from {
@@ -390,6 +390,35 @@ const String removeUserFriends = r'''
   }
 }
 ''';
+
+const String removeUserFriendsToQL = r'''
+  mutation removeUserFriendsTo($fromUserInput: ID!, $toFriendInput: ID!) {
+  RemoveUserFriendsTo(
+    from: { id: $fromUserInput }
+    to: { id: $toFriendInput }
+  ) {
+    __typename
+    from {
+      id
+    }
+    to {
+      id
+    }
+  }
+}
+''';
+
+const String deleteFriendQL = r'''
+  mutation deleteFriend($friendInput: ID!) {
+  DeleteFriend(
+    id: $friendInput
+  ) {
+    __typename
+    id
+  }
+}
+''';
+
 const String userActivities = r'''
 query getUserActivities ($email: String!, $first: Int!, $offset: Int!) {
  User(email: $email) {

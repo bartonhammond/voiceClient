@@ -95,29 +95,47 @@ Future<Map> getUserByName(
 }
 
 Future<void> quitFriendship(
-  GraphQLClient graphQLClient,
-  String idFrom,
-  String idTo,
-) async {
+  GraphQLClient graphQLClient, {
+  String friendId,
+  String fromUserId,
+  String toUserId,
+}) async {
   MutationOptions options = MutationOptions(
-    documentNode: gql(removeUserFriends),
+    documentNode: gql(removeUserFriendsFromQL),
     variables: <String, dynamic>{
-      'from': idFrom,
-      'to': idTo,
+      'fromFriendInput': friendId,
+      'toUserInput': toUserId,
     },
   );
 
-  await graphQLClient.mutate(options);
+  QueryResult queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  options = MutationOptions(
+    documentNode: gql(removeUserFriendsToQL),
+    variables: <String, dynamic>{
+      'fromUserInput': fromUserId,
+      'toFriendInput': friendId,
+    },
+  );
+
+  queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
 
   options = MutationOptions(
-    documentNode: gql(removeUserFriends),
+    documentNode: gql(removeUserFriendsToQL),
     variables: <String, dynamic>{
-      'from': idTo,
-      'to': idFrom,
+      'friendInput': friendId,
     },
   );
 
-  await graphQLClient.mutate(options);
+  queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
 }
 
 GraphQLClient getGraphQLClient(GraphQLClientType type) {

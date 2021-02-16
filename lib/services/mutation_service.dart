@@ -1,5 +1,8 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
+import 'package:MyFamilyVoice/ql/user/user_friends.dart';
+import 'package:MyFamilyVoice/ql/user/user_search.dart';
+import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
@@ -1103,4 +1106,97 @@ Future<void> addUserFriendsTrans(
   }
 
   return;
+}
+
+Future<void> quitFriendship(
+  GraphQLClient graphQLClient, {
+  String friendId,
+  String fromUserId,
+  String toUserId,
+}) async {
+  MutationOptions options = MutationOptions(
+    documentNode: gql(removeUserFriendsFromQL),
+    variables: <String, dynamic>{
+      'fromFriendInput': friendId,
+      'toUserInput': toUserId,
+    },
+  );
+
+  QueryResult queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  options = MutationOptions(
+    documentNode: gql(removeUserFriendsToQL),
+    variables: <String, dynamic>{
+      'fromUserInput': fromUserId,
+      'toFriendInput': friendId,
+    },
+  );
+
+  queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+
+  options = MutationOptions(
+    documentNode: gql(deleteFriendQL),
+    variables: <String, dynamic>{
+      'friendInput': friendId,
+    },
+  );
+
+  queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+}
+
+Future<void> quitFriendships(
+  GraphQLClient graphQLClient,
+  Map<String, dynamic> fromUser,
+  Map<String, dynamic> toUser,
+) async {
+  final UserFriends userFriends = UserFriends();
+
+  final UserQl userQL = UserQl(
+    userFriends: userFriends,
+  );
+  final UserSearch userSearch = UserSearch.init(
+    graphQLClient,
+    userQL,
+    toUser['email'],
+  );
+
+  userSearch.setQueryName('getUserByEmail');
+  userSearch.setVariables(<String, dynamic>{
+    'currentUserEmail': 'String!',
+  });
+
+  final Map user = await userSearch.getItem(<String, dynamic>{
+    'currentUserEmail': fromUser['email'],
+  });
+
+  for (var friend in user['friendsTo']) {
+    if (friend['receiver']['email'] == toUser['email']) {
+      await quitFriendship(
+        graphQLClient,
+        friendId: friend['id'],
+        fromUserId: fromUser['id'],
+        toUserId: toUser['id'],
+      );
+      break;
+    }
+  }
+  for (var friend in user['friendsFrom']) {
+    if (friend['sender']['email'] == toUser['email']) {
+      await quitFriendship(
+        graphQLClient,
+        friendId: friend['id'],
+        toUserId: fromUser['id'],
+        fromUserId: toUser['id'],
+      );
+      break;
+    }
+  }
 }
