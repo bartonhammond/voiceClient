@@ -1208,192 +1208,49 @@ mutation addUserBookAuthor($from: ID!, $to: ID!, ){
 }
 ''';
 
-const String createFriendQL = r'''
-mutation createFriend($id: ID!, $created: String!, $isFamily: Boolean!) {
-  CreateFriend(
-    id: $id
-    created: {
-      formatted: $created
-    }
-    isFamily: $isFamily
-  ) {
-    id
-    isFamily
-    created {
-      formatted
-    }
-  }
-}
-''';
-
-const String addFriendSenderQL = r'''
-  mutation addFriendSender($fromUserId: ID!, $toFriendId: ID!) {
-  AddFriendSender(
-    from: { 
-      id: $fromUserId 
-    }
-    to: { 
-      id: $toFriendId 
-    }
-  ) {
-    from {
-      id
-      email
-    }
-    to {
-     id
-     isFamily
-    }
-  }
-}
-''';
-
-const String addFriendReceiverQL = r'''
-  mutation addFriendReceiver($toUserId: ID!, $fromFriendId: ID!) {
-  AddFriendReceiver(
-    from: { 
-      id: $fromFriendId 
-    }
-    to: { 
-      id: $toUserId 
-    }  
-  ) {
-    from {
-      id
-      isFamily
-    }
-    to {
-      id
-      email
-    }
-  }
-}
-''';
-
 const String addUserFriendsQL = r'''
-  mutation addUserFriends($id: ID!, $fromUserId: ID!, $toUserId: ID!, $isFamily: Boolean!, $created: String) {
-  AddUserFriends(
-    from: { 
-      id: $fromUserId 
-    }
-    to: { 
-      id: $toUserId
-    }
-    data: {
-      id: $id
-      created: {
-        formatted: $created
-      }
-      isFamily: $isFamily
-    }
-  ) {
-      id
-    }
+mutation createFriends(
+  $friendId1: ID!, 
+  $friendId2: ID!, 
+  $created: String!, 
+  $userId1: ID! 
+  $isFamily1: Boolean!, 
+  $userId2: ID!, 
+  $isFamily2: Boolean!) {
+    createFriends(
+      friendId1: $friendId1,
+      friendId2: $friendId2,
+      created: $created,
+      userId1: $userId1,
+      isFamily1: $isFamily1,
+      userId2: $userId2,
+      isFamily2: $isFamily2
+    )
+  }
+''';
+
+const String deleteFriendsServerSideQL = r'''
+mutation deleteFriends(
+  $friendId1: String!, 
+  $friendId2: String!) {
+    deleteFriends(
+      friendId1: $friendId1,
+      friendId2: $friendId2
+    )
   }
 ''';
 
 const String createBanQL = r'''
-mutation createBan($banId: ID!, $created: String!) {
-  CreateBan(
-    id: $banId
-    created: {
-      formatted: $created
-    }
-    
-  ) {
-    id
-    created {
-      formatted
-    }
+mutation createBan(
+  $banId: String!, 
+  $bannerId: String!, 
+  $bannedId: String!, 
+  $created: String!) {
+    createBan(
+      banId: $banId,
+      bannerId: $bannerId,
+      bannedId: $bannedId,
+      created: $created
+    )
   }
-}
-''';
-const String addBanBannerQL = r'''
-mutation AddBanBanner($toBanId: ID!, $fromUserId: ID!) {
-  AddBanBanner(
-    from: {
-      id: $fromUserId
-    } 
-    to: {
-      id: $toBanId
-    }
-  ) {
-    from {
-      id
-    }
-    to {
-      id
-    }
-  }
-}
-''';
-
-const String addBanBannedQL = r'''
-mutation AddBanBanned($fromBanId: ID!, $toUserId: ID!) {
-  AddBanBanned(
-    from: {
-      id: $fromBanId
-    } 
-    to: {
-      id: $toUserId
-    }
-  ) {
-    from {
-      id
-    }
-    to {
-      id
-    }
-  }
-}
-''';
-
-const String createFriendsTQL = r'''
-#this is reciprical
-mutation createFriends(
-  $id: ID!, 
-  $created: String!, 
-  $userId1: ID!,
-  $userId2: ID!,
-  $isFamily: Boolean!,
-  ) {
-  #Friend
-  CreateFriend(
-    id: $id
-    created: {
-      formatted: $created
-    }
-    isFamily: $isFamily
-  ) 
-  {
-    __typename
-  }
-
-  #Sender
-  AddFriendSender(
-    from: { 
-      id: $userId1
-    }
-    to: { 
-      id: $id 
-    }
-  )
-  {
-    __typename
-  }
-
-  #Receiver
-  AddFriendReceiver(
-    from: { 
-      id: $id 
-    }
-    to: { 
-      id: $userId2
-    }  
-  )
-  {
-    __typename
-  }
- 
-}
 ''';

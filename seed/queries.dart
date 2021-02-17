@@ -317,60 +317,6 @@ Future<void> addReactionFrom(
   return;
 }
 
-Future<void> addUserFriends(
-  GraphQLClient graphQLClientApolloServer, {
-  String friendId,
-  String fromUserId,
-  String toUserId,
-  bool isFamily,
-}) async {
-  final DateTime now = DateTime.now();
-  //Create the Story
-  MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(createFriendQL),
-    variables: <String, dynamic>{
-      'id': friendId,
-      'created': now.toIso8601String(),
-      'isFamily': isFamily,
-    },
-  );
-
-  QueryResult queryResult =
-      await graphQLClientApolloServer.mutate(_mutationOptions);
-
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  //Create Sender
-  _mutationOptions = MutationOptions(
-    documentNode: gql(addFriendSenderQL),
-    variables: <String, dynamic>{
-      'toFriendId': friendId,
-      'fromUserId': fromUserId,
-    },
-  );
-  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
-
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-
-  //Create Receiver
-  _mutationOptions = MutationOptions(
-    documentNode: gql(addFriendReceiverQL),
-    variables: <String, dynamic>{
-      'fromFriendId': friendId,
-      'toUserId': toUserId,
-    },
-  );
-  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
-
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return;
-}
-
 Future<void> createComment(
   GraphQLClient graphQLClient,
   String commentId,

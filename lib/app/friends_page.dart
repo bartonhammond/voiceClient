@@ -9,6 +9,7 @@ import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
 import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -234,6 +235,7 @@ class _FriendsPageState extends State<FriendsPage> {
   }
 
   Future<void> _quitFriendRequest(Map<String, dynamic> friend) async {
+    printJson('friendsPage._quitFriendRequest', friend);
     final bool endFriendship = await PlatformAlertDialog(
       title: Strings.cancelFriendship.i18n,
       content: Strings.areYouSure.i18n,
@@ -242,10 +244,10 @@ class _FriendsPageState extends State<FriendsPage> {
     ).show(context);
     if (endFriendship == true) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-      await quitFriendships(
+      await quitFriendship(
         graphQLClient,
-        graphQLAuth.getUserMap(),
-        friend,
+        friendId1: friend['friendsTo'][0]['id'],
+        friendId2: friend['friendsFrom'][0]['id'],
       );
 
       setState(() {

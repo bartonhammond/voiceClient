@@ -118,19 +118,13 @@ class _MessagesPageState extends State<MessagesPage> {
     if (approveFriendRequest) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
       try {
-        await addUserFriendsTrans(graphQLClient,
+        await addUserFriendsServerSide(graphQLClient,
             userId1: message['sender']['id'],
             userId2: message['book'] == null
                 ? graphQLAuth.getUserMap()['id']
                 : message['book']['id'],
-            isFamily: false);
-
-        await addUserFriendsTrans(graphQLClient,
-            userId2: message['sender']['id'],
-            userId1: message['book'] == null
-                ? graphQLAuth.getUserMap()['id']
-                : message['book']['id'],
-            isFamily: familyCheckboxValue);
+            isFamily1To2: false,
+            isFamily2To1: familyCheckboxValue);
 
         await updateUserMessageStatusById(
           graphQLClient,
