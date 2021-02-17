@@ -261,72 +261,6 @@ Future<void> updateUserMessageStatusById(
   return;
 }
 
-Future<void> addUserMessagesById(
-    {GraphQLClient graphQLClient,
-    String fromUserId,
-    String toUserId,
-    String messageId,
-    String status,
-    String type,
-    String key,
-    Map<String, dynamic> bookUser}) async {
-  final DateTime now = DateTime.now();
-  MutationOptions options = MutationOptions(
-    documentNode: gql(createMessageQL),
-    variables: <String, dynamic>{
-      'id': messageId,
-      'created': now.toIso8601String(),
-      'status': status,
-      'type': type,
-      'key': key,
-    },
-  );
-
-  QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-  options = MutationOptions(
-    documentNode: gql(addUserMessagesSentQL),
-    variables: <String, dynamic>{
-      'fromUserId': fromUserId,
-      'toMessageId': messageId,
-    },
-  );
-  result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  options = MutationOptions(
-    documentNode: gql(addUserMessagesReceivedQL),
-    variables: <String, dynamic>{
-      'toUserId': toUserId,
-      'fromMessageId': messageId,
-    },
-  );
-  result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  if (bookUser != null) {
-    //create messageBook
-    options = MutationOptions(
-      documentNode: gql(addUserMessagesTopicQL),
-      variables: <String, dynamic>{
-        'toUserId': bookUser['id'],
-        'fromMessageId': messageId,
-      },
-    );
-    result = await graphQLClient.mutate(options);
-    if (result.hasException) {
-      throw result.exception;
-    }
-  }
-  return;
-}
-
 Future<void> addUserMessages({
   GraphQLClient graphQLClient,
   Map<String, dynamic> fromUser,
@@ -337,26 +271,44 @@ Future<void> addUserMessages({
   String key,
 }) async {
   if (toUser['isBook'] == true) {
-    await addUserMessagesById(
-        graphQLClient: graphQLClient,
-        fromUserId: fromUser['id'],
-        toUserId: toUser['bookAuthor']['id'], // the books author
-        messageId: messageId,
-        status: status,
-        type: type,
-        key: key,
-        bookUser: toUser);
-  } else {
-    await addUserMessagesById(
-      graphQLClient: graphQLClient,
-      fromUserId: fromUser['id'],
-      toUserId: toUser['id'],
-      messageId: messageId,
-      status: status,
-      type: type,
-      key: key,
-      bookUser: null,
+    final DateTime now = DateTime.now();
+    final MutationOptions options = MutationOptions(
+      documentNode: gql(createMessageWithBookQL),
+      variables: <String, dynamic>{
+        'messageId': messageId,
+        'created': now.toIso8601String(),
+        'status': status,
+        'type': type,
+        'key': key,
+        'fromUserId': fromUser['id'],
+        'toUserId': toUser['bookAuthor']['id'],
+        'bookUserId': toUser['id']
+      },
     );
+
+    final QueryResult result = await graphQLClient.mutate(options);
+    if (result.hasException) {
+      throw result.exception;
+    }
+  } else {
+    final DateTime now = DateTime.now();
+    final MutationOptions options = MutationOptions(
+      documentNode: gql(createMessageQL),
+      variables: <String, dynamic>{
+        'messageId': messageId,
+        'created': now.toIso8601String(),
+        'status': status,
+        'type': type,
+        'key': key,
+        'fromUserId': fromUser['id'],
+        'toUserId': toUser['id'],
+      },
+    );
+
+    final QueryResult result = await graphQLClient.mutate(options);
+    if (result.hasException) {
+      throw result.exception;
+    }
   }
 
   return;
@@ -512,27 +464,6 @@ Future<void> addUserComments(
     documentNode: gql(addUserCommentsQL),
     variables: <String, dynamic>{
       'userId': userId,
-      'commentId': commentId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addStoryComments(
-  GraphQLClient graphQLClient,
-  String storyId,
-  String commentId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addStoryCommentsQL),
-    variables: <String, dynamic>{
-      'storyId': storyId,
       'commentId': commentId,
     },
   );

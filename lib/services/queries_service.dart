@@ -41,25 +41,3 @@ Future<Map> getUserById(
   }
   return queryResult.data['User'][0];
 }
-
-Future<QueryResult> getUserMessagesReceived(
-  GraphQLClient graphQLClient,
-  String userEmail,
-  String cursor,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserMessagesReceivedQL),
-    variables: <String, dynamic>{
-      'currentUserEmail': userEmail,
-      'status': 'new',
-      'limit': '100',
-      'cursor': cursor,
-    },
-  );
-
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult;
-}

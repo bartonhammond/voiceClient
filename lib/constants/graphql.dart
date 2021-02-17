@@ -604,81 +604,45 @@ query userSearchMe($currentUserEmail: String!) {
 ''';
 
 const String createMessageQL = r'''
-mutation createMessage($id: ID!, $created: String!, $status: String!, $type: String!, $key: String,){
-CreateMessage(
-  id: $id
-  created: { 
-      formatted: $created 
-  }
+mutation createMessage(
+  $messageId: String!, 
+  $created: String!, 
+  $status: String!, 
+  $type: String!, 
+  $key: String,
+  $fromUserId: String!,
+  $toUserId: String!){
+createMessage(
+  messageId: $messageId
+  created: $created 
   status: $status
   type: $type
   key: $key
-) {
-  __typename
-    id
-}
-   
+  fromUserId: $fromUserId
+  toUserId: $toUserId
+) 
 }
 ''';
-
-const String addUserMessagesSentQL = r'''
-mutation addUserMessagesSent($fromUserId: ID!, $toMessageId: ID! ){
-AddUserMessagesSent(
-  from: {
-    id: $fromUserId
-  }
-  to: {
-    id: $toMessageId
-  }
-) {
-    from {
-      id
-    }
-    to  {
-      id
-    }
-  }
-}
-''';
-
-const String addUserMessagesReceivedQL = r'''
-mutation addUserMessagesReceived($toUserId: ID!, $fromMessageId: ID!) {
-AddUserMessagesReceived(
-  from: {
-    id: $fromMessageId
-  }
-  to: {
-    id: $toUserId
-  }
-) {
-    from {
-      id
-    }
-    to {
-      id
-    }
-  }
-}
-''';
-
-const String addUserMessagesTopicQL = r'''
-mutation addUserMessagesTopic($toUserId: ID!, $fromMessageId: ID!) {
-AddUserMessagesTopic(
-  from: {
-    id: $fromMessageId
-  }
-  to: {
-    id: $toUserId
-  }
-) {
-    from {
-      id
-    }
-    to {
-      id
-    }
-
-  }
+const String createMessageWithBookQL = r'''
+mutation createMessageWithBook(
+  $messageId: String!, 
+  $created: String!, 
+  $status: String!, 
+  $type: String!, 
+  $key: String,
+  $fromUserId: String!,
+  $toUserId: String!
+  $bookUserId: String!){
+createMessageWithBook(
+  messageId: $messageId
+  created: $created 
+  status: $status
+  type: $type
+  key: $key
+  fromUserId: $fromUserId
+  toUserId: $toUserId
+  bookUserId: $bookUserId
+) 
 }
 ''';
 
@@ -716,64 +680,6 @@ const String _message_ = r'''
     _user_ +
     r'''    
   }
-''';
-
-const String getUserMessagesReceivedQL = r'''
-query getUserMessagesReceived($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!) {
-  userMessagesReceived(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit)
-    {
-    __typename
-    id
-    type
-    status
-    key
-    created {
-      formatted
-    }
-    from ''' +
-    _user_ +
-    r'''  
-    book ''' +
-    _user_ +
-    r'''  
-  }
-}
-''';
-
-const String getUserMessagesSentQL = r'''
-query getUserMessagesSent($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!) {
-  userMessagesSent(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit)
-    {
-    __typename
-    id
-    type
-    status
-    key
-    created {
-      formatted
-    }
-    to ''' +
-    _user_ +
-    r'''    
-  }
-}
-''';
-
-const String getUserMessagesByTypeQL = r'''
-query getUserMessagesByType($currentUserEmail: String!, $status: String!, $cursor: String!, $limit: String!, $type: String!) {
-  userMessagesByType(currentUserEmail: $currentUserEmail, status: $status, cursor: $cursor, limit: $limit, type: $type)''' +
-    _message_ +
-    '''  
-}
-''';
-
-const String newMessagesCount = r'''
-query newMessagesCount($email: String!) {
-  newMessagesCount(email: $email) {
-    __typename
-    count
-  }
-}
 ''';
 
 const String getUserFriendsStoriesQL = r'''
