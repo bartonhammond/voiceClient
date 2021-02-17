@@ -839,18 +839,16 @@ UpdateUser(
 ''';
 
 const String createCommentQL = r'''
-mutation createComment($commentId: ID!, $audio: String!, $status: String!, $created: String!, ) {
-  CreateComment(
-    id: $commentId
+mutation createComment($commentId: String!, $audio: String!, $status: String!, 
+                        $updated: String!, $userId: String! $storyId: String! ) {
+  createComment(
+    commentId: $commentId
     audio: $audio
     status: $status
-    created: { 
-      formatted: $created 
-    }
-  ) {
-    __typename
-    id
-  }
+    updated: $updated
+    userId: $userId
+    storyId: $storyId
+  ) 
 }
 ''';
 
@@ -1136,39 +1134,6 @@ getUserByName(name: $name, currentUserEmail: $currentUserEmail) {
     image
     isBook   
     created{
-      formatted
-    }
-  }
-}
-''';
-
-const String addUserBannedQL = r'''
-mutation addUserBanned($fromUserId: ID!, $toUserId: ID!, $id: ID!, $created: String!) {
-AddUserBanned(
-  from: {
-    id: $fromUserId
-  },
-  to: { 
-    id: $toUserId
-  },
-  data: {
-    id: $id,
-    created: {
-      formatted: $created
-    }
-  }
-  ) {
-    from {
-      email
-      name
-    }
-    to {
-      email
-      id
-      name
-    }
-    id
-    created {
       formatted
     }
   }

@@ -410,11 +410,14 @@ Future<QueryResult> createOrUpdateUserInfo(
 }
 
 Future<void> createComment(
-  GraphQLClient graphQLClient,
+  GraphQLClient graphQLClient, {
   String commentId,
   String audio,
   String status,
-) async {
+  String updated,
+  String userId,
+  String storyId,
+}) async {
   final DateTime now = DateTime.now();
   final MutationOptions options = MutationOptions(
     documentNode: gql(createCommentQL),
@@ -422,11 +425,14 @@ Future<void> createComment(
       'commentId': commentId,
       'audio': audio,
       'status': status,
-      'created': now.toIso8601String()
+      'updated': now.toIso8601String(),
+      'userId': userId,
+      'storyId': storyId
     },
   );
 
   final QueryResult result = await graphQLClient.mutate(options);
+
   if (result.hasException) {
     throw result.exception;
   }
@@ -660,33 +666,15 @@ Future<void> doCommentUploads(
     'mp3',
   );
 
+  final DateTime now = DateTime.now();
   await createComment(
     graphQLClientApolloServer,
-    _commentId,
-    _audioFilePath,
-    'new',
-  );
-
-  await addUserComments(
-    graphQLClientApolloServer,
-    graphQLAuth.getUserMap()['id'],
-    _commentId,
-  );
-
-  await addStoryComments(
-    graphQLClientApolloServer,
-    _story['id'],
-    _commentId,
-  );
-
-  //make sure the updated field gets updated
-  await updateStory(
-    graphQLClientApolloServer,
-    _story['id'],
-    _story['image'],
-    _story['audio'],
-    _story['created']['formatted'],
-    _story['type'],
+    commentId: _commentId,
+    audio: _audioFilePath,
+    status: 'new',
+    userId: graphQLAuth.getUserMap()['id'],
+    storyId: _story['id'],
+    updated: now.toIso8601String(),
   );
 
   //don't create message if it's your story

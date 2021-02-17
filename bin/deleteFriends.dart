@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:graphql/client.dart';
-import 'package:uuid/uuid.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:args/args.dart';
 import '../seed/graphQLClient.dart';
