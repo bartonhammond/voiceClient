@@ -58,38 +58,22 @@ Future<void> addStory(
   now = now.subtract(Duration(days: daysOffset));
 
   //Create the Story
-  MutationOptions _mutationOptions = MutationOptions(
+  final MutationOptions _mutationOptions = MutationOptions(
     documentNode: gql(createStory),
     variables: <String, dynamic>{
-      'id': storyId,
+      'storyId': storyId,
       'image': imageFilePath,
       'audio': audioFilePath,
       'created': now.toIso8601String(),
       'updated': now.toIso8601String(),
       'type': type,
+      'userId': currentUserId
     },
   );
 
-  QueryResult queryResult =
+  final QueryResult queryResult =
       await graphQLClientApolloServer.mutate(_mutationOptions);
 
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-
-  final userInput = {'id': currentUserId};
-  final to = {'id': storyId};
-
-  //Merge Story w/ User
-  _mutationOptions = MutationOptions(
-    documentNode: gql(mergeUserStories),
-    variables: <String, dynamic>{
-      'from': userInput,
-      'to': to,
-    },
-  );
-
-  queryResult = await graphQLClientApolloServer.mutate(_mutationOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
@@ -151,40 +135,22 @@ Future<void> deleteStory(
 }
 
 Future<void> changeStoriesUser(
-  GraphQLClient graphQLClient,
+  GraphQLClient graphQLClient, {
   String currentUserId,
   String newUserId,
   String storyId,
-) async {
-  var userInput = {'id': currentUserId};
-  final to = {'id': storyId};
-
-  //Remove  Story w/ User
-  MutationOptions _mutationOptions = MutationOptions(
-    documentNode: gql(removeUserStories),
+}) async {
+  //Remove  originalUser and replace w/ new user
+  final MutationOptions _mutationOptions = MutationOptions(
+    documentNode: gql(changeStoryUserQL),
     variables: <String, dynamic>{
-      'from': userInput,
-      'to': to,
+      'originalUserId': currentUserId,
+      'storyId': storyId,
+      'newUserId': newUserId,
     },
   );
 
-  QueryResult queryResult = await graphQLClient.mutate(_mutationOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-
-  //Merge Story w/ new user
-  userInput = {'id': newUserId};
-
-  _mutationOptions = MutationOptions(
-    documentNode: gql(mergeUserStories),
-    variables: <String, dynamic>{
-      'from': userInput,
-      'to': to,
-    },
-  );
-
-  queryResult = await graphQLClient.mutate(_mutationOptions);
+  final QueryResult queryResult = await graphQLClient.mutate(_mutationOptions);
   if (queryResult.hasException) {
     throw queryResult.exception;
   }
@@ -192,25 +158,25 @@ Future<void> changeStoriesUser(
   return;
 }
 
-Future<void> addStoryOriginalUser(
-  GraphQLClient graphQLClientApolloServer,
+Future<void> changeStoryUserAndSaveOriginalUser(
+  GraphQLClient graphQLClientApolloServer, {
   String currentUserId,
   String storyId,
-) async {
-  final userInput = {'id': currentUserId};
-  final to = {'id': storyId};
-
-  //Remove  Story w/ User
+  String newUserId,
+}) async {
+  //Save the original user and replace the current user
   final MutationOptions _mutationOptions = MutationOptions(
     documentNode: gql(addStoryOriginalUserQL),
     variables: <String, dynamic>{
-      'from': userInput,
-      'to': to,
+      'originalUserId': currentUserId,
+      'storyId': storyId,
+      'newUserId': newUserId,
     },
   );
 
   final QueryResult queryResult =
       await graphQLClientApolloServer.mutate(_mutationOptions);
+
   if (queryResult.hasException) {
     throw queryResult.exception;
   }

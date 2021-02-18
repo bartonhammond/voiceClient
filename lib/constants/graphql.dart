@@ -210,30 +210,23 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
 ''';
 
 const String createStory = r'''
-mutation createStory($id: ID!, $image: String!, $audio: String!, $created: String!, $updated: String!, $type: StoryType!) {
-CreateStory(
-    id: $id
+mutation createStory(
+  $storyId: String!, 
+  $image: String!, 
+  $audio: String!, 
+  $created: String!, 
+  $updated: String!, 
+  $type: String!,
+  $userId: String!) {
+createStory(
+    storyId: $id
     image: $image
     audio: $audio
     type: $type
-    created: {
-      formatted: $created
-    } 
-    updated: {
-      formatted: $updated  
-    }
-  ) {
-    __typename
-    id
-    image 
-    audio
-    created { 
-      formatted
-    }
-    updated { 
-      formatted
-    }
-  }
+    created: $created
+    updated: $updated  
+    userId: $userId
+  ) 
 }
 ''';
 
@@ -697,6 +690,31 @@ mutation createBan(
       bannerId: $bannerId,
       bannedId: $bannedId,
       created: $created
+    )
+  }
+''';
+const String changeStoryUserQL = r'''
+mutation changeStoryUser(
+  $originalUserId: String!,
+  $storyId: String!,
+  $newUserId: String!) {
+    changeStoryUser(
+      originalUserId: $originalUserId,
+      storyId: $storyId,
+      newUserId: $newUserId
+    )
+  }
+''';
+
+const String changeStoryUserWithOriginalUserQL = r'''
+mutation changeStoryUserWithOriginalUser(
+  $originalUserId: String!,
+  $storyId: String!,
+  $newUserId: String!) {
+    changeStoryUserWithOriginalUser(
+      originalUserId: $originalUserId,
+      storyId: $storyId,
+      newUserId: $newUserId
     )
   }
 ''';

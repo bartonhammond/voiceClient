@@ -166,25 +166,27 @@ class _StoryPlayState extends State<StoryPlay>
       //remove the current book
       await changeStoriesUser(
         graphQLClient,
-        _story['user']['id'], //currentUser
-        _story['originalUser']['id'], //original
-        _story['id'],
+        currentUserId: _story['user']['id'], //currentUser
+        newUserId: _story['originalUser']['id'], //original
+        storyId: _story['id'],
       );
     } else {
       if (_story['originalUser'] == null) {
         //Merge Story w/ OriginalUser
-        addStoryOriginalUser(
+        await changeStoryUserAndSaveOriginalUser(
           graphQLClient,
-          _story['user']['id'],
-          _story['id'],
+          currentUserId: _story['user']['id'],
+          storyId: _story['id'],
+          newUserId: user['id'],
+        );
+      } else {
+        await changeStoriesUser(
+          graphQLClient,
+          currentUserId: _story['user']['id'], //currentUser
+          newUserId: user['id'], //new
+          storyId: _story['id'],
         );
       }
-      await changeStoriesUser(
-        graphQLClient,
-        _story['user']['id'], //currentUser
-        user['id'], //new
-        _story['id'],
-      );
 
       await addUserMessages(
         graphQLClient: graphQLClient,
