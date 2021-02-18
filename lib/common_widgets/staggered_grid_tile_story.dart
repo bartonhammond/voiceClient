@@ -19,6 +19,7 @@ import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -228,13 +229,15 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     final config = AppConfig.of(context);
     final String apiBaseUrl = config.apiBaseUrl;
     Reaction _initialReaction = react.defaultInitialReaction;
-
+    String _initialReactionId;
+    printJson('sgts.build', widget.story);
     if (widget.story['reactions'] != null &&
         widget.story['reactions'].length > 0) {
       for (var reaction in widget.story['reactions']) {
         if (reaction['from']['email'] == graphQLAuth.getUserMap()['email']) {
           _initialReaction =
               react.reactions[reactionTypes.indexOf(reaction['type'])];
+          _initialReactionId = reaction['id'];
           break;
         }
       }
@@ -450,33 +453,31 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
                               final String _reactionId = uuid.v1();
 
-                              //detach delete current story reaction for this user
-                              await deleteUserReactionToStory(
-                                graphQLClient,
-                                graphQLAuth.getUserMap()['email'],
-                                widget.story['id'],
-                              );
-
                               if (isChecked && reaction.id != 0) {
-                                //reaction
-                                await createReaction(
+                                if (_initialReactionId != null) {
+                                  await changeReaction(
+                                    graphQLClient,
+                                    originalReactionId: _initialReactionId,
+                                    reactionId: uuid.v1(),
+                                    type: reactionTypes[reaction.id - 1],
+                                    storyId: widget.story['id'],
+                                    userId: graphQLAuth.getUserMap()['id'],
+                                  );
+                                } else {
+                                  await createReaction(
+                                    graphQLClient,
+                                    reactionId: uuid.v1(),
+                                    type: reactionTypes[reaction.id - 1],
+                                    storyId: widget.story['id'],
+                                    userId: graphQLAuth.getUserMap()['id'],
+                                  );
+                                }
+                              } else {
+                                //detach delete current story reaction for this user
+                                await deleteUserReactionToStory(
                                   graphQLClient,
-                                  _reactionId,
-                                  reactionTypes[reaction.id - 1],
-                                );
-
-                                //from story
-                                await addReactionStory(
-                                  graphQLClient,
+                                  graphQLAuth.getUserMap()['email'],
                                   widget.story['id'],
-                                  _reactionId,
-                                );
-
-                                //from user
-                                await addReactionFrom(
-                                  graphQLClient,
-                                  graphQLAuth.getUserMap()['id'],
-                                  _reactionId,
                                 );
                               }
                               //get the updated story

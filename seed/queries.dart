@@ -20,23 +20,6 @@ Future<Map<String, dynamic>> getUserByEmail(
   return queryResult.data['getUserByEmail'];
 }
 
-Future<List> getFriendsOfMineByEmail(
-  GraphQLClient graphQLClient,
-  String email,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getFriendsOfMineQL),
-    variables: <String, dynamic>{
-      'email': email,
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['friends'];
-}
-
 Future<String> getUserIdByEmail(
   GraphQLClient graphQLClient,
   String email,
@@ -113,48 +96,6 @@ Future<List> userSearchQuery(
   return queryResult.data[resultsName];
 }
 
-Future<List> getStoryReactions(
-  GraphQLClient graphQLClient,
-  String storyId,
-  String email,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getStoryReactionsByIdQL),
-    variables: <String, dynamic>{
-      'id': storyId,
-      'email': email,
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['storyReactions'];
-}
-
-Future<List<dynamic>> getUsers(
-  GraphQLClient graphQLClient,
-  String searchString,
-  String currentUserEmail,
-  String limit,
-  String skip,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(userSearchQL),
-    variables: <String, dynamic>{
-      'searchString': searchString,
-      'currentUserEmail': currentUserEmail,
-      'limit': limit,
-      'skip': skip
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['userSearch'];
-}
-
 Future<void> addUserBookAuthor(
   GraphQLClient graphQLClient,
   String fromUserId,
@@ -165,113 +106,6 @@ Future<void> addUserBookAuthor(
     variables: <String, dynamic>{
       'from': fromUserId,
       'to': toUserId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> createReaction(
-  GraphQLClient graphQLClient,
-  String id,
-  String type,
-) async {
-  final DateTime now = DateTime.now();
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(createReactionQL),
-    variables: <String, dynamic>{
-      'id': id,
-      'created': now.toIso8601String(),
-      'type': type,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addReactionStory(
-  GraphQLClient graphQLClient,
-  String storyId,
-  String reactionId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addReactionStoryQL),
-    variables: <String, dynamic>{
-      'storyId': storyId,
-      'reactionId': reactionId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addReactionFrom(
-  GraphQLClient graphQLClient,
-  String userId,
-  String reactionId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addReactionFromQL),
-    variables: <String, dynamic>{
-      'userId': userId,
-      'reactionId': reactionId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addStoryComments(
-  GraphQLClient graphQLClient,
-  String storyId,
-  String commentId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addStoryCommentsQL),
-    variables: <String, dynamic>{
-      'storyId': storyId,
-      'commentId': commentId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addUserComments(
-  GraphQLClient graphQLClient,
-  String userId,
-  String commentId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addUserCommentsQL),
-    variables: <String, dynamic>{
-      'userId': userId,
-      'commentId': commentId,
     },
   );
 

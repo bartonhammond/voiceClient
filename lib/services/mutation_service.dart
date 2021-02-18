@@ -392,50 +392,6 @@ Future<void> createComment(
   return;
 }
 
-Future<void> updateComment(
-  GraphQLClient graphQLClient,
-  String commentId,
-  String status,
-) async {
-  final DateTime now = DateTime.now();
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(updateCommentQL),
-    variables: <String, dynamic>{
-      'commentId': commentId,
-      'status': status,
-      'updated': now.toIso8601String()
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> removeStoryComment(
-  GraphQLClient graphQLClient,
-  String storyId,
-  String commentId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(removeStoryCommentQL),
-    variables: <String, dynamic>{
-      'storyId': storyId,
-      'commentId': commentId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
 Future<void> deleteComment(
   GraphQLClient graphQLClient,
   String commentId,
@@ -443,27 +399,6 @@ Future<void> deleteComment(
   final MutationOptions options = MutationOptions(
     documentNode: gql(deleteCommentQL),
     variables: <String, dynamic>{
-      'commentId': commentId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addUserComments(
-  GraphQLClient graphQLClient,
-  String userId,
-  String commentId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addUserCommentsQL),
-    variables: <String, dynamic>{
-      'userId': userId,
       'commentId': commentId,
     },
   );
@@ -498,59 +433,50 @@ Future<void> deleteUserReactionToStory(
 }
 
 Future<void> createReaction(
-  GraphQLClient graphQLClient,
-  String id,
+  GraphQLClient graphQLClient, {
+  String reactionId,
   String type,
-) async {
+  String storyId,
+  String userId,
+}) async {
   final DateTime now = DateTime.now();
   final MutationOptions options = MutationOptions(
     documentNode: gql(createReactionQL),
     variables: <String, dynamic>{
-      'id': id,
+      'reactionId': reactionId,
       'created': now.toIso8601String(),
       'type': type,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addReactionFrom(
-  GraphQLClient graphQLClient,
-  String userId,
-  String reactionId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addReactionFromQL),
-    variables: <String, dynamic>{
-      'userId': userId,
-      'reactionId': reactionId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addReactionStory(
-  GraphQLClient graphQLClient,
-  String storyId,
-  String reactionId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addReactionStoryQL),
-    variables: <String, dynamic>{
       'storyId': storyId,
+      'userId': userId,
+    },
+  );
+
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+
+  return;
+}
+
+Future<void> changeReaction(
+  GraphQLClient graphQLClient, {
+  String originalReactionId,
+  String reactionId,
+  String type,
+  String storyId,
+  String userId,
+}) async {
+  final DateTime now = DateTime.now();
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(changeReactionQL),
+    variables: <String, dynamic>{
+      'originalReactionId': originalReactionId,
       'reactionId': reactionId,
+      'created': now.toIso8601String(),
+      'type': type,
+      'storyId': storyId,
+      'userId': userId,
     },
   );
 
@@ -945,7 +871,7 @@ Future<void> quitFriendship(
   String friendId2,
 }) async {
   final MutationOptions options = MutationOptions(
-    documentNode: gql(deleteFriendsServerSideQL),
+    documentNode: gql(deleteFriendsQL),
     variables: <String, dynamic>{
       'friendId1': friendId1,
       'friendId2': friendId2,

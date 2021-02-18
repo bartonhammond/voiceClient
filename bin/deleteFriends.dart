@@ -36,7 +36,7 @@ Future<void> quitFriendship(
   String friendId2,
 }) async {
   final MutationOptions options = MutationOptions(
-    documentNode: gql(deleteFriendsServerSideQL),
+    documentNode: gql(deleteFriendsQL),
     variables: <String, dynamic>{
       'friendId1': friendId1,
       'friendId2': friendId2,
