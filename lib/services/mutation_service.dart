@@ -1,5 +1,6 @@
 import 'dart:io' as io;
 import 'dart:typed_data';
+import 'package:MyFamilyVoice/model/model_base.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
@@ -588,97 +589,52 @@ Future<void> updateUserIsFamily(
   return;
 }
 
-Future<void> addStoryTag(
+Future<void> addStoryTagsAndMessages({
   Map<String, dynamic> user,
   GraphQLClient graphQLClient,
-  Map<String, dynamic> _story,
-  Map<String, dynamic> _tag,
-) async {
-  final _uuid = Uuid();
-  final String _tagId = _uuid.v1();
-
-  await createTag(
-    graphQLClient,
-    _tagId,
+  GQLBuilder gqlBuilderTags,
+  GQLBuilder gqlBuilderMessages,
+}) async {
+  //Create tags
+  String _gql = gqlBuilderTags.getGQL();
+  Map _variables = gqlBuilderTags.getVariables();
+  MutationOptions options = MutationOptions(
+    documentNode: gql(_gql),
+    variables: _variables,
   );
-
-  await addTagStory(
-    graphQLClient,
-    _story['id'],
-    _tagId,
+  QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
+  //Create messages
+  _gql = gqlBuilderMessages.getGQL();
+  _variables = gqlBuilderTags.getVariables();
+  options = MutationOptions(
+    documentNode: gql(_gql),
+    variables: _variables,
   );
-
-  await addTagUser(
-    graphQLClient,
-    _tag['user']['id'],
-    _tagId,
-  );
-
-  await addUserMessages(
-    graphQLClient: graphQLClient,
-    fromUser: user,
-    toUser: _tag['user'],
-    messageId: _uuid.v1(),
-    status: 'new',
-    type: 'attention',
-    key: _story['id'],
-  );
+  result = await graphQLClient.mutate(options);
+  if (result.hasException) {
+    throw result.exception;
+  }
 
   return;
 }
 
 Future<void> createTag(
-  GraphQLClient graphQLClient,
+  GraphQLClient graphQLClient, {
   String tagId,
-) async {
+  String storyId,
+  String userId,
+}) async {
   final DateTime now = DateTime.now();
   final MutationOptions options = MutationOptions(
     documentNode: gql(createTagQL),
     variables: <String, dynamic>{
       'tagId': tagId,
-      'created': now.toIso8601String()
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addTagStory(
-  GraphQLClient graphQLClient,
-  String storyId,
-  String tagId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addTagStoryQL),
-    variables: <String, dynamic>{
+      'created': now.toIso8601String(),
       'storyId': storyId,
-      'tagId': tagId,
-    },
-  );
-
-  final QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
-  }
-
-  return;
-}
-
-Future<void> addTagUser(
-  GraphQLClient graphQLClient,
-  String userId,
-  String tagId,
-) async {
-  final MutationOptions options = MutationOptions(
-    documentNode: gql(addTagUserQL),
-    variables: <String, dynamic>{
       'userId': userId,
-      'tagId': tagId,
     },
   );
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
+import 'package:MyFamilyVoice/model/model_base.dart';
 import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
 import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
@@ -378,13 +379,31 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                   GraphQLProvider.of(context).value,
                   widget.story['id'],
                 );
+
+                final GQLBuilder gqlBuilderTags = GQLBuilder('createTag');
+                final GQLBuilder gqlBuilderMessages =
+                    GQLBuilder('createMessage');
+
                 for (var tag in _tagItems) {
-                  await addStoryTag(
-                    graphQLAuth.getUserMap(),
-                    GraphQLProvider.of(context).value,
-                    widget.story,
-                    tag,
-                  );
+                  gqlBuilderTags.add(Tag(
+                    story: widget.story,
+                    tag: tag,
+                  ));
+
+                  gqlBuilderMessages.add(Message(
+                    currentUser: graphQLAuth.getUserMap(),
+                    tag: tag,
+                    status: 'new',
+                    type: 'attention',
+                    key: widget.story['id'],
+                  ));
+                }
+                if (_tagItems.isNotEmpty) {
+                  await addStoryTagsAndMessages(
+                      user: graphQLAuth.getUserMap(),
+                      graphQLClient: GraphQLProvider.of(context).value,
+                      gqlBuilderTags: gqlBuilderTags,
+                      gqlBuilderMessages: gqlBuilderMessages);
                 }
                 //Sync up so differences can be tested
                 widget.story['tags'] = <Map<String, dynamic>>[];

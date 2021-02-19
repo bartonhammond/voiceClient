@@ -451,8 +451,6 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
 
                               final uuid = Uuid();
 
-                              final String _reactionId = uuid.v1();
-
                               if (isChecked && reaction.id != 0) {
                                 if (_initialReactionId != null) {
                                   await changeReaction(

@@ -517,57 +517,16 @@ mutation updateUserIsFamily($emailFrom: String!, $emailTo: String!, $isFamily: B
 ''';
 
 const String createTagQL = r'''
-mutation createTag($tagId: ID!, $created: String!, ) {
-  CreateTag(
-    id: $tagId
-    created: { 
-      formatted: $created 
-      }
-  ) {
-    __typename
-    id
-  }
-}
-''';
-
-const String addTagStoryQL = r'''
-mutation addTagStory($storyId: ID!, $tagId: ID!) {
-  AddTagStory(
-    from: {
-      id: $storyId,
-    }
-    to: {
-      id: $tagId
-    }
-  ) {
-    from {    
-      id
-    }
-    to {
-      id
-    }
-    
-  }
-}
-''';
-
-const String addTagUserQL = r'''
-mutation addTagUser($userId: ID!, $tagId: ID!) {
-  AddTagUser(
-    from: {
-      id: $userId
-    }
-    to: {
-      id: $tagId
-    }
-  ) {
-    from {
-      id
-    }
-    to {
-			id
-    }
-  }
+mutation createTag($tagId: String!, 
+  $created: String!, 
+  $storyId: String!, 
+  $userId: String! ) {
+  createTag(
+    tagId: $tagId
+    created: $created
+    storyId: $storyId
+    userId: $userId
+  ) 
 }
 ''';
 
@@ -706,12 +665,12 @@ mutation changeStoryUser(
   }
 ''';
 
-const String changeStoryUserWithOriginalUserQL = r'''
-mutation changeStoryUserWithOriginalUser(
+const String changeStoryUserAndSaveOriginalUserQL = r'''
+mutation changeStoryUserAndSaveOriginalUser(
   $originalUserId: String!,
   $storyId: String!,
   $newUserId: String!) {
-    changeStoryUserWithOriginalUser(
+    changeStoryUserAndSaveOriginalUser(
       originalUserId: $originalUserId,
       storyId: $storyId,
       newUserId: $newUserId
