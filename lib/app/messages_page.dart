@@ -118,7 +118,7 @@ class _MessagesPageState extends State<MessagesPage> {
     if (approveFriendRequest) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
       try {
-        await addUserFriendsServerSide(graphQLClient,
+        await addUserFriends(graphQLClient,
             userId1: message['sender']['id'],
             userId2: message['book'] == null
                 ? graphQLAuth.getUserMap()['id']

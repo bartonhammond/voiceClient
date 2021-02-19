@@ -29,9 +29,6 @@ class UserQl extends NodeQl {
       rtn += userMessagesReceived.gql;
     }
 
-    if (userBookAuthor != null) {
-      rtn += userBookAuthor.gql;
-    }
     if (userBan != null) {
       rtn += userBan.gql;
     }
@@ -40,7 +37,9 @@ class UserQl extends NodeQl {
     if (userFriends != null) {
       rtn += userFriends.gql;
     }
-
+    if (userBookAuthor != null) {
+      rtn += userBookAuthor.gql;
+    }
     return rtn;
   }
 

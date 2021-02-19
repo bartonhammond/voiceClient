@@ -300,7 +300,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (isBook) {
         //make friends
-        await addUserFriendsServerSide(
+        await addUserFriends(
           graphQLClient,
           userId1: userId,
           userId2: graphQLAuth.getOriginalUserMap()['id'],

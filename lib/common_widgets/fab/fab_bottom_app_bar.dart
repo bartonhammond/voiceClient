@@ -1,6 +1,4 @@
 import 'dart:async';
-
-import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/ql/message/message_search.dart';
 import 'package:MyFamilyVoice/ql/message_ql.dart';
 import 'package:flutter/material.dart';
@@ -158,7 +156,6 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
   @override
   Widget build(BuildContext context) {
     graphQLAuth = locator<GraphQLAuth>();
-    websocket = AppConfig.of(context).websocket;
     //reconnect();
     final List<Widget> items = List.generate(widget.items.length, (int index) {
       Color iconColor;

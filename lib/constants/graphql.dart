@@ -4,170 +4,6 @@ mutation($file: Upload!) {
 }
 ''';
 
-const String _user_ = r'''
- {
-    __typename
-    id
-    name
-    email
-    home
-    image
-    isBook   
-    created{
-      formatted
-    }
-  
-    messagesReceived {
-     	id
-      type
-      created {
-        formatted
-      }
-      status
-      key
-      from {
-        id
-        email
-      }
-    }
-    messagesSent {
-      id
-      type
-      created {
-        formatted
-      }
-      status
-      key
-      to {
-        id
-        email
-      }
-    }
-    messagesTopic {
-      id
-      type
-      created {
-        formatted
-      }
-      status
-      key
-      from {
-        id
-        email
-      }
-    }
-    banned {
-      from(filter: { User: { email: "_currentUserEmail_" } } ) {
-        id
-        User {
-          id
-          name
-          email
-        }
-      }
-    }
-    friends {
-      to (filter: { User: { email: "_currentUserEmail_" } } ){
-        id
-        isFamily
-        User {
-          email
-        }
-      }
-    }  
-    bookAuthor {
-      id
-      email
-      name
-      banned {
-        from(filter: { User: { email: "_currentUserEmail_" } } )  {
-          id
-          User {
-            id
-            name
-            email
-          }
-        }
-      }
-      friends {
-        to(filter: { User: { email: "_currentUserEmail_" } }) {
-          id
-          isFamily
-          User {
-            email
-          }
-        }
-      }
-    }    
-  }
-''';
-
-const _story_ = r'''
-{
-    __typename
-    id
-    image
-    audio
-    type
-    created {
-      formatted
-    }
-    updated {
-      formatted
-    }
-    reactions(filter: { from: { email: "_currentUserEmail_"	} } ) {
-      id
-      type
-    }
-    user ''' +
-    _user_ +
-    r'''
-    originalUser ''' +
-    _user_ +
-    r'''
-    comments {
-      id
-      audio
-      from {
-        id
-        name
-        email
-      }
-      created {
-        formatted
-      }
-      status
-    }
-    totalReactions
-    totalLikes
-    totalWows
-    totalJoys
-    totalHahas
-    totalSads
-    totalLoves
-    tags {
-      id
-      created {
-        formatted
-      }
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-
-''';
-
-const String getUserByEmailQL = r'''
-query getUserByEmail($currentUserEmail: String!) {
-  getUserByEmail(currentUserEmail: $currentUserEmail)''' +
-    _user_ +
-    '''
-}
-''';
-
 const String getUserByEmailForAuthQL = r'''
 query getUserByEmail($email: String!) {
   User(email: $email) {
@@ -211,22 +47,41 @@ mutation createUser($id: ID!, $email: String!, $name: String, $home: String, $im
 
 const String createStory = r'''
 mutation createStory(
-  $storyId: String!, 
+  $storyId: ID!, 
   $image: String!, 
   $audio: String!, 
   $created: String!, 
   $updated: String!, 
-  $type: String!,
-  $userId: String!) {
-createStory(
-    storyId: $id
+  $type: StoryType!,
+  $userId: ID!) {
+
+CreateStory(
+    id: $storyId
     image: $image
     audio: $audio
     type: $type
-    created: $created
-    updated: $updated  
-    userId: $userId
-  ) 
+    created: {
+      formatted: $created
+    } 
+    updated: {
+      formatted: $updated  
+    }
+  ){
+    id
+  }
+  MergeStoryUser(
+    from: {
+      id: $userId
+    } 
+    to: {
+      id: $storyId
+    }
+  ) {
+    from {
+      id
+    }
+  }
+
 }
 ''';
 
@@ -244,91 +99,6 @@ updateStory(
   }
 }
   
-''';
-
-const String mergeUserStories = r'''
-mutation mergeStoryUser($from: _UserInput!, $to: _StoryInput!) {
-MergeStoryUser(
-    from: $from
-    to: $to
-  ) {
-    from {
-      email
-    }
-    to {
-      audio
-      image
-    }
-  }
-}
-''';
-
-const String addStoryOriginalUserQL = r'''
-mutation addStoryOriginalUser($from: _UserInput!, $to: _StoryInput!) {
-AddStoryOriginalUser(
-    from: $from
-    to: $to
-  ) {
-    from {
-      email
-    }
-    to {
-      audio
-      image
-    }
-  }
-}
-''';
-
-const String removeUserStories = r'''
-mutation removeStoryUser($from: _UserInput!, $to: _StoryInput!) {
-RemoveStoryUser(
-    from: $from
-    to: $to
-  ) {
-    from {
-      email
-    }
-    to {
-      audio
-      image
-    }
-  }
-}
-''';
-
-const String removeUserFriendsFromQL = r'''
-  mutation removeUserFriendsFrom($fromFriendInput: ID!, $toUserInput: ID!) {
-  RemoveUserFriendsFrom(
-    from: { id: $fromFriendInput }
-    to: { id: $toUserInput }
-  ) {
-    __typename
-    from {
-      id
-    }
-    to {
-      id
-    }
-  }
-}
-''';
-
-const String removeUserFriendsToQL = r'''
-  mutation removeUserFriendsTo($fromUserInput: ID!, $toFriendInput: ID!) {
-  RemoveUserFriendsTo(
-    from: { id: $fromUserInput }
-    to: { id: $toFriendInput }
-  ) {
-    __typename
-    from {
-      id
-    }
-    to {
-      id
-    }
-  }
-}
 ''';
 
 const String createMessageQL = r'''
@@ -386,18 +156,6 @@ mutation updateUserMessageStatusById($currentUserEmail: String!, $id: String! $s
     id
     status
   }
-}
-''';
-
-const String getUserFriendsStoriesQL = r'''
-query getUserFriendsStories($currentUserEmail: String!, $limit: String!, $cursor: String!) {
-userFriendsStories(
-  		currentUserEmail: $currentUserEmail
-			limit: $limit
-  		cursor: $cursor
-		)''' +
-    _story_ +
-    '''      
 }
 ''';
 
@@ -501,32 +259,12 @@ mutation deleteStory($storyId: String!) {
 }
 ''';
 
-const String deleteMessageQL = r'''
-mutation deleteMessage($id: String!) {
-  deleteMessage(id: $id)
-}
-''';
-
 const String updateUserIsFamilyQL = r'''
 mutation updateUserIsFamily($emailFrom: String!, $emailTo: String!, $isFamily: Boolean!) {
   updateUserIsFamily(emailFrom: $emailFrom, emailTo: $emailTo, isFamily: $isFamily){
     id
     isFamily
   }
-}
-''';
-
-const String createTagQL = r'''
-mutation createTag($tagId: String!, 
-  $created: String!, 
-  $storyId: String!, 
-  $userId: String! ) {
-  createTag(
-    tagId: $tagId
-    created: $created
-    storyId: $storyId
-    userId: $userId
-  ) 
 }
 ''';
 
@@ -541,18 +279,6 @@ mutation deleteStoryTags($storyId: String!) {
 const String deleteBookQL = r'''
 mutation deleteBook($email: String!) {
   deleteBook(email: $email)
-}
-''';
-
-const String deleteBookByNameQL = r'''
-mutation deleteBookByName($name: String!) {
-  deleteBookByName(name: $name)
-}
-''';
-
-const String deleteUserMessagesByNameQL = r'''
-mutation deleteUserMessagesByName($name: String!) {
-  deleteUserMessagesByName(name: $name)
 }
 ''';
 
@@ -667,13 +393,47 @@ mutation changeStoryUser(
 
 const String changeStoryUserAndSaveOriginalUserQL = r'''
 mutation changeStoryUserAndSaveOriginalUser(
-  $originalUserId: String!,
-  $storyId: String!,
-  $newUserId: String!) {
-    changeStoryUserAndSaveOriginalUser(
-      originalUserId: $originalUserId,
-      storyId: $storyId,
-      newUserId: $newUserId
-    )
+  $originalUserId: ID!,
+  $storyId: ID!,
+  $newUserId: ID!) {
+  
+  AddStoryOriginalUser(
+    from: {
+      id: $originalUserId
+    }
+    to: {
+      id: $storyId
+    }
+  ) {
+    from {
+      id
+    }
   }
+
+  RemoveStoryUser(
+    from: {
+      id: $originalUserId
+    }
+    to: {
+      id: $storyId
+    }
+  ) {
+   from {
+     id
+   }
+  }
+
+  MergeStoryUser(
+    from: {
+      id: $newUserId
+    }
+    to: {
+      id: $storyId
+    }
+  ) {
+    from {
+      id
+    }
+  }
+}
 ''';

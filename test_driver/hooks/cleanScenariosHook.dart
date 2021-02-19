@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:gherkin/gherkin.dart';
 import 'package:graphql/client.dart';
 import '../utils/utility.dart' as utility;
@@ -30,9 +32,22 @@ class CleanSceanariosHook extends Hook {
     String scenario,
     Iterable<Tag> tags,
   ) async {
-    print("running hook before scenario '$scenario'");
-    await utility.deleteScenarioAllBasic(graphQLClient);
-    await utility.deleteScenarioBook(graphQLClient);
+    try {
+      print("running hook before scenario '$scenario' deleteScenarioAllBasic");
+      await utility.deleteScenarioAllBasic(graphQLClient);
+    } catch (e) {
+      print('deleteScenarioAllBasic failed');
+      print(e);
+      exit(1);
+    }
+    try {
+      print("running hook before scenario '$scenario' deleteScenarioBook");
+      await utility.deleteScenarioBook(graphQLClient);
+    } catch (e) {
+      print('deleteScenarioBook failed');
+      print(e);
+      exit(1);
+    }
   }
 
   /// Run after a scenario has executed

@@ -8,21 +8,76 @@ import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:graphql/client.dart';
 import '../graphQL.dart' as graphql;
 
 Future<void> deleteScenarioAllBasic(GraphQLClient graphQLClient) async {
-  await deleteTestOne(graphQLClient);
-  await deleteTestUser(graphQLClient);
-  await deleteBookName(graphQLClient);
-  await deleteBooksMessagesByName(graphQLClient);
-  await deleteFamilyTestUsers(graphQLClient);
-  await deleteNinth(graphQLClient);
-  await deleteStoryReactions(graphQLClient);
+  try {
+    await deleteTestOne(graphQLClient);
+  } catch (e) {
+    print('deleteTestOne failed');
+    print(e);
+    rethrow;
+  }
+
+  try {
+    await deleteTestUser(graphQLClient);
+  } catch (e) {
+    print('deleteTestUser failed');
+    print(e);
+    rethrow;
+  }
+
+  try {
+    await deleteBookName(graphQLClient);
+  } catch (e) {
+    print('deleteBookName failed');
+    print(e);
+    rethrow;
+  }
+
+  try {
+    await deleteBooksMessagesByName(graphQLClient);
+  } catch (e) {
+    print('deleteBooksMessagesByName failed');
+    print(e);
+    rethrow;
+  }
+
+  try {
+    await deleteFamilyTestUsers(graphQLClient);
+  } catch (e) {
+    print('deleteFamilyTestUsers failed');
+    print(e);
+    rethrow;
+  }
+
+  try {
+    await deleteNinth(graphQLClient);
+  } catch (e) {
+    print('deleteNinth failed');
+    print(e);
+    rethrow;
+  }
+
+  try {
+    await deleteStoryReactions(graphQLClient);
+  } catch (e) {
+    print('deleteStoryReactions failed');
+    print(e);
+    rethrow;
+  }
 }
 
 Future<void> deleteScenarioBook(GraphQLClient graphQLClient) async {
-  await deleteTenth(graphQLClient);
+  try {
+    await deleteTenth(graphQLClient);
+  } catch (e) {
+    print('deleteTenth failed');
+    print(e);
+    rethrow;
+  }
 }
 
 Future<void> deleteTestOne(GraphQLClient graphQLClient) async {
@@ -160,6 +215,9 @@ Future<void> deleteStoryReactions(GraphQLClient graphQLClient) async {
   };
   final List stories = await storySearch.getList(searchValues);
 
+  if (stories.isEmpty) {
+    return;
+  }
   await graphql.deleteUserReactionToStory(
     graphQLClient,
     'bartonhammond@gmail.com',
@@ -194,6 +252,8 @@ Future<void> quitFriendships(
   Map<String, dynamic> fromUser,
   Map<String, dynamic> toUser,
 ) async {
+  printJson('quitFriendships.fromUser', fromUser);
+  printJson('quitFriendships.toUser', toUser);
   final UserFriends userFriends = UserFriends();
 
   final UserQl userQL = UserQl(
@@ -213,26 +273,40 @@ Future<void> quitFriendships(
   final Map user = await userSearch.getItem(<String, dynamic>{
     'currentUserEmail': fromUser['email'],
   });
-
+  printJson('quitFriendships.user', user);
   for (var friend in user['friendsTo']) {
     if (friend['receiver']['email'] == toUser['email']) {
-      await graphql.quitFriendship(
-        graphQLClient,
-        friendId: friend['id'],
-        fromUserId: fromUser['id'],
-        toUserId: toUser['id'],
-      );
+      printJson('loop.receiver', friend);
+      try {
+        await graphql.quitFriendship(
+          graphQLClient,
+          friendId: friend['id'],
+          fromUserId: fromUser['id'],
+          toUserId: toUser['id'],
+        );
+      } catch (e) {
+        print('quitFriendship1 failed');
+        print(e);
+        rethrow;
+      }
       break;
     }
   }
   for (var friend in user['friendsFrom']) {
     if (friend['sender']['email'] == toUser['email']) {
-      await graphql.quitFriendship(
-        graphQLClient,
-        friendId: friend['id'],
-        toUserId: fromUser['id'],
-        fromUserId: toUser['id'],
-      );
+      printJson('loop.sender', friend);
+      try {
+        await graphql.quitFriendship(
+          graphQLClient,
+          friendId: friend['id'],
+          toUserId: fromUser['id'],
+          fromUserId: toUser['id'],
+        );
+      } catch (e) {
+        print('quitFriendship2 failed');
+        print(e);
+        rethrow;
+      }
       break;
     }
   }

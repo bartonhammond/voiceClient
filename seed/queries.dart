@@ -1,42 +1,6 @@
 import 'package:graphql/client.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 
-Future<Map<String, dynamic>> getUserByEmail(
-  GraphQLClient graphQLClient,
-  String email,
-  String currentUserEmail,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmailQL),
-    variables: <String, dynamic>{
-      'email': email,
-      'currentUserEmail': currentUserEmail
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['getUserByEmail'];
-}
-
-Future<String> getUserIdByEmail(
-  GraphQLClient graphQLClient,
-  String email,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserByEmailQL),
-    variables: <String, dynamic>{
-      'currentUserEmail': email,
-    },
-  );
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['getUserByEmail']['id'];
-}
-
 String getCursor(List<dynamic> _list, {String fieldName = 'updated'}) {
   String datetime;
   if (_list == null || _list.isEmpty) {

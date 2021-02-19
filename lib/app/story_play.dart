@@ -19,7 +19,6 @@ import 'package:MyFamilyVoice/common_widgets/recorder_widget_web.dart';
 import 'package:MyFamilyVoice/common_widgets/tag_friends_page.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
@@ -201,21 +200,6 @@ class _StoryPlayState extends State<StoryPlay>
     eventBus.fire(StoryWasAssignedToBook());
 
     setState(() {});
-  }
-
-  Future<String> getUserIdByEmail(
-    GraphQLClient graphQLClient,
-    String email,
-  ) async {
-    final QueryOptions _queryOptions = QueryOptions(
-      documentNode: gql(getUserByEmailQL),
-      variables: <String, dynamic>{
-        'email': email,
-        'currentUserEmail': graphQLAuth.getUserMap()['email'],
-      },
-    );
-    final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-    return queryResult.data['User'][0]['id'];
   }
 
   Future<void> setCommentAudioFile(io.File audio) async {
@@ -494,11 +478,11 @@ class _StoryPlayState extends State<StoryPlay>
       if (_imageFilePath != null && _audioFilePath != null) {
         await addStory(
           graphQLClient,
-          graphQLAuth.getUserMap()['id'],
-          _id,
-          _imageFilePath,
-          _audioFilePath,
-          storyTypes[_storyType.index],
+          currentUserId: graphQLAuth.getUserMap()['id'],
+          storyId: _id,
+          imageFilePath: _imageFilePath,
+          audioFilePath: _audioFilePath,
+          type: storyTypes[_storyType.index],
         );
         _showToast();
         setState(() {

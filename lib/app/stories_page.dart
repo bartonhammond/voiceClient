@@ -269,7 +269,7 @@ class _StoriesPageState extends State<StoriesPage> {
     final StorySearch storySearch = StorySearch.init(
       null,
       storyQl,
-      'bartonhammond@gmail.com',
+      graphQLAuth.getUser().email,
     );
     switch (_typeStoryView) {
       case TypeStoriesView.allFriends:
