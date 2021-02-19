@@ -13,6 +13,10 @@ class GQLBuilder {
   GQLBuilder(this.mutationName);
   String mutationName;
   List<ModelBase> models = [];
+  bool hasModels() {
+    return models.isNotEmpty;
+  }
+
   void add(ModelBase model) {
     models.add(model);
   }
@@ -96,6 +100,10 @@ class Message extends ModelBase {
   String key;
   Map<String, dynamic> tag;
 
+  bool hasBook() {
+    return tag['isBook'];
+  }
+
   @override
   String getGqlWitAliasPrefix() {
     return '''
@@ -135,6 +143,67 @@ class Message extends ModelBase {
       'key$alias': key,
       'fromUserId$alias': currentUser['id'],
       'toUserId$alias': tag['user']['id'],
+    };
+  }
+}
+
+class MessageBook extends Message {
+  MessageBook({
+    Map<String, dynamic> currentUser,
+    Map<String, dynamic> tag,
+    String status,
+    String type,
+    String key,
+  }) : super(
+          currentUser: currentUser,
+          tag: tag,
+          status: status,
+          type: type,
+          key: key,
+        );
+
+  @override
+  String getGqlWitAliasPrefix() {
+    return '''
+    message$alias: createMessageWithBook(
+      messageId: \$messageId$alias
+      created: \$created$alias
+      status: \$status$alias
+      type: \$type$alias
+      key: \$key$alias
+      fromUserId: \$fromUserId$alias
+      toUserId: \$toUserId$alias
+      bookUserId: \$bookUserId$alias
+    ) 
+    ''';
+  }
+
+  @override
+  String getParameterNamesAndTypes() {
+    return '''\$messageId$alias: String!, 
+    \$created$alias: String!, 
+    \$status$alias: String!, 
+    \$type$alias: String!,
+    \$key$alias: String!
+    \$fromUserId$alias: String!
+    \$toUserId$alias: String!
+    \$bookUserId$alias: String!
+    ''';
+  }
+
+  @override
+  Map<String, dynamic> getVariables() {
+    final DateTime now = DateTime.now();
+    final _uuid = Uuid();
+    return <String, dynamic>{
+      'messageId$alias': _uuid.v1(),
+      'created$alias': now.toIso8601String(),
+      'status$alias': status,
+      'type$alias': type,
+      'key$alias': key,
+      'fromUserId$alias': currentUser['id'],
+      'toUserId$alias': tag['user']['bookAuthor']['id'],
+      'bookUserId$alias': tag['user']['id']
     };
   }
 }

@@ -27,24 +27,17 @@ Future<void> main(List<String> arguments) async {
   };
   final Map taggedUser1 = <String, dynamic>{
     'user': {
-      'id': '8e711330-331f-11eb-8a6e-35c4ab11173d', //admin@mfv
-    }
+      'id': '"367371f0-486e-11eb-9195-efa23d9e01a8', //john o hammond
+      'isBook': true,
+      'bookAuthor': {
+        'id': '208fa390-2c12-11eb-bd5c-472790cf339f', //barton
+      }
+    },
   };
-  final Map taggedUser2 = <String, dynamic>{
-    'user': {
-      'id': 'ad749990-5742-11eb-949a-49285ebcd71d', //barton@yahoo
-    }
-  };
-  final Message message1 = Message(
+
+  final MessageBook message1 = MessageBook(
       currentUser: currentUser,
       tag: taggedUser1,
-      status: 'new',
-      type: 'attention',
-      key: 'e2737600-7206-11eb-ba27-2bad43e7d92d' //storyId
-      );
-  final Message message2 = Message(
-      currentUser: currentUser,
-      tag: taggedUser2,
       status: 'new',
       type: 'attention',
       key: 'e2737600-7206-11eb-ba27-2bad43e7d92d' //storyId
@@ -52,7 +45,6 @@ Future<void> main(List<String> arguments) async {
 
   final GQLBuilder builder = GQLBuilder('createMessage');
   builder.add(message1);
-  builder.add(message2);
   final String _gql = builder.getGQL();
   print(_gql);
   final Map _variables = builder.getVariables();

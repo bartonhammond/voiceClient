@@ -2,6 +2,7 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/model/model_base.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -594,28 +595,48 @@ Future<void> addStoryTagsAndMessages({
   GraphQLClient graphQLClient,
   GQLBuilder gqlBuilderTags,
   GQLBuilder gqlBuilderMessages,
+  GQLBuilder gqlBuilderMessagesBook,
 }) async {
   //Create tags
-  String _gql = gqlBuilderTags.getGQL();
-  Map _variables = gqlBuilderTags.getVariables();
-  MutationOptions options = MutationOptions(
-    documentNode: gql(_gql),
-    variables: _variables,
-  );
-  QueryResult result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
+  if (gqlBuilderTags.hasModels()) {
+    final String _gql = gqlBuilderTags.getGQL();
+    final Map _variables = gqlBuilderTags.getVariables();
+    final MutationOptions options = MutationOptions(
+      documentNode: gql(_gql),
+      variables: _variables,
+    );
+    final QueryResult result = await graphQLClient.mutate(options);
+    if (result.hasException) {
+      throw result.exception;
+    }
   }
   //Create messages
-  _gql = gqlBuilderMessages.getGQL();
-  _variables = gqlBuilderTags.getVariables();
-  options = MutationOptions(
-    documentNode: gql(_gql),
-    variables: _variables,
-  );
-  result = await graphQLClient.mutate(options);
-  if (result.hasException) {
-    throw result.exception;
+  if (gqlBuilderMessages.hasModels()) {
+    final String _gql = gqlBuilderMessages.getGQL();
+    print('_gql: $_gql');
+    final Map _variables = gqlBuilderMessages.getVariables();
+    printJson('_variables', _variables);
+    final MutationOptions options = MutationOptions(
+      documentNode: gql(_gql),
+      variables: _variables,
+    );
+    final QueryResult result = await graphQLClient.mutate(options);
+    if (result.hasException) {
+      throw result.exception;
+    }
+  }
+  //Create messages for books
+  if (gqlBuilderMessagesBook.hasModels()) {
+    final String _gql = gqlBuilderMessagesBook.getGQL();
+    final Map _variables = gqlBuilderMessagesBook.getVariables();
+    final MutationOptions options = MutationOptions(
+      documentNode: gql(_gql),
+      variables: _variables,
+    );
+    final QueryResult result = await graphQLClient.mutate(options);
+    if (result.hasException) {
+      throw result.exception;
+    }
   }
 
   return;

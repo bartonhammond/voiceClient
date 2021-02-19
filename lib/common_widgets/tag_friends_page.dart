@@ -10,6 +10,7 @@ import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/debouncer.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -47,8 +48,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
 
   final UserBookAuthor userBookAuthor = UserBookAuthor();
   final UserFriends userFriends = UserFriends();
-  final UserMessagesReceived userMessagesReceived =
-      UserMessagesReceived(useFilter: true);
+  final UserMessagesReceived userMessagesReceived = UserMessagesReceived();
   UserQl userQl;
 
   final ScrollController _scrollController = ScrollController();
@@ -384,6 +384,9 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                 final GQLBuilder gqlBuilderMessages =
                     GQLBuilder('createMessage');
 
+                final GQLBuilder gqlBuilderMessagesBook =
+                    GQLBuilder('createMessageBook');
+
                 for (var tag in _tagItems) {
                   gqlBuilderTags.add(Tag(
                     story: widget.story,
@@ -397,13 +400,24 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                     type: 'attention',
                     key: widget.story['id'],
                   ));
+                  if (tag['user']['isBook']) {
+                    gqlBuilderMessagesBook.add(MessageBook(
+                      currentUser: graphQLAuth.getUserMap(),
+                      tag: tag,
+                      status: 'new',
+                      type: 'attention',
+                      key: widget.story['id'],
+                    ));
+                  }
                 }
                 if (_tagItems.isNotEmpty) {
                   await addStoryTagsAndMessages(
-                      user: graphQLAuth.getUserMap(),
-                      graphQLClient: GraphQLProvider.of(context).value,
-                      gqlBuilderTags: gqlBuilderTags,
-                      gqlBuilderMessages: gqlBuilderMessages);
+                    user: graphQLAuth.getUserMap(),
+                    graphQLClient: GraphQLProvider.of(context).value,
+                    gqlBuilderTags: gqlBuilderTags,
+                    gqlBuilderMessages: gqlBuilderMessages,
+                    gqlBuilderMessagesBook: gqlBuilderMessagesBook,
+                  );
                 }
                 //Sync up so differences can be tested
                 widget.story['tags'] = <Map<String, dynamic>>[];
@@ -576,12 +590,27 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
             },
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
-              final List<dynamic> data = <dynamic>[
-                ...previousResultData[searchResultsName[_typeUser.index]],
-                ...fetchMoreResultData[searchResultsName[_typeUser.index]],
-              ];
+              List<dynamic> data;
+              if (widget.isBook) {
+                data = <dynamic>[
+                  ...previousResultData[
+                      searchResultsNameBooks[_typeUser.index]],
+                  ...fetchMoreResultData[
+                      searchResultsNameBooks[_typeUser.index]],
+                ];
+              } else {
+                data = <dynamic>[
+                  ...previousResultData[searchResultsName[_typeUser.index]],
+                  ...fetchMoreResultData[searchResultsName[_typeUser.index]],
+                ];
+              }
               isThereMoreSearchResults(fetchMoreResultData);
-              fetchMoreResultData[searchResultsName[_typeUser.index]] = data;
+              if (widget.isBook) {
+                fetchMoreResultData[searchResultsNameBooks[_typeUser.index]] =
+                    data;
+              } else {
+                fetchMoreResultData[searchResultsName[_typeUser.index]] = data;
+              }
               return fetchMoreResultData;
             },
           );

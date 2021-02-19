@@ -11,8 +11,7 @@ class UserBookAuthor extends NodeQl {
   bool useFilter;
 
   //Don't use the filter here because it breaks the friendsTo
-  UserMessagesReceived userMessagesReceived =
-      UserMessagesReceived(useFilter: false);
+  UserMessagesReceived userMessagesReceived = UserMessagesReceived();
   UserFriends userFriends = UserFriends();
   UserBan userBan = UserBan();
 
