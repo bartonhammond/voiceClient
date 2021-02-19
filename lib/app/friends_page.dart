@@ -21,7 +21,6 @@ import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_friend.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
-import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
@@ -234,7 +233,7 @@ class _FriendsPageState extends State<FriendsPage> {
     return;
   }
 
-  Future<void> _quitFriendRequest(String friendId) async {
+  Future<void> _quitFriendRequest(Map<String, dynamic> friend) async {
     final bool endFriendship = await PlatformAlertDialog(
       title: Strings.cancelFriendship.i18n,
       content: Strings.areYouSure.i18n,
@@ -243,34 +242,11 @@ class _FriendsPageState extends State<FriendsPage> {
     ).show(context);
     if (endFriendship == true) {
       final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
-
-      MutationOptions options = MutationOptions(
-        documentNode: gql(removeUserFriends),
-        variables: <String, dynamic>{
-          'from': graphQLAuth.getUserMap()['id'],
-          'to': friendId,
-        },
+      await quitFriendship(
+        graphQLClient,
+        friendId1: friend['friendsTo'][0]['id'],
+        friendId2: friend['friendsFrom'][0]['id'],
       );
-
-      final QueryResult result = await graphQLClient.mutate(options);
-
-      if (result.hasException) {
-        logger.createMessage(
-            userEmail: graphQLAuth.getUser().email,
-            source: 'friends_page',
-            shortMessage: result.exception.toString(),
-            stackTrace: StackTrace.current.toString());
-        throw result.exception;
-      }
-      options = MutationOptions(
-        documentNode: gql(removeUserFriends),
-        variables: <String, dynamic>{
-          'to': graphQLAuth.getUserMap()['id'],
-          'from': friendId,
-        },
-      );
-
-      await graphQLClient.mutate(options);
 
       setState(() {
         _refetchQuery();
@@ -563,7 +539,7 @@ class _FriendsPageState extends State<FriendsPage> {
             button: MessageButton(
               key: Key('${Keys.newFriendsButton}-$friend["id"]'),
               text: Strings.quitFriend.i18n,
-              onPressed: () => _quitFriendRequest(friend['id']),
+              onPressed: () => _quitFriendRequest(friend),
               fontSize: _fontSize,
               icon: Icon(
                 MdiIcons.accountRemove,
@@ -611,7 +587,7 @@ class _FriendsPageState extends State<FriendsPage> {
           button: MessageButton(
             key: Key('${Keys.newFriendsButton}-${friend["id"]}'),
             text: Strings.quitFriend.i18n,
-            onPressed: () => _quitFriendRequest(friend['id']),
+            onPressed: () => _quitFriendRequest(friend),
             fontSize: _fontSize,
             icon: Icon(
               MdiIcons.accountRemove,

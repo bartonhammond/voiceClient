@@ -28,8 +28,7 @@ Future<void> main(List<String> arguments) async {
 
   final UserBookAuthor userBookAuthor = UserBookAuthor();
   final UserFriends userFriends = UserFriends();
-  final UserMessagesReceived userMessagesReceived =
-      UserMessagesReceived(useFilter: true);
+  final UserMessagesReceived userMessagesReceived = UserMessagesReceived();
   final UserBan userBan = UserBan();
 
   final UserQl userQL = UserQl(
@@ -42,10 +41,10 @@ Future<void> main(List<String> arguments) async {
   final UserSearch userSearch = UserSearch.init(
     graphQLClient,
     userQL,
-    'marilyn_hammond@zoho.com',
+    'familystoryprovider@myfamilyvoice.com',
   );
   final Map searchValues = <String, dynamic>{
-    'currentUserEmail': 'bartonhammond@gmail.com',
+    'currentUserEmail': 'familystoryprovider@myfamilyvoice.com',
     'searchString': '*',
     'limit': '10',
     'skip': '0'

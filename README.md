@@ -32,6 +32,7 @@ final configuredApp = AppConfig(
 ```
 
 *  Testing w/ Gherkin
+   *  Note: the `voiceFileServer` and the `voiceServerBarton` have to be started with `export foo=barton`
    *  `flutter run -d CA0BCD8D-1EB0-4DFD-B452-BDA42C313C9A -t lib/main_integration_test.dart --verbose`
    *  take uri and update app_test
    *  If wanting to breakdown to steps and/or specific scenarios, use this
