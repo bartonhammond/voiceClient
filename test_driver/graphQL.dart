@@ -25,6 +25,11 @@ Future<void> deleteBook(
   return;
 }
 
+const String deleteBookByNameQL = r'''
+mutation deleteBookByName($name: String!) {
+  deleteBookByName(name: $name)
+}
+''';
 Future<void> deleteBookByName(
   GraphQLClient graphQLClientApolloServer,
   String name,
@@ -45,6 +50,11 @@ Future<void> deleteBookByName(
   return;
 }
 
+const String deleteUserMessagesByNameQL = r'''
+mutation deleteUserMessagesByName($name: String!) {
+  deleteUserMessagesByName(name: $name)
+}
+''';
 Future<void> deleteUserMessagesByName(
   GraphQLClient graphQLClientApolloServer,
   String name,
@@ -94,30 +104,70 @@ Future<Map> getUserByName(
   });
 }
 
+const String removeUserFriendsFromQL = r'''
+  mutation removeUserFriendsFrom($fromFriendInput: ID!, $toUserInput: ID!) {
+  RemoveUserFriendsFrom(
+    from: { id: $fromFriendInput }
+    to: { id: $toUserInput }
+  ) {
+    __typename
+    from {
+      id
+    }
+    to {
+      id
+    }
+  }
+}
+''';
+
+const String removeUserFriendsToQL = r'''
+  mutation removeUserFriendsTo($fromUserInput: ID!, $toFriendInput: ID!) {
+  RemoveUserFriendsTo(
+    from: { id: $fromUserInput }
+    to: { id: $toFriendInput }
+  ) {
+    __typename
+    from {
+      id
+    }
+    to {
+      id
+    }
+  }
+}
+''';
+
 Future<void> quitFriendship(
-  GraphQLClient graphQLClient,
-  String idFrom,
-  String idTo,
-) async {
+  GraphQLClient graphQLClient, {
+  String friendId,
+  String fromUserId,
+  String toUserId,
+}) async {
   MutationOptions options = MutationOptions(
-    documentNode: gql(removeUserFriends),
+    documentNode: gql(removeUserFriendsFromQL),
     variables: <String, dynamic>{
-      'from': idFrom,
-      'to': idTo,
+      'fromFriendInput': friendId,
+      'toUserInput': toUserId,
     },
   );
 
-  await graphQLClient.mutate(options);
-
+  QueryResult queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
   options = MutationOptions(
-    documentNode: gql(removeUserFriends),
+    documentNode: gql(removeUserFriendsToQL),
     variables: <String, dynamic>{
-      'from': idTo,
-      'to': idFrom,
+      'fromUserInput': fromUserId,
+      'toFriendInput': friendId,
     },
   );
 
-  await graphQLClient.mutate(options);
+  queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
 }
 
 GraphQLClient getGraphQLClient(GraphQLClientType type) {
@@ -138,27 +188,6 @@ GraphQLClient getGraphQLClient(GraphQLClientType type) {
   );
 
   return graphQLClient;
-}
-
-Future<List<dynamic>> getUserStories(
-  GraphQLClient graphQLClient,
-  String currentUserEmail,
-  String limit,
-) async {
-  final QueryOptions _queryOptions = QueryOptions(
-    documentNode: gql(getUserFriendsStoriesQL),
-    variables: <String, dynamic>{
-      'currentUserEmail': currentUserEmail,
-      'limit': limit,
-      'cursor': DateTime.now().toIso8601String(),
-    },
-  );
-
-  final QueryResult queryResult = await graphQLClient.query(_queryOptions);
-  if (queryResult.hasException) {
-    throw queryResult.exception;
-  }
-  return queryResult.data['userFriendsStories'];
 }
 
 Future<void> deleteUserReactionToStory(
@@ -182,6 +211,11 @@ Future<void> deleteUserReactionToStory(
   return;
 }
 
+const String deleteMessageQL = r'''
+mutation deleteMessage($id: String!) {
+  deleteMessage(id: $id)
+}
+''';
 Future<void> deleteMessage(
   GraphQLClient graphQLClientApolloServer,
   String messageId,

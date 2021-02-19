@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_tag.dart';
 import 'package:MyFamilyVoice/common_widgets/tagged_friends.dart';
+import 'package:MyFamilyVoice/model/model_base.dart';
 import 'package:MyFamilyVoice/ql/user/user_book_author.dart';
 import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_messages_received.dart';
@@ -46,8 +47,7 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
 
   final UserBookAuthor userBookAuthor = UserBookAuthor();
   final UserFriends userFriends = UserFriends();
-  final UserMessagesReceived userMessagesReceived =
-      UserMessagesReceived(useFilter: true);
+  final UserMessagesReceived userMessagesReceived = UserMessagesReceived();
   UserQl userQl;
 
   final ScrollController _scrollController = ScrollController();
@@ -378,12 +378,44 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
                   GraphQLProvider.of(context).value,
                   widget.story['id'],
                 );
+
+                final GQLBuilder gqlBuilderTags = GQLBuilder('createTag');
+                final GQLBuilder gqlBuilderMessages =
+                    GQLBuilder('createMessage');
+
+                final GQLBuilder gqlBuilderMessagesBook =
+                    GQLBuilder('createMessageBook');
+
                 for (var tag in _tagItems) {
-                  await addStoryTag(
-                    graphQLAuth.getUserMap(),
-                    GraphQLProvider.of(context).value,
-                    widget.story,
-                    tag,
+                  gqlBuilderTags.add(Tag(
+                    story: widget.story,
+                    tag: tag,
+                  ));
+
+                  gqlBuilderMessages.add(Message(
+                    currentUser: graphQLAuth.getUserMap(),
+                    tag: tag,
+                    status: 'new',
+                    type: 'attention',
+                    key: widget.story['id'],
+                  ));
+                  if (tag['user']['isBook']) {
+                    gqlBuilderMessagesBook.add(MessageBook(
+                      currentUser: graphQLAuth.getUserMap(),
+                      tag: tag,
+                      status: 'new',
+                      type: 'attention',
+                      key: widget.story['id'],
+                    ));
+                  }
+                }
+                if (_tagItems.isNotEmpty) {
+                  await addStoryTagsAndMessages(
+                    user: graphQLAuth.getUserMap(),
+                    graphQLClient: GraphQLProvider.of(context).value,
+                    gqlBuilderTags: gqlBuilderTags,
+                    gqlBuilderMessages: gqlBuilderMessages,
+                    gqlBuilderMessagesBook: gqlBuilderMessagesBook,
                   );
                 }
                 //Sync up so differences can be tested
@@ -557,12 +589,27 @@ class _TagFriendsPageState extends State<TagFriendsPage> {
             },
             updateQuery:
                 (dynamic previousResultData, dynamic fetchMoreResultData) {
-              final List<dynamic> data = <dynamic>[
-                ...previousResultData[searchResultsName[_typeUser.index]],
-                ...fetchMoreResultData[searchResultsName[_typeUser.index]],
-              ];
+              List<dynamic> data;
+              if (widget.isBook) {
+                data = <dynamic>[
+                  ...previousResultData[
+                      searchResultsNameBooks[_typeUser.index]],
+                  ...fetchMoreResultData[
+                      searchResultsNameBooks[_typeUser.index]],
+                ];
+              } else {
+                data = <dynamic>[
+                  ...previousResultData[searchResultsName[_typeUser.index]],
+                  ...fetchMoreResultData[searchResultsName[_typeUser.index]],
+                ];
+              }
               isThereMoreSearchResults(fetchMoreResultData);
-              fetchMoreResultData[searchResultsName[_typeUser.index]] = data;
+              if (widget.isBook) {
+                fetchMoreResultData[searchResultsNameBooks[_typeUser.index]] =
+                    data;
+              } else {
+                fetchMoreResultData[searchResultsName[_typeUser.index]] = data;
+              }
               return fetchMoreResultData;
             },
           );

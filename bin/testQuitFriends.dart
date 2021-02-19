@@ -1,11 +1,10 @@
 import 'dart:io';
-
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:args/args.dart';
 import 'package:graphql/client.dart';
 import '../seed/graphQLClient.dart';
-
-import '../seed/queries.dart' as q;
+import '../test_driver/graphQL.dart' as graphql;
+import '../test_driver/utils/utility.dart' as utility;
 
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser();
@@ -23,20 +22,17 @@ Future<void> main(List<String> arguments) async {
   final GraphQLClient graphQLClient =
       getGraphQLClient(argResults, GraphQLClientType.ApolloServer);
 
-  final List<dynamic> users = await q.getUsers(
-      graphQLClient, '*', 'bartonhammond@gmail.com', '1000', '0');
-  for (var user in users) {
-    if (user['isBook']) {
-      final Map bookAuthor = await q.getUserByEmail(
-        graphQLClient,
-        user['bookAuthorEmail'],
-        'bartonhammond@gmail.com',
-      );
+  final Map<String, dynamic> fromUser = await graphql.getUserByName(
+      graphQLClient, 'Yahoo Hammond', 'bartonhammond@gmail.com');
 
-      print('user: $user');
-      print('fromId: ${bookAuthor["email"]}');
+  final Map<String, dynamic> toUser = await graphql.getUserByName(
+      graphQLClient, 'Barton Hammond', 'bartonhammond@gmail.com');
 
-      await q.addUserBookAuthor(graphQLClient, user['id'], bookAuthor['id']);
-    }
+  if (fromUser != null && toUser != null) {
+    await utility.quitFriendships(
+      graphQLClient,
+      fromUser,
+      toUser,
+    );
   }
 }
