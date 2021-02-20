@@ -23,6 +23,9 @@ class StoryQl extends NodeQl {
   @override
   String get gql {
     String rtn = '';
+    if (storyReactions != null) {
+      rtn += storyReactions.gql;
+    }
     if (core) {
       rtn += coreQL;
     }
@@ -35,12 +38,10 @@ class StoryQl extends NodeQl {
     if (storyComments != null) {
       rtn += storyComments.gql;
     }
-    if (storyReactions != null) {
-      rtn += storyReactions.gql;
-    }
     if (storyTags != null) {
       rtn += storyTags.gql;
     }
+
     return rtn;
   }
 

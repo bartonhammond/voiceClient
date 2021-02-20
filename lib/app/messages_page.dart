@@ -1,6 +1,14 @@
 import 'dart:async';
+import 'package:MyFamilyVoice/app/messages_comment.dart';
 import 'package:MyFamilyVoice/ql/message/message_search.dart';
 import 'package:MyFamilyVoice/ql/message_ql.dart';
+import 'package:MyFamilyVoice/ql/story/story_comments.dart';
+import 'package:MyFamilyVoice/ql/story/story_original_user.dart';
+import 'package:MyFamilyVoice/ql/story/story_reactions.dart';
+import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story/story_tags.dart';
+import 'package:MyFamilyVoice/ql/story/story_user.dart';
+import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -39,7 +47,7 @@ class _MessagesPageState extends State<MessagesPage> {
   int lastResultSetSize = 0;
 
   MessageType _messageType;
-
+  GraphQLClient graphQLClient;
   //VoidCallback _refetchQuery;
 
   final ScrollController _scrollController = ScrollController();
@@ -116,7 +124,6 @@ class _MessagesPageState extends State<MessagesPage> {
       defaultActionText: Strings.yes.i18n,
     ).show(context);
     if (approveFriendRequest) {
-      final GraphQLClient graphQLClient = GraphQLProvider.of(context).value;
       try {
         await addUserFriends(graphQLClient,
             userId1: message['sender']['id'],
@@ -218,14 +225,46 @@ class _MessagesPageState extends State<MessagesPage> {
             key: Key('${Keys.viewCommentButton}-$index'),
             text: Strings.viewCommentButton.i18n,
             fontSize: 16,
-            onPressed: () {
-              widget.onPush(
+            onPressed: () async {
+              final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
+              final StoryComments storyComments = StoryComments();
+              final StoryReactions storyReactions = StoryReactions();
+              final StoryTags storyTags = StoryTags();
+              final StoryUser storyUser = StoryUser();
+
+              final StoryQl storyQl = StoryQl(
+                storyUser: storyUser,
+                storyOriginalUser: storyOriginalUser,
+                storyComments: storyComments,
+                storyReactions: storyReactions,
+                storyTags: storyTags,
+              );
+
+              final StorySearch storySearch = StorySearch.init(
+                graphQLClient,
+                storyQl,
+                graphQLAuth.getUser().email,
+              );
+              storySearch.setQueryName('getStoryById');
+              storySearch.setVariables(
                 <String, dynamic>{
-                  'id': message['key'],
-                  'onFinish': () {
-                    callBack(message);
-                  },
+                  'id': 'String!',
+                  'currentUserEmail': 'String!',
                 },
+              );
+
+              final Map story = await storySearch.getItem(<String, dynamic>{
+                'id': message['key'],
+                'currentUserEmail': graphQLAuth.getUser().email,
+              });
+
+              Navigator.push<dynamic>(
+                context,
+                MaterialPageRoute<dynamic>(
+                  builder: (BuildContext context) =>
+                      MessagesComment(story: story),
+                  fullscreenDialog: false,
+                ),
               );
             },
             icon: Icon(
@@ -552,6 +591,7 @@ class _MessagesPageState extends State<MessagesPage> {
 
   @override
   Widget build(BuildContext context) {
+    graphQLClient = GraphQLProvider.of(context).value;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
