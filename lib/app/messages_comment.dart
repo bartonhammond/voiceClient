@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
 class MessagesComment extends StatefulWidget {
-  MessagesComment({Key key, this.story}) : super(key: key);
-  Map story;
+  const MessagesComment({Key key, this.story}) : super(key: key);
+  final Map story;
   @override
   State<StatefulWidget> createState() => MessagesCommentState();
 }
