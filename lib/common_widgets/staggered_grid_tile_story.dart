@@ -48,11 +48,13 @@ class StaggeredGridTileStory extends StatefulWidget {
     this.index,
     this.crossAxisCount,
     this.showCollapsed = false,
+    this.openComments = false,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
   final bool showCollapsed;
+  final bool openComments;
   final VoidCallback onDelete;
   final VoidCallback onBanned;
   final int index;
@@ -73,6 +75,13 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   io.File _commentAudio;
   Uint8List _commentAudioWeb;
   bool _isWeb = false;
+
+  @override
+  void initState() {
+    _showMakeComments = widget.openComments;
+    super.initState();
+  }
+
   @override
   void dispose() {
     super.dispose();

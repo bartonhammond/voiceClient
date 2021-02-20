@@ -384,24 +384,27 @@ class _RecorderWidgetState extends State<RecorderWidget>
         height: 40,
         child: _authServiceType == AuthServiceType.mock
             ? Container()
-            : FAProgressBar(
-                currentValue: level.toInt(),
-                maxValue: 100,
-                size: 15,
-                animatedDuration: const Duration(milliseconds: 400),
-                direction: Axis.vertical,
-                verticalDirection: VerticalDirection.up,
-                borderRadius: 8,
-                border: Border.all(
-                  color: level == 0.0 ? Colors.transparent : Colors.indigo,
-                  width: 0.5,
+            : Container(
+                padding: const EdgeInsets.symmetric(vertical: 3.0),
+                child: FAProgressBar(
+                  currentValue: level.toInt(),
+                  maxValue: 100,
+                  size: 15,
+                  animatedDuration: const Duration(milliseconds: 400),
+                  direction: Axis.vertical,
+                  verticalDirection: VerticalDirection.up,
+                  borderRadius: 8,
+                  border: Border.all(
+                    color: level == 0.0 ? Colors.transparent : Colors.indigo,
+                    width: 0.5,
+                  ),
+                  backgroundColor:
+                      level == 0.0 ? Colors.transparent : Colors.white,
+                  progressColor: level == 0.0 ? Colors.transparent : Colors.red,
+                  changeColorValue: 75,
+                  changeProgressColor:
+                      level == 0.0 ? Colors.transparent : Colors.green,
                 ),
-                backgroundColor:
-                    level == 0.0 ? Colors.transparent : Colors.white,
-                progressColor: level == 0.0 ? Colors.transparent : Colors.red,
-                changeColorValue: 75,
-                changeProgressColor:
-                    level == 0.0 ? Colors.transparent : Colors.green,
               ),
       )
     ];
