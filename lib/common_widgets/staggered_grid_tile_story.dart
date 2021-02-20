@@ -48,11 +48,13 @@ class StaggeredGridTileStory extends StatefulWidget {
     this.index,
     this.crossAxisCount,
     this.showCollapsed = false,
+    this.openComments = false,
   });
   final ValueChanged<Map<String, dynamic>> onPush;
   Map story;
   final bool showFriend;
   final bool showCollapsed;
+  final bool openComments;
   final VoidCallback onDelete;
   final VoidCallback onBanned;
   final int index;
@@ -73,6 +75,15 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   io.File _commentAudio;
   Uint8List _commentAudioWeb;
   bool _isWeb = false;
+  bool _currentUserIsAuthor = false;
+  String apiBaseUrl;
+
+  @override
+  void initState() {
+    _showMakeComments = widget.openComments;
+    super.initState();
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -84,7 +95,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       final StoryUser storyUser = StoryUser();
       final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
       final StoryComments storyComments = StoryComments();
-      final StoryReactions storyReactions = StoryReactions();
+      final StoryReactions storyReactions = StoryReactions(useFilter: false);
       final StoryTags storyTags = StoryTags();
 
       final StoryQl storyQl = StoryQl(
@@ -182,21 +193,35 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   }
 
   Alignment getAlignment() {
-    if (widget.crossAxisCount == 3) {
-      switch (widget.index % 3) {
+    if (widget.crossAxisCount == 2) {
+      switch (widget.index % 2) {
         case 0:
-          return Alignment.centerLeft;
+          return Alignment(-0.9, 0.0);
         case 1:
-          return Alignment.center;
-        case 2:
-          return Alignment.centerRight;
+          return Alignment(0.6, 0.0);
       }
     }
     return Alignment.center;
   }
 
+  void zoomOnImage() {
+    Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (context) => ImageZoom(
+          imageUrl: '$apiBaseUrl/jpg${widget.story["image"]}',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    _currentUserIsAuthor =
+        widget.story['user']['email'] == graphQLAuth.getUserMap()['email'] ||
+            (widget.story['user']['isBook'] &&
+                widget.story['originalUser']['email'] ==
+                    graphQLAuth.getUserMap()['email']);
     _isWeb = AppConfig.of(context).isWeb;
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
@@ -226,7 +251,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         .length;
 
     final config = AppConfig.of(context);
-    final String apiBaseUrl = config.apiBaseUrl;
+    apiBaseUrl = config.apiBaseUrl;
     Reaction _initialReaction = react.defaultInitialReaction;
     String _initialReactionId;
 
@@ -253,11 +278,15 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         shadowColor: Colors.black,
         child: InkWell(
           onTap: () {
-            widget.onPush(<String, dynamic>{
-              'id': widget.story['id'],
-              'onFinish': callBack,
-              'onDelete': widget.onDelete,
-            });
+            if (_currentUserIsAuthor) {
+              widget.onPush(<String, dynamic>{
+                'id': widget.story['id'],
+                'onFinish': callBack,
+                'onDelete': widget.onDelete,
+              });
+            } else {
+              zoomOnImage();
+            }
           },
           child: Column(
             children: <Widget>[
@@ -284,14 +313,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               ),
               InkWell(
                 onTap: () {
-                  Navigator.push<dynamic>(
-                    context,
-                    MaterialPageRoute<dynamic>(
-                      builder: (context) => ImageZoom(
-                        imageUrl: '$apiBaseUrl/jpg${widget.story["image"]}',
-                      ),
-                    ),
-                  );
+                  zoomOnImage();
                 },
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(25.0),
@@ -322,7 +344,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
               widget.showFriend
                   ? FriendWidget(
                       user: widget.story['user'],
-                      onPush: widget.onPush,
+                      onPush: _currentUserIsAuthor ? widget.onPush : null,
                       story: widget.story,
                       onDelete: widget.onDelete,
                       callBack: callBack,

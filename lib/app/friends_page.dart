@@ -75,7 +75,8 @@ class _FriendsPageState extends State<FriendsPage> {
     2: 'userSearchFriends',
     3: 'userSearchNotFriends',
     4: 'userSearchBooks',
-    5: 'User'
+    5: 'userSearchMyBooks',
+    6: 'User'
   };
 
   @override
@@ -183,6 +184,13 @@ class _FriendsPageState extends State<FriendsPage> {
           ),
           DropdownMenuItem(
             child: Text(
+              Strings.typeUserButtonMyBooks.i18n,
+              key: Key('usersPageMyBooks'),
+            ),
+            value: TypeUser.mybooks,
+          ),
+          DropdownMenuItem(
+            child: Text(
               Strings.typeUserButtonMe.i18n,
               key: Key('usersPageMe'),
             ),
@@ -286,6 +294,10 @@ class _FriendsPageState extends State<FriendsPage> {
         break;
       case TypeUser.books:
         userSearch.setQueryName('userSearchBooks');
+        return userSearch.getQueryOptions(_values);
+        break;
+      case TypeUser.mybooks:
+        userSearch.setQueryName('userSearchMyBooks');
         return userSearch.getQueryOptions(_values);
         break;
       case TypeUser.me:

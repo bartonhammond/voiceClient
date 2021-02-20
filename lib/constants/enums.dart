@@ -19,6 +19,7 @@ enum TypeUser {
   friends,
   users,
   books,
+  mybooks,
   me,
 }
 

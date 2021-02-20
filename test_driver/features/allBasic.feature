@@ -49,6 +49,7 @@ Feature: All
         Then I expect the "message-title" to be "Attention"
         #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Clear"
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #go back to the story
         And I tap the text that contains the text "Stories"
@@ -70,6 +71,7 @@ Feature: All
         And I expect the "userHome-Test Name" to be "Home City, State"
         #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Clear"
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
@@ -113,9 +115,11 @@ Feature: All
         #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Approve"
         And I tap the "alertDefault" button
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #Clear the existing notificiation
         And I tap the text that contains the text "Notices"
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
@@ -165,7 +169,9 @@ Feature: All
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         #go back
-        And I tap the "backButton" button
+        Then I tap the back button
+        And I tap the button that contains the text "Clear"
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #Log out
         And I open the drawer
@@ -276,6 +282,7 @@ Feature: All
         And I tap the "friend-request-approve-familystoryfriend@myfamilyvoice.com" widget
         Then I expect the widget "approveFriendRequest" to be present within 5 seconds
         Given I tap the "alertDefault" button
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #log out
         And I open the drawer
@@ -289,6 +296,7 @@ Feature: All
         And I tap the "submitButton" button
         And I close the drawer
         Then I expect the widget "Stories" to be present within 10 seconds
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         And I open the drawer
         And I tap the "signOutTile" widget
@@ -329,6 +337,7 @@ Feature: All
         Given I tap the widget that contains the text "All"
         Then I expect the text "Family" to be present
         Given I tap the "storiesPageFamily" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         Given I tap the "storiesPageFamily" text
         Given I tap the "storiesPageFriends" text without scrolling it into view
@@ -336,7 +345,8 @@ Feature: All
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         Given I tap the "storiesPageFriends" text
         And I tap the "storiesPageMe" text without scrolling it into view
-        Then I expect the "noMessages" to be "No results"
+        Then I expect the "userName-Book Name" to be "Book Name"
+        And I expect the "userHome-Book Name" to be "Book Home City, State"
         #logout
         And I open the drawer
         And I tap the "signOutTile" widget
@@ -358,9 +368,11 @@ Feature: All
         And I expect the "userHome-Family Story Provider" to be "Home City, State"
         Given I tap the "storiesPageFamily" text
         Given I tap the "storiesPageFriends" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         Given I tap the "storiesPageFriends" text
         And I tap the "storiesPageMe" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #logout
         And I open the drawer
@@ -378,6 +390,7 @@ Feature: All
         Given I tap the widget that contains the text "All"
         Then I expect the text "Family" to be present
         Given I tap the "usersPageFamily" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         Given I tap the "usersPageFamily" text
         Given I tap the "usersPageFriends" text without scrolling it into view
@@ -388,6 +401,8 @@ Feature: All
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         Given I tap the "usersPageBooks" text
+        Given I tap the "usersPageMyBooks" text without scrolling it into view
+        Given I tap the "usersPageMyBooks" text
         Given I tap the "usersPageUsers" text without scrolling it into view
         Then I expect the "userName-Admin MyFamilyVoice" to be "Admin MyFamilyVoice"
         Given I tap the "usersPageUsers" text
@@ -395,18 +410,23 @@ Feature: All
         Then I expect the "userName-Test Name" to be "Test Name"
         #Exercise the Notices dropdowns
         Given I tap the text that contains the text "Notices"
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         Given I tap the widget that contains the text "All"
         Given I tap the "messagesPageAttention" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         Given I tap the "messagesPageAttention" text
         Given I tap the "messagesPageMessage" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         Given I tap the "messagesPageMessage" text
         Given I tap the "messagesPageComment" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         Given I tap the "messagesPageComment" text
         Given I tap the "messagesPageFriendRequest" text without scrolling it into view
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #logout
         And I open the drawer
@@ -487,6 +507,7 @@ Feature: All
         #approve friend request
         Given I tap the button that contains the text "Approve"
         And I tap the "alertDefault" button
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #log out
         And I open the drawer
@@ -533,6 +554,7 @@ Feature: All
         And I expect the "userName-Test Name" to be "Test Name"
         And I expect the "userHome-Test Name" to be "Home City, State"
         Given I tap the text that contains the text "Delete Message"
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #log out
         And I open the drawer
@@ -609,6 +631,7 @@ Feature: All
         #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Approve"
         And I tap the "alertDefault" button
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #Login in as basicuser and create story and assign to book
         Given I open the drawer
@@ -666,6 +689,7 @@ Feature: All
         And I pause for 3 seconds
         And I tap the "backButton" button
         #Check notices are cleared
+        And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #log out
         And I open the drawer

@@ -208,6 +208,10 @@ extension Localization on String {
         'es': 'Libros',
       } +
       {
+        'en': Strings.typeUserButtonMyBooks,
+        'es': 'Mis Libros',
+      } +
+      {
         'en': Strings.typeUserButtonMe,
         'es': 'Yo',
       } +

@@ -2,7 +2,6 @@ import 'package:configurable_expansion_tile/configurable_expansion_tile.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'package:MyFamilyVoice/common_widgets/player_widget.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 import 'package:MyFamilyVoice/constants/strings.dart';
@@ -54,10 +53,17 @@ class Comments extends StatelessWidget {
 
   Widget getExpandedContainer(Map<String, dynamic> comment) {
     if (showExpand) {
-      if ((graphQLAuth.getUserMap()['id'] == story['user']['id']) ||
-          (graphQLAuth.getOriginalUserMap()['id'] == story['user']['id']) ||
-          (graphQLAuth.getUserMap()['id'] == comment['from']['id']) ||
-          (graphQLAuth.getOriginalUserMap()['id'] == comment['from']['id'])) {
+      //1 If it's your story,
+      //2 or its your book
+      //3 or you are the bookAuthor
+      //4 or you made the comment
+      if (/*1*/ (graphQLAuth.getUserMap()['id'] == story['user']['id']) ||
+          (/*2*/ story['user']['isBook'] &&
+              story['user']['bookAuthor']['id'] ==
+                  graphQLAuth.getUserMap()['id']) ||
+          (/*3*/ story['user']['isBook'] &&
+              story['originalUser']['id'] == graphQLAuth.getUserMap()['id']) ||
+          /*4*/ graphQLAuth.getUserMap()['id'] == comment['from']['id']) {
         return ConfigurableExpansionTile(
           animatedWidgetFollowingHeader: const Icon(
             Icons.expand_more,
