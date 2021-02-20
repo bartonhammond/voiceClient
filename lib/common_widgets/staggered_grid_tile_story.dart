@@ -193,14 +193,12 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
   }
 
   Alignment getAlignment() {
-    if (widget.crossAxisCount == 3) {
-      switch (widget.index % 3) {
+    if (widget.crossAxisCount == 2) {
+      switch (widget.index % 2) {
         case 0:
-          return Alignment.centerLeft;
+          return Alignment(-0.9, 0.0);
         case 1:
-          return Alignment.center;
-        case 2:
-          return Alignment.centerRight;
+          return Alignment(0.6, 0.0);
       }
     }
     return Alignment.center;
