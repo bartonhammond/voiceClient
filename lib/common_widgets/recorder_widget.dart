@@ -387,11 +387,11 @@ class _RecorderWidgetState extends State<RecorderWidget>
             : FAProgressBar(
                 currentValue: level.toInt(),
                 maxValue: 100,
-                size: 40,
+                size: 15,
                 animatedDuration: const Duration(milliseconds: 400),
                 direction: Axis.vertical,
                 verticalDirection: VerticalDirection.up,
-                borderRadius: 0,
+                borderRadius: 8,
                 border: Border.all(
                   color: level == 0.0 ? Colors.transparent : Colors.indigo,
                   width: 0.5,
