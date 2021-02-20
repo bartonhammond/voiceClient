@@ -169,7 +169,8 @@ Feature: All
         Then I expect the "userName-Book Name" to be "Book Name"
         And I expect the "userHome-Book Name" to be "Book Home City, State"
         #go back
-        And I tap the "backButton" button
+        Then I tap the back button
+        And I tap the button that contains the text "Clear"
         And I pause for 1 seconds
         Then I expect the "noMessages" to be "No results"
         #Log out

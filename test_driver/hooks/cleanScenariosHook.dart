@@ -13,16 +13,14 @@ class CleanSceanariosHook extends Hook {
   @override
   int get priority => 10;
 
-  /// Run before any scenario in a test run have executed
+  /// Run after a step has executed
   @override
-  Future<void> onBeforeRun(TestConfiguration config) async {
-    print('before run hook');
-  }
-
-  /// Run after all scenarios in a test run have completed
-  @override
-  Future<void> onAfterRun(TestConfiguration config) async {
-    print('after run hook');
+  Future<void> onAfterStep(World world, String step, StepResult stepResult) {
+    if (stepResult.result != StepExecutionResult.pass) {
+      print('$step ${stepResult.result}');
+      exit(1);
+    }
+    return Future.value(null);
   }
 
   /// Run before a scenario and it steps are executed
@@ -48,15 +46,5 @@ class CleanSceanariosHook extends Hook {
       print(e);
       exit(1);
     }
-  }
-
-  /// Run after a scenario has executed
-  @override
-  Future<void> onAfterScenario(
-    TestConfiguration config,
-    String scenario,
-    Iterable<Tag> tags,
-  ) async {
-    print("running hook after scenario '$scenario'");
   }
 }

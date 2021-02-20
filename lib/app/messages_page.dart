@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/app/messages_comment.dart';
-import 'package:MyFamilyVoice/common_widgets/staggered_grid_tile_story.dart';
 import 'package:MyFamilyVoice/ql/message/message_search.dart';
 import 'package:MyFamilyVoice/ql/message_ql.dart';
 import 'package:MyFamilyVoice/ql/story/story_comments.dart';
@@ -264,18 +263,9 @@ class _MessagesPageState extends State<MessagesPage> {
                 MaterialPageRoute<dynamic>(
                   builder: (BuildContext context) =>
                       MessagesComment(story: story),
-                  fullscreenDialog: true,
+                  fullscreenDialog: false,
                 ),
               );
-              /*
-                            widget.onPush(
-                              <String, dynamic>{
-                                'id': message['key'],
-                                'onFinish': () {
-                                  callBack(message);
-                                },
-                              },
-                            );*/
             },
             icon: Icon(
               MdiIcons.accountPlus,

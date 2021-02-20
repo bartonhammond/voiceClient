@@ -19,7 +19,6 @@ import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/mutation_service.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -223,10 +222,9 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
     _currentUserIsAuthor =
         widget.story['user']['email'] == graphQLAuth.getUserMap()['email'] ||
             (widget.story['user']['isBook'] &&
-                widget.story['user']['bookAuthor']['email'] ==
+                widget.story['originalUser']['email'] ==
                     graphQLAuth.getUserMap()['email']);
     _isWeb = AppConfig.of(context).isWeb;
-    printJson('sgts.build', widget.story);
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _width = 100;
