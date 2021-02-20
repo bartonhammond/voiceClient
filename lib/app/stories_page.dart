@@ -14,6 +14,7 @@ import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_admob/flutter_native_admob.dart';
@@ -281,6 +282,7 @@ class _StoriesPageState extends State<StoriesPage> {
               'cursor': 'String!',
             });
             storySearch.setQueryName('userFriendsStories');
+            debugPrint(storySearch.doSubstition(storySearch.getGQL()));
             return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.FAMILY:
@@ -600,6 +602,7 @@ class _StoriesPageState extends State<StoriesPage> {
   }
 
   Widget getStaggered(List<dynamic> stories, int index, int _crossAxisCount) {
+    printJson('storiesPage', stories[index]);
     //if email is available, we're looking at the stories
     //of one person, basically you're on the Users page
     //after clicking on a user

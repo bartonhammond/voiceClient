@@ -1,7 +1,7 @@
 import 'package:MyFamilyVoice/ql/node_ql.dart';
 
 class StoryReactions extends NodeQl {
-  StoryReactions({this.useFilter = false});
+  StoryReactions({this.useFilter = true});
   bool useFilter;
   String filter = r'''
     (filter: { from: { email: "_currentUserEmail_"	} } )

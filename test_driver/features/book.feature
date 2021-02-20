@@ -48,6 +48,7 @@ Feature: Book
         And I fill the "homeFormField" field with "Album Name Home City, State"
         And I pause for 1 seconds
         And I tap the "profilePageUploadButton" button
+        And I pause for 1 seconds
         Then I expect the text "Save successful" to be present within the "toastContainer"
         Then I tap the back button
         #Log out

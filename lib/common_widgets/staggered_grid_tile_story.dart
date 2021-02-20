@@ -84,7 +84,7 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
       final StoryUser storyUser = StoryUser();
       final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
       final StoryComments storyComments = StoryComments();
-      final StoryReactions storyReactions = StoryReactions();
+      final StoryReactions storyReactions = StoryReactions(useFilter: false);
       final StoryTags storyTags = StoryTags();
 
       final StoryQl storyQl = StoryQl(
