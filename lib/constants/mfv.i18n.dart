@@ -782,6 +782,34 @@ extension Localization on String {
       {
         'en': Strings.tagFriendsStayOnPage,
         'es': '¿Quedate en la pagina?',
+      } +
+      {
+        'en': Strings.downloadsViewSummaryFile,
+        'es': '¿Ver Resumen?',
+      } +
+      {
+        'en': Strings.downloadsDownloadingInProgress,
+        'es': 'Descarga en curso',
+      } +
+      {
+        'en': Strings.downloadsStayToFinishDownloading,
+        'es': '¿Te quedas para terminar de descargar?',
+      } +
+      {
+        'en': Strings.downloadsNumberOfStories,
+        'es': 'Numero de historias',
+      } +
+      {
+        'en': Strings.downloadsFilesLocatedHere,
+        'es': 'Archivos ubicados aquí',
+      } +
+      {
+        'en': Strings.downloadsPleaseGrantStoragePermission,
+        'es': 'Otorgue permiso de acceso al almacenamiento para continuar',
+      } +
+      {
+        'en': Strings.downloadsRetry,
+        'es': 'Rever',
       };
 
   String get i18n => localize(this, _t);

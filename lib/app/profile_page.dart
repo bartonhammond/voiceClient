@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/common_widgets/download_page.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
+import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -78,6 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController homeFormFieldController = TextEditingController();
 
   FToast _fToast;
+  List<dynamic> _stories;
 
   Future<Map<String, dynamic>> getUser() async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -108,6 +112,27 @@ class _ProfilePageState extends State<ProfilePage> {
       user = graphQLAuth.getUserMap();
     }
     return await Future.sync(() => user);
+  }
+
+  Future<List<dynamic>> getStories(BuildContext context, List _stories) {
+    if (_stories != null) {
+      return Future.value(_stories);
+    }
+    StoryQl storyQl;
+    storyQl = StoryQl();
+    final StorySearch storySearch = StorySearch.init(
+      GraphQLProvider.of(context).value,
+      storyQl,
+      graphQLAuth.getUser().email,
+    );
+    final DateTime now = DateTime.now();
+    final _values = <String, dynamic>{
+      'currentUserEmail': graphQLAuth.getUser().email,
+      'limit': 1.toString(),
+      'cursor': now.toIso8601String(),
+    };
+    storySearch.setQueryName('userStoriesMe');
+    return storySearch.getList(_values);
   }
 
   @override
@@ -243,6 +268,35 @@ class _ProfilePageState extends State<ProfilePage> {
                         })
             ],
           );
+  }
+
+  Widget _buildDownloadButton(BuildContext context) {
+    return _stories != null && _stories.isNotEmpty
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomRaisedButton(
+                key: Key('downloadButton'),
+                icon: Icon(
+                  Icons.cloud_download,
+                  color: Colors.white,
+                ),
+                text: 'Download',
+                onPressed: () {
+                  Navigator.push<dynamic>(
+                    context,
+                    MaterialPageRoute<dynamic>(
+                      builder: (BuildContext context) => DownloadPage(
+                        key: Key('profilePageDownload'),
+                      ),
+                      fullscreenDialog: false,
+                    ),
+                  );
+                },
+              ),
+            ],
+          )
+        : Container();
   }
 
   Future<void> doUploads(BuildContext context) async {
@@ -641,7 +695,11 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(
                 height: 8,
               ),
-              _buildUploadButton(context)
+              _buildUploadButton(context),
+              SizedBox(
+                height: 8,
+              ),
+              _buildDownloadButton(context),
             ],
           ),
         ));
@@ -669,7 +727,7 @@ class _ProfilePageState extends State<ProfilePage> {
     graphQLClient = GraphQLProvider.of(context).value;
 
     return FutureBuilder(
-        future: Future.wait([getUser()]),
+        future: Future.wait([getUser(), getStories(context, _stories)]),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             logger.createMessage(
@@ -683,6 +741,7 @@ class _ProfilePageState extends State<ProfilePage> {
             return _progressIndicator();
           }
           user = snapshot.data[0];
+          _stories = snapshot.data[1];
           isBook = user['isBook'] || widget.isBook;
 
           //if user is new, user['id'] will be empty

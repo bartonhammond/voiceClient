@@ -83,8 +83,24 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-1583562934436261~4402652977"/>
+	 <meta-data
+	     android:name="flutterEmbedding"
+	     android:value="2" />
+	 <provider
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:authorities="${applicationId}.workmanager-init"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="remove"/>
+
+        <provider
+            android:name="vn.hunghd.flutterdownloader.FlutterDownloaderInitializer"
+            android:authorities="${applicationId}.flutter-downloader-init"
+            android:exported="false">
+            <meta-data
+                android:name="vn.hunghd.flutterdownloader.MAX_CONCURRENT_TASKS"
+                android:value="1" />
+        </provider>
     </application>
-    <meta-data
-    android:name="flutterEmbedding"
-    android:value="2" />
+   
 </manifest>

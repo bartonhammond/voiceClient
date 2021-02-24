@@ -26,3 +26,5 @@ class ProfileEvent {
   ProfileEvent(this.isComplete);
   bool isComplete;
 }
+
+class TaskCompleted {}

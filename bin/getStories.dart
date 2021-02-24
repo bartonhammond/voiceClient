@@ -42,10 +42,10 @@ Future<void> main(List<String> arguments) async {
   final StorySearch storySearch = StorySearch.init(
     graphQLClient,
     storyQl,
-    'familystoryprovider@myfamilyvoice.com',
+    'bartonhammond@gmail.com',
   );
   final Map searchValues = <String, dynamic>{
-    'currentUserEmail': 'familystoryprovider@myfamilyvoice.com',
+    'currentUserEmail': 'bartonhammond@gmail.com',
     'limit': '1',
     'cursor': '2022-01-01'
   };
