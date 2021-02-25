@@ -3,14 +3,19 @@ import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/constants/mfv.i18n.dart';
 
-class MessagesComment extends StatefulWidget {
-  const MessagesComment({Key key, this.story}) : super(key: key);
+class MessagesDetail extends StatefulWidget {
+  const MessagesDetail({
+    Key key,
+    this.story,
+    this.openComments = false,
+  }) : super(key: key);
   final Map story;
+  final bool openComments;
   @override
-  State<StatefulWidget> createState() => MessagesCommentState();
+  State<StatefulWidget> createState() => MessagesDetailState();
 }
 
-class MessagesCommentState extends State<MessagesComment> {
+class MessagesDetailState extends State<MessagesDetail> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
@@ -37,7 +42,7 @@ class MessagesCommentState extends State<MessagesComment> {
                     onPush: null,
                     showFriend: true,
                     story: widget.story,
-                    openComments: true,
+                    openComments: widget.openComments,
                   )),
             ],
           ),

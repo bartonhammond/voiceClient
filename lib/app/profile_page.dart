@@ -276,7 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomRaisedButton(
-                key: Key('downloadButton'),
+                key: Key('profilePageDownloadButton'),
                 icon: Icon(
                   Icons.cloud_download,
                   color: Colors.white,

@@ -95,7 +95,7 @@ class _DownloadPageState extends State<DownloadPage> {
 
   Widget getDownloadButton() {
     return CustomRaisedButton(
-        key: Key('download'),
+        key: Key('downloadPageDownload'),
         text: Strings.upload.i18n,
         icon: Icon(
           Icons.save,
