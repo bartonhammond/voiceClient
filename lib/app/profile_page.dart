@@ -3,9 +3,11 @@ import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
 import 'package:MyFamilyVoice/common_widgets/download_page.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/ql/story/story_search.dart';
 import 'package:MyFamilyVoice/ql/story_ql.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +17,7 @@ import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
@@ -270,8 +273,71 @@ class _ProfilePageState extends State<ProfilePage> {
           );
   }
 
+  Future<void> _deleteAccount() async {
+    final bool deleteAccount = await PlatformAlertDialog(
+      key: Key('profilePageDeleteAccountDialog'),
+      title: Strings.profilePageDeleteAccount.i18n,
+      content: Strings.areYouSure.i18n,
+      cancelActionText: Strings.cancel.i18n,
+      defaultActionText: Strings.yes.i18n,
+    ).show(context);
+    if (deleteAccount == true) {
+      final bool reallySure = await PlatformAlertDialog(
+        key: Key('profilePageDeleteAccountForSureDialog'),
+        title: Strings.profilePageDeleteAllStories.i18n,
+        content: Strings.areYouSure.i18n,
+        cancelActionText: Strings.cancel.i18n,
+        defaultActionText: Strings.yes.i18n,
+      ).show(context);
+      print('really sure is $reallySure');
+      if (reallySure) {
+        try {
+          await deleteBook(
+            GraphQLProvider.of(context).value,
+            graphQLAuth.getUserMap()['email'],
+          );
+
+          final AuthService auth =
+              Provider.of<AuthService>(context, listen: false);
+          await auth.signOut();
+        } catch (e) {
+          logger.createMessage(
+              userEmail: graphQLAuth.getUserMap()['email'],
+              source: 'profilePage',
+              shortMessage: e.toString(),
+              stackTrace: StackTrace.current.toString());
+          rethrow;
+        }
+      }
+    }
+  }
+
+  Widget _buildDeleteAccountButton(BuildContext context) {
+    if (!widget.isBook &&
+        graphQLAuth.getUserMap() != null &&
+        graphQLAuth.getUserMap()['email'] != null) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CustomRaisedButton(
+              key: Key('profilePageDeleteAccount'),
+              icon: Icon(
+                Icons.person_remove,
+                color: Colors.white,
+              ),
+              text: Strings.profilePageDeleteAccount.i18n,
+              onPressed: () async {
+                await _deleteAccount();
+              })
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
   Widget _buildDownloadButton(BuildContext context) {
-    return _stories != null && _stories.isNotEmpty
+    return !widget.isBook && _stories != null && _stories.isNotEmpty
         ? Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -342,7 +408,9 @@ class _ProfilePageState extends State<ProfilePage> {
       );
       if (queryResult.hasException) {
         logger.createMessage(
-          userEmail: graphQLAuth.getUser().email,
+          userEmail: graphQLAuth.getUser() == null
+              ? emailFormFieldController.text
+              : graphQLAuth.getUser().email,
           source: 'profile_page',
           shortMessage: queryResult.exception.toString(),
           stackTrace: StackTrace.current.toString(),
@@ -700,6 +768,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 height: 8,
               ),
               _buildDownloadButton(context),
+              SizedBox(
+                height: 8,
+              ),
+              _buildDeleteAccountButton(context),
             ],
           ),
         ));

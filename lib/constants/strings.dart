@@ -101,6 +101,9 @@ class Strings {
   static const String nameLengthMessage =
       'Name length should be greater than 5';
   static const String homeLengthMessage = 'Home length must be greater than 1';
+  static const String profilePageDownload = 'Download';
+  static const String profilePageDeleteAccount = 'Delete Account';
+  static const String profilePageDeleteAllStories = 'Delete all Stories?';
 
   //Story Page
   static const String imagePlaceholder = 'Image Placeholder';

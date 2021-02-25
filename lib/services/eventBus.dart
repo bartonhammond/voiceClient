@@ -28,3 +28,5 @@ class ProfileEvent {
 }
 
 class TaskCompleted {}
+
+class AccountDeleted {}

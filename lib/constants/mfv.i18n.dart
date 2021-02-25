@@ -304,6 +304,18 @@ extension Localization on String {
         'es': 'La longitud de la casa debe ser mayor que 1',
       } +
       {
+        'en': Strings.profilePageDownload,
+        'es': 'Descargar',
+      } +
+      {
+        'en': Strings.profilePageDeleteAccount,
+        'es': 'Borrar cuenta',
+      } +
+      {
+        'en': Strings.profilePageDeleteAllStories,
+        'es': '¿Eliminar todas las historias?',
+      } +
+      {
         'en': Strings.nameLengthMessage,
         'es': 'La longitud del nombre debe ser superior a 5',
       } +
