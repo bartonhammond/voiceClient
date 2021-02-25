@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:MyFamilyVoice/app/messages_comment.dart';
+import 'package:MyFamilyVoice/app/messages_detail.dart';
 import 'package:MyFamilyVoice/ql/message/message_search.dart';
 import 'package:MyFamilyVoice/ql/message_ql.dart';
 import 'package:MyFamilyVoice/ql/story/story_comments.dart';
@@ -226,45 +226,9 @@ class _MessagesPageState extends State<MessagesPage> {
             text: Strings.viewCommentButton.i18n,
             fontSize: 16,
             onPressed: () async {
-              final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
-              final StoryComments storyComments = StoryComments();
-              final StoryReactions storyReactions = StoryReactions();
-              final StoryTags storyTags = StoryTags();
-              final StoryUser storyUser = StoryUser();
-
-              final StoryQl storyQl = StoryQl(
-                storyUser: storyUser,
-                storyOriginalUser: storyOriginalUser,
-                storyComments: storyComments,
-                storyReactions: storyReactions,
-                storyTags: storyTags,
-              );
-
-              final StorySearch storySearch = StorySearch.init(
-                graphQLClient,
-                storyQl,
-                graphQLAuth.getUser().email,
-              );
-              storySearch.setQueryName('getStoryById');
-              storySearch.setVariables(
-                <String, dynamic>{
-                  'id': 'String!',
-                  'currentUserEmail': 'String!',
-                },
-              );
-
-              final Map story = await storySearch.getItem(<String, dynamic>{
-                'id': message['key'],
-                'currentUserEmail': graphQLAuth.getUser().email,
-              });
-
-              Navigator.push<dynamic>(
-                context,
-                MaterialPageRoute<dynamic>(
-                  builder: (BuildContext context) =>
-                      MessagesComment(story: story),
-                  fullscreenDialog: false,
-                ),
+              await displayStoryUI(
+                message['key'],
+                true,
               );
             },
             icon: Icon(
@@ -314,15 +278,8 @@ class _MessagesPageState extends State<MessagesPage> {
             key: Key('viewAttention-$index'),
             text: Strings.messagesPageViewStory,
             fontSize: 16,
-            onPressed: () {
-              widget.onPush(
-                <String, dynamic>{
-                  'id': message['key'],
-                  'onFinish': () {
-                    callBack(message);
-                  },
-                },
-              );
+            onPressed: () async {
+              await displayStoryUI(message['key'], false);
             },
             icon: Icon(
               Icons.group_add,
@@ -342,6 +299,7 @@ class _MessagesPageState extends State<MessagesPage> {
           ),
         );
         break;
+
       case 'book':
         return StaggeredGridTileMessage(
           title: Strings.messagesPageMessageStoryAssignedToBook,
@@ -382,6 +340,51 @@ class _MessagesPageState extends State<MessagesPage> {
       default:
         return Text('invalid message type ${message['type']}');
     }
+  }
+
+  Future<void> displayStoryUI(String key, bool openComments) async {
+    final StoryOriginalUser storyOriginalUser = StoryOriginalUser();
+    final StoryComments storyComments = StoryComments();
+    final StoryReactions storyReactions = StoryReactions();
+    final StoryTags storyTags = StoryTags();
+    final StoryUser storyUser = StoryUser();
+
+    final StoryQl storyQl = StoryQl(
+      storyUser: storyUser,
+      storyOriginalUser: storyOriginalUser,
+      storyComments: storyComments,
+      storyReactions: storyReactions,
+      storyTags: storyTags,
+    );
+
+    final StorySearch storySearch = StorySearch.init(
+      graphQLClient,
+      storyQl,
+      graphQLAuth.getUser().email,
+    );
+    storySearch.setQueryName('getStoryById');
+    storySearch.setVariables(
+      <String, dynamic>{
+        'id': 'String!',
+        'currentUserEmail': 'String!',
+      },
+    );
+
+    final Map story = await storySearch.getItem(<String, dynamic>{
+      'id': key,
+      'currentUserEmail': graphQLAuth.getUser().email,
+    });
+
+    Navigator.push<dynamic>(
+      context,
+      MaterialPageRoute<dynamic>(
+        builder: (BuildContext context) => MessagesDetail(
+          story: story,
+          openComments: openComments,
+        ),
+        fullscreenDialog: false,
+      ),
+    );
   }
 
   String getCursor(List<dynamic> _list) {

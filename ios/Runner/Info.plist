@@ -67,8 +67,8 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
+	  <key>NSAllowsArbitraryLoads</key>
+	<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Use camera for images to build Stories</string>
@@ -81,6 +81,8 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
+		<string>processing</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
@@ -101,5 +103,11 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
+	<key>UIFileSharingEnabled</key>
+	<true/>
+	<key>FDMaximumConcurrentTasks</key>
+	<integer>1</integer>
 </dict>
 </plist>

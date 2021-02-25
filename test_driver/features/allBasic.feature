@@ -47,6 +47,10 @@ Feature: All
         #Expect testname@myfamilyvoice.com to have a notification
         And I tap the text that contains the text "Notices"
         Then I expect the "message-title" to be "Attention"
+        And I tap the "viewAttention-0" widget
+        Then I expect the "userName-Test Name" to be "Test Name"
+        And I expect the "userHome-Test Name" to be "Home City, State"
+        Then I tap the back button
         #Clear the messages and validate there are no others
         Given I tap the button that contains the text "Clear"
         And I pause for 1 seconds
