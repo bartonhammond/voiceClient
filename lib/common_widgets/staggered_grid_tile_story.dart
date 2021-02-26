@@ -279,11 +279,13 @@ class _StaggeredGridTileStoryState extends State<StaggeredGridTileStory> {
         child: InkWell(
           onTap: () {
             if (_currentUserIsAuthor) {
-              widget.onPush(<String, dynamic>{
-                'id': widget.story['id'],
-                'onFinish': callBack,
-                'onDelete': widget.onDelete,
-              });
+              if (widget.onPush != null) {
+                widget.onPush(<String, dynamic>{
+                  'id': widget.story['id'],
+                  'onFinish': callBack,
+                  'onDelete': widget.onDelete,
+                });
+              }
             } else {
               zoomOnImage();
             }

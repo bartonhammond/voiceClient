@@ -101,6 +101,9 @@ class Strings {
   static const String nameLengthMessage =
       'Name length should be greater than 5';
   static const String homeLengthMessage = 'Home length must be greater than 1';
+  static const String profilePageDownload = 'Download';
+  static const String profilePageDeleteAccount = 'Delete Account';
+  static const String profilePageDeleteAllStories = 'Delete all Stories?';
 
   //Story Page
   static const String imagePlaceholder = 'Image Placeholder';
@@ -263,4 +266,16 @@ class Strings {
   static const String tagFriendsPendingChanges = 'There are pending changes';
   static const String tagFriendsStayOnPage = 'Stay on page to save changes?';
   static const String tagFriendsStay = 'Stay';
+
+  //Download page
+  static const String downloadsViewSummaryFile = 'View Summary?';
+  static const String downloadsDownloadingInProgress =
+      'Downloading in progress';
+  static const String downloadsStayToFinishDownloading =
+      'Stay to finish downloading?';
+  static const String downloadsNumberOfStories = 'Number of stories';
+  static const String downloadsFilesLocatedHere = 'Files located here';
+  static const String downloadsPleaseGrantStoragePermission =
+      'Please grant accessing storage permission to continue';
+  static const String downloadsRetry = 'Retry';
 }

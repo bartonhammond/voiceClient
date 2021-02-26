@@ -80,6 +80,19 @@ Future<void> deleteScenarioBook(GraphQLClient graphQLClient) async {
   }
 }
 
+Future<void> deleteScenarioDownloads(GraphQLClient graphQLClient) async {
+  try {
+    await _deleteBookByName(
+      graphQLClient,
+      'Downloads',
+    );
+  } catch (e) {
+    print('deleteBookByName Downloads failed');
+    print(e);
+    rethrow;
+  }
+}
+
 Future<void> deleteTestOne(GraphQLClient graphQLClient) async {
   final Map<String, dynamic> fromUser = await graphql.getUserByName(
       graphQLClient, 'Test Name', 'bartonhammond@gmail.com');

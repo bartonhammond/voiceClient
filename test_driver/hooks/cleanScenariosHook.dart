@@ -46,5 +46,13 @@ class CleanSceanariosHook extends Hook {
       print(e);
       exit(1);
     }
+    try {
+      print("running hook before scenario '$scenario' deleteDownloads");
+      await utility.deleteScenarioDownloads(graphQLClient);
+    } catch (e) {
+      print('deleteScenarioBook failed');
+      print(e);
+      exit(1);
+    }
   }
 }

@@ -1,8 +1,13 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/common_widgets/download_page.dart';
 import 'package:MyFamilyVoice/common_widgets/image_controls.dart';
+import 'package:MyFamilyVoice/common_widgets/platform_alert_dialog.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
+import 'package:MyFamilyVoice/ql/story/story_search.dart';
+import 'package:MyFamilyVoice/ql/story_ql.dart';
+import 'package:MyFamilyVoice/services/auth_service.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +17,7 @@ import 'package:graphql/client.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/drawer_widget.dart';
@@ -78,6 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
   TextEditingController homeFormFieldController = TextEditingController();
 
   FToast _fToast;
+  List<dynamic> _stories;
 
   Future<Map<String, dynamic>> getUser() async {
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
@@ -108,6 +115,27 @@ class _ProfilePageState extends State<ProfilePage> {
       user = graphQLAuth.getUserMap();
     }
     return await Future.sync(() => user);
+  }
+
+  Future<List<dynamic>> getStories(BuildContext context, List _stories) {
+    if (_stories != null) {
+      return Future.value(_stories);
+    }
+    StoryQl storyQl;
+    storyQl = StoryQl();
+    final StorySearch storySearch = StorySearch.init(
+      GraphQLProvider.of(context).value,
+      storyQl,
+      graphQLAuth.getUser().email,
+    );
+    final DateTime now = DateTime.now();
+    final _values = <String, dynamic>{
+      'currentUserEmail': graphQLAuth.getUser().email,
+      'limit': 1.toString(),
+      'cursor': now.toIso8601String(),
+    };
+    storySearch.setQueryName('userStoriesMe');
+    return storySearch.getList(_values);
   }
 
   @override
@@ -245,6 +273,97 @@ class _ProfilePageState extends State<ProfilePage> {
           );
   }
 
+  Future<void> _deleteAccount() async {
+    final bool deleteAccount = await PlatformAlertDialog(
+      key: Key('profilePageDeleteAccountDialog'),
+      title: Strings.profilePageDeleteAccount.i18n,
+      content: Strings.areYouSure.i18n,
+      cancelActionText: Strings.cancel.i18n,
+      defaultActionText: Strings.yes.i18n,
+    ).show(context);
+    if (deleteAccount == true) {
+      final bool reallySure = await PlatformAlertDialog(
+        key: Key('profilePageDeleteAccountForSureDialog'),
+        title: Strings.profilePageDeleteAllStories.i18n,
+        content: Strings.areYouSure.i18n,
+        cancelActionText: Strings.cancel.i18n,
+        defaultActionText: Strings.yes.i18n,
+      ).show(context);
+      if (reallySure) {
+        try {
+          await deleteBook(
+            GraphQLProvider.of(context).value,
+            graphQLAuth.getUserMap()['email'],
+          );
+
+          final AuthService auth =
+              Provider.of<AuthService>(context, listen: false);
+          await auth.signOut();
+        } catch (e) {
+          logger.createMessage(
+              userEmail: graphQLAuth.getUserMap()['email'],
+              source: 'profilePage',
+              shortMessage: e.toString(),
+              stackTrace: StackTrace.current.toString());
+          rethrow;
+        }
+      }
+    }
+  }
+
+  Widget _buildDeleteAccountButton(BuildContext context) {
+    if (!widget.isBook &&
+        graphQLAuth.getUserMap() != null &&
+        graphQLAuth.getUserMap()['email'] != null) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CustomRaisedButton(
+              key: Key('profilePageDeleteAccount'),
+              icon: Icon(
+                Icons.person_remove,
+                color: Colors.white,
+              ),
+              text: Strings.profilePageDeleteAccount.i18n,
+              onPressed: () async {
+                await _deleteAccount();
+              })
+        ],
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  Widget _buildDownloadButton(BuildContext context) {
+    return !widget.isBook && _stories != null && _stories.isNotEmpty
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CustomRaisedButton(
+                key: Key('profilePageDownloadButton'),
+                icon: Icon(
+                  Icons.cloud_download,
+                  color: Colors.white,
+                ),
+                text: 'Download',
+                onPressed: () {
+                  Navigator.push<dynamic>(
+                    context,
+                    MaterialPageRoute<dynamic>(
+                      builder: (BuildContext context) => DownloadPage(
+                        key: Key('profilePageDownload'),
+                      ),
+                      fullscreenDialog: false,
+                    ),
+                  );
+                },
+              ),
+            ],
+          )
+        : Container();
+  }
+
   Future<void> doUploads(BuildContext context) async {
     try {
       if (imageUpdated) {
@@ -288,7 +407,9 @@ class _ProfilePageState extends State<ProfilePage> {
       );
       if (queryResult.hasException) {
         logger.createMessage(
-          userEmail: graphQLAuth.getUser().email,
+          userEmail: graphQLAuth.getUser() == null
+              ? emailFormFieldController.text
+              : graphQLAuth.getUser().email,
           source: 'profile_page',
           shortMessage: queryResult.exception.toString(),
           stackTrace: StackTrace.current.toString(),
@@ -641,7 +762,15 @@ class _ProfilePageState extends State<ProfilePage> {
               SizedBox(
                 height: 8,
               ),
-              _buildUploadButton(context)
+              _buildUploadButton(context),
+              SizedBox(
+                height: 8,
+              ),
+              _buildDownloadButton(context),
+              SizedBox(
+                height: 8,
+              ),
+              _buildDeleteAccountButton(context),
             ],
           ),
         ));
@@ -669,7 +798,7 @@ class _ProfilePageState extends State<ProfilePage> {
     graphQLClient = GraphQLProvider.of(context).value;
 
     return FutureBuilder(
-        future: Future.wait([getUser()]),
+        future: Future.wait([getUser(), getStories(context, _stories)]),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             logger.createMessage(
@@ -683,6 +812,7 @@ class _ProfilePageState extends State<ProfilePage> {
             return _progressIndicator();
           }
           user = snapshot.data[0];
+          _stories = snapshot.data[1];
           isBook = user['isBook'] || widget.isBook;
 
           //if user is new, user['id'] will be empty

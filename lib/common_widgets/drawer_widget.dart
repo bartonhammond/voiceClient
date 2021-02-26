@@ -1,10 +1,11 @@
+import 'dart:async';
+
 import 'package:MyFamilyVoice/app/sign_in/custom_raised_button.dart';
 import 'package:MyFamilyVoice/common_widgets/getDialog.dart';
 import 'package:MyFamilyVoice/constants/globals.dart';
 import 'package:MyFamilyVoice/constants/graphql.dart';
 import 'package:MyFamilyVoice/services/auth_service_adapter.dart';
-import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -32,13 +33,21 @@ class DrawerWidget extends StatefulWidget {
 }
 
 class _DrawerWidgetState extends State<DrawerWidget> {
+  StreamSubscription accountDeletedSubscription;
+
   @override
   void initState() {
+    accountDeletedSubscription = eventBus.on<AccountDeleted>().listen((event) {
+      setState(() {
+        _signOut(context);
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    accountDeletedSubscription.cancel();
     super.dispose();
   }
 
@@ -46,8 +55,6 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     try {
       final AuthService auth = Provider.of<AuthService>(context, listen: false);
       await auth.signOut();
-      final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
-      graphQLAuth.clear();
     } on PlatformException catch (e) {
       await PlatformExceptionAlertDialog(
         title: Strings.logoutFailed.i18n,

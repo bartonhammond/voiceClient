@@ -304,6 +304,18 @@ extension Localization on String {
         'es': 'La longitud de la casa debe ser mayor que 1',
       } +
       {
+        'en': Strings.profilePageDownload,
+        'es': 'Descargar',
+      } +
+      {
+        'en': Strings.profilePageDeleteAccount,
+        'es': 'Borrar cuenta',
+      } +
+      {
+        'en': Strings.profilePageDeleteAllStories,
+        'es': '¿Eliminar todas las historias?',
+      } +
+      {
         'en': Strings.nameLengthMessage,
         'es': 'La longitud del nombre debe ser superior a 5',
       } +
@@ -782,6 +794,34 @@ extension Localization on String {
       {
         'en': Strings.tagFriendsStayOnPage,
         'es': '¿Quedate en la pagina?',
+      } +
+      {
+        'en': Strings.downloadsViewSummaryFile,
+        'es': '¿Ver Resumen?',
+      } +
+      {
+        'en': Strings.downloadsDownloadingInProgress,
+        'es': 'Descarga en curso',
+      } +
+      {
+        'en': Strings.downloadsStayToFinishDownloading,
+        'es': '¿Te quedas para terminar de descargar?',
+      } +
+      {
+        'en': Strings.downloadsNumberOfStories,
+        'es': 'Numero de historias',
+      } +
+      {
+        'en': Strings.downloadsFilesLocatedHere,
+        'es': 'Archivos ubicados aquí',
+      } +
+      {
+        'en': Strings.downloadsPleaseGrantStoragePermission,
+        'es': 'Otorgue permiso de acceso al almacenamiento para continuar',
+      } +
+      {
+        'en': Strings.downloadsRetry,
+        'es': 'Rever',
       };
 
   String get i18n => localize(this, _t);

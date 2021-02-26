@@ -43,6 +43,7 @@ dependencies:
   flutter_audio_recorder: 
     git: https://github.com/bartonhammond/flutter_audio_recorder.git
   flutter_device_locale: ^0.4.0
+  flutter_downloader: ^1.5.2
   flutter_localizations:
     sdk: flutter
   flutter_native_admob: ^2.1.0+3
@@ -64,8 +65,11 @@ dependencies:
   isolate: ^2.0.2
   material_design_icons_flutter: 4.0.5755
   microphone: ^0.0.2+3
+  open_file: ^3.0.3
   package_info: ^0.4.0+13
+  path: ^1.7.0
   path_provider: ^1.6.11
+  permission_handler: ^5.1.0+2
   provider: ^4.3.2+2
   random_string: ^2.0.0
   responsive_builder: ^0.2.0+2
@@ -78,11 +82,13 @@ dependencies:
 dev_dependencies:
   flutter_driver:
     sdk: flutter
-  flutter_gherkin: ^1.1.9
+  flutter_gherkin: 
+    git: 
+      url: https://github.com/bartonhammond/flutter_gherkin
+      ref: temp
   flutter_test:
     sdk: flutter
   glob: ^1.2.0
-  path: ^1.7.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
