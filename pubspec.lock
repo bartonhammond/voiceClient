@@ -373,9 +373,11 @@ packages:
   flutter_gherkin:
     dependency: "direct dev"
     description:
-      name: flutter_gherkin
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: temp
+      resolved-ref: "4b6986d6d67a668c1ef1f73b2359aa8d8cffcc72"
+      url: "https://github.com/bartonhammond/flutter_gherkin"
+    source: git
     version: "1.1.9"
   flutter_inappwebview:
     dependency: transitive
@@ -484,10 +486,12 @@ packages:
   gherkin:
     dependency: transitive
     description:
-      name: gherkin
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.9"
+      path: "."
+      ref: code_gen_changes
+      resolved-ref: "55700e910adc3905c718bbb6f514a6dda96e53ad"
+      url: "https://github.com/bartonhammond/dart_gherkin"
+    source: git
+    version: "1.2.0"
   glob:
     dependency: "direct dev"
     description:

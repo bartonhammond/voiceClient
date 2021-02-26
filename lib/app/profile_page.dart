@@ -289,7 +289,6 @@ class _ProfilePageState extends State<ProfilePage> {
         cancelActionText: Strings.cancel.i18n,
         defaultActionText: Strings.yes.i18n,
       ).show(context);
-      print('really sure is $reallySure');
       if (reallySure) {
         try {
           await deleteBook(

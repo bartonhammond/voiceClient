@@ -11,6 +11,7 @@ import 'steps/expectTextFormFieldToHaveValue.dart';
 import 'steps/tap_positional_widget_of_type.dart';
 
 Future<void> main(List<String> arguments) async {
+  print('har');
   final parser = ArgParser();
   parser.addOption('uri', help: 'the uri');
 
@@ -37,6 +38,7 @@ Future<void> main(List<String> arguments) async {
     featurePath: 'features//**.feature',
     targetAppPath: 'test_driver/app.dart',
   )
+    ..order = ExecutionOrder.sorted
     ..restartAppBetweenScenarios = false
     ..targetAppWorkingDirectory = '../'
     ..runningAppProtocolEndpointUri = argResults['uri']

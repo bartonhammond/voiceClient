@@ -66,7 +66,12 @@ class _DownloadPageState extends State<DownloadPage> {
       }
       FlutterDownloader.registerCallback(downloadCallback);
       _bindBackgroundIsolate();
-      _permissionReady = await _checkPermission();
+
+      _checkPermission().then((hasGranted) {
+        setState(() {
+          _permissionReady = hasGranted;
+        });
+      });
     });
     //Run one task at a time
     //Sleep between

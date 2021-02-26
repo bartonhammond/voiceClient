@@ -27,6 +27,7 @@ Feature: All
         #Create a Story
         Given I tap the "mainFloatingActionButton" widget
         And I tap the "storyFloatingActionButton" widget
+        And I pause for 5 seconds
         And I tap the "storyPageGalleryButton" button
         And I tap the "recorderWidgetRecordButton" button
         And I pause for 3 seconds
