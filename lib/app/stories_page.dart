@@ -113,7 +113,7 @@ class _StoriesPageState extends State<StoriesPage> {
     TypeStoriesView.me: {
       StoryFeedType.ALL: 'userStoriesMe',
       StoryFeedType.FAMILY: 'userStoriesMeFamily',
-      StoryFeedType.FRIENDS: 'userStoriesFriends',
+      StoryFeedType.FRIENDS: 'userStoriesMeFriends',
     },
   };
 
@@ -382,7 +382,7 @@ class _StoriesPageState extends State<StoriesPage> {
               'limit': 'String!',
               'cursor': 'String!',
             });
-            storySearch.setQueryName('userStoriesFriends');
+            storySearch.setQueryName('userStoriesMeFriends');
             return storySearch.getQueryOptions(_values);
             break;
           case StoryFeedType.ME:
