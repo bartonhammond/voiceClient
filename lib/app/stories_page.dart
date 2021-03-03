@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:MyFamilyVoice/app/ads_global.dart';
+import 'package:MyFamilyVoice/app_config.dart';
+import 'package:MyFamilyVoice/constants/admob.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/constants/globals.dart';
 import 'package:MyFamilyVoice/ql/story/story_comments.dart';
@@ -577,7 +579,11 @@ class _StoriesPageState extends State<StoriesPage> {
                                   return index < stories.length
                                       ? _storiesAdGlobal.showAd()
                                           ? getAdmobNative(
-                                              stories, index, _crossAxisCount)
+                                              context,
+                                              stories,
+                                              index,
+                                              _crossAxisCount,
+                                            )
                                           : getStaggered(
                                               stories, index, _crossAxisCount)
                                       : moreSearchResults[_typeStoryView]
@@ -630,7 +636,23 @@ class _StoriesPageState extends State<StoriesPage> {
     );
   }
 
-  Widget getAdmobNative(List<dynamic> stories, int index, int _crossAxisCount) {
+  Widget getAdmobNative(
+    BuildContext context,
+    List<dynamic> stories,
+    int index,
+    int _crossAxisCount,
+  ) {
+    String admobId;
+    final config = AppConfig.of(context);
+    if (config.flavorName == 'Prod') {
+      if (Theme.of(context).platform == TargetPlatform.android) {
+        admobId = AdMob.androidAdUnitIdNative;
+      } else if (Theme.of(context).platform == TargetPlatform.iOS) {
+        admobId = AdMob.iosAdUnitIdNative;
+      }
+    } else {
+      admobId = NativeAd.testAdUnitId;
+    }
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       mainAxisSize: MainAxisSize.max,
@@ -662,7 +684,7 @@ class _StoriesPageState extends State<StoriesPage> {
                   backgroundColor: Constants.backgroundColor,
                 )),
             key: Key('nativeAdMob-$index'),
-            adUnitID: NativeAd.testAdUnitId,
+            adUnitID: admobId,
             controller: _nativeAdController,
             type: NativeAdmobType.full,
             loading: Center(child: CircularProgressIndicator()),
