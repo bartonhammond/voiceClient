@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:MyFamilyVoice/app/profile_page.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/unicorn_dialer.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/app/story_play.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/fab_bottom_app_bar.dart';
@@ -14,6 +17,19 @@ import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  'This channel is used for important notifications.', // description
+  importance: Importance.max,
+  enableVibration: true,
+  playSound: true,
+);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -28,6 +44,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    print('homePage.initState');
+    super.initState();
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     if (graphQLAuth.getUserMap() == null ||
         (graphQLAuth.getUserMap()['image'] == null &&
@@ -39,6 +57,7 @@ class _HomePageState extends State<HomePage> {
       _currentTab = TabItem.stories;
       _areTabsEnabled = true;
     }
+
     eventBus.on<ProfileEvent>().listen((event) {
       if (mounted) {
         setState(() {
@@ -46,7 +65,83 @@ class _HomePageState extends State<HomePage> {
         });
       }
     });
-    super.initState();
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      await requestMessagePermissions();
+      await checkInitialMessage();
+      await registerNotification();
+    });
+  }
+
+  Future<void> requestMessagePermissions() async {
+    final NotificationSettings settings =
+        await FirebaseMessaging.instance.requestPermission();
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+    } else if (settings.authorizationStatus ==
+        AuthorizationStatus.provisional) {
+      print('User granted provisional permission');
+    } else {
+      print('User declined or has not accepted permission');
+    }
+  }
+
+  Future<void> checkInitialMessage() async {
+    // Get any messages which caused the application to open from
+    // a terminated state.
+    final RemoteMessage initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      printJson('initialMessage', initialMessage.data);
+    } else {
+      print('homePage.checkInitialMessage is null');
+    }
+  }
+
+  Future<void> registerNotification() async {
+    if (Platform.isAndroid) {
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+    }
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      print('message $message');
+      printJson('message', message.data);
+    });
+
+    FirebaseMessaging.onMessage.listen(
+      (RemoteMessage message) {
+        print('Got a message whilst in the foreground!');
+        printJson('Message data', message.data);
+
+        if (message.notification != null) {
+          print(
+              'Message also contained a notification ${message.notification.title}');
+        }
+        final RemoteNotification notification = message.notification;
+        final AndroidNotification android = message.notification?.android;
+
+        // If `onMessage` is triggered with a notification, construct our own
+        // local notification to show to users using the created channel.
+        if (notification != null && android != null) {
+          flutterLocalNotificationsPlugin.show(
+              notification.hashCode,
+              notification.title,
+              notification.body,
+              NotificationDetails(
+                android: AndroidNotificationDetails(
+                  channel.id,
+                  channel.name,
+                  channel.description,
+                  icon: android?.smallIcon,
+                  // other properties...
+                ),
+              ));
+        }
+      },
+    );
   }
 
   final Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {

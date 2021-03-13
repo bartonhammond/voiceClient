@@ -5,6 +5,7 @@ import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -24,6 +25,12 @@ import 'package:MyFamilyVoice/services/firebase_email_link_handler.dart';
 import 'package:MyFamilyVoice/services/locale_secure_store.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
 import 'package:MyFamilyVoice/services/logger.dart' as logger;
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('1Handling a background message ${message.messageId}');
+  await Firebase.initializeApp();
+  print('2Handling a background message ${message.messageId}');
+}
 
 class MyApp extends StatelessWidget {
   // [initialAuthServiceType] is made configurable for testing
@@ -52,6 +59,20 @@ class MyApp extends StatelessWidget {
   Future<Locale> getDeviceLocal(BuildContext context) async {
     final LocaleSecureStore localeSecureStore = LocaleSecureStore();
     return localeSecureStore.getLocale();
+  }
+
+  Future<bool> initializeFirebaseAndMessaging() async {
+    await Firebase.initializeApp();
+
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
+    );
+    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+    return true;
   }
 
   Future<bool> initializeFirebaseAdMob() async {
@@ -180,7 +201,7 @@ class MyApp extends StatelessWidget {
     Locale locale;
     return FutureBuilder(
       future: Future.wait([
-        Firebase.initializeApp(),
+        initializeFirebaseAndMessaging(),
         getDeviceLocal(context),
         initializeFirebaseAdMob(),
       ]),

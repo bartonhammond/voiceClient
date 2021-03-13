@@ -777,3 +777,23 @@ Future<void> quitFriendship(
   }
   return;
 }
+
+Future<void> updateUserToken(
+  GraphQLClient graphQLClient, {
+  String currentUserEmail,
+  String tokens,
+}) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(updateUserTokenQL),
+    variables: <String, dynamic>{
+      'currentUserEmail': currentUserEmail,
+      'tokens': tokens,
+    },
+  );
+
+  final QueryResult queryResult = await graphQLClient.mutate(options);
+  if (queryResult.hasException) {
+    throw queryResult.exception;
+  }
+  return;
+}
