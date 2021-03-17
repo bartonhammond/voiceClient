@@ -1,9 +1,6 @@
-import 'dart:io' show Platform;
 import 'package:MyFamilyVoice/common_widgets/image_editor/screen_util.dart';
-import 'package:MyFamilyVoice/constants/admob.dart';
 import 'package:MyFamilyVoice/constants/enums.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -51,18 +48,6 @@ class MyApp extends StatelessWidget {
   Future<Locale> getDeviceLocal(BuildContext context) async {
     final LocaleSecureStore localeSecureStore = LocaleSecureStore();
     return localeSecureStore.getLocale();
-  }
-
-  Future<bool> initializeFirebaseAdMob() async {
-    if (!kIsWeb) {
-      if (Platform.isAndroid) {
-        return await FirebaseAdMob.instance.initialize(appId: AdMob.iosAppId);
-      } else if (Platform.isIOS) {
-        return await FirebaseAdMob.instance
-            .initialize(appId: AdMob.androidAppId);
-      }
-    }
-    return false;
   }
 
   MultiProvider getMultiProvider(BuildContext context, Locale locale) {
@@ -180,7 +165,6 @@ class MyApp extends StatelessWidget {
     return FutureBuilder(
       future: Future.wait([
         getDeviceLocal(context),
-        initializeFirebaseAdMob(),
       ]),
       builder: (context, snapshot) {
         if (snapshot.hasData) {

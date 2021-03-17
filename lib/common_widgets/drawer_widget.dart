@@ -36,7 +36,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   StreamSubscription accountDeletedSubscription;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     accountDeletedSubscription = eventBus.on<AccountDeleted>().listen((event) {
       setState(() {

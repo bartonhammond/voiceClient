@@ -106,6 +106,7 @@ class _HomePageState extends State<HomePage> {
 
     FirebaseMessaging.onMessage.listen(
       (RemoteMessage message) {
+        eventBus.fire(GetUserMessagesEvent());
         print('Got a message whilst in the foreground!');
         printJson('Message data', message.data);
 

@@ -1,7 +1,4 @@
 import 'dart:async';
-import 'package:MyFamilyVoice/app/ads_global.dart';
-import 'package:MyFamilyVoice/app_config.dart';
-import 'package:MyFamilyVoice/constants/admob.dart';
 import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/constants/globals.dart';
 import 'package:MyFamilyVoice/ql/story/story_comments.dart';
@@ -16,11 +13,7 @@ import 'package:MyFamilyVoice/ql/user/user_friends.dart';
 import 'package:MyFamilyVoice/ql/user/user_search.dart';
 import 'package:MyFamilyVoice/ql/user_ql.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_admob/flutter_native_admob.dart';
-import 'package:flutter_native_admob/native_admob_controller.dart';
-import 'package:flutter_native_admob/native_admob_options.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:responsive_builder/responsive_builder.dart';
@@ -64,9 +57,6 @@ class StoriesPage extends StatefulWidget {
 }
 
 class _StoriesPageState extends State<StoriesPage> {
-  static AdsGlobal _storiesAdGlobal;
-  final _nativeAdController = NativeAdmobController();
-
   final nStories = 20;
   final ScrollController _scrollController = ScrollController();
   StreamSubscription storyWasAssignedToBookSubscription;
@@ -454,7 +444,6 @@ class _StoriesPageState extends State<StoriesPage> {
 
   @override
   Widget build(BuildContext context) {
-    _storiesAdGlobal ??= AdsGlobal(context);
     final DeviceScreenType deviceType =
         getDeviceType(MediaQuery.of(context).size);
     int _staggeredViewSize = 2;
@@ -553,8 +542,6 @@ class _StoriesPageState extends State<StoriesPage> {
                         eventBus.fire(BookHasNoStories(user['id']));
                       }
                       final int _storiesLength = stories.length + 1;
-                      _storiesAdGlobal.randomizeFrequency();
-
                       return Expanded(
                         key: Key('storiesPageExpanded'),
                         child: stories == null || stories.isEmpty
@@ -577,15 +564,8 @@ class _StoriesPageState extends State<StoriesPage> {
                                 crossAxisSpacing: 4.0,
                                 itemBuilder: (context, index) {
                                   return index < stories.length
-                                      ? _storiesAdGlobal.showAd()
-                                          ? getAdmobNative(
-                                              context,
-                                              stories,
-                                              index,
-                                              _crossAxisCount,
-                                            )
-                                          : getStaggered(
-                                              stories, index, _crossAxisCount)
+                                      ? getStaggered(
+                                          stories, index, _crossAxisCount)
                                       : moreSearchResults[_typeStoryView]
                                               [_storyFeedType]
                                           ? getLoadMoreButton(
@@ -633,66 +613,6 @@ class _StoriesPageState extends State<StoriesPage> {
         setState(() {});
       },
       story: Map<String, dynamic>.from(stories[index]),
-    );
-  }
-
-  Widget getAdmobNative(
-    BuildContext context,
-    List<dynamic> stories,
-    int index,
-    int _crossAxisCount,
-  ) {
-    String admobId;
-    final config = AppConfig.of(context);
-    if (config.flavorName == 'Prod') {
-      if (Theme.of(context).platform == TargetPlatform.android) {
-        admobId = AdMob.androidAdUnitIdNative;
-      } else if (Theme.of(context).platform == TargetPlatform.iOS) {
-        admobId = AdMob.iosAdUnitIdNative;
-      }
-    } else {
-      admobId = NativeAd.testAdUnitId;
-    }
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      mainAxisSize: MainAxisSize.max,
-      children: [
-        Container(
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.grey,
-              width: 2.0,
-            ),
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          margin: EdgeInsets.all(8),
-          height: 330,
-          // color: Colors.cyanAccent,
-          child: NativeAdmob(
-            options: NativeAdmobOptions(
-                bodyTextStyle:
-                    const NativeTextStyle(fontSize: 12, color: Colors.black),
-                adLabelTextStyle: NativeTextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                  backgroundColor: Constants.backgroundColor,
-                ),
-                callToActionStyle: NativeTextStyle(
-                  fontSize: 15,
-                  color: Colors.white,
-                  backgroundColor: Constants.backgroundColor,
-                )),
-            key: Key('nativeAdMob-$index'),
-            adUnitID: admobId,
-            controller: _nativeAdController,
-            type: NativeAdmobType.full,
-            loading: Center(child: CircularProgressIndicator()),
-            error: Text('failed to load'),
-          ),
-        ),
-        getStaggered(stories, index, _crossAxisCount)
-      ],
     );
   }
 }
