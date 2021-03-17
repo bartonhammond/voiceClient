@@ -4,11 +4,16 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_builder/responsive_builder.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
+import 'package:MyFamilyVoice/constants/globals.dart' as globals;
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('1Handling a background message ${message.messageId}');
   await Firebase.initializeApp();
-  print('2Handling a background message ${message.messageId}');
+  final bool isSupported = await FlutterAppBadger.isAppBadgeSupported();
+  if (isSupported) {
+    globals.badgeCount++;
+    FlutterAppBadger.updateBadgeCount(globals.badgeCount);
+  }
 }
 
 Future<void> setup() async {

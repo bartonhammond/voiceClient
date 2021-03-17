@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:MyFamilyVoice/app/profile_page.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/unicorn_dialer.dart';
@@ -41,10 +42,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TabItem _currentTab;
   bool _areTabsEnabled = true;
+  StreamSubscription profileEventSubscription;
+  StreamSubscription notificationsReceivedSubscription;
+
+  @override
+  void dispose() {
+    profileEventSubscription.cancel();
+    notificationsReceivedSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
-    print('homePage.initState');
     super.initState();
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     if (graphQLAuth.getUserMap() == null ||
@@ -58,43 +67,27 @@ class _HomePageState extends State<HomePage> {
       _areTabsEnabled = true;
     }
 
-    eventBus.on<ProfileEvent>().listen((event) {
+    profileEventSubscription = eventBus.on<ProfileEvent>().listen((event) {
       if (mounted) {
         setState(() {
           _areTabsEnabled = event.isComplete;
         });
       }
     });
+
+    notificationsReceivedSubscription =
+        eventBus.on<NotificationsReceived>().listen((event) {
+      _selectedTab(TabItem.messages.index);
+    });
+
     Future.delayed(const Duration(milliseconds: 500), () async {
       await requestMessagePermissions();
-      await checkInitialMessage();
       await registerNotification();
     });
   }
 
   Future<void> requestMessagePermissions() async {
-    final NotificationSettings settings =
-        await FirebaseMessaging.instance.requestPermission();
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-    } else if (settings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print('User granted provisional permission');
-    } else {
-      print('User declined or has not accepted permission');
-    }
-  }
-
-  Future<void> checkInitialMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    final RemoteMessage initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
-    if (initialMessage != null) {
-      printJson('initialMessage', initialMessage.data);
-    } else {
-      print('homePage.checkInitialMessage is null');
-    }
+    await FirebaseMessaging.instance.requestPermission();
   }
 
   Future<void> registerNotification() async {
@@ -171,7 +164,7 @@ class _HomePageState extends State<HomePage> {
 
     childButtons.add(UnicornButton(
         hasLabel: true,
-        labelText: 'Story',
+        labelText: Strings.storyFAB.i18n,
         labelHasShadow: true,
         labelShadowColor: Colors.black38,
         currentButton: FloatingActionButton(
@@ -200,7 +193,7 @@ class _HomePageState extends State<HomePage> {
 
     childButtons.add(UnicornButton(
         hasLabel: true,
-        labelText: 'Book',
+        labelText: Strings.bookFAB.i18n,
         labelHasShadow: true,
         labelShadowColor: Colors.black38,
         currentButton: FloatingActionButton(
@@ -238,7 +231,6 @@ class _HomePageState extends State<HomePage> {
         : FloatingActionButton(
             backgroundColor: Color(0xff00bcd4),
             onPressed: () {},
-            tooltip: Strings.toolTipFAB.i18n,
             child: Icon(
               Icons.add,
               color: _areTabsEnabled ? Colors.white : Colors.grey,

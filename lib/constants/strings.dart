@@ -58,7 +58,8 @@ class Strings {
       'Invalid activation link';
 
   // Home page
-  static const String toolTipFAB = 'Add Story';
+  static const String storyFAB = 'Story';
+  static const String bookFAB = 'Book';
   static const String storiesTabName = 'Stories';
   static const String friendsTabName = 'Users';
   static const String noticesTabName = 'Notices';
