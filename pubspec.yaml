@@ -32,9 +32,10 @@ dependencies:
   extended_image: 1.5.0
   file: 6.0.0-nullsafety.2
   file_picker: ^2.1.0
-  firebase_auth: 0.20.1
-  firebase_dynamic_links: 0.7.0+1
-  firebase_messaging: 8.0.0-dev.15
+  firebase_auth: 0.20.0+1
+  firebase_core: ^0.7.0
+  firebase_dynamic_links: ^0.7.0+1
+  firebase_messaging: any
   flag: ^3.0.4
   flutter:
     sdk: flutter
@@ -47,7 +48,6 @@ dependencies:
   flutter_local_notifications: 4.0.1+1
   flutter_localizations:
     sdk: flutter
-
   flutter_reaction_button: 1.0.6+1
   flutter_staggered_grid_view: ^0.3.0
   flutter_widget_from_html: ^0.5.1+5
@@ -80,6 +80,13 @@ dependencies:
   simple_timer: ^1.0.1
   uuid: ^2.1.0
   youtube_player_iframe: ^1.2.0+2
+
+dependency_overrides:
+  firebase_auth_platform_interface:
+    git:
+      url: git://github.com/bartonhammond/flutterfire.git
+      ref: email-link-signin-fix
+      path: packages/firebase_auth/firebase_auth_platform_interface/
 
 dev_dependencies:
   flutter_driver:
