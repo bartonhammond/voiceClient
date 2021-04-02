@@ -110,19 +110,11 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     currentLifeCycle = state;
     switch (state) {
       case AppLifecycleState.resumed:
-        print(
-            '_selectedIndex: $_selectedIndex widget.selectedIndex: ${widget.selectedIndex}');
-        FlutterAppBadger.removeBadge();
-        if (globals.badgeCount > 0) {
-          _selectedIndex = 2;
-          eventBus.fire(NotificationsReceived());
-        } else {
-          Future.delayed(const Duration(milliseconds: 500), () {
-            _getUserMessagesReceived();
-          });
-        }
         globals.badgeCount = 0;
-
+        FlutterAppBadger.removeBadge();
+        Future.delayed(const Duration(milliseconds: 500), () {
+          _getUserMessagesReceived();
+        });
         break;
       case AppLifecycleState.inactive:
         break;

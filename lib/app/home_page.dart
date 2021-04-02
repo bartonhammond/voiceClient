@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:MyFamilyVoice/app/profile_page.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/unicorn_dialer.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
-import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/app/story_play.dart';
@@ -98,42 +97,9 @@ class _HomePageState extends State<HomePage> {
           ?.createNotificationChannel(channel);
     }
 
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-      print('message $message');
-      printJson('message', message.data);
-    });
-
     FirebaseMessaging.onMessage.listen(
       (RemoteMessage message) {
         eventBus.fire(GetUserMessagesEvent());
-        print('Got a message whilst in the foreground!');
-        printJson('Message data', message.data);
-
-        if (message.notification != null) {
-          print(
-              'Message also contained a notification ${message.notification.title}');
-        }
-        final RemoteNotification notification = message.notification;
-        final AndroidNotification android = message.notification?.android;
-
-        // If `onMessage` is triggered with a notification, construct our own
-        // local notification to show to users using the created channel.
-        if (notification != null && android != null) {
-          flutterLocalNotificationsPlugin.show(
-              notification.hashCode,
-              notification.title,
-              notification.body,
-              NotificationDetails(
-                android: AndroidNotificationDetails(
-                  channel.id,
-                  channel.name,
-                  channel.description,
-                  icon: android?.smallIcon,
-                  // other properties...
-                ),
-              ));
-        }
       },
     );
   }

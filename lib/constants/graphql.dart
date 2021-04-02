@@ -451,3 +451,14 @@ mutation updateUserToken(
     }
   }
 ''';
+
+const String sendNotificationToDeviceQL = r'''
+mutation sendNotificationToDevice(
+  $token: String!, 
+  $type: String!) {
+    sendNotificationToDevice(
+      token: $token,
+      type: $type
+    )
+  }
+''';

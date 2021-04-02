@@ -6,12 +6,13 @@ import 'package:flutter/services.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:MyFamilyVoice/constants/globals.dart' as globals;
+import 'package:platform_device_id/platform_device_id.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+  globals.badgeCount++;
   final bool isSupported = await FlutterAppBadger.isAppBadgeSupported();
   if (isSupported) {
-    globals.badgeCount++;
     FlutterAppBadger.updateBadgeCount(globals.badgeCount);
   }
 }
@@ -32,6 +33,10 @@ Future<void> setup() async {
     sound: true,
   );
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
+  try {
+    globals.deviceId = await PlatformDeviceId.getDeviceId;
+  } on PlatformException {
+    //ignore - already set
+  }
   return;
 }

@@ -49,6 +49,7 @@ class UserQl extends NodeQl {
     email
     name
     home
+    tokens
     image
     isBook
     created {

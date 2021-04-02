@@ -2,6 +2,7 @@ import 'dart:io' as io;
 import 'dart:typed_data';
 import 'package:MyFamilyVoice/model/model_base.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
+import 'package:MyFamilyVoice/services/utilities.dart';
 import 'package:graphql/client.dart';
 import 'package:http/http.dart';
 import 'package:http_parser/http_parser.dart';
@@ -206,6 +207,64 @@ Future<void> updateUserMessageStatusById(
   return;
 }
 
+Future<bool> sendNotificationsToAllUserDevices(
+  GraphQLClient graphQLClient,
+  Map<String, dynamic> fromUser,
+  Map<String, dynamic> toUser,
+  String type,
+) async {
+  if (toUser['tokens'] == null || toUser['tokens'].isEmpty) {
+    return true;
+  }
+
+  final Map<String, String> tokenMap = fromStringToTokenMap(
+    toUser['tokens'],
+  );
+  final List<String> keys = tokenMap.keys.toList();
+
+  bool atLeastOneFailure = false;
+  for (var key in keys) {
+    final bool success = await sendNotificationToDevice(
+      graphQLClient,
+      tokenMap[key],
+      type,
+    );
+    if (!success) {
+      tokenMap.remove(key);
+      atLeastOneFailure = true;
+    }
+  }
+  if (atLeastOneFailure) {
+    //update user tokens
+    await updateUserToken(
+      graphQLClient,
+      currentUserEmail: toUser['email'],
+      tokens: fromTokenMaptoString(tokenMap),
+    );
+  }
+  return true;
+}
+
+Future<bool> sendNotificationToDevice(
+  GraphQLClient graphQLClient,
+  String token,
+  String type,
+) async {
+  final MutationOptions options = MutationOptions(
+    documentNode: gql(sendNotificationToDeviceQL),
+    variables: <String, dynamic>{
+      'token': token,
+      'type': type,
+    },
+  );
+  final QueryResult result = await graphQLClient.mutate(options);
+  if (result.hasException ||
+      result.data['sendNotificationToDevice'] != 'success') {
+    return false;
+  }
+  return true;
+}
+
 Future<void> addUserMessages({
   GraphQLClient graphQLClient,
   Map<String, dynamic> fromUser,
@@ -255,6 +314,12 @@ Future<void> addUserMessages({
       throw result.exception;
     }
   }
+  await sendNotificationsToAllUserDevices(
+    graphQLClient,
+    fromUser,
+    toUser['isBook'] ? toUser['bookAuthor'] : toUser,
+    toBeginningOfSentenceCase(type),
+  );
 
   return;
 }
