@@ -8,7 +8,6 @@ import 'package:MyFamilyVoice/constants/constants.dart';
 import 'package:MyFamilyVoice/ql/story/story_search.dart';
 import 'package:MyFamilyVoice/ql/story_ql.dart';
 import 'package:MyFamilyVoice/services/auth_service.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -51,8 +50,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  BannerAd _bannerAd;
-
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
   final _nameFormKey = GlobalKey<FormFieldState>();
@@ -182,8 +179,6 @@ class _ProfilePageState extends State<ProfilePage> {
     emailFormFieldController.dispose();
     nameFormFieldController.dispose();
     homeFormFieldController.dispose();
-    _bannerAd?.dispose();
-    _bannerAd = null;
     super.dispose();
   }
 

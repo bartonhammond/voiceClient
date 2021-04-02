@@ -14,6 +14,7 @@ query getUserByEmail($email: String!) {
     home
     image
     isBook
+    tokens
   }
 }
 ''';
@@ -436,4 +437,28 @@ mutation changeStoryUserAndSaveOriginalUser(
     }
   }
 }
+''';
+
+const String updateUserTokenQL = r'''
+mutation updateUserToken(
+  $currentUserEmail: String!, 
+  $tokens: String!) {
+    updateUserToken(
+      currentUserEmail: $currentUserEmail,
+      tokens: $tokens
+    ){
+      id
+    }
+  }
+''';
+
+const String sendNotificationToDeviceQL = r'''
+mutation sendNotificationToDevice(
+  $token: String!, 
+  $type: String!) {
+    sendNotificationToDevice(
+      token: $token,
+      type: $type
+    )
+  }
 ''';

@@ -8,9 +8,9 @@ import 'package:MyFamilyVoice/common_main.dart';
 import 'package:flutter_driver/driver_extension.dart';
 
 String get host => Platform.isAndroid ? '10.0.2.2' : 'localhost';
-void main() {
+Future<void> main() async {
   enableFlutterDriverExtension();
-  setup();
+  await setup();
   HttpLink getHttpLink(String uri) {
     return HttpLink(uri: uri);
   }

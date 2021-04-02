@@ -1,3 +1,5 @@
+import 'package:MyFamilyVoice/services/updateUserToken.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:provider/provider.dart';
@@ -128,6 +130,14 @@ class GraphQLAuth {
         queryResult.data['User'][0]['id'] != null) {
       _userMap = queryResult.data['User'][0];
       _originalUserMap ??= <String, dynamic>{..._userMap};
+
+      final String _token = await FirebaseMessaging.instance.getToken();
+
+      await updateFirebaseUserToken(graphQLClient, _userMap, _token);
+
+      FirebaseMessaging.instance.onTokenRefresh.listen((String _token) async {
+        await updateFirebaseUserToken(graphQLClient, _userMap, _token);
+      });
     }
     return graphQLClient;
   }

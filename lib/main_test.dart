@@ -6,8 +6,8 @@ import 'package:MyFamilyVoice/common_main.dart';
 import 'app_config.dart';
 
 String get host => Platform.isAndroid ? '10.0.2.2' : 'localhost';
-void main() {
-  setup();
+Future<void> main() async {
+  await setup();
   HttpLink getHttpLink(String uri) {
     return HttpLink(uri: uri);
   }
