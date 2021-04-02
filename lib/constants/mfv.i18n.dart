@@ -168,8 +168,12 @@ extension Localization on String {
         'es': 'Enlace de activación no válido',
       } +
       {
-        'en': Strings.toolTipFAB,
-        'es': 'Añadir historia',
+        'en': Strings.storyFAB,
+        'es': 'Historia',
+      } +
+      {
+        'en': Strings.bookFAB,
+        'es': 'Libro',
       } +
       {
         'en': Strings.storiesTabName,

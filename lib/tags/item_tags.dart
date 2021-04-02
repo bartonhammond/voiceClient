@@ -169,7 +169,6 @@ class _ItemTagsState extends State<ItemTags> {
 
     // add new Item in the List
     if (_dataListInherited.list.length < (widget.index + 1)) {
-      //print("add");
       _dataListInherited.list.insert(
           widget.index,
           DataList(
@@ -178,7 +177,6 @@ class _ItemTagsState extends State<ItemTags> {
               active: widget.singleItem ? false : widget.active,
               customData: widget.customData));
     } else if (_dataListInherited.list.elementAt(widget.index) == null) {
-      //print("replace");
       _dataListInherited.list[widget.index] = DataList(
           title: widget.title,
           active: widget.singleItem ? false : widget.active,
@@ -190,9 +188,7 @@ class _ItemTagsState extends State<ItemTags> {
         _dataListInherited.list.length > _dataListInherited.itemCount)
       _dataListInherited.list
           .removeRange(widget.index + 1, _dataListInherited.list.length);
-
-    //print(_dataListInherited.list.length);
-
+    
     // update Listener
     if (_dataList != null) {
       _dataList.removeListener(_didValueChange);

@@ -1,6 +1,9 @@
+import 'dart:async';
+import 'dart:io';
 import 'package:MyFamilyVoice/app/profile_page.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/unicorn_dialer.dart';
 import 'package:MyFamilyVoice/constants/keys.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/app/story_play.dart';
 import 'package:MyFamilyVoice/common_widgets/fab/fab_bottom_app_bar.dart';
@@ -14,6 +17,19 @@ import 'package:MyFamilyVoice/constants/strings.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'high_importance_channel', // id
+  'High Importance Notifications', // title
+  'This channel is used for important notifications.', // description
+  importance: Importance.max,
+  enableVibration: true,
+  playSound: true,
+);
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class HomePage extends StatefulWidget {
   const HomePage({Key key}) : super(key: key);
@@ -25,9 +41,19 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TabItem _currentTab;
   bool _areTabsEnabled = true;
+  StreamSubscription profileEventSubscription;
+  StreamSubscription notificationsReceivedSubscription;
+
+  @override
+  void dispose() {
+    profileEventSubscription.cancel();
+    notificationsReceivedSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   void initState() {
+    super.initState();
     final GraphQLAuth graphQLAuth = locator<GraphQLAuth>();
     if (graphQLAuth.getUserMap() == null ||
         (graphQLAuth.getUserMap()['image'] == null &&
@@ -39,14 +65,43 @@ class _HomePageState extends State<HomePage> {
       _currentTab = TabItem.stories;
       _areTabsEnabled = true;
     }
-    eventBus.on<ProfileEvent>().listen((event) {
+
+    profileEventSubscription = eventBus.on<ProfileEvent>().listen((event) {
       if (mounted) {
         setState(() {
           _areTabsEnabled = event.isComplete;
         });
       }
     });
-    super.initState();
+
+    notificationsReceivedSubscription =
+        eventBus.on<NotificationsReceived>().listen((event) {
+      _selectedTab(TabItem.messages.index);
+    });
+
+    Future.delayed(const Duration(milliseconds: 500), () async {
+      await requestMessagePermissions();
+      await registerNotification();
+    });
+  }
+
+  Future<void> requestMessagePermissions() async {
+    await FirebaseMessaging.instance.requestPermission();
+  }
+
+  Future<void> registerNotification() async {
+    if (Platform.isAndroid) {
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channel);
+    }
+
+    FirebaseMessaging.onMessage.listen(
+      (RemoteMessage message) {
+        eventBus.fire(GetUserMessagesEvent());
+      },
+    );
   }
 
   final Map<TabItem, GlobalKey<NavigatorState>> _navigatorKeys = {
@@ -76,7 +131,7 @@ class _HomePageState extends State<HomePage> {
 
     childButtons.add(UnicornButton(
         hasLabel: true,
-        labelText: 'Story',
+        labelText: Strings.storyFAB.i18n,
         labelHasShadow: true,
         labelShadowColor: Colors.black38,
         currentButton: FloatingActionButton(
@@ -105,7 +160,7 @@ class _HomePageState extends State<HomePage> {
 
     childButtons.add(UnicornButton(
         hasLabel: true,
-        labelText: 'Book',
+        labelText: Strings.bookFAB.i18n,
         labelHasShadow: true,
         labelShadowColor: Colors.black38,
         currentButton: FloatingActionButton(
@@ -143,7 +198,6 @@ class _HomePageState extends State<HomePage> {
         : FloatingActionButton(
             backgroundColor: Color(0xff00bcd4),
             onPressed: () {},
-            tooltip: Strings.toolTipFAB.i18n,
             child: Icon(
               Icons.add,
               color: _areTabsEnabled ? Colors.white : Colors.grey,

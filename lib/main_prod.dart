@@ -12,8 +12,8 @@ import 'app_config.dart';
 
 String get host => Platform.isAndroid ? '10.0.2.2' : 'localhost';
 
-void main() {
-  setup();
+Future<void> main() async {
+  await setup();
   HttpLink getHttpLink(String uri) {
     final SecurityContext securityContext = SecurityContext();
     securityContext.setTrustedCertificatesBytes(cert.myfamilyvoice);

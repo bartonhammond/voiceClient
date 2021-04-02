@@ -51,6 +51,10 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+	    <intent-filter>
+	      <action android:name="FLUTTER_NOTIFICATION_CLICK"/>
+	      <category android:name="android.intent.category.DEFAULT"/>
+	    </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -86,6 +90,9 @@
 	 <meta-data
 	     android:name="flutterEmbedding"
 	     android:value="2" />
+	 <meta-data
+	     android:name="com.google.firebase.messaging.default_notification_channel_id"
+	     android:value="high_importance_channel" />
 	 <provider
             android:name="androidx.work.impl.WorkManagerInitializer"
             android:authorities="${applicationId}.workmanager-init"

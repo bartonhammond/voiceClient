@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:MyFamilyVoice/services/eventBus.dart';
 import 'package:MyFamilyVoice/services/graphql_auth.dart';
 import 'package:MyFamilyVoice/services/service_locator.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:MyFamilyVoice/constants/globals.dart' as globals;
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.enabled, this.iconData, this.text});
@@ -108,6 +110,8 @@ class FABBottomAppBarState extends State<FABBottomAppBar>
     currentLifeCycle = state;
     switch (state) {
       case AppLifecycleState.resumed:
+        globals.badgeCount = 0;
+        FlutterAppBadger.removeBadge();
         Future.delayed(const Duration(milliseconds: 500), () {
           _getUserMessagesReceived();
         });

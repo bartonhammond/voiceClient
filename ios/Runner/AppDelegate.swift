@@ -10,6 +10,10 @@ import flutter_downloader
   ) -> Bool {
     GeneratedPluginRegistrant.register(with: self)
     FlutterDownloaderPlugin.setPluginRegistrantCallback(registerPlugins)
+
+    //https://stackoverflow.com/questions/63782395/flutter-fcm-ios-push-notifications-doesnt-work-in-release-mode
+    application.registerForRemoteNotifications()
+    
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 }

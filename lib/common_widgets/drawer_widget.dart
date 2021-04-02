@@ -37,12 +37,12 @@ class _DrawerWidgetState extends State<DrawerWidget> {
 
   @override
   void initState() {
+    super.initState();
     accountDeletedSubscription = eventBus.on<AccountDeleted>().listen((event) {
       setState(() {
         _signOut(context);
       });
     });
-    super.initState();
   }
 
   @override

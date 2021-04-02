@@ -636,7 +636,6 @@ class CustomRenderWrap extends RenderBox
       double childLeadingSpace = 0.0;
       double childBetweenSpace = 0.0;
 
-      //print(symmetry);
       switch (alignment) {
         case WrapAlignment.start:
           if (symmetry) {

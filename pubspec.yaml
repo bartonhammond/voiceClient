@@ -32,9 +32,10 @@ dependencies:
   extended_image: 1.5.0
   file: 6.0.0-nullsafety.2
   file_picker: ^2.1.0
-  firebase_admob: ^0.10.3
-  firebase_auth: ^0.18.3+1
-  firebase_dynamic_links: ^0.6.2
+  firebase_auth: 0.20.0+1
+  firebase_core: ^0.7.0
+  firebase_dynamic_links: ^0.7.0+1
+  firebase_messaging: ^8.0.0-dev.15
   flag: ^3.0.4
   flutter:
     sdk: flutter
@@ -44,9 +45,9 @@ dependencies:
     git: https://github.com/bartonhammond/flutter_audio_recorder.git
   flutter_device_locale: ^0.4.0
   flutter_downloader: ^1.5.2
+  flutter_local_notifications: 4.0.1+1
   flutter_localizations:
     sdk: flutter
-  flutter_native_admob: ^2.1.0+3
   flutter_reaction_button: 1.0.6+1
   flutter_staggered_grid_view: ^0.3.0
   flutter_widget_from_html: ^0.5.1+5
@@ -66,9 +67,11 @@ dependencies:
   material_design_icons_flutter: 4.0.5755
   microphone: ^0.0.2+3
   open_file: ^3.0.3
+  overlay_support: 1.0.5
   package_info: ^0.4.0+13
   path: ^1.7.0
   path_provider: ^1.6.11
+  platform_device_id: ^0.1.3
   permission_handler: ^5.1.0+2
   provider: ^4.3.2+2
   random_string: ^2.0.0
@@ -78,6 +81,13 @@ dependencies:
   simple_timer: ^1.0.1
   uuid: ^2.1.0
   youtube_player_iframe: ^1.2.0+2
+
+dependency_overrides:
+  firebase_auth_platform_interface:
+    git:
+      url: git://github.com/bartonhammond/flutterfire.git
+      ref: email-link-signin-fix
+      path: packages/firebase_auth/firebase_auth_platform_interface/
 
 dev_dependencies:
   flutter_driver:

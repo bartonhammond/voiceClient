@@ -30,3 +30,5 @@ class ProfileEvent {
 class TaskCompleted {}
 
 class AccountDeleted {}
+
+class NotificationsReceived {}
